@@ -1761,11 +1761,7 @@
             ctx.strokeStyle = '#00d4ff';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            if (ctx.roundRect) {
-                ctx.roundRect(tooltipX + 15, tooltipY - 45, 120, 35, 6);
-            } else {
-                ctx.rect(tooltipX + 15, tooltipY - 45, 120, 35);
-            }
+            ctx.roundRect(tooltipX + 15, tooltipY - 45, 120, 35, 6);
             ctx.fill();
             ctx.stroke();
 
