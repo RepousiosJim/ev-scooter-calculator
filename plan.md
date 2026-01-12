@@ -1,1 +1,261 @@
-EV Scooter Calculator - Version 1.1 Development PlanObjective: Upgrade the calculation engine to include physics (drag, hills), add intelligent bottleneck detection, and implement persistent comparison tools.Constraint: Use Vanilla JS/HTML/CSS. Avoid external libraries. Modify existing functions where possible to minimize code duplication.Phase 1: Core Physics & Accuracy (The Engine)Goal: Move from static math to dynamic physics-based calculations.Task 1.1: Hill Climb CapabilityDescription: Calculate the maximum speed a scooter can maintain on a specific incline. This is critical for users in hilly areas.Implementation: Add a "Slope (%)" input and implement the Gravity Power formula.Subtask 1.1.1: Add Input FieldLocation: Advanced Options section.HTML: <input type="number" id="slope" value="0" min="0" max="100">Label: "Max Slope (%)"Subtask 1.1.2: Update calculate() functionConvert slope % to radians: angleRad = Math.atan(slope / 100).Calculate Gravity Force: Fg = mass * 9.81 * Math.sin(angleRad).Calculate Power needed to overcome gravity at current speed: P_gravity = Fg * speed.Logic: If P_gravity > TotalPower, reduce max speed until equilibrium is found.Output: Display "Max Hill Speed: [Value] km/h" in the stats grid.Task 1.2: Aerodynamic Drag (Top Speed Limiter)Description: Real-world top speed is limited by air resistance, not just motor RPM.Implementation: Estimate drag force to adjust the "Theoretical Top Speed."Subtask 1.2.1: Add Riding Position InputLocation: Advanced Options.HTML: <select id="ridePosition"><option value="0.6">Upright (High Drag)</option><option value="0.4">Sport Tuck</option></select>Note: These values represent a simplified C d? �A (Drag Coefficient * Area) product to keep inputs simple.Subtask 1.2.2: Implement Drag FormulaFormula: P_drag = 0.5 * 1.225 (air density) * (speed^3) * CdA.Logic: In the calculation loop, subtract P_drag and P_rolling_resistance (approx 15W) from TotalPower.Result: This yields a lower, realistic "Max Cruising Speed" compared to the raw motor RPM speed.Phase 2: Intelligence & Diagnostics (The Brain)Goal: Automate analysis so the app tells the user what is wrong.Task 2.1: Bottleneck DetectionDescription: Explicitly identify which component is limiting performance.Subtask 2.1.1: Create detectBottlenecks(stats) functionInput: The calculated stats object.Logic 1 (Battery): If PeakAmps / BatteryAh > 2.5, return SAG_WARNING.Logic 2 (Controller): If ControllerAmps is set AND ControllerAmps < (MotorWatts / Voltage), return CONTROLLER_LIMIT.Logic 3 (Voltage): If Speed < 45 AND Voltage > 48, return GEAR_RATIO_LIMIT (assuming geared scooter).Subtask 2.1.2: Display WarningsUpdate the #hardwareAnalysis div to include these specific warnings with red warning icons.Task 2.2: Dynamic Upgrade SuggestionsDescription: The 3 static upgrade buttons should change based on the user's specific setup.Subtask 2.2.1: Update renderUpgrades() functionIf SAG_WARNING: Highlight "Add Parallel Battery" as "Critical Upgrade".If CONTROLLER_LIMIT: Highlight "High-Amp Controller" as "Critical Upgrade".If Speed is low: Highlight "Voltage Boost".Subtask 2.22: Visual CuesAdd a CSS class .recommend-critical that glows red for the most needed upgrade.Phase 3: UI/UX Enhancements (The Visuals)Goal: Improve data visualization and user workflow.Task 3.1: Persistent Comparison ModeDescription: Replace the temporary 5-second popup with a permanent side-by-side view.Subtask 3.1.1: Add Toggle SwitchLocation: Top of Results card.HTML: <label><input type="checkbox" id="compareMode"> Enable Upgrade Simulator</label>Subtask 3.1.2: Modify simUpgrade() LogicRemove the setTimeout reset logic.Store simulatedState in a global variable.Logic:If compareMode is checked: Render two columns in the DOM ("Current" vs "Simulated").If unchecked: Render single column.Subtask 3.1.3: DOM UpdatesDuplicate the .stats-grid HTML structure. Give IDs stat-current and stat-simulated.calculate() will update "Current".simUpgrade() will calculate stats and update "Simulated".Task 3.2: Canvas Power Curve GraphDescription: Draw a Power vs. Speed graph using HTML5 Canvas (Lightweight, no libraries).Subtask 3.2.1: Add Canvas ElementHTML: <canvas id="powerGraph" width="600" height="300"></canvas>Subtask 3.2.2: Implement drawGraph() functionX-Axis: Speed (0 to Max Speed).Y-Axis: Power (Watts).Line 1 (Available): Horizontal line at TotalMotorPower.Line 2 (Required): Curve plotting P_drag + P_rolling.Intersection Point: Mark the exact top speed where lines cross.Code Note: Use ctx.beginPath(), ctx.moveTo(), and ctx.lineTo() within a for loop iterating speed from 0 to 100.Phase 4: Polish & Safety (The Details)Goal: Protect against bad data and improve usability.Task 4.1: Battery State of Health (SoH)Description: Batteries lose capacity over time.Subtask 4.1.1: Add SliderLocation: Main Inputs (not advanced).HTML: <input type="range" id="soh" min="50" max="100" value="100">Label: "Battery Health (%)"Subtask 4.1.2: Apply to CalculationIn calculate(): Modify EffectiveAh = InputAh * (SoH / 100).Recalculate Range and Max Discharge Amps using EffectiveAh.Task 4.2: Print/PDF Export StylingDescription: Allow users to print their build sheet cleanly.Subtask 4.2.1: Add @media print CSS BlockHides: Input forms, buttons, "Advanced Options", "Upgrades".Shows: Header, Stats Grid, Graphs, Analysis Text.Style: Set background to white, text to black, remove shadows.Code Example:@media print {    body { background: white; color: black; }    .calculator-grid { display: block; }    form, .upgrade-options, .top-bar { display: none; }    .card { border: 1px solid #ccc; box-shadow: none; page-break-inside: avoid; }}Task 4.3: Input ClampingDescription: Prevent impossible physics that break the graph.Subtask 4.3.1: Add Event ListenersOn input event for all number fields.Logic: If value < 0, set value = 0. If value > 2000 (for voltage), clamp to reasonable max.Goal: Prevent Infinity or NaN results in the calculator.Deployment ChecklistBackup V1.0: Save current index.html as index_v1.0_backup.html.Update HTML: Add new inputs (Slope, Position, SoH, Compare Toggle).Update CSS: Add @media print, styles for comparison columns, and .recommend-critical.Refactor JS:Update calculate() to include Drag/Hill logic.Add detectBottlenecks() function.Add drawGraph() function.Refactor simUpgrade() to handle persistent state.Testing:Test "Zero" inputs (Edge cases).Test Print Preview (Ctrl+P).Test Graph rendering on mobile (responsiveness).Estimated Coding Time: 4-6 Hours
+# EV Scooter Pro Calculator - Project Documentation
+
+## Project Status: ✅ Complete (v1.1)
+
+This is a **static vanilla JavaScript project** - no build process, no dependencies, no frameworks.
+
+- **Type:** Static web application
+- **Technologies:** HTML5, CSS3, Vanilla JavaScript
+- **Browser Execution:** Client-side only
+- **Deployment:** Static hosting (GitHub Pages, Netlify, Vercel, or any web server)
+
+## v1.1 Completed Features
+
+### Phase 1: Core Physics & Accuracy ✅
+- [x] Hill Climb Capability - Max speed on slopes (0-100% grade)
+- [x] Aerodynamic Drag - Realistic top speed with air resistance
+- [x] Riding Position Options - Upright (CdA=0.6) vs Sport Tuck (CdA=0.4)
+
+### Phase 2: Intelligence & Diagnostics ✅
+- [x] Bottleneck Detection - Auto-identify limiting components
+- [x] Dynamic Upgrade Suggestions - Critical upgrades highlighted
+- [x] Visual Warning System - Red glow indicators for priority upgrades
+
+### Phase 3: UI/UX Enhancements ✅
+- [x] Persistent Comparison Mode - Side-by-side Current vs Simulated
+- [x] Power vs Speed Graph - Canvas-based visualization
+- [x] Equilibrium Point Marker - Visual top speed indicator
+
+### Phase 4: Polish & Safety ✅
+- [x] Battery Health (SoH) - 50-100% degradation slider
+- [x] Print-Ready Styling - Clean exports
+- [x] Input Validation - Clamping for all numeric fields
+
+## Project Architecture
+
+### Single File Structure
+All code is contained in `index.html` for maximum portability:
+
+```
+index.html (1,412 lines)
+├── HTML (≈250 lines)
+│   ├── Configuration Form
+│   ├── Results Display
+│   ├── Upgrades Section
+│   └── Comparison Modal
+├── CSS (≈350 lines)
+│   ├── Variables & Theming
+│   ├── Responsive Layout
+│   ├── Component Styles
+│   ├── Canvas Graph Styles
+│   └── Print Media Queries
+└── JavaScript (≈800 lines)
+    ├── State Management
+    ├── Physics Engine (calculate, detectBottlenecks)
+    ├── UI Updates (updateUI, drawGraph)
+    ├── Upgrade Simulation (simUpgrade, toggleCompareMode)
+    ├── Data Persistence (saveProfile, loadProfile)
+    └── Initialization (Event Listeners)
+```
+
+### Core Functions
+
+#### Physics Engine
+```javascript
+calculate(stateOverride, targetElement)
+- Main calculation entry point
+- Applies battery health (EffectiveAh = Ah * SoH)
+- Calculates drag-limited top speed
+- Calculates hill climb speed based on slope
+- Returns stats object or updates DOM directly
+```
+
+#### Diagnostics
+```javascript
+detectBottlenecks(stats)
+- Analyzes C-rate, controller limits, gear ratios
+- Returns array of bottleneck objects
+- Triggers critical upgrade highlighting
+```
+
+#### Visualization
+```javascript
+drawGraph(data)
+- Renders Power vs Speed curve on HTML5 Canvas
+- Shows available power line vs required power curve
+- Marks equilibrium point (top speed)
+- Responsive sizing with 2x scaling for retina displays
+```
+
+#### Simulation
+```javascript
+simUpgrade(type)
+- Simulates parallel, voltage, or controller upgrades
+- Stores state for persistent comparison
+- Updates dual-column view when enabled
+```
+
+## Data Flow
+
+```
+User Input (DOM)
+    ↓
+getState() - Read all inputs
+    ↓
+calculate() - Physics calculations
+    ↓
+┌─────────────────┬─────────────────┐
+│   updateUI()    │ detectBottlenecks() │
+│   Update stats  │ Analyze system  │
+└─────────────────┴─────────────────┘
+         ↓                 ↓
+    ┌────────────────────────────┐
+    │   Render to DOM           │
+    │   - Stats Grid          │
+    │   - Bar Charts          │
+    │   - Power Graph         │
+    │   - Upgrade Cards       │
+    │   - Analysis Text       │
+    └────────────────────────────┘
+```
+
+## Development Guidelines
+
+### Adding New Features
+
+1. **Input Fields** - Add to form in HTML, update `inputMap` object
+2. **Calculations** - Modify `calculate()` function physics logic
+3. **UI Updates** - Add display element to stats grid, update `updateUI()`
+4. **State Management** - Ensure `getState()` and `setState()` handle new field
+5. **Validation** - Add clamping in `window.addEventListener('load')`
+
+### Modifying Physics
+
+- All physics formulas in `calculate()` function
+- Drag formula: `0.5 * ρ * v³ * CdA`
+- Gravity power: `m * g * sin(θ) * v`
+- Keep units consistent (meters, seconds, watts)
+
+### Styling
+
+- CSS variables in `:root` for theming
+- Media queries for responsive design
+- Print styles in `@media print` block
+- No external CSS frameworks
+
+### Canvas Graph
+
+- Canvas ID: `powerGraph`
+- Context: 2D with 2x scaling for sharpness
+- Called from `updateUI()` after data calculation
+- Responsive on window resize event
+
+## Browser Compatibility
+
+- **Required:** ES6+ support
+- **Tested:** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- **APIs Used:**
+  - localStorage (for profiles)
+  - Canvas 2D (for graphs)
+  - Modern DOM APIs (querySelector, classList)
+
+## Deployment
+
+### Static Hosting Options
+
+Any static file hosting works:
+
+1. **GitHub Pages** (Free)
+   ```bash
+   # Already configured: https://repousiosjim.github.io/ev-scooter-calculator/
+   ```
+
+2. **Netlify** (Drag & Drop)
+   ```bash
+   # Drag index.html to Netlify dashboard
+   ```
+
+3. **Vercel** (CLI)
+   ```bash
+   vercel deploy
+   ```
+
+4. **Local Server**
+   ```bash
+   python -m http.server 8000
+   # or
+   npx serve
+   ```
+
+## Future Enhancement Ideas
+
+### v1.2 (Potential)
+- [ ] Multiple battery configurations (series/parallel)
+- [ ] Regenerative braking energy recovery visualization
+- [ ] Export data to CSV/PDF
+- [ ] Metric/Imperial unit toggle
+- [ ] Temperature impact on battery performance
+- [ ] Acceleration curves (0-60km/h time)
+
+### v2.0 (Concept)
+- [ ] PWA with offline support
+- [ ] Database for shared community builds
+- [ ] Advanced motor controller simulation
+- [ ] Real-world crowd-sourced data comparison
+- [ ] 3D scooter model visualization
+
+## Known Limitations
+
+1. **Approximate Physics** - Uses simplified drag coefficients and constant rolling resistance
+2. **Battery Model** - Linear degradation model, doesn't account for temperature or age effects
+3. **Motor Behavior** - Assumes linear power curve, real motors vary by RPM/load
+4. **No Terrain** - Flat surface calculations except for specified slope
+5. **Controller Limits** - Basic amp limit, doesn't simulate phase current or FOC
+
+## Maintenance
+
+### Backup
+- v1.0 saved as `index_v1.0_backup.html`
+- Always backup before major changes
+
+### Testing
+- Test on multiple browsers
+- Test print preview (Ctrl+P)
+- Test mobile responsiveness
+- Test edge cases (zero inputs, max values)
+
+### Code Style
+- Vanilla JS only
+- No external libraries
+- Single file architecture
+- Clear function naming
+- Minimal comments (per project style)
+
+## Quick Reference
+
+### Input Field IDs
+- `voltage`, `capacity`, `motorCount`, `motorWatt`
+- `controllerLimit`, `rideStyle`
+- `riderWeight`, `wheelSize`, `motorRpm`
+- `chargerAmps`, `regenEff`, `elecCost`
+- `slope` (v1.1), `ridePosition` (v1.1), `soh` (v1.1)
+
+### Display Element IDs
+- `dispWh`, `dispRange`, `dispSpeed`, `dispHillSpeed` (v1.1)
+- `dispPower`, `dispCharge`, `dispCost`
+- `barSpeed`, `barAccel`, `barRange`, `barCost`
+- `powerGraph` (v1.1)
+- `hardwareAnalysis`
+
+### Key Constants
+- Air density: 1.225 kg/m³
+- Gravity: 9.81 m/s²
+- Rolling resistance: 15W
+- CdA (Upright): 0.6
+- CdA (Sport): 0.4
+
+---
+
+**Last Updated:** January 2026
+**Version:** 1.1.0
+**Status:** Production Ready ✅
