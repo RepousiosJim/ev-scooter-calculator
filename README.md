@@ -2,7 +2,7 @@
 
 A professional electric scooter performance analysis, hardware compatibility, and upgrade simulation tool. Built with vanilla JavaScript, HTML, and CSS - no external dependencies required.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue)
+![Version](https://img.shields.io/badge/version-1.2.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
@@ -19,17 +19,27 @@ A professional electric scooter performance analysis, hardware compatibility, an
 - **Gravity Power**: Physics-based formulas for climbing performance
 
 ### 🧠 Intelligent Diagnostics
-- **Bottleneck Detection**: Automatically identifies limiting factors
+- **Bottleneck Detection**: Auto-identify limiting components
   - High battery C-rate warnings
   - Controller amp limit detection
   - Gear ratio limitations
   - Hill climb performance issues
 - **Dynamic Upgrade Suggestions**: Critical upgrades highlighted with visual indicators
+- **Component Status Visualization**: Battery, Controller, and Motor health indicators with progress bars
 
 ### 🔄 Upgrade Simulator
+- **Scooter Presets**: Quick-start with 8 popular models (M365, ES2, Wolf, OX, Dualtron, Burn-E, Emove)
 - Simulate battery, voltage, and controller upgrades
 - Persistent comparison mode (Current vs Simulated side-by-side)
 - Real-time performance projections
+
+### ✨ UX Enhancements (v1.2)
+- **Smart Number Animation**: Values animate smoothly on preset/upgrade, instant on manual input
+- **Interactive Sliders**: Rider weight with dual input (slider + number box)
+- **Enhanced Visuals**: Component status cards with color-coded stress levels
+- **Tooltips**: Contextual help for advanced options using pure CSS
+- **Improved Graph**: Gradient fill under power curve, pulsing equilibrium point, hover tooltips
+- **Better UX**: Clear simulation button, active upgrade highlighting
 
 ### 📈 Visualizations
 - Power vs Speed curve graph with equilibrium point marker

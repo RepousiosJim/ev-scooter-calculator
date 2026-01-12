@@ -1,6 +1,6 @@
 # EV Scooter Pro Calculator - Project Documentation
 
-## Project Status: ✅ Complete (v1.1)
+## Project Status: ✅ Complete (v1.2)
 
 This is a **static vanilla JavaScript project** - no build process, no dependencies, no frameworks.
 
@@ -28,6 +28,61 @@ This is a **static vanilla JavaScript project** - no build process, no dependenc
 
 ### Phase 4: Polish & Safety ✅
 - [x] Battery Health (SoH) - 50-100% degradation slider
+- [x] Print-Ready Styling - Clean exports
+- [x] Input Validation - Clamping for all numeric fields
+
+## v1.2 Completed Features
+
+### Phase 1: Interactive Controls ✅
+- [x] Scooter Presets - 8 popular models (M365, ES2, Wolf, OX, Dualtron, Burn-E, Emove)
+- [x] Preset Loading - Quick-start with smooth animations
+- [x] Rider Weight Slider - Dual input with two-way binding
+
+### Phase 2: Visual Feedback System ✅
+- [x] Component Status Indicators - Battery, Controller, Motor with progress bars
+- [x] Dynamic Coloring - Green/Orange/Red based on stress levels
+- [x] Advanced Tooltips - Contextual help for complex options
+
+### Phase 3: Layout & Animations ✅
+- [x] Enhanced Upgrade Simulator - Clear button, placeholder, active state highlighting
+- [x] Smart Number Animation - Animate only on preset/upgrade, instant on manual input
+- [x] Improved Graph - Gradient fill, pulsing equilibrium point, hover tooltips
+
+### File Structure Changes (v1.2)
+
+```
+index.html (1,992 lines, +580 from v1.1)
+├── Preset Section (new)
+├── Component Status Section (new)
+├── Rider Weight Slider (modified)
+├── Help Icons (added to labels)
+├── Upgrade Simulator Enhancements (modified)
+├── Canvas Graph Improvements (modified)
+└── JavaScript
+    ├── scooterPresets object (new)
+    ├── loadPreset() (new)
+    ├── updateComponentStatus() (new)
+    ├── animateValue() (new)
+    ├── animateValues() (new)
+    ├── animateColumn() (new)
+    ├── clearSimulation() (new)
+    ├── simUpgrade() (modified)
+    ├── calculate() (modified - source parameter)
+    ├── updateUI() (modified - smart animation)
+    └── drawGraph() (modified - gradient, pulse, tooltips)
+
+CSS (≈100 new lines)
+├── .preset-section
+├── .dual-input
+├── .component-status
+├── .component-card
+├── .help-icon
+├── .sim-placeholder
+├── .clear-btn
+├── .upgrade-card.active
+├── @keyframes pulse
+└── Canvas tooltips styles
+```
 - [x] Print-Ready Styling - Clean exports
 - [x] Input Validation - Clamping for all numeric fields
 
