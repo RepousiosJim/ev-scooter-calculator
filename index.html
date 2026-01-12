@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EV Scooter Pro Calculator</title>
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #009ac2;
+            --secondary: #7000ff;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-input: #334155;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        /* --- Layout & Typography --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
+        header { text-align: center; margin-bottom: 30px; }
+        header h1 { font-size: 2.2rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px; }
+        header p { color: var(--text-muted); }
+
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary); color: var(--bg-dark); }
+        .btn-secondary { background-color: var(--bg-input); color: var(--text-main); }
+        .btn-danger { background-color: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        
+        /* --- Grid System --- */
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+            align-items: start;
+        }
+        @media (max-width: 900px) { .calculator-grid { grid-template-columns: 1fr; } }
+
+        /* --- Cards --- */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
+        }
+        .card h2 { font-size: 1.2rem; margin-bottom: 16px; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; }
+
+        /* --- Forms --- */
+        .form-group { margin-bottom: 14px; }
+        label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-muted); }
+        .input-wrapper { display: flex; align-items: center; }
+        input[type="number"], select {
+            width: 100%; background-color: var(--bg-dark); border: 1px solid #475569;
+            color: var(--text-main); padding: 8px 12px; border-radius: 6px; font-size: 0.95rem;
+        }
+        input:focus { outline: none; border-color: var(--primary); }
+        .unit { margin-left: 8px; color: var(--text-muted); font-size: 0.85rem; width: 25px; }
+
+        /* Advanced Toggle */
+        details { margin-top: 20px; border-top: 1px solid #334155; padding-top: 10px; }
+        summary { cursor: pointer; color: var(--primary); font-size: 0.9rem; font-weight: bold; list-style: none; display: flex; align-items: center; }
+        summary::-webkit-details-marker { display: none; }
+        summary::after { content: '+'; margin-left: auto; font-size: 1.2rem; }
+        details[open] summary::after { content: '-'; }
+
+        /* --- Stats & Graphs --- */
+        .stats-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 24px;
+        }
+        .stat-box { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; text-align: center; }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin: 4px 0; }
+        .stat-unit { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* CSS Bar Charts */
+        .chart-container { margin-top: 20px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; }
+        .bar-group { margin-bottom: 12px; }
+        .bar-label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px; }
+        .bar-bg { background: #334155; height: 8px; border-radius: 4px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); width: 0%; transition: width 0.5s ease; }
+        .bar-fill.cost { background: var(--success); }
+
+        /* --- Profiles Section --- */
+        #profileList { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-top: 15px; max-height: 300px; overflow-y: auto; }
+        .profile-item {
+            background: var(--bg-input); padding: 10px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; border: 1px solid transparent; position: relative;
+        }
+        .profile-item:hover { border-color: var(--primary); }
+        .profile-actions { display: flex; gap: 5px; margin-top: 8px; justify-content: flex-end; }
+        .p-btn { padding: 2px 6px; font-size: 0.7rem; border-radius: 4px; border: none; cursor: pointer; color: white; }
+
+        /* --- Comparison Section --- */
+        .comparison-table-wrapper { overflow-x: auto; margin-top: 20px; }
+        .comp-table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        .comp-table th, .comp-table td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
+        .comp-table th { color: var(--text-muted); font-size: 0.8rem; }
+        .winner { color: var(--success); font-weight: bold; }
+        .loser { color: var(--text-muted); opacity: 0.7; }
+
+        /* --- Upgrades --- */
+        .upgrade-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-top: 16px; }
+        .upgrade-card {
+            background: linear-gradient(145deg, #263345, #1e293b); border: 1px solid #334155; padding: 16px; border-radius: var(--radius); cursor: pointer; transition: transform 0.2s;
+        }
+        .upgrade-card:hover { transform: translateY(-2px); border-color: var(--primary); }
+        .upgrade-title { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .upgrade-desc { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Modal for Comparison */
+        #compModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--bg-card); padding: 30px; border-radius: var(--radius); max-width: 800px; width: 90%; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--text-muted); }
+
+        /* --- Comparison Mode Toggle --- */
+        .comparison-toggle-wrapper {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(112, 0, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+        }
+        
+        .toggle-label {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 56px;
+            height: 30px;
+            background: #475569;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .toggle-switch.active {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+        
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+        
+        .toggle-status {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-width: 40px;
+        }
+
+        /* --- Dual Forms Container --- */
+        .dual-forms-container {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .dual-forms-container.active {
+            display: grid;
+        }
+        
+        @media (max-width: 900px) {
+            .dual-forms-container.active {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .scooter-card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid;
+        }
+        
+        .scooter-a .scooter-card-header { border-color: var(--primary); }
+        .scooter-b .scooter-card-header { border-color: var(--secondary); }
+        
+        .scooter-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .scooter-a .scooter-badge {
+            background: rgba(0, 212, 255, 0.15);
+            color: var(--primary);
+        }
+        
+        .scooter-b .scooter-badge {
+            background: rgba(112, 0, 255, 0.15);
+            color: var(--secondary);
+        }
+
+        /* --- Comparison Table --- */
+        .comparison-section {
+            display: none;
+            margin-top: 24px;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .comparison-section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .comparison-header h3 {
+            font-size: 1.4rem;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        
+        .comparison-table-wrapper {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+        }
+        
+        .comparison-table thead {
+            background: linear-gradient(90deg, var(--bg-dark), var(--bg-card));
+        }
+        
+        .comparison-table th {
+            padding: 14px 16px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #475569;
+        }
+        
+        .comparison-table th:first-child {
+            text-align: left;
+            padding-left: 20px;
+        }
+        
+        .comparison-table td {
+            padding: 12px 16px;
+            text-align: center;
+            border-bottom: 1px solid #334155;
+            transition: background 0.2s;
+        }
+        
+        .comparison-table td:first-child {
+            text-align: left;
+            padding-left: 20px;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        .comparison-table tbody tr:hover {
+            background: rgba(255,255,255,0.02);
+        }
+        
+        .comparison-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .value-better {
+            color: var(--success);
+            font-weight: bold;
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 10px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        
+        .value-worse {
+            color: var(--text-muted);
+            opacity: 0.6;
+        }
+        
+        .value-equal {
+            color: var(--text-muted);
+        }
+        
+        .winner-icon {
+            font-size: 1.1rem;
+        }
+        
+        .column-a { color: var(--primary); }
+        .column-b { color: var(--secondary); }
+
+        /* --- Critical Upgrade Indicator --- */
+        .recommend-critical {
+            border: 2px solid var(--danger);
+            animation: glow 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 0 5px rgba(239, 68, 68, 0.3); }
+            to { box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); }
+        }
+
+        .critical-badge {
+            background: var(--danger);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 8px;
+            display: inline-block;
+        }
+
+        /* --- Dual Column Comparison --- */
+        .comparison-cols {
+            display: none;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .comparison-cols.active {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (max-width: 768px) {
+            .comparison-cols.active {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .col-current, .col-simulated {
+            background: rgba(255,255,255,0.03);
+            padding: 16px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+        }
+
+        .col-header {
+            text-align: center;
+            font-weight: bold;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+            margin-bottom: 12px;
+        }
+
+        .col-current .col-header { border-color: var(--primary); color: var(--primary); }
+        .col-simulated .col-header { border-color: var(--secondary); color: var(--secondary); }
+
+        /* --- Canvas Graph --- */
+        .graph-wrapper {
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 300px;
+            background: #0f172a;
+            border-radius: 6px;
+        }
+
+        /* --- Slider Styles --- */
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--bg-input);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            border: none;
+        }
+
+        /* --- Print Styles --- */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            header h1 {
+                color: black !important;
+                background: none !important;
+                -webkit-text-fill-color: black !important;
+            }
+
+            .card {
+                border: 1px solid #ccc;
+                box-shadow: none;
+                background: white !important;
+                color: black !important;
+                page-break-inside: avoid;
+            }
+
+            .card h2 {
+                color: black !important;
+            }
+
+            .stat-box {
+                background: #f5f5f5 !important;
+                border: 1px solid #ddd;
+            }
+
+            .stat-value {
+                color: #0066cc !important;
+            }
+
+            form, .upgrade-options, .top-bar, .comparison-toggle-wrapper {
+                display: none !important;
+            }
+
+            .calculator-grid {
+                display: block !important;
+            }
+
+            .chart-container, .graph-wrapper {
+                page-break-inside: avoid;
+            }
+
+            #profileManager, #compModal {
+                display: none !important;
+            }
+
+            .comparison-cols.active {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>EV Scooter Pro Calculator</h1>
+        <p>Performance analysis, hardware compatibility, and upgrade simulation</p>
+    </header>
+
+    <!-- Top Control Bar -->
+    <div class="top-bar">
+        <div style="display:flex; gap:10px;">
+            <button class="btn btn-primary" onclick="saveProfile()">💾 Save Setup</button>
+            <button class="btn btn-secondary" onclick="toggleProfileList()">📂 My Setups</button>
+        </div>
+        <div id="profileManager" style="display:none; width: 100%; background: var(--bg-card); padding: 15px; border-radius: 8px; margin-top: 10px;">
+            <h3>Saved Profiles</h3>
+            <div id="profileList"></div>
+        </div>
+    </div>
+
+    <!-- Single Form Wrapper (hidden in comparison mode) -->
+    <div id="singleFormWrapper">
+    <main class="calculator-grid">
+        <!-- Left Column: Inputs -->
+        <section class="card">
+            <h2>Configuration</h2>
+            <form id="scooterForm">
+                <!-- Basic Specs -->
+                <div class="form-group">
+                    <label>Battery Voltage (V)</label>
+                    <div class="input-wrapper"><input type="number" id="voltage" value="52"><span class="unit">V</span></div>
+                </div>
+                <div class="form-group">
+                    <label>Battery Capacity (Ah)</label>
+                    <div class="input-wrapper"><input type="number" id="capacity" value="16"><span class="unit">Ah</span></div>
+                </div>
+                <div class="form-group" style="display:flex; gap:10px;">
+                    <div style="flex:1;">
+                        <label>Motor Count</label>
+                        <div class="input-wrapper"><input type="number" id="motorCount" value="2"><span class="unit">x</span></div>
+                    </div>
+                    <div style="flex:2;">
+                        <label>Power per Motor</label>
+                        <div class="input-wrapper"><input type="number" id="motorWatt" value="1600"><span class="unit">W</span></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Controller Amp Limit</label>
+                    <div class="input-wrapper"><input type="number" id="controllerLimit" placeholder="Auto"><span class="unit">A</span></div>
+                </div>
+                <div class="form-group">
+                    <label>Riding Style (Consumption)</label>
+                    <select id="rideStyle">
+                        <option value="20">Eco (20 Wh/km)</option>
+                        <option value="30" selected>Mixed (30 Wh/km)</option>
+                        <option value="45">Aggressive (45 Wh/km)</option>
+                        <option value="60">Racing (60 Wh/km)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Battery Health: <span id="sohValue">100</span>%</label>
+                    <input type="range" id="soh" min="50" max="100" value="100">
+                </div>
+
+                <!-- Advanced Settings -->
+                <details>
+                    <summary>Advanced Options</summary>
+                    <div style="margin-top:15px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div class="form-group">
+                            <label>Rider Weight (kg)</label>
+                            <input type="number" id="riderWeight" value="80">
+                        </div>
+                        <div class="form-group">
+                            <label>Wheel Size (inch)</label>
+                            <input type="number" id="wheelSize" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Motor RPM (No-load)</label>
+                            <input type="number" id="motorRpm" placeholder="Auto calc">
+                        </div>
+                        <div class="form-group">
+                            <label>Charger Amps</label>
+                            <input type="number" id="chargerAmps" value="3">
+                        </div>
+                        <div class="form-group">
+                            <label>Max Slope (%)</label>
+                            <input type="number" id="slope" value="0" min="0" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Riding Position</label>
+                            <select id="ridePosition">
+                                <option value="0.6" selected>Upright (High Drag)</option>
+                                <option value="0.4">Sport Tuck</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Regen Efficiency (%)</label>
+                            <input type="number" id="regenEff" value="5" min="0" max="20">
+                        </div>
+                        <div class="form-group">
+                            <label>Electricity Cost ($/kWh)</label>
+                            <input type="number" id="elecCost" value="0.20" step="0.01">
+                        </div>
+                    </div>
+                </details>
+            </form>
+        </section>
+
+         <!-- Right Column: Results -->
+         <section>
+             <!-- Stats -->
+             <div class="card">
+                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                     <h2 style="margin:0;">Performance Analysis</h2>
+                     <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:var(--text-muted); cursor:pointer;">
+                         <input type="checkbox" id="compareMode" onchange="toggleCompareMode()">
+                         <span>Enable Upgrade Simulator</span>
+                     </label>
+                 </div>
+                 <div class="stats-grid">
+                     <div class="stat-box">
+                         <div class="stat-label">Total Energy</div>
+                         <div class="stat-value" id="dispWh">0</div>
+                         <div class="stat-unit">Wh</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Range</div>
+                         <div class="stat-value" id="dispRange">0</div>
+                         <div class="stat-unit">km</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Top Speed</div>
+                         <div class="stat-value" id="dispSpeed">0</div>
+                         <div class="stat-unit">km/h</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Max Hill Speed</div>
+                         <div class="stat-value" id="dispHillSpeed">0</div>
+                         <div class="stat-unit">km/h</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Peak Power</div>
+                         <div class="stat-value" id="dispPower">0</div>
+                         <div class="stat-unit">W</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Charge Time</div>
+                         <div class="stat-value" id="dispCharge">0</div>
+                         <div class="stat-unit">hrs</div>
+                     </div>
+                     <div class="stat-box">
+                         <div class="stat-label">Cost/100km</div>
+                         <div class="stat-value" id="dispCost">0</div>
+                         <div class="stat-unit">$</div>
+                     </div>
+                 </div>
+
+                <!-- Visual Graph -->
+                <div class="chart-container">
+                    <div class="bar-group">
+                        <div class="bar-label"><span>Speed Efficiency</span> <span id="valSpeedEff">0%</span></div>
+                        <div class="bar-bg"><div class="bar-fill" id="barSpeed" style="width: 0%"></div></div>
+                    </div>
+                    <div class="bar-group">
+                        <div class="bar-label"><span>Acceleration Score</span> <span id="valAccel">0/100</span></div>
+                        <div class="bar-bg"><div class="bar-fill" id="barAccel" style="width: 0%"></div></div>
+                    </div>
+                    <div class="bar-group">
+                        <div class="bar-label"><span>Range Potential</span> <span id="valRangeEff">0%</span></div>
+                        <div class="bar-bg"><div class="bar-fill" id="barRange" style="width: 0%"></div></div>
+                    </div>
+                    <div class="bar-group">
+                        <div class="bar-label"><span>Running Cost</span> <span id="valCostEff">$</span></div>
+                         <div class="bar-bg"><div class="bar-fill cost" id="barCost" style="width: 0%"></div></div>
+                     </div>
+                 </div>
+
+                 <!-- Power Graph -->
+                 <div class="graph-wrapper">
+                     <div style="text-align:center; font-weight:bold; margin-bottom:10px; color:var(--text-muted);">Power vs Speed Curve</div>
+                     <canvas id="powerGraph"></canvas>
+                 </div>
+
+                 <!-- Dual Column Comparison (Hidden by default) -->
+                 <div class="comparison-cols" id="comparisonCols">
+                     <div class="col-current">
+                         <div class="col-header">CURRENT SETUP</div>
+                         <div class="stats-grid" id="statsCurrent"></div>
+                     </div>
+                     <div class="col-simulated">
+                         <div class="col-header">SIMULATED UPGRADE</div>
+                         <div class="stats-grid" id="statsSimulated"></div>
+                     </div>
+                 </div>
+
+                 <div id="hardwareAnalysis" style="margin-top: 20px; font-size: 0.9rem; color: #cbd5e1; border-top: 1px solid #334155; padding-top: 10px;"></div>
+            </div>
+
+            <!-- Upgrades -->
+            <div class="card">
+                <h2>Suggested Upgrades</h2>
+                <div class="upgrade-options">
+                    <div class="upgrade-card" onclick="simUpgrade('parallel')">
+                        <div class="upgrade-title">Add Parallel Battery</div>
+                        <div class="upgrade-desc">Double range & reduce sag.</div>
+                    </div>
+                    <div class="upgrade-card" onclick="simUpgrade('voltage')">
+                        <div class="upgrade-title">Voltage Boost (+15%)</div>
+                        <div class="upgrade-desc">Increase top speed & torque.</div>
+                    </div>
+                    <div class="upgrade-card" onclick="simUpgrade('controller')">
+                        <div class="upgrade-title">High-Amp Controller</div>
+                        <div class="upgrade-desc">Improve acceleration & hills.</div>
+                    </div>
+                </div>
+                <div id="upgradeResult" style="margin-top:15px; display:none; background: rgba(112, 0, 255, 0.1); padding:10px; border-radius:6px; font-size:0.9rem;">
+                    <strong>Projected Gain:</strong> <span id="upgradeText"></span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Comparison Modal -->
+    <div id="compModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCompModal()">&times;</span>
+            <h2 style="color:var(--primary); margin-bottom:20px;">Configuration Comparison</h2>
+            <div class="comparison-table-wrapper">
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Current Setup</th>
+                            <th id="compBName">Saved Setup</th>
+                        </tr>
+                    </thead>
+                    <tbody id="compTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- State Management ---
+    const inputMap = {
+        v: 'voltage', ah: 'capacity', motors: 'motorCount', watts: 'motorWatt',
+        controller: 'controllerLimit', style: 'rideStyle', weight: 'riderWeight',
+        wheel: 'wheelSize', rpm: 'motorRpm', charger: 'chargerAmps',
+        regen: 'regenEff', cost: 'elecCost', slope: 'slope', ridePosition: 'ridePosition', soh: 'soh'
+    };
+
+    function getState() {
+        const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
+        return {
+            v: getVal('voltage'),
+            ah: getVal('capacity'),
+            motors: getVal('motorCount'),
+            watts: getVal('motorWatt'),
+            controller: document.getElementById('controllerLimit').value ? getVal('controllerLimit') : null,
+            style: getVal('rideStyle'),
+            weight: getVal('riderWeight'),
+            wheel: getVal('wheelSize'),
+            rpm: document.getElementById('motorRpm').value ? getVal('motorRpm') : null,
+            charger: getVal('chargerAmps'),
+            regen: getVal('regenEff') / 100,
+            cost: getVal('elecCost'),
+            slope: getVal('slope'),
+            ridePosition: getVal('ridePosition'),
+            soh: getVal('soh') / 100
+        };
+    }
+
+    function setState(state) {
+        for (let key in inputMap) {
+            if(state[key] !== undefined) document.getElementById(inputMap[key]).value = state[key];
+        }
+        if(!state.controller) document.getElementById('controllerLimit').value = '';
+        if(!state.rpm) document.getElementById('motorRpm').value = '';
+        if(!state.slope) document.getElementById('slope').value = 0;
+        if(!state.ridePosition) document.getElementById('ridePosition').value = 0.6;
+        if(!state.soh) document.getElementById('soh').value = 100;
+        document.getElementById('sohValue').innerText = document.getElementById('soh').value;
+        calculate();
+    }
+
+    // --- Calculation Logic ---
+    function calculate(stateOverride = null, targetElement = null) {
+        const s = stateOverride || getState();
+
+        // 1. Physics - Apply Battery Health
+        const effectiveAh = s.ah * s.soh;
+        const wh = s.v * effectiveAh;
+        const totalWatts = s.motors * s.watts;
+
+        // Speed Logic with Drag
+        let speed = 0;
+        let maxSpeed = 0;
+        let hillSpeed = 0;
+
+        if (s.rpm) {
+            const circM = (s.wheel * 0.0254) * Math.PI;
+            maxSpeed = (s.rpm * circM * 60) / 1000 * 0.85;
+        } else {
+            maxSpeed = (s.v / 52) * 65;
+        }
+
+        // Apply drag - find equilibrium where motor power equals drag + rolling resistance
+        const airDensity = 1.225;
+        const rollingResistance = 15;
+        const CdA = s.ridePosition;
+
+        for (let v = 0; v <= 100; v += 0.5) {
+            const speedMps = v / 3.6;
+            const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
+            const totalPowerNeeded = powerDrag + rollingResistance;
+
+            if (totalPowerNeeded <= totalWatts) {
+                speed = v;
+            }
+        }
+
+        // Apply slope/hill physics
+        if (s.slope > 0) {
+            const angleRad = Math.atan(s.slope / 100);
+            const scooterWeight = (wh * 0.06) + 15;
+            const totalWeight = scooterWeight + s.weight;
+            const gravityForce = totalWeight * 9.81 * Math.sin(angleRad);
+
+            for (let v = 0; v <= speed; v += 0.1) {
+                const speedMps = v / 3.6;
+                const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
+                const powerGravity = gravityForce * speedMps;
+                const totalPowerNeeded = powerDrag + rollingResistance + powerGravity;
+
+                if (totalPowerNeeded <= totalWatts) {
+                    hillSpeed = v;
+                }
+            }
+        } else {
+            hillSpeed = speed;
+        }
+
+        // Range (with Regen)
+        const baseRange = wh / s.style;
+        const regenGain = baseRange * (s.regen * 0.2);
+        const totalRange = baseRange + regenGain;
+
+        // Charging
+        const chargerWatts = s.charger * s.v;
+        const chargeTime = chargerWatts > 0 ? (wh / chargerWatts) * 1.2 : 0;
+
+        // Cost
+        const costPerCharge = (wh / 1000) * s.cost;
+        const costPer100km = (100 / totalRange) * costPerCharge;
+
+        // Acceleration Score (Power to Weight)
+        const scooterWeight = (wh * 0.06) + 15;
+        const totalWeight = scooterWeight + s.weight;
+        const powerToWeight = totalWatts / totalWeight;
+        const accelScore = Math.min(100, (powerToWeight / 15) * 100);
+
+        // Current Draw
+        const amps = totalWatts / s.v;
+        const cRate = amps / s.ah;
+
+        const stats = {
+            wh, speed, hillSpeed, totalWatts, chargeTime, costPer100km, totalRange,
+            amps, cRate, accelScore
+        };
+
+        if (targetElement) {
+            updateUIForColumn(stats, targetElement);
+        } else {
+            updateUI(stats);
+        }
+
+        return stats;
+    }
+
+    function updateUI(data) {
+        document.getElementById('dispWh').innerText = Math.round(data.wh);
+        document.getElementById('dispRange').innerText = data.totalRange.toFixed(1);
+        document.getElementById('dispSpeed').innerText = data.speed.toFixed(1);
+        document.getElementById('dispHillSpeed').innerText = data.hillSpeed.toFixed(1);
+        document.getElementById('dispPower').innerText = Math.round(data.totalWatts);
+        document.getElementById('dispCharge').innerText = data.chargeTime.toFixed(1);
+        document.getElementById('dispCost').innerText = "$" + data.costPer100km.toFixed(2);
+
+        document.getElementById('barSpeed').style.width = Math.min(100, (data.speed / 100) * 100) + "%";
+        document.getElementById('valSpeedEff').innerText = Math.round(data.speed) + " km/h";
+
+        document.getElementById('barAccel').style.width = data.accelScore + "%";
+        document.getElementById('valAccel').innerText = Math.round(data.accelScore) + "/100";
+
+        document.getElementById('barRange').style.width = Math.min(100, (data.totalRange / 150) * 100) + "%";
+        document.getElementById('valRangeEff').innerText = Math.round(data.totalRange) + " km";
+
+        const costPercent = Math.min(100, (data.costPer100km / 5) * 100);
+        document.getElementById('barCost').style.width = costPercent + "%";
+        document.getElementById('valCostEff').innerText = "$" + data.costPer100km.toFixed(2);
+
+        drawGraph(data);
+        updateAnalysis(data);
+        updateUpgrades(data);
+    }
+
+    function updateUIForColumn(data, column) {
+        column.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-label">Energy</div>
+                <div class="stat-value">${Math.round(data.wh)}</div>
+                <div class="stat-unit">Wh</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Range</div>
+                <div class="stat-value">${data.totalRange.toFixed(1)}</div>
+                <div class="stat-unit">km</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Speed</div>
+                <div class="stat-value">${data.speed.toFixed(1)}</div>
+                <div class="stat-unit">km/h</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Hill Speed</div>
+                <div class="stat-value">${data.hillSpeed.toFixed(1)}</div>
+                <div class="stat-unit">km/h</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Power</div>
+                <div class="stat-value">${Math.round(data.totalWatts)}</div>
+                <div class="stat-unit">W</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Accel</div>
+                <div class="stat-value">${Math.round(data.accelScore)}</div>
+                <div class="stat-unit">/100</div>
+            </div>
+        `;
+    }
+
+    function detectBottlenecks(data) {
+        const s = getState();
+        const bottlenecks = [];
+
+        if (data.cRate > 2.5) {
+            bottlenecks.push({
+                type: 'SAG_WARNING',
+                message: 'Battery discharge is too high. Expect voltage sag and reduced performance.',
+                upgrade: 'parallel'
+            });
+        }
+
+        if (s.controller && s.controller < (data.totalWatts / s.v)) {
+            bottlenecks.push({
+                type: 'CONTROLLER_LIMIT',
+                message: 'Controller amp limit is restricting motor power output.',
+                upgrade: 'controller'
+            });
+        }
+
+        if (data.speed < 45 && s.v > 48) {
+            bottlenecks.push({
+                type: 'GEAR_RATIO_LIMIT',
+                message: 'Low speed suggests gear ratio limitation, not voltage.',
+                upgrade: 'voltage'
+            });
+        }
+
+        if (data.hillSpeed < 10 && s.slope > 5) {
+            bottlenecks.push({
+                type: 'HILL_CLIMB_LIMIT',
+                message: 'Poor hill climbing performance. More power or gearing needed.',
+                upgrade: 'voltage'
+            });
+        }
+
+        return bottlenecks;
+    }
+
+    function updateAnalysis(data) {
+        let analysis = "";
+
+        if (data.cRate > 3) {
+            analysis += "⚠️ <strong>High Stress:</strong> Battery discharge is high (" + data.cRate.toFixed(1) + "C). Expect voltage sag.";
+        } else if (data.cRate > 1.5) {
+            analysis += "✅ <strong>Moderate Stress:</strong> Battery is well matched.";
+        } else {
+            analysis += "🔋 <strong>Efficient:</strong> Very low battery stress.";
+        }
+
+        if (data.accelScore > 80) {
+            analysis += " <br>🚀 <strong>Extreme Acceleration.</strong>";
+        } else if (data.accelScore > 40) {
+            analysis += " <br>🛵 <strong>Good Acceleration.</strong>";
+        }
+
+        const bottlenecks = detectBottlenecks(data);
+        if (bottlenecks.length > 0) {
+            analysis += "<br><br><strong>⚠️ Bottlenecks Detected:</strong>";
+            bottlenecks.forEach(b => {
+                analysis += `<br>• ${b.message}`;
+            });
+        }
+
+        document.getElementById('hardwareAnalysis').innerHTML = analysis;
+    }
+
+    function updateUpgrades(data) {
+        const bottlenecks = detectBottlenecks(data);
+        const upgradeCards = document.querySelectorAll('.upgrade-card');
+
+        upgradeCards.forEach(card => {
+            card.classList.remove('recommend-critical');
+            const badge = card.querySelector('.critical-badge');
+            if (badge) badge.remove();
+        });
+
+        if (bottlenecks.length > 0) {
+            bottlenecks.forEach(b => {
+                const cardIndex = b.upgrade === 'parallel' ? 0 : (b.upgrade === 'voltage' ? 1 : 2);
+                if (upgradeCards[cardIndex]) {
+                    upgradeCards[cardIndex].classList.add('recommend-critical');
+                    const badge = document.createElement('div');
+                    badge.className = 'critical-badge';
+                    badge.innerText = 'CRITICAL UPGRADE';
+                    upgradeCards[cardIndex].appendChild(badge);
+                }
+            });
+        }
+    }
+
+    // --- Upgrade Simulation ---
+    let simulatedState = null;
+    let compareModeEnabled = false;
+
+    function simUpgrade(type) {
+        const current = getState();
+        let newS = {...current};
+        let msg = "";
+
+        if(type === 'parallel') {
+            newS.ah *= 2;
+            msg = "Range doubled, Charge Time doubled, Battery stress halved.";
+        } else if (type === 'voltage') {
+            newS.v *= 1.15;
+            msg = "Speed +15%, Torque improved, Current draw reduced.";
+        } else if (type === 'controller') {
+            const basePower = current.motors * current.watts;
+            const projectedPower = basePower * 1.2;
+            msg = `Power ${Math.round(basePower)}W → ${Math.round(projectedPower)}W (faster accel).`;
+        }
+
+        simulatedState = newS;
+
+        if (compareModeEnabled) {
+            const currentStats = calculate(current, document.getElementById('statsCurrent'));
+            const simStats = calculate(simulatedState, document.getElementById('statsSimulated'));
+            document.getElementById('upgradeResult').style.display = 'none';
+        } else {
+            calculate(simulatedState);
+            document.getElementById('upgradeResult').style.display = 'block';
+            document.getElementById('upgradeText').innerText = msg;
+            setTimeout(() => {
+                document.getElementById('upgradeResult').style.display = 'none';
+                calculate(current);
+            }, 5000);
+        }
+    }
+
+    function toggleCompareMode() {
+        compareModeEnabled = document.getElementById('compareMode').checked;
+        const cols = document.getElementById('comparisonCols');
+        const mainStats = document.querySelector('.card .stats-grid');
+
+        if (compareModeEnabled) {
+            cols.classList.add('active');
+            calculate(getState(), document.getElementById('statsCurrent'));
+            if (simulatedState) {
+                calculate(simulatedState, document.getElementById('statsSimulated'));
+            }
+        } else {
+            cols.classList.remove('active');
+            calculate();
+        }
+    }
+
+    function drawGraph(data) {
+        const canvas = document.getElementById('powerGraph');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const s = getState();
+
+        const rect = canvas.getBoundingClientRect();
+        const canvasWidth = Math.max(rect.width, 600);
+
+        canvas.width = canvasWidth * 2;
+        canvas.height = 600;
+        ctx.scale(2, 2);
+
+        const width = canvasWidth;
+        const height = 300;
+        const padding = 40;
+        const graphWidth = width - padding * 2;
+        const graphHeight = height - padding * 2;
+
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.strokeStyle = '#475569';
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, height - padding);
+        ctx.lineTo(width - padding, height - padding);
+        ctx.stroke();
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '10px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Speed (km/h)', width / 2, height - 5);
+
+        ctx.save();
+        ctx.translate(10, height / 2);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillText('Power (W)', 0, 0);
+        ctx.restore();
+
+        const maxSpeed = Math.ceil(data.speed / 10) * 10;
+        const maxPower = Math.max(data.totalWatts * 1.2, 1000);
+
+        for (let i = 0; i <= 5; i++) {
+            const y = height - padding - (i / 5) * graphHeight;
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'right';
+            ctx.fillText(Math.round((i / 5) * maxPower), padding - 5, y + 3);
+            ctx.strokeStyle = '#334155';
+            ctx.beginPath();
+            ctx.moveTo(padding, y);
+            ctx.lineTo(width - padding, y);
+            ctx.stroke();
+        }
+
+        for (let i = 0; i <= 5; i++) {
+            const x = padding + (i / 5) * graphWidth;
+            ctx.fillStyle = '#64748b';
+            ctx.textAlign = 'center';
+            ctx.fillText(Math.round((i / 5) * maxSpeed), x, height - padding + 15);
+            ctx.strokeStyle = '#334155';
+            ctx.beginPath();
+            ctx.moveTo(x, height - padding);
+            ctx.lineTo(x, padding);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#00d4ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(padding, height - padding);
+        ctx.lineTo(width - padding, height - padding);
+        ctx.stroke();
+
+        ctx.fillStyle = '#00d4ff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText('Available Power', width - padding - 50, height - padding - 5);
+
+        const airDensity = 1.225;
+        const rollingResistance = 15;
+        const CdA = s.ridePosition || 0.6;
+
+        ctx.strokeStyle = '#7000ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+
+        let firstPoint = true;
+        for (let v = 0; v <= maxSpeed; v += 1) {
+            const speedMps = v / 3.6;
+            const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
+            const totalPowerNeeded = powerDrag + rollingResistance;
+
+            const x = padding + (v / maxSpeed) * graphWidth;
+            const y = height - padding - (totalPowerNeeded / maxPower) * graphHeight;
+
+            if (firstPoint) {
+                ctx.moveTo(x, y);
+                firstPoint = false;
+            } else {
+                ctx.lineTo(x, y);
+            }
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = '#7000ff';
+        ctx.font = 'bold 10px sans-serif';
+        ctx.fillText('Required Power', padding + 50, padding + 10);
+
+        const equilibriumX = padding + (data.speed / maxSpeed) * graphWidth;
+        const equilibriumY = height - padding - (data.totalWatts / maxPower) * graphHeight;
+
+        ctx.fillStyle = '#10b981';
+        ctx.beginPath();
+        ctx.arc(equilibriumX, equilibriumY, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(`Top Speed: ${data.speed.toFixed(1)} km/h`, equilibriumX + 10, equilibriumY - 5);
+    }
+
+    // --- Profiles / Comparison ---
+    let profiles = JSON.parse(localStorage.getItem('scooterProfiles')) || [];
+
+    function saveProfile() {
+        const name = prompt("Enter a name for this setup:");
+        if(!name) return;
+        const s = getState();
+        s.id = Date.now();
+        s.name = name;
+        profiles.push(s);
+        localStorage.setItem('scooterProfiles', JSON.stringify(profiles));
+        renderProfiles();
+        alert("Setup Saved!");
+    }
+
+    function toggleProfileList() {
+        const div = document.getElementById('profileManager');
+        div.style.display = div.style.display === 'none' ? 'block' : 'none';
+        if(div.style.display === 'block') renderProfiles();
+    }
+
+    function renderProfiles() {
+        const list = document.getElementById('profileList');
+        list.innerHTML = profiles.map(p => `
+            <div class="profile-item">
+                <strong>${p.name}</strong><br>
+                <span style="color:var(--text-muted)">${p.motors}x ${p.watts}W | ${p.v}V ${p.ah}Ah</span>
+                <div class="profile-actions">
+                    <button class="p-btn" style="background:var(--primary)" onclick="loadProfile(${p.id})">Load</button>
+                    <button class="p-btn" style="background:var(--secondary)" onclick="compareProfile(${p.id})">Compare</button>
+                    <button class="p-btn" style="background:var(--danger)" onclick="deleteProfile(${p.id})">Del</button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadProfile(id) {
+        const p = profiles.find(x => x.id === id);
+        if(p) {
+            setState(p);
+            toggleProfileList();
+        }
+    }
+
+    function deleteProfile(id) {
+        if(!confirm("Delete this setup?")) return;
+        profiles = profiles.filter(x => x.id !== id);
+        localStorage.setItem('scooterProfiles', JSON.stringify(profiles));
+        renderProfiles();
+    }
+
+    // Compare Logic
+    function getStats(s) {
+        const res = {};
+        const effectiveAh = s.ah * s.soh;
+        const wh = s.v * effectiveAh;
+        const totalWatts = s.motors * s.watts;
+
+        let maxSpeed = s.rpm ? ((s.rpm * ((s.wheel * 0.0254) * Math.PI) * 60) / 1000) * 0.85 : (s.v / 52) * 65;
+        let speed = 0;
+        let hillSpeed = 0;
+
+        const airDensity = 1.225;
+        const rollingResistance = 15;
+        const CdA = s.ridePosition || 0.6;
+
+        for (let v = 0; v <= 100; v += 0.5) {
+            const speedMps = v / 3.6;
+            const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
+            const totalPowerNeeded = powerDrag + rollingResistance;
+            if (totalPowerNeeded <= totalWatts) {
+                speed = v;
+            }
+        }
+
+        if (s.slope > 0) {
+            const angleRad = Math.atan(s.slope / 100);
+            const scooterWeight = (wh * 0.06) + 15;
+            const totalWeight = scooterWeight + s.weight;
+            const gravityForce = totalWeight * 9.81 * Math.sin(angleRad);
+
+            for (let v = 0; v <= speed; v += 0.1) {
+                const speedMps = v / 3.6;
+                const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
+                const powerGravity = gravityForce * speedMps;
+                const totalPowerNeeded = powerDrag + rollingResistance + powerGravity;
+                if (totalPowerNeeded <= totalWatts) {
+                    hillSpeed = v;
+                }
+            }
+        } else {
+            hillSpeed = speed;
+        }
+
+        const baseRange = wh / s.style;
+        const regenGain = baseRange * ((s.regen) * 0.2);
+        const totalRange = baseRange + regenGain;
+        const chargerWatts = s.charger * s.v;
+        const chargeTime = chargerWatts > 0 ? (wh / chargerWatts) * 1.2 : 0;
+        const scooterWeight = (wh * 0.06) + 15;
+        const powerToWeight = totalWatts / (scooterWeight + s.weight);
+        const accelScore = Math.min(100, (powerToWeight / 15) * 100);
+        return { wh, totalWatts, speed, hillSpeed, totalRange, chargeTime, accelScore };
+    }
+
+    function compareProfile(id) {
+        const p = profiles.find(x => x.id === id);
+        if(!p) return;
+        
+        const sA = getState(); // Current inputs
+        const sB = p; // Saved profile
+
+        const rA = getStats(sA);
+        const rB = getStats(sB);
+
+        document.getElementById('compBName').innerText = sB.name;
+
+        const metrics = [
+            { label: 'Energy (Wh)', vA: rA.wh, vB: rB.wh, high: true },
+            { label: 'Top Speed (km/h)', vA: rA.speed, vB: rB.speed, high: true },
+            { label: 'Hill Speed (km/h)', vA: rA.hillSpeed, vB: rB.hillSpeed, high: true },
+            { label: 'Range (km)', vA: rA.totalRange, vB: rB.totalRange, high: true },
+            { label: 'Accel Score', vA: rA.accelScore, vB: rB.accelScore, high: true },
+            { label: 'Charge Time (hrs)', vA: rA.chargeTime, vB: rB.chargeTime, high: false }
+        ];
+
+        const tbody = document.getElementById('compTableBody');
+        tbody.innerHTML = metrics.map(m => {
+            const diff = m.high ? (m.vB > m.vA) : (m.vB < m.vA);
+            const classA = diff ? 'loser' : 'winner';
+            const classB = diff ? 'winner' : 'loser';
+            return `
+                <tr>
+                    <td>${m.label}</td>
+                    <td class="${classA}">${m.vA.toFixed(1)}</td>
+                    <td class="${classB}">${m.vB.toFixed(1)}</td>
+                </tr>
+            `;
+        }).join('');
+
+        document.getElementById('compModal').style.display = 'flex';
+    }
+
+    function closeCompModal() {
+        document.getElementById('compModal').style.display = 'none';
+    }
+
+    // --- Init ---
+    window.addEventListener('load', () => {
+        Object.values(inputMap).forEach(id => {
+            document.getElementById(id).addEventListener('input', () => calculate());
+        });
+
+        document.getElementById('soh').addEventListener('input', (e) => {
+            document.getElementById('sohValue').innerText = e.target.value;
+            calculate();
+        });
+
+        const clampInput = (id, min, max) => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', () => {
+                let val = parseFloat(el.value);
+                if (val < min) el.value = min;
+                if (val > max) el.value = max;
+                if (isNaN(val)) el.value = min;
+            });
+        };
+
+        clampInput('voltage', 12, 120);
+        clampInput('capacity', 1, 100);
+        clampInput('motorCount', 1, 4);
+        clampInput('motorWatt', 100, 5000);
+        clampInput('controllerLimit', 10, 200);
+        clampInput('riderWeight', 30, 200);
+        clampInput('wheelSize', 6, 14);
+        clampInput('motorRpm', 100, 10000);
+        clampInput('chargerAmps', 0, 20);
+        clampInput('regenEff', 0, 20);
+        clampInput('elecCost', 0, 1);
+        clampInput('slope', 0, 100);
+
+        window.addEventListener('resize', () => {
+            setTimeout(() => calculate(), 100);
+        });
+
+        setTimeout(() => calculate(), 100);
+    });
+
+</script>
+</body>
+</html>
