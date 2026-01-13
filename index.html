@@ -1570,9 +1570,13 @@
         }
     }
 
+    const canvas = document.getElementById('powerGraph');
+    let graphListenersAdded = false;
+    let currentGraphData = null;
+    
     function drawGraph(data) {
-        const canvas = document.getElementById('powerGraph');
         if (!canvas) return;
+        currentGraphData = data;
 
         const ctx = canvas.getContext('2d');
         const s = getState();
@@ -1682,7 +1686,7 @@
         gradient.addColorStop(1, 'rgba(112, 0, 255, 0.05)');
 
         ctx.beginPath();
-        ctx.moveTo(padding, height - padding - (totalPowerNeeded / maxPower) * graphHeight);
+        ctx.moveTo(padding, height - padding - (rollingResistance / maxPower) * graphHeight);
         for (let v = 0; v <= maxSpeed; v += 1) {
             const speedMps = v / 3.6;
             const powerDrag = 0.5 * airDensity * Math.pow(speedMps, 3) * CdA;
@@ -1723,9 +1727,9 @@
         ctx.font = 'bold 11px sans-serif';
         ctx.textAlign = 'left';
         ctx.fillText(`Top Speed: ${data.speed.toFixed(1)} km/h`, equilibriumX + 10, equilibriumY - 5);
-    }
-
-    canvas.addEventListener('mousemove', (e) => {
+        
+        if (!graphListenersAdded) {
+            canvas.addEventListener('mousemove', (e) => {
         const rect = canvas.getBoundingClientRect();
         const mouseX = (e.clientX - rect.left) * 2;
         const mouseY = (e.clientY - rect.top) * 2;
@@ -1752,7 +1756,7 @@
         }
 
         if (nearestPoint) {
-            drawGraph(data);
+            drawGraph(currentGraphData);
 
             const tooltipX = nearestPoint.x;
             const tooltipY = nearestPoint.y;
@@ -1761,11 +1765,7 @@
             ctx.strokeStyle = '#00d4ff';
             ctx.lineWidth = 1;
             ctx.beginPath();
-            if (ctx.roundRect) {
-                ctx.roundRect(tooltipX + 15, tooltipY - 45, 120, 35, 6);
-            } else {
-                ctx.rect(tooltipX + 15, tooltipY - 45, 120, 35);
-            }
+            ctx.roundRect(tooltipX + 15, tooltipY - 45, 120, 35, 6);
             ctx.fill();
             ctx.stroke();
 
@@ -1784,8 +1784,12 @@
     });
 
     canvas.addEventListener('mouseleave', () => {
-        drawGraph(data);
+        drawGraph(currentGraphData);
     });
+
+    graphListenersAdded = true;
+}
+    }
 
     // --- Profiles / Comparison ---
     let profiles = JSON.parse(localStorage.getItem('scooterProfiles')) || [];
