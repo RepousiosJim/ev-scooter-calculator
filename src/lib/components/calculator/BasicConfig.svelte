@@ -5,26 +5,26 @@
 
 <NumberInput
   label="Battery Voltage"
-  value={calculatorState.config.v}
+  bind:value={calculatorState.config.v}
   unit="V"
 />
 <NumberInput
   label="Battery Capacity"
-  value={calculatorState.config.ah}
+  bind:value={calculatorState.config.ah}
   unit="Ah"
 />
 <div class="flex gap-4">
   <div class="flex-1">
     <NumberInput
       label="Motor Count"
-      value={calculatorState.config.motors}
+      bind:value={calculatorState.config.motors}
       unit="x"
     />
   </div>
   <div class="flex-2">
     <NumberInput
       label="Power per Motor"
-      value={calculatorState.config.watts}
+      bind:value={calculatorState.config.watts}
       unit="W"
     />
   </div>
@@ -62,7 +62,8 @@
     min="50"
     max="100"
     step="1"
-    bind:value={calculatorState.config.soh}
+    value={Math.round(calculatorState.config.soh * 100)}
+    oninput={(e) => updateConfig('soh', Number(e.currentTarget.value) / 100)}
     class="w-full"
     aria-label="Battery Health"
   />

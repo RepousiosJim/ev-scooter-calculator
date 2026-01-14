@@ -1,8 +1,8 @@
-# EV Scooter Pro Calculator v1.3
+# EV Scooter Pro Calculator v1.3.1
 
 A professional electric scooter performance analysis, hardware compatibility, and upgrade simulation tool. Built with SvelteKit, TypeScript, and Tailwind CSS.
 
-![Version](https://img.shields.io/badge/version-1.3.0-blue)
+![Version](https://img.shields.io/badge/version-1.3.1-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Features
@@ -266,7 +266,10 @@ npm run build
 
 ## Version History
 
-### v1.3.0 (Current)
+### v1.3.1 (Current)
+- ✅ Documentation refresh
+
+### v1.3.0
 - ✅ Migrated to SvelteKit + TypeScript
 - ✅ Added Tailwind CSS styling
 - ✅ Implemented PWA support

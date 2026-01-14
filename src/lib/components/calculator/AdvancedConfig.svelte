@@ -91,10 +91,11 @@
         <input
           id="regen-input"
           type="number"
-          bind:value={calculatorState.config.regen}
+          value={Number((calculatorState.config.regen * 100).toFixed(2))}
+          oninput={(e) => updateConfig('regen', Number(e.currentTarget.value) / 100)}
           min="0"
           max="15"
-          step="0.01"
+          step="0.1"
           class="w-full bg-bgDark border border-gray-600 rounded p-2 text-textMain focus:border-primary focus:outline-none"
         />
         <p class="text-xs text-textMuted mt-1">Energy recovered when braking</p>

@@ -8,6 +8,11 @@ export const profilesStore = $state({
 
 // Load profiles from localStorage
 export function loadProfiles() {
+  if (typeof localStorage === 'undefined') {
+    profilesStore.isLoaded = true;
+    return;
+  }
+
   try {
     const saved = localStorage.getItem('scooterProfiles');
     if (saved) {
@@ -44,6 +49,7 @@ export function updateProfile(id: number, name: string, config: ScooterConfig) {
 }
 
 function saveToStorage() {
+  if (typeof localStorage === 'undefined') return;
   localStorage.setItem('scooterProfiles', JSON.stringify(profilesStore.profiles));
 }
 

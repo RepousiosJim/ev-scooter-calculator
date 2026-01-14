@@ -1,8 +1,11 @@
 <script lang="ts">
+  import type { PerformanceStats } from '$lib/types';
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import StatBox from '$lib/components/ui/StatBox.svelte';
 
-  const stats = $derived(calculatorState.stats);
+  let { stats: overrideStats }: { stats?: PerformanceStats | null } = $props();
+
+  const stats = $derived(overrideStats ?? calculatorState.stats);
 </script>
 
 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">

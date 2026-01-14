@@ -117,7 +117,7 @@
             <div class="bg-white/3 p-4 rounded-lg border-b-4 border-secondary">
               <div class="text-center font-bold mb-3 text-secondary">SIMULATED UPGRADE</div>
               {#if simStats}
-                <ResultDisplay />
+                <ResultDisplay stats={simStats} />
               {:else}
                 <div class="flex flex-col items-center justify-center py-12 text-textMuted">
                   <div class="text-4xl mb-3">📊</div>
