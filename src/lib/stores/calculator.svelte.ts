@@ -49,7 +49,7 @@ export function simulateUpgrade(type: 'parallel' | 'voltage' | 'controller') {
   if (type === 'parallel') {
     newConfig.ah *= 2;
   } else if (type === 'voltage') {
-    newConfig.v *= 1.15;
+    newConfig.v *= 1.2;
   } else if (type === 'controller') {
     // Controller upgrade doesn't change config directly
     // It's simulated in calculations

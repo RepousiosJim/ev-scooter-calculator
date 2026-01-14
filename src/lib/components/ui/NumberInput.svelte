@@ -1,5 +1,5 @@
 <script lang="ts">
-  let { label, value, min = 0, max = 999999, unit, help, showSlider = false }: {
+  let { label, value = $bindable(), min = 0, max = 999999, unit, help, showSlider = false }: {
     label: string;
     value: number;
     min?: number;

@@ -4,12 +4,14 @@ import type { ScooterConfig, PerformanceStats, Bottleneck } from '$lib/types';
 export const AIR_DENSITY = 1.225; // kg/m³
 export const GRAVITY = 9.81;      // m/s²
 export const ROLLING_RESISTANCE = 15; // W
+const NOMINAL_VOLTAGE = 52;
 
 export function calculatePerformance(config: ScooterConfig): PerformanceStats {
   // 1. Apply battery health
   const effectiveAh = config.ah * config.soh;
   const wh = config.v * effectiveAh;
-  const totalWatts = config.motors * config.watts;
+  const voltageFactor = config.v / NOMINAL_VOLTAGE;
+  const totalWatts = config.motors * config.watts * voltageFactor;
 
   // 2. Calculate maximum speed based on RPM or voltage
   const maxSpeed = calculateMaxSpeed(config);
@@ -48,7 +50,7 @@ export function calculatePerformance(config: ScooterConfig): PerformanceStats {
   const scooterWeight = (wh * 0.06) + 15;
   const totalWeight = scooterWeight + config.weight;
   const powerToWeight = totalWatts / totalWeight;
-  const accelScore = Math.min(100, (powerToWeight / 15) * 100);
+  const accelScore = Math.min(100, (powerToWeight / 25) * 100);
 
   // 9. Calculate current draw and C-rate
   const amps = totalWatts / config.v;
@@ -73,7 +75,7 @@ function calculateMaxSpeed(config: ScooterConfig): number {
     const circumferenceM = (config.wheel * 0.0254) * Math.PI;
     return (config.rpm * circumferenceM * 60) / 1000 * 0.85;
   }
-  return (config.v / 52) * 65;
+  return (config.v / NOMINAL_VOLTAGE) * 75;
 }
 
 function calculateDragLimitedSpeed(

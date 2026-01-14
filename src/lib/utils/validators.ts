@@ -14,10 +14,10 @@ export const validationRules: Record<string, ValidationRule> = {
   wheel: { min: 8, max: 13, message: 'Recommended: 8-13 inches' },
   rpm: { min: 300, max: 8000, message: 'Recommended: 300-8000 RPM' },
   charger: { min: 2, max: 10, message: 'Recommended: 2-10A' },
-  regen: { min: 0, max: 15, message: 'Recommended: 0-15%' },
+  regen: { min: 0, max: 0.15, message: 'Recommended: 0-15%' },
   cost: { min: 0.05, message: 'Recommended: $0.05+ /kWh' },
   slope: { min: 0, max: 30, message: 'Recommended: 0-30%' },
-  soh: { min: 70, max: 100, message: 'Recommended: 70-100%' }
+  soh: { min: 0.7, max: 1, message: 'Recommended: 70-100%' }
 };
 
 export function validateField(

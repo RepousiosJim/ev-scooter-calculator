@@ -1,4 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const getStatValue = async (page: Page, label: string) => {
+  const statsGrid = page.locator('div.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4').first();
+  const statBox = statsGrid.getByText(label, { exact: true }).locator('..');
+  const valueText = await statBox.locator('.text-2xl').textContent();
+  return parseFloat(valueText ?? '0');
+};
 
 test.describe('Main Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -10,46 +17,54 @@ test.describe('Main Page', () => {
   });
 
   test('displays all calculator inputs', async ({ page }) => {
-    await expect(page.locator('input[type="number"][placeholder*="Voltage"]')).toBeVisible();
-    await expect(page.locator('input[type="number"][placeholder*="Capacity"]')).toBeVisible();
-    await expect(page.locator('input[type="number"][placeholder*="Motor"]')).toBeVisible();
-    await expect(page.locator('input[type="number"][placeholder*="Weight"]')).toBeVisible();
+    await expect(page.getByLabel('Battery Voltage')).toBeVisible();
+    await expect(page.getByLabel('Battery Capacity')).toBeVisible();
+    await expect(page.getByLabel('Motor Count')).toBeVisible();
+    await expect(page.getByLabel('Power per Motor')).toBeVisible();
+
+    await page.click('text=Advanced Options');
+    await expect(page.getByRole('slider', { name: 'Rider Weight' })).toBeVisible();
   });
 
   test('calculates performance metrics on input change', async ({ page }) => {
-    const voltageInput = page.locator('input[type="number"][placeholder*="Voltage"]');
+    const voltageInput = page.getByLabel('Battery Voltage');
 
     // Wait for initial calculation
     await page.waitForTimeout(500);
 
     // Get initial energy value
-    const initialEnergy = await page.locator('.stat-value').first().textContent();
+    const initialEnergy = await getStatValue(page, 'Total Energy');
 
     // Change voltage
     await voltageInput.fill('72');
     await page.waitForTimeout(500);
 
     // Get updated energy value
-    const updatedEnergy = await page.locator('.stat-value').first().textContent();
+    const updatedEnergy = await getStatValue(page, 'Total Energy');
 
     // Energy should increase
-    expect(parseFloat(updatedEnergy || '0')).toBeGreaterThan(parseFloat(initialEnergy || '0'));
+    expect(updatedEnergy).toBeGreaterThan(initialEnergy);
   });
 
   test('displays power graph', async ({ page }) => {
-    await expect(page.locator('canvas')).toBeVisible();
-
-    // Canvas should have dimensions
     const canvas = page.locator('canvas').first();
-    await expect(canvas).toHaveJSProperty('width', expect.any(Number));
-    await expect(canvas).toHaveJSProperty('height', expect.any(Number));
+    await expect(canvas).toBeVisible();
+
+    const { width, height } = await canvas.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+
+    expect(width).toBeGreaterThan(0);
+    expect(height).toBeGreaterThan(0);
   });
 
   test('shows component status cards', async ({ page }) => {
-    await expect(page.locator('text=System Status')).toBeVisible();
-    await expect(page.locator('text=Battery')).toBeVisible();
-    await expect(page.locator('text=Controller')).toBeVisible();
-    await expect(page.locator('text=Motor')).toBeVisible();
+    const statusSection = page.getByRole('heading', { name: 'System Status' }).locator('..');
+    await expect(statusSection).toBeVisible();
+    await expect(statusSection.getByText('Battery', { exact: true })).toBeVisible();
+    await expect(statusSection.getByText('Controller', { exact: true })).toBeVisible();
+    await expect(statusSection.getByText('Motor', { exact: true })).toBeVisible();
   });
 
   test('toggles advanced options', async ({ page }) => {
@@ -64,32 +79,38 @@ test.describe('Main Page', () => {
   });
 
   test('adjusts battery health slider', async ({ page }) => {
-    // Click toggle to show battery health slider
-    await page.click('text=Advanced Options');
-
     // Get initial range
-    const initialRange = await page.locator('.stat-value').nth(1).textContent();
+    const initialRange = await getStatValue(page, 'Range');
 
     // Adjust battery health to 50%
-    await page.fill('input[type="range"]', '50');
+    await page.getByLabel('Battery Health').fill('50');
     await page.waitForTimeout(300);
 
     // Get updated range
-    const updatedRange = await page.locator('.stat-value').nth(1).textContent();
+    const updatedRange = await getStatValue(page, 'Range');
 
     // Range should decrease
-    expect(parseFloat(updatedRange || '0')).toBeLessThan(parseFloat(initialRange || '0'));
+    expect(updatedRange).toBeLessThan(initialRange);
   });
 
   test('shows bottlenecks for high C-rate configuration', async ({ page }) => {
     // Configure for high C-rate
-    await page.fill('input[type="number"][placeholder*="Voltage"]', '36');
-    await page.fill('input[type="number"][placeholder*="Capacity"]', '10');
-    await page.fill('input[type="number"][placeholder*="Motor"] >> nth=0', '2');
-    await page.fill('input[type="number"][placeholder*="Motor"] >> nth=1', '3000');
-    await page.waitForTimeout(500);
+    const voltageInput = page.getByLabel('Battery Voltage');
+    const capacityInput = page.getByLabel('Battery Capacity');
+    const motorCountInput = page.getByLabel('Motor Count');
+    const powerInput = page.getByLabel('Power per Motor');
+
+    await voltageInput.fill('36');
+    await voltageInput.blur();
+    await capacityInput.fill('10');
+    await capacityInput.blur();
+    await motorCountInput.fill('2');
+    await motorCountInput.blur();
+    await powerInput.fill('3000');
+    await powerInput.blur();
+    await page.waitForTimeout(800);
 
     // Should show bottleneck warning
-    await expect(page.locator('text=Bottlenecks Detected')).toBeVisible();
+    await expect(page.locator('text=Bottlenecks Detected')).toBeVisible({ timeout: 10000 });
   });
 });

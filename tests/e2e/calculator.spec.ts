@@ -1,4 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const getStatValue = async (page: Page, label: string) => {
+  const statsGrid = page.locator('div.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4').first();
+  const statBox = statsGrid.getByText(label, { exact: true }).locator('..');
+  const valueText = await statBox.locator('.text-2xl').textContent();
+  return parseFloat(valueText ?? '0');
+};
 
 test.describe('Calculator Functionality', () => {
   test.beforeEach(async ({ page }) => {
@@ -17,27 +24,27 @@ test.describe('Calculator Functionality', () => {
     await page.waitForTimeout(500);
 
     // Check if voltage changed to 36V (M365 spec)
-    const voltageValue = await page.locator('input[type="number"][placeholder*="Voltage"]').inputValue();
+    const voltageValue = await page.getByLabel('Battery Voltage').inputValue();
     expect(voltageValue).toBe('36');
 
     // Check if motor count changed to 1
-    const motorCount = await page.locator('input[type="number"][placeholder*="Motor"] >> nth=0').inputValue();
+    const motorCount = await page.getByLabel('Motor Count').inputValue();
     expect(motorCount).toBe('1');
   });
 
   test('updates results in real-time', async ({ page }) => {
     // Get initial speed value
-    const initialSpeed = await page.locator('.stat-value').nth(2).textContent();
+    const initialSpeed = await getStatValue(page, 'Top Speed');
 
     // Change voltage
-    await page.fill('input[type="number"][placeholder*="Voltage"]', '72');
+    await page.getByLabel('Battery Voltage').fill('72');
     await page.waitForTimeout(300);
 
     // Get updated speed value
-    const updatedSpeed = await page.locator('.stat-value').nth(2).textContent();
+    const updatedSpeed = await getStatValue(page, 'Top Speed');
 
     // Speed should increase
-    expect(parseFloat(updatedSpeed || '0')).toBeGreaterThan(parseFloat(initialSpeed || '0'));
+    expect(updatedSpeed).toBeGreaterThan(initialSpeed);
   });
 
   test('toggles advanced options', async ({ page }) => {
@@ -56,25 +63,25 @@ test.describe('Calculator Functionality', () => {
     await page.click('text=Advanced Options');
 
     // Get initial range
-    const initialRange = await page.locator('.stat-value').nth(1).textContent();
+    const initialRange = await getStatValue(page, 'Range');
 
     // Adjust battery health to 50%
-    await page.fill('input[type="range"]', '50');
+    await page.getByLabel('Battery Health').fill('50');
     await page.waitForTimeout(300);
 
     // Get updated range
-    const updatedRange = await page.locator('.stat-value').nth(1).textContent();
+    const updatedRange = await getStatValue(page, 'Range');
 
     // Range should decrease
-    expect(parseFloat(updatedRange || '0')).toBeLessThan(parseFloat(initialRange || '0'));
+    expect(updatedRange).toBeLessThan(initialRange);
   });
 
   test('shows bottlenecks for high C-rate configuration', async ({ page }) => {
     // Configure for high C-rate
-    await page.fill('input[type="number"][placeholder*="Voltage"]', '36');
-    await page.fill('input[type="number"][placeholder*="Capacity"]', '10');
-    await page.fill('input[type="number"][placeholder*="Motor"] >> nth=0', '2');
-    await page.fill('input[type="number"][placeholder*="Motor"] >> nth=1', '3000');
+    await page.getByLabel('Battery Voltage').fill('36');
+    await page.getByLabel('Battery Capacity').fill('10');
+    await page.getByLabel('Motor Count').fill('2');
+    await page.getByLabel('Power per Motor').fill('3000');
     await page.waitForTimeout(500);
 
     // Should show bottleneck warning
