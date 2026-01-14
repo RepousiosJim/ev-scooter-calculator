@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { fly } from 'svelte/transition';
-  import { calculatorState } from '$lib/stores/calculator.svelte';
+  import { applyConfig, calculatorState } from '$lib/stores/calculator.svelte';
   import { profilesStore, saveProfile, deleteProfile } from '$lib/stores/profiles.svelte';
 
   let showProfiles = $state(false);
@@ -63,7 +63,7 @@
             <div class="flex gap-2 justify-end">
               <button
                 class="text-xs bg-primary text-bgDark px-2 py-1 rounded hover:opacity-80"
-                onclick={() => calculatorState.config = { ...profile.config }}
+                onclick={() => applyConfig(profile.config)}
               >
                 Load
               </button>

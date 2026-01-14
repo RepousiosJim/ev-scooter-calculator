@@ -202,17 +202,12 @@ ev-scooter-calc-v2/
 
 The `build` folder contains a static site ready for deployment to any static hosting service:
 
-### Netlify (Recommended)
-```bash
-npm run build
-# Drag and drop 'build' folder to Netlify
-```
-
-### Vercel
+### Vercel (Recommended)
 ```bash
 npm run build
 vercel deploy
 ```
+
 
 ### GitHub Pages
 ```bash

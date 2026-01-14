@@ -10,6 +10,7 @@
   import UpgradeSimulator from '$lib/components/calculator/UpgradeSimulator.svelte';
   import ComponentStatus from '$lib/components/calculator/ComponentStatus.svelte';
   import ProfileManager from '$lib/components/calculator/ProfileManager.svelte';
+  import UpgradeGuidance from '$lib/components/calculator/UpgradeGuidance.svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -57,12 +58,16 @@
 
 <div class="max-w-7xl mx-auto px-4 py-8">
   <!-- Header -->
-  <header class="text-center mb-8">
-    <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-2">
+  <header class="text-center mb-10">
+    <p class="text-xs uppercase tracking-[0.3em] text-textMuted mb-3">Scooter Performance Studio</p>
+    <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
       EV Scooter Pro Calculator
     </h1>
-    <p class="text-textMuted">Performance analysis, hardware compatibility, and upgrade simulation</p>
+    <p class="text-textMuted max-w-2xl mx-auto">
+      Model speed, range, and upgrade impact in seconds with a clear performance snapshot.
+    </p>
   </header>
+
 
   <!-- Profile Manager -->
   <ProfileManager />
@@ -72,17 +77,26 @@
     <!-- Left Column: Configuration -->
     <div class="lg:col-span-4">
       <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg mb-6">
-        <h2 class="text-xl font-semibold mb-4 text-textMain">Configuration</h2>
+        <h2 class="text-xl font-semibold text-textMain">Configuration</h2>
+        <p class="text-sm text-textMuted mt-1 mb-4">
+          Start with a preset or enter your specs. Results update instantly.
+        </p>
 
         <PresetSelector />
         <BasicConfig />
 
+
         <button
           onclick={() => calculatorState.showAdvanced = !calculatorState.showAdvanced}
-          class="mt-4 text-primary font-bold cursor-pointer flex items-center gap-2 hover:opacity-80 transition"
+          class="mt-4 w-full flex items-center justify-between gap-4 rounded-lg border border-gray-700/60 bg-bgInput/40 px-3 py-2 text-left hover:border-primary transition"
         >
-          Advanced Options {calculatorState.showAdvanced ? '▼' : '▶'}
+          <div>
+            <div class="text-sm font-semibold text-textMain">Advanced Options</div>
+            <div class="text-xs text-textMuted">Rider + terrain, motor details, energy costs</div>
+          </div>
+          <span class="text-primary text-lg">{calculatorState.showAdvanced ? '▼' : '▶'}</span>
         </button>
+
 
         <AdvancedConfig />
       </div>
@@ -91,8 +105,11 @@
     <!-- Right Column: Results -->
     <div class="lg:col-span-8">
       <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-semibold text-textMain">Performance Analysis</h2>
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-xl font-semibold text-textMain">Performance Analysis</h2>
+            <p class="text-xs text-textMuted mt-1">Live results as you tune inputs and presets.</p>
+          </div>
 
           <label class="flex items-center gap-2 text-sm text-textMuted cursor-pointer">
             <input
@@ -103,6 +120,7 @@
             <span>Split View Simulator</span>
           </label>
         </div>
+
 
         <!-- Comparison Mode Toggle -->
         {#if calculatorState.compareMode}
@@ -132,7 +150,12 @@
 
         <!-- Bar Charts -->
         <div class="bg-black/20 p-4 rounded-lg mt-6">
+          <div class="flex items-center justify-between text-xs text-textMuted mb-3">
+            <span class="font-semibold text-textMain">Efficiency Overview</span>
+            <span>Realtime estimates</span>
+          </div>
           <div class="mb-3">
+
             <div class="flex justify-between text-sm mb-1">
               <span>Speed Efficiency</span>
               <span>{Math.round(stats.speed)} km/h</span>
@@ -177,9 +200,10 @@
         <PowerGraph />
 
         <!-- Analysis Text -->
-        <div class="mt-6 text-sm text-textMuted border-t border-gray-700 pt-4">
+        <div class="mt-6 rounded-lg border border-white/5 bg-bgInput/40 p-4 text-sm text-textMuted">
           {@html analysisText()}
         </div>
+
 
         <!-- Component Status -->
         <ComponentStatus />
@@ -187,6 +211,10 @@
 
       <!-- Upgrade Simulator -->
       <UpgradeSimulator />
+
+      <!-- Upgrade Guidance -->
+      <UpgradeGuidance />
     </div>
   </div>
 </div>
+
