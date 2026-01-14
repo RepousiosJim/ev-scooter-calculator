@@ -353,12 +353,32 @@ export function calculateUpgradeDelta(
   const upgradedSpec = calculatePerformance(upgradedConfig, 'spec');
   const upgradedRealworld = calculatePerformance(upgradedConfig, 'realworld');
 
+  const safePercent = (current: number, upgraded: number) => {
+    if (current === 0) return 0;
+    return (upgraded / current - 1) * 100;
+  };
+
   return {
     mode: 'spec',
+    whChange: upgradedSpec.wh - currentSpec.wh,
     rangeChange: upgradedSpec.totalRange - currentSpec.totalRange,
     speedChange: upgradedSpec.speed - currentSpec.speed,
+    hillSpeedChange: upgradedSpec.hillSpeed - currentSpec.hillSpeed,
+    powerChange: upgradedSpec.totalWatts - currentSpec.totalWatts,
+    chargeTimeChange: upgradedSpec.chargeTime - currentSpec.chargeTime,
+    costChange: upgradedSpec.costPer100km - currentSpec.costPer100km,
     accelChange: upgradedSpec.accelScore - currentSpec.accelScore,
-    rangePercent: (upgradedSpec.totalRange / currentSpec.totalRange - 1) * 100,
-    speedPercent: (upgradedSpec.speed / currentSpec.speed - 1) * 100
+    ampsChange: upgradedSpec.amps - currentSpec.amps,
+    cRateChange: upgradedSpec.cRate - currentSpec.cRate,
+    whPercent: safePercent(currentSpec.wh, upgradedSpec.wh),
+    rangePercent: safePercent(currentSpec.totalRange, upgradedSpec.totalRange),
+    speedPercent: safePercent(currentSpec.speed, upgradedSpec.speed),
+    hillSpeedPercent: safePercent(currentSpec.hillSpeed, upgradedSpec.hillSpeed),
+    powerPercent: safePercent(currentSpec.totalWatts, upgradedSpec.totalWatts),
+    chargeTimePercent: safePercent(currentSpec.chargeTime, upgradedSpec.chargeTime),
+    costPercent: safePercent(currentSpec.costPer100km, upgradedSpec.costPer100km),
+    accelPercent: safePercent(currentSpec.accelScore, upgradedSpec.accelScore),
+    ampsPercent: safePercent(currentSpec.amps, upgradedSpec.amps),
+    cRatePercent: safePercent(currentSpec.cRate, upgradedSpec.cRate)
   };
 }

@@ -1,70 +1,79 @@
 import { test, expect, type Page, type Locator } from '@playwright/test';
 
-const getStatValue = async (scope: Page | Locator, label: string) => {
-  const statsGrid = scope.locator('div.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4').first();
-  const statBox = statsGrid.getByText(label, { exact: true }).locator('..');
-  const valueText = await statBox.locator('.text-2xl').textContent();
-  return parseFloat(valueText ?? '0');
+const getComparisonValue = async (scope: Locator, label: string) => {
+  const statBox = scope.getByText(label, { exact: true }).locator('..').locator('..');
+  const valueText = await statBox.locator('.text-xl').textContent();
+  return parseFloat(valueText?.replace(/,/g, '') ?? '0');
+};
+
+const getDeltaPercent = async (scope: Locator, label: string) => {
+  const statBox = scope.getByText(label, { exact: true }).locator('..').locator('..');
+  const deltaBadge = statBox.locator('[class*="DeltaBadge"]');
+  const badgeText = await deltaBadge.textContent();
+  return badgeText ? parseFloat(badgeText.replace(/[+%]/g, '')) : 0;
 };
 
 test.describe('Upgrade Simulation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    await page.getByRole('button', { name: 'Upgrades' }).click();
   });
 
   test('simulates parallel battery upgrade', async ({ page }) => {
-    await page.getByLabel('Split View Simulator').check();
-
-    // Click parallel upgrade
-    await page.click('button:has-text("Add Parallel Battery")');
+    await page.locator('div:has-text("Add Parallel Battery")').first().click();
     await page.waitForTimeout(500);
 
-    const currentColumn = page.getByText('CURRENT SETUP').locator('..');
-    const simulatedColumn = page.getByText('SIMULATED UPGRADE').locator('..');
+    const comparisonSection = page.locator('text=Upgrade Comparison').locator('..');
+    await expect(comparisonSection).toBeVisible();
 
-    const currentRange = await getStatValue(currentColumn, 'Range');
-    const simulatedRange = await getStatValue(simulatedColumn, 'Range');
+    const summarySection = page.locator('text=Top 3 Improvements').locator('..');
+    await expect(summarySection).toBeVisible();
 
-    expect(simulatedRange).toBeGreaterThan(currentRange * 1.1);
+    const rangeValue = await getComparisonValue(comparisonSection, 'Range');
+    const rangeDelta = await getDeltaPercent(comparisonSection, 'Range');
+
+    expect(rangeValue).toBeGreaterThan(40);
+    expect(rangeDelta).toBeGreaterThan(20);
   });
 
   test('simulates voltage upgrade', async ({ page }) => {
-    await page.getByLabel('Split View Simulator').check();
-
-    // Click voltage upgrade
-    await page.click('button:has-text("Voltage Boost")');
+    await page.locator('div:has-text("Voltage Boost")').first().click();
     await page.waitForTimeout(500);
 
-    const currentColumn = page.getByText('CURRENT SETUP').locator('..');
-    const simulatedColumn = page.getByText('SIMULATED UPGRADE').locator('..');
+    const comparisonSection = page.locator('text=Upgrade Comparison').locator('..');
+    await expect(comparisonSection).toBeVisible();
 
-    const currentSpeed = await getStatValue(currentColumn, 'Top Speed');
-    const simulatedSpeed = await getStatValue(simulatedColumn, 'Top Speed');
+    const speedValue = await getComparisonValue(comparisonSection, 'Top Speed');
+    const speedDelta = await getDeltaPercent(comparisonSection, 'Top Speed');
 
-    expect(simulatedSpeed).toBeGreaterThan(currentSpeed * 1.05);
+    expect(speedValue).toBeGreaterThan(45);
+    expect(speedDelta).toBeGreaterThan(5);
   });
 
   test('shows critical upgrade indicator', async ({ page }) => {
-    // Configure for high C-rate
+    await page.getByRole('button', { name: 'Configuration' }).click();
     await page.getByLabel('Battery Voltage').fill('36');
     await page.getByLabel('Battery Capacity').fill('8');
     await page.getByLabel('Motor Count').fill('2');
     await page.getByLabel('Power per Motor').fill('2500');
     await page.waitForTimeout(500);
 
-    // Should show critical upgrade badge
-    await expect(page.locator('text=CRITICAL UPGRADE')).toBeVisible();
+    await page.getByRole('button', { name: 'Upgrades' }).click();
+
+    const upgradeSection = page.locator('text=Suggested Upgrades').locator('..');
+    await expect(upgradeSection).toBeVisible();
+    await expect(upgradeSection.getByText('Add Parallel Battery')).toBeVisible();
   });
 
   test('shows placeholder before upgrade selection', async ({ page }) => {
-    await page.getByLabel('Split View Simulator').check();
-
-    await expect(page.locator('text=Select an upgrade to simulate')).toBeVisible();
+    await expect(page.locator('text=No upgrade selected')).toBeVisible();
+    await expect(page.locator('text=Select an upgrade below to simulate its impact')).toBeVisible();
   });
 
   test('toggles between Spec and Real-World mode', async ({ page }) => {
     await page.goto('/');
+    await page.getByRole('button', { name: 'Upgrades' }).click();
 
     const specButton = page.getByRole('button', { name: 'Spec Mode' }).or(page.getByText('Spec Mode')).first();
     const realworldButton = page.getByRole('button', { name: 'Real-World Mode' }).or(page.getByText('Real-World Mode')).first();
@@ -81,16 +90,18 @@ test.describe('Upgrade Simulation', () => {
 
   test('displays recommendation cards with details', async ({ page }) => {
     await page.goto('/');
+    await page.getByRole('button', { name: 'Upgrades' }).click();
 
     const upgradeSection = page.locator('text=Suggested Upgrades').locator('..');
-
     await expect(upgradeSection).toBeVisible();
 
-    const cards = await upgradeSection.locator('button').all();
+    const cards = await upgradeSection.locator('.cursor-pointer').all();
     expect(cards.length).toBeGreaterThan(0);
 
-    await expect(upgradeSection.locator('text=Why:').or(upgradeSection.locator('text=What it changes:')).first()).toBeVisible();
-    await expect(upgradeSection.locator('text=Expected gain:').or(upgradeSection.locator('text=Tradeoffs:')).first()).toBeVisible();
+    await expect(upgradeSection.locator('text=Why:')).toBeVisible();
+    await expect(upgradeSection.locator('text=What it changes:')).toBeVisible();
+    await expect(upgradeSection.locator('text=Expected gain:')).toBeVisible();
+    await expect(upgradeSection.locator('text=Tradeoffs:')).toBeVisible();
   });
 
   test('shows no upgrades message when no recommendations', async ({ page }) => {
@@ -101,30 +112,38 @@ test.describe('Upgrade Simulation', () => {
     await page.getByLabel('Motor Count').fill('2');
     await page.getByLabel('Power per Motor').fill('2700');
 
-    const upgradeSection = page.locator('text=Suggested Upgrades').locator('..');
+    await page.getByRole('button', { name: 'Upgrades' }).click();
 
+    const upgradeSection = page.locator('text=Suggested Upgrades').locator('..');
     await expect(upgradeSection.locator('text=No upgrades recommended')).toBeVisible();
   });
 
-  test('shows simulated results in split view', async ({ page }) => {
-    // Enable split view
-    await page.getByLabel('Split View Simulator').check();
-
-    // Activate upgrade
-    await page.click('button:has-text("Add Parallel Battery")');
+  test('shows comparison display with delta badges', async ({ page }) => {
+    await page.locator('div:has-text("Add Parallel Battery")').first().click();
     await page.waitForTimeout(500);
 
-    // Should show two columns
-    await expect(page.locator('text=CURRENT SETUP')).toBeVisible();
-    await expect(page.locator('text=SIMULATED UPGRADE')).toBeVisible();
+    const comparisonSection = page.locator('text=Upgrade Comparison').locator('..');
+    
+    await expect(comparisonSection).toBeVisible();
+    await expect(comparisonSection.getByText('Top Speed')).toBeVisible();
+    await expect(comparisonSection.getByText('Range')).toBeVisible();
+    await expect(comparisonSection.getByText('Acceleration')).toBeVisible();
+    await expect(comparisonSection.getByText('Running Cost')).toBeVisible();
 
-    // Simulated values should be different
-    const currentColumn = page.getByText('CURRENT SETUP').locator('..');
-    const simulatedColumn = page.getByText('SIMULATED UPGRADE').locator('..');
+    const deltaBadges = await comparisonSection.locator('[class*="DeltaBadge"]').all();
+    expect(deltaBadges.length).toBeGreaterThan(0);
+  });
 
-    const currentRange = await getStatValue(currentColumn, 'Range');
-    const simulatedRange = await getStatValue(simulatedColumn, 'Range');
+  test('shows secondary stats in comparison', async ({ page }) => {
+    await page.locator('div:has-text("Add Parallel Battery")').first().click();
+    await page.waitForTimeout(500);
 
-    expect(simulatedRange).toBeGreaterThan(currentRange);
+    const comparisonSection = page.locator('text=Upgrade Comparison').locator('..');
+    
+    await expect(comparisonSection.getByText('Secondary Stats')).toBeVisible();
+    await expect(comparisonSection.getByText('Total Energy')).toBeVisible();
+    await expect(comparisonSection.getByText('Hill Speed')).toBeVisible();
+    await expect(comparisonSection.getByText('Peak Power')).toBeVisible();
+    await expect(comparisonSection.getByText('Charge Time')).toBeVisible();
   });
 });

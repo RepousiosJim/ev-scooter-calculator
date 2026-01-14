@@ -1,5 +1,6 @@
 // Main calculator types
 export type PredictionMode = 'spec' | 'realworld';
+export type DeltaDirection = 'up' | 'down' | 'neutral';
 
 export interface ScooterConfig {
   v: number;                   // Battery voltage
@@ -56,11 +57,26 @@ export interface Profile {
 
 export interface UpgradeDelta {
   mode: PredictionMode;
-  rangeChange: number;       // km change
-  speedChange: number;       // km/h change
-  accelChange: number;       // score change
-  rangePercent: number;      // percentage change
-  speedPercent: number;      // percentage change
+  whChange: number;
+  rangeChange: number;
+  speedChange: number;
+  hillSpeedChange: number;
+  powerChange: number;
+  chargeTimeChange: number;
+  costChange: number;
+  accelChange: number;
+  ampsChange: number;
+  cRateChange: number;
+  whPercent: number;
+  rangePercent: number;
+  speedPercent: number;
+  accelPercent: number;
+  costPercent: number;
+  hillSpeedPercent: number;
+  powerPercent: number;
+  chargeTimePercent: number;
+  ampsPercent: number;
+  cRatePercent: number;
 }
 
 export interface Recommendation {

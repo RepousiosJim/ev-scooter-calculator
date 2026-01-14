@@ -13,6 +13,7 @@ export const calculatorState = $state({
   showAdvanced: false,
   compareMode: false,
   predictionMode: 'spec' as PredictionMode,
+  activeTab: 'configuration' as 'configuration' | 'upgrades',
   simulatedConfig: null as ScooterConfig | null,
   activeUpgrade: null as 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires' | null,
 
@@ -79,4 +80,8 @@ export function clearSimulation() {
 
 export function toggleCompareMode(enabled: boolean) {
   calculatorState.compareMode = enabled;
+}
+
+export function setActiveTab(tab: 'configuration' | 'upgrades') {
+  calculatorState.activeTab = tab;
 }

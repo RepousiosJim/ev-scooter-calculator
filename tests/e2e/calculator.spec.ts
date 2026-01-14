@@ -14,13 +14,17 @@ test.describe('Calculator Functionality', () => {
   });
 
   test('loads preset and updates all fields', async ({ page }) => {
-    // Select preset dropdown
-    await page.selectOption('select', 'm365');
+    // Click on preset selector button
+    await page.click('button:has-text("Selected Preset")');
 
-    // Click load button
-    await page.click('button:has-text("Load")');
+    // Wait for modal to appear
+    await expect(page.locator('text=Choose a Preset')).toBeVisible();
 
-    // Wait for update
+    // Click on Xiaomi M365 preset
+    await page.click('button:has-text("Xiaomi M365")');
+
+    // Wait for modal to close and update
+    await expect(page.locator('text=Choose a Preset')).not.toBeVisible();
     await page.waitForTimeout(500);
 
     // Check if voltage changed to 36V (M365 spec)

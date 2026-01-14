@@ -43,7 +43,7 @@
   ];
 </script>
 
-<div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
+<div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg" id="upgrade-guidance">
   <div class="flex items-center justify-between mb-4">
     <h2 class="text-xl font-semibold text-textMain">Upgrade Guidance</h2>
     <span class="text-xs text-textMuted">Based on 2024-2026 EV scooter research</span>
