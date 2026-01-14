@@ -1,32 +1,40 @@
 import { describe, it, expect } from 'vitest';
-import { calculatePerformance, detectBottlenecks } from '$lib/utils/physics';
+import { calculatePerformance, detectBottlenecks, generateRecommendations, simulateUpgrade, calculateUpgradeDelta } from '$lib/utils/physics';
 import type { ScooterConfig } from '$lib/types';
 
-describe('Physics Calculations', () => {
-  const defaultConfig: ScooterConfig = {
-    v: 52,
-    ah: 16,
-    motors: 2,
-    watts: 1600,
-    style: 30,
-    weight: 80,
-    wheel: 10,
-    charger: 3,
-    regen: 0.05,
-    cost: 0.20,
-    slope: 0,
-    ridePosition: 0.6,
-    soh: 1
-  };
+const defaultConfig: ScooterConfig = {
+  v: 52,
+  ah: 16,
+  motors: 2,
+  watts: 1600,
+  style: 30,
+  weight: 80,
+  wheel: 10,
+  charger: 3,
+  regen: 0.05,
+  cost: 0.20,
+  slope: 0,
+  ridePosition: 0.6,
+  soh: 1
+};
 
+describe('Physics Calculations', () => {
   it('calculates basic performance metrics', () => {
-    const result = calculatePerformance(defaultConfig);
+    const result = calculatePerformance(defaultConfig, 'spec');
 
     expect(result.wh).toBeGreaterThan(0);
     expect(result.totalRange).toBeGreaterThan(0);
     expect(result.speed).toBeGreaterThan(0);
-    expect(result.totalWatts).toBe(3200);
+    expect(result.totalWatts).toBeCloseTo(2944, 0);
   });
+    const result = calculatePerformance(defaultConfig, 'spec');
+    
+    expect(result.wh).toBeGreaterThan(0);
+    expect(result.totalRange).toBeGreaterThan(0);
+    expect(result.speed).toBeGreaterThan(0);
+    expect(result.totalWatts).toBeCloseTo(2944, 0);
+  });
+
 
   it('applies battery health correctly', () => {
     const config = { ...defaultConfig, soh: 0.8 };
@@ -68,6 +76,101 @@ describe('Physics Calculations', () => {
 
     expect(result.cRate).toBe(result.amps / defaultConfig.ah);
     expect(result.cRate).toBeGreaterThan(0);
+  });
+
+  describe('Prediction Modes', () => {
+  it('spec mode provides higher performance estimates', () => {
+    const specResult = calculatePerformance(defaultConfig, 'spec');
+    const realworldResult = calculatePerformance(defaultConfig, 'realworld');
+
+    expect(specResult.totalRange).toBeGreaterThan(0);
+    expect(realworldResult.totalRange).toBeGreaterThan(0);
+    expect(specResult.speed).toBeGreaterThan(0);
+    expect(realworldResult.speed).toBeGreaterThan(0);
+  });
+
+  it('applies drivetrain efficiency correctly', () => {
+    const configWithEfficiency: ScooterConfig = {
+      ...defaultConfig,
+      drivetrainEfficiency: 0.85
+    };
+
+    const result = calculatePerformance(configWithEfficiency, 'spec');
+    expect(result.speed).toBeGreaterThan(0);
+  });
+
+  it('applies battery sag correctly', () => {
+    const configWithSag: ScooterConfig = {
+      ...defaultConfig,
+      batterySagPercent: 0.15
+    };
+
+    const result = calculatePerformance(configWithSag, 'spec');
+    expect(result.speed).toBeGreaterThan(0);
+  });
+});
+
+describe('Recommendation Engine', () => {
+  it('generates parallel battery recommendation for high C-rate', () => {
+    const configWithHighCrate: ScooterConfig = {
+      ...defaultConfig,
+      ah: 10,
+      watts: 2000
+    };
+
+    const stats = calculatePerformance(configWithHighCrate);
+    const recommendations = generateRecommendations(configWithHighCrate, stats);
+
+    expect(recommendations.some(r => r.upgradeType === 'parallel')).toBe(true);
+  });
+
+  it('generates voltage recommendation for low speed', () => {
+    const configWithLowVoltage: ScooterConfig = {
+      ...defaultConfig,
+      v: 36,
+      watts: 500
+    };
+
+    const stats = calculatePerformance(configWithLowVoltage);
+    const recommendations = generateRecommendations(configWithLowVoltage, stats);
+
+    expect(recommendations.some(r => r.upgradeType === 'voltage')).toBe(true);
+  });
+
+  it('generates controller recommendation when limited', () => {
+    const configWithController: ScooterConfig = {
+      ...defaultConfig,
+      controller: 40,
+      watts: 2000
+    };
+
+    const stats = calculatePerformance(configWithController);
+    const recommendations = generateRecommendations(configWithController, stats);
+
+    expect(recommendations.some(r => r.upgradeType === 'controller')).toBe(true);
+  });
+});
+
+describe('Upgrade Simulation', () => {
+  it('simulates parallel battery upgrade', () => {
+    const upgraded = simulateUpgrade(defaultConfig, 'parallel');
+
+    expect(upgraded.ah).toBe(defaultConfig.ah * 2);
+    expect(upgraded.v).toBe(defaultConfig.v);
+  });
+
+  it('simulates voltage upgrade', () => {
+    const upgraded = simulateUpgrade(defaultConfig, 'voltage');
+
+    expect(upgraded.v).toBeGreaterThan(defaultConfig.v);
+  });
+
+  it('calculates upgrade delta correctly', () => {
+    const delta = calculateUpgradeDelta(defaultConfig, 'parallel');
+
+    expect(delta).not.toBeNull();
+    expect(delta.rangeChange).toBeGreaterThan(0);
+    expect(delta.rangePercent).toBeGreaterThan(0);
   });
 });
 

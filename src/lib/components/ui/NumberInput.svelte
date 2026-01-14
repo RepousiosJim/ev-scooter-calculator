@@ -1,5 +1,15 @@
 <script lang="ts">
-  let { label, value = $bindable(), min = 0, max = 999999, unit, help, showSlider = false }: {
+  let {
+    label,
+    value,
+    min = 0,
+    max = 999999,
+    unit,
+    help,
+    showSlider = false,
+    step,
+    onValueChange
+  }: {
     label: string;
     value: number;
     min?: number;
@@ -7,9 +17,19 @@
     unit?: string;
     help?: string;
     showSlider?: boolean;
+    step?: number;
+    onValueChange?: (value: number) => void;
   } = $props();
 
   const inputId = $derived(`input-${Math.random().toString(36).substr(2, 9)}`);
+
+  function handleInput(event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    const numericValue = target.valueAsNumber;
+
+    if (Number.isNaN(numericValue)) return;
+    onValueChange?.(numericValue);
+  }
 </script>
 
 <div class="mb-4">
@@ -32,7 +52,9 @@
         type="range"
         {min}
         {max}
-        bind:value
+        {step}
+        value={value}
+        oninput={handleInput}
         id={inputId}
         class="flex-1"
         aria-label={label}
@@ -41,7 +63,9 @@
         type="number"
         {min}
         {max}
-        bind:value
+        {step}
+        value={value}
+        oninput={handleInput}
         id={`${inputId}-number`}
         class="w-20 bg-bgDark border border-gray-600 rounded p-2 text-textMain focus:border-primary focus:outline-none"
         aria-label={label}
@@ -66,7 +90,9 @@
         type="number"
         {min}
         {max}
-        bind:value
+        {step}
+        value={value}
+        oninput={handleInput}
         id={inputId}
         class="flex-1 bg-bgDark border border-gray-600 rounded p-2 text-textMain focus:border-primary focus:outline-none"
         aria-label={label}
