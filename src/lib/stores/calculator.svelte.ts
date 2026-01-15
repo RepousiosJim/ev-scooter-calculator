@@ -2,8 +2,79 @@ import type { ScooterConfig, PerformanceStats, Bottleneck, Recommendation, Predi
 import { defaultConfig, presets, presetMetadata } from '$lib/data/presets';
 import { calculatePerformance, detectBottlenecks, generateRecommendations, simulateUpgrade as simulateUpgradePhysics, calculateUpgradeDelta } from '$lib/utils/physics';
 import { normalizeConfig, normalizeConfigValue, type ConfigNumericKey } from '$lib/utils/validators';
+import { exportConfiguration, importConfiguration } from '$lib/utils/configHandler';
+import * as PHYSICS_CONSTANTS from '$lib/constants/physics';
+import * as CACHE_CONSTANTS from '$lib/constants/cache';
 
 const baseConfig = normalizeConfig(defaultConfig, defaultConfig);
+
+type ShareConfigKey = Exclude<keyof ScooterConfig, 'id' | 'name'>;
+
+const configKeys: ShareConfigKey[] = [
+  'v',
+  'ah',
+  'motors',
+  'watts',
+  'controller',
+  'style',
+  'weight',
+  'wheel',
+  'motorKv',
+  'scooterWeight',
+  'drivetrainEfficiency',
+  'batterySagPercent',
+  'charger',
+  'regen',
+  'cost',
+  'slope',
+  'ridePosition',
+  'soh'
+];
+
+function canUseBase64() {
+  return typeof window !== 'undefined' && typeof btoa === 'function' && typeof atob === 'function';
+}
+
+function toBase64Url(value: string) {
+  return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function fromBase64Url(value: string) {
+  const restored = value.replace(/-/g, '+').replace(/_/g, '/');
+  const padLength = restored.length % 4;
+  const padded = padLength ? `${restored}${'='.repeat(4 - padLength)}` : restored;
+  return atob(padded);
+}
+
+function encodeConfig(config: ScooterConfig) {
+  if (!canUseBase64()) return null;
+  const values = configKeys.map((key) => {
+    const value = config[key];
+    return typeof value === 'number' && Number.isFinite(value) ? value : null;
+  });
+  return toBase64Url(JSON.stringify(values));
+}
+
+function decodeConfig(encoded: string) {
+  if (!canUseBase64()) return null;
+  try {
+    const json = fromBase64Url(encoded);
+    const values = JSON.parse(json);
+    if (!Array.isArray(values)) return null;
+
+    const config: Partial<Record<ShareConfigKey, number>> = {};
+    configKeys.forEach((key, index) => {
+      const value = values[index];
+      if (typeof value === 'number' && Number.isFinite(value)) {
+        config[key] = value;
+      }
+    });
+
+    return config as Partial<ScooterConfig>;
+  } catch (error) {
+    return null;
+  }
+}
 
 // Main calculator state
 export const calculatorState = $state({
@@ -52,6 +123,28 @@ export function loadPreset(presetKey: string) {
     applyConfig(preset);
   }
 }
+
+export function createShareLink(config: ScooterConfig) {
+  if (typeof window === 'undefined') return null;
+  const encoded = encodeConfig(config);
+  if (!encoded) return null;
+  const url = new URL(window.location.origin + window.location.pathname);
+  url.searchParams.set('cfg', encoded);
+  return url.toString();
+}
+
+export function loadConfigFromUrl() {
+  if (typeof window === 'undefined') return false;
+  const params = new URLSearchParams(window.location.search);
+  const encoded = params.get('cfg');
+  if (!encoded) return false;
+  const decoded = decodeConfig(encoded);
+  if (!decoded) return false;
+  applyConfig(decoded);
+  return true;
+}
+
+export { exportConfiguration, importConfiguration };
 
 export function updateConfig<K extends ConfigNumericKey>(
   key: K,

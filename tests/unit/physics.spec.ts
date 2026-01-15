@@ -27,14 +27,13 @@ describe('Physics Calculations', () => {
     expect(result.speed).toBeGreaterThan(0);
     expect(result.totalWatts).toBeCloseTo(2944, 0);
   });
-    const result = calculatePerformance(defaultConfig, 'spec');
-    
-    expect(result.wh).toBeGreaterThan(0);
-    expect(result.totalRange).toBeGreaterThan(0);
-    expect(result.speed).toBeGreaterThan(0);
-    expect(result.totalWatts).toBeCloseTo(2944, 0);
-  });
 
+  it('returns consistent results for repeated calls', () => {
+    const first = calculatePerformance(defaultConfig, 'spec');
+    const second = calculatePerformance(defaultConfig, 'spec');
+
+    expect(second).toEqual(first);
+  });
 
   it('applies battery health correctly', () => {
     const config = { ...defaultConfig, soh: 0.8 };
@@ -78,35 +77,59 @@ describe('Physics Calculations', () => {
     expect(result.cRate).toBeGreaterThan(0);
   });
 
+  it('handles steep hills without NaN values', () => {
+    const steepConfig: ScooterConfig = {
+      ...defaultConfig,
+      slope: 25,
+      weight: 110
+    };
+    const result = calculatePerformance(steepConfig);
+
+    expect(Number.isFinite(result.hillSpeed)).toBe(true);
+    expect(result.hillSpeed).toBeLessThan(result.speed);
+  });
+
+  it('reduces top speed with lower voltage', () => {
+    const lowVoltageConfig: ScooterConfig = {
+      ...defaultConfig,
+      v: 36
+    };
+    const baseResult = calculatePerformance(defaultConfig, 'spec');
+    const lowResult = calculatePerformance(lowVoltageConfig, 'spec');
+
+    expect(lowResult.speed).toBeLessThan(baseResult.speed);
+  });
+
   describe('Prediction Modes', () => {
-  it('spec mode provides higher performance estimates', () => {
-    const specResult = calculatePerformance(defaultConfig, 'spec');
-    const realworldResult = calculatePerformance(defaultConfig, 'realworld');
+    it('spec mode provides higher performance estimates', () => {
+      const specResult = calculatePerformance(defaultConfig, 'spec');
+      const realworldResult = calculatePerformance(defaultConfig, 'realworld');
 
-    expect(specResult.totalRange).toBeGreaterThan(0);
-    expect(realworldResult.totalRange).toBeGreaterThan(0);
-    expect(specResult.speed).toBeGreaterThan(0);
-    expect(realworldResult.speed).toBeGreaterThan(0);
-  });
+      expect(specResult.totalRange).toBeGreaterThan(0);
+      expect(realworldResult.totalRange).toBeGreaterThan(0);
+      expect(specResult.speed).toBeGreaterThan(0);
+      expect(realworldResult.speed).toBeGreaterThan(0);
+    });
 
-  it('applies drivetrain efficiency correctly', () => {
-    const configWithEfficiency: ScooterConfig = {
-      ...defaultConfig,
-      drivetrainEfficiency: 0.85
-    };
+    it('applies drivetrain efficiency correctly', () => {
+      const configWithEfficiency: ScooterConfig = {
+        ...defaultConfig,
+        drivetrainEfficiency: 0.85
+      };
 
-    const result = calculatePerformance(configWithEfficiency, 'spec');
-    expect(result.speed).toBeGreaterThan(0);
-  });
+      const result = calculatePerformance(configWithEfficiency, 'spec');
+      expect(result.speed).toBeGreaterThan(0);
+    });
 
-  it('applies battery sag correctly', () => {
-    const configWithSag: ScooterConfig = {
-      ...defaultConfig,
-      batterySagPercent: 0.15
-    };
+    it('applies battery sag correctly', () => {
+      const configWithSag: ScooterConfig = {
+        ...defaultConfig,
+        batterySagPercent: 0.15
+      };
 
-    const result = calculatePerformance(configWithSag, 'spec');
-    expect(result.speed).toBeGreaterThan(0);
+      const result = calculatePerformance(configWithSag, 'spec');
+      expect(result.speed).toBeGreaterThan(0);
+    });
   });
 });
 
