@@ -17,13 +17,48 @@
   import EfficiencyPanel from '$lib/components/calculator/EfficiencyPanel.svelte';
   import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
   import BottleneckPanel from '$lib/components/calculator/BottleneckPanel.svelte';
-  import TourModal from '$lib/components/ui/TourModal.svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
   const bottlenecks = $derived(calculatorState.bottlenecks);
 
   let showTour = $state(false);
+  let tourStep = $state(0);
+
+  function startTour() {
+    showTour = true;
+  }
+
+  function nextTourStep() {
+    if (tourStep < 4) {
+      tourStep += 1;
+    } else {
+      completeTour();
+    }
+  }
+
+  function completeTour() {
+    localStorage.setItem('tour-completed', 'true');
+    showTour = false;
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      completeTour();
+    } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
+      nextTourStep();
+    } else if (event.key === 'ArrowLeft' && tourStep > 0) {
+      tourStep -= 1;
+    }
+  }
+
+  const tourSteps = [
+    { title: 'Welcome!', content: 'This tool helps you analyze and optimize your EV scooter performance.' },
+    { title: 'Preset Selector', content: 'Choose from popular scooter models to get started quickly.' },
+    { title: 'Configuration', content: 'Adjust your scooter specifications in real-time.' },
+    { title: 'Results', content: 'View instant performance analysis and bottleneck warnings.' },
+    { title: 'Upgrades', content: 'Simulate upgrades and see their impact before buying.' }
+  ];
 
   onMount(() => {
     loadConfigFromUrl();
@@ -87,11 +122,23 @@
   <!-- Profile Manager (Global) -->
   <ProfileManager />
 
-  {#if showTour}
-    <TourModal onClose={() => showTour = false} />
-  {/if}
+  <!-- Tour Button -->
+  <div class="flex justify-end mb-8">
+    {#if !localStorage.getItem('tour-completed')}
+      <button
+        type="button"
+        onclick={startTour}
+        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="Start guided tour"
+      >
+        🚀 Quick Tour
+      </button>
+    {/if}
+  </div>
 
   <nav class="flex justify-center mb-8" aria-label="Main tabs">
+    <Tabs tabs={tabs} bind:activeTab={calculatorState.activeTab} />
+  </nav>
               <span class="text-primary text-lg" aria-hidden="true">{calculatorState.showAdvanced ? '▼' : '▶'}</span>
             </button>
 
