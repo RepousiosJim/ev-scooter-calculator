@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import { AIR_DENSITY, ROLLING_RESISTANCE } from '$lib/utils/physics';
 
@@ -7,6 +7,9 @@
   let ctx: CanvasRenderingContext2D;
   let animationId: number;
   let container: HTMLDivElement;
+  let lastFrameTime = 0;
+
+  const FRAME_INTERVAL = 1000 / 30;
 
   const stats = $derived(calculatorState.stats);
   const config = $derived(calculatorState.config);
@@ -19,9 +22,11 @@
     }
 
     window.addEventListener('resize', resizeCanvas);
+    document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
       window.removeEventListener('resize', resizeCanvas);
+      document.removeEventListener('visibilitychange', handleVisibility);
       cancelAnimationFrame(animationId);
     };
   });
@@ -35,17 +40,27 @@
     canvas.width = rect.width * dpr;
     canvas.height = 300 * dpr;
 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     canvas.style.width = rect.width + 'px';
     canvas.style.height = '300px';
   }
 
-  function startAnimationLoop() {
-    function animate() {
-      drawGraph();
-      animationId = requestAnimationFrame(animate);
+  function handleVisibility() {
+    if (!document.hidden) {
+      lastFrameTime = 0;
     }
-    animate();
+  }
+
+  function startAnimationLoop() {
+    const animate = (time: number) => {
+      if (!document.hidden && time - lastFrameTime >= FRAME_INTERVAL) {
+        drawGraph();
+        lastFrameTime = time;
+      }
+      animationId = requestAnimationFrame(animate);
+    };
+    animationId = requestAnimationFrame(animate);
   }
 
   function drawGraph() {

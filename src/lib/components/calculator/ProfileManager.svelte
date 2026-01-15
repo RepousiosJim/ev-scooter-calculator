@@ -1,12 +1,24 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { fly } from 'svelte/transition';
-  import { applyConfig, calculatorState } from '$lib/stores/calculator.svelte';
+  import { applyConfig, calculatorState, createShareLink } from '$lib/stores/calculator.svelte';
   import { profilesStore, saveProfile, deleteProfile } from '$lib/stores/profiles.svelte';
+  import { exportConfiguration, importConfiguration } from '$lib/utils/configHandler';
+  import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
+
+  let showImportConfirm = $state(false);
+  let showResetConfirm = $state(false);
 
   let showProfiles = $state(false);
+  let copyState = $state<'idle' | 'success' | 'error'>('idle');
+  let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
   const profiles = $derived(profilesStore.profiles);
+  const shareLabel = $derived(() => {
+    if (copyState === 'success') return 'Link Copied';
+    if (copyState === 'error') return 'Copy Failed';
+    return 'Copy Share Link';
+  });
 
   function handleSave() {
     const name = prompt('Enter a name for this setup:');
@@ -14,30 +26,105 @@
     saveProfile(name, calculatorState.config);
   }
 
+  async function handleCopyShareLink() {
+    const shareLink = createShareLink(calculatorState.config);
+    if (!shareLink || typeof navigator === 'undefined') {
+      copyState = 'error';
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      copyState = 'success';
+    } catch (error) {
+      copyState = 'error';
+    }
+
+    if (copyTimer) clearTimeout(copyTimer);
+    copyTimer = setTimeout(() => {
+      copyState = 'idle';
+    }, 2000);
+  }
+
   function handleDelete(id: number) {
     if (confirm('Delete this setup?')) {
       deleteProfile(id);
     }
   }
+
+  function handleExport() {
+    exportConfiguration();
+  }
+
+  function handleImport() {
+    showImportConfirm = true;
+  }
+
+  async function confirmImport() {
+    await importConfiguration();
+    showImportConfirm = false;
+  }
+
+  function handleReset() {
+    showResetConfirm = true;
+  }
+
+  function confirmReset() {
+    applyConfig({});
+
+    showResetConfirm = false;
+  }
 </script>
 
-<!-- Profile Controls -->
-<div class="flex justify-between items-center mb-5 gap-3 flex-wrap">
-  <div class="flex gap-3">
-    <button
-      onclick={handleSave}
-      class="bg-primary text-bgDark font-bold px-4 py-2 rounded-lg hover:opacity-90 transition"
-    >
-      💾 Save Setup
-    </button>
-    <button
-      onclick={() => showProfiles = !showProfiles}
-      class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
-    >
-      📂 My Setups ({profiles.length})
-    </button>
+  <!-- Profile Controls -->
+  <div class="flex justify-between items-center mb-5 gap-3 flex-wrap">
+    <div class="flex gap-3">
+      <button
+        onclick={handleSave}
+        class="bg-primary text-bgDark font-bold px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="Save current configuration"
+      >
+        💾 Save Setup
+      </button>
+      <button
+        onclick={() => showProfiles = !showProfiles}
+        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="View saved profiles"
+      >
+        📂 My Setups ({profiles.length})
+      </button>
+      <button
+        onclick={handleExport}
+        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="Export configuration to file"
+      >
+        📥 Export
+      </button>
+      <button
+        onclick={handleImport}
+        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="Import configuration from file"
+      >
+        📥 Import
+      </button>
+      <button
+        onclick={handleCopyShareLink}
+        class={`bg-bgInput text-textMain px-4 py-2 rounded-lg transition ${copyState === 'error'
+          ? 'border border-danger text-danger'
+          : 'hover:opacity-90'}`}
+        aria-label="Copy share link"
+      >
+        🔗 {shareLabel()}
+      </button>
+      <button
+        onclick={handleReset}
+        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        aria-label="Reset to default"
+      >
+        ↻ Reset
+      </button>
+    </div>
   </div>
-</div>
 
 <!-- Profiles List -->
 {#if showProfiles}

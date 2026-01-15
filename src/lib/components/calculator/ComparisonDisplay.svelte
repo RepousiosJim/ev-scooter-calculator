@@ -30,8 +30,9 @@
     ];
   }
 
-  const primaryStats = $derived<StatRow[]>(getStatRows().filter(s => s.isPrimary));
-  const secondaryStats = $derived<StatRow[]>(getStatRows().filter(s => !s.isPrimary));
+  const statRows = $derived<StatRow[]>(getStatRows());
+  const primaryStats = $derived<StatRow[]>(statRows.filter(s => s.isPrimary));
+  const secondaryStats = $derived<StatRow[]>(statRows.filter(s => !s.isPrimary));
 
   function getDeltaInfo(current: number, upgraded: number) {
     return formatDelta(current, upgraded);

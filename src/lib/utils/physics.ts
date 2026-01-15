@@ -5,8 +5,25 @@ export const AIR_DENSITY = 1.225; // kg/m³
 export const GRAVITY = 9.81;      // m/s²
 export const ROLLING_RESISTANCE = 15; // W
 const NOMINAL_VOLTAGE = 52;
+const PERFORMANCE_CACHE_LIMIT = 200;
+const performanceCache = new Map<string, PerformanceStats>();
+
+function getPerformanceCacheKey(config: ScooterConfig, mode: PredictionMode): string {
+  const entries = Object.keys(config)
+    .sort()
+    .map((key) => {
+      const value = config[key as keyof ScooterConfig];
+      return `${key}:${typeof value === 'number' && Number.isFinite(value) ? value : ''}`;
+    })
+    .join('|');
+
+  return `${mode}|${entries}`;
+}
 
 export function calculatePerformance(config: ScooterConfig, mode: PredictionMode = 'spec'): PerformanceStats {
+  const cacheKey = getPerformanceCacheKey(config, mode);
+  const cached = performanceCache.get(cacheKey);
+  if (cached) return cached;
   // Apply mode-specific corrections
   const drivetrainEfficiency = config.drivetrainEfficiency ?? 0.9;
   const batterySagPercent = config.batterySagPercent ?? 0.08;
@@ -72,7 +89,7 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const amps = totalWatts / config.v;
   const cRate = amps / config.ah;
 
-  return {
+  const result = {
     wh,
     totalRange,
     speed,
@@ -84,6 +101,13 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
     amps,
     cRate
   };
+
+  if (performanceCache.size >= PERFORMANCE_CACHE_LIMIT) {
+    performanceCache.clear();
+  }
+  performanceCache.set(cacheKey, result);
+
+  return result;
 }
 
 function calculateMaxSpeed(config: ScooterConfig, efficiency: number = 1.0): number {

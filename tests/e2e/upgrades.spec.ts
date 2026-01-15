@@ -71,6 +71,16 @@ test.describe('Upgrade Simulation', () => {
     await expect(page.locator('text=Select an upgrade below to simulate its impact')).toBeVisible();
   });
 
+  test('clears upgrade selection and restores placeholder', async ({ page }) => {
+    await page.locator('div:has-text("Add Parallel Battery")').first().click();
+    await page.waitForTimeout(500);
+
+    await expect(page.locator('text=Upgrade Comparison')).toBeVisible();
+    await page.getByRole('button', { name: 'Clear selection' }).click();
+
+    await expect(page.locator('text=No upgrade selected')).toBeVisible();
+  });
+
   test('toggles between Spec and Real-World mode', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: 'Upgrades' }).click();

@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { calculatorState } from '$lib/stores/calculator.svelte';
-
+  import { onMount } from 'svelte';
+  import { calculatorState, loadConfigFromUrl, applyConfig, defaultConfig } from '$lib/stores/calculator.svelte';
+  
   // Components
   import Tabs from '$lib/components/ui/Tabs.svelte';
   import PresetSelector from '$lib/components/calculator/PresetSelector.svelte';
@@ -16,10 +17,18 @@
   import EfficiencyPanel from '$lib/components/calculator/EfficiencyPanel.svelte';
   import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
   import BottleneckPanel from '$lib/components/calculator/BottleneckPanel.svelte';
+  import TourModal from '$lib/components/ui/TourModal.svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
   const bottlenecks = $derived(calculatorState.bottlenecks);
+
+  let showTour = $state(false);
+
+  onMount(() => {
+    loadConfigFromUrl();
+    showTour = !localStorage.getItem('tour-completed');
+  });
 
   // Tab configuration
   const tabs = [
@@ -78,53 +87,30 @@
   <!-- Profile Manager (Global) -->
   <ProfileManager />
 
-  <!-- Tabs -->
-  <div class="flex justify-center mb-8">
-    <Tabs tabs={tabs} bind:activeTab={calculatorState.activeTab} />
-  </div>
+  {#if showTour}
+    <TourModal onClose={() => showTour = false} />
+  {/if}
 
-  <!-- Configuration Tab -->
-  {#if calculatorState.activeTab === 'configuration'}
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- Left Column: Configuration -->
-      <div class="lg:col-span-4">
-        <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg mb-6">
-          <h2 class="text-xl font-semibold text-textMain">Configuration</h2>
-          <p class="text-sm text-textMuted mt-1 mb-4">
-            Start with a preset or enter your specs. Results update instantly.
-          </p>
+  <nav class="flex justify-center mb-8" aria-label="Main tabs">
+              <span class="text-primary text-lg" aria-hidden="true">{calculatorState.showAdvanced ? '▼' : '▶'}</span>
+            </button>
 
-          <PresetSelector />
-          <BasicConfig />
-
-          <button
-            onclick={() => calculatorState.showAdvanced = !calculatorState.showAdvanced}
-            class="mt-4 w-full flex items-center justify-between gap-4 rounded-lg border border-gray-700/60 bg-bgInput/40 px-3 py-2 text-left hover:border-primary transition"
-          >
-            <div>
-              <div class="text-sm font-semibold text-textMain">Advanced Options</div>
-              <div class="text-xs text-textMuted">Rider + terrain, motor details, energy costs</div>
-            </div>
-            <span class="text-primary text-lg">{calculatorState.showAdvanced ? '▼' : '▶'}</span>
-          </button>
-
-          <AdvancedConfig />
+            <AdvancedConfig />
+          </div>
         </div>
-      </div>
 
-  <!-- Right Column: Results -->
         <div class="lg:col-span-8">
           <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
-            <h2 class="text-xl font-semibold text-textMain">Performance Analysis</h2>
+            <h3 class="text-xl font-semibold text-textMain">Performance Analysis</h3>
             <p class="text-xs text-textMuted mt-1 mb-4">Live results as you tune inputs and presets.</p>
 
-            <div class="space-y-6">
+            <div class="space-y-6" role="region" aria-live="polite" aria-atomic="true">
               <PerformanceSummary />
               <EfficiencyPanel />
               <ComponentHealthPanel />
               <PowerGraph />
               <BottleneckPanel />
-              <div class="rounded-lg border border-white/5 bg-black/20 p-4 text-sm text-textMuted">
+              <div class="rounded-lg border border-white/5 bg-black/20 p-4 text-sm text-textMuted" role="alert">
                 {@html analysisText()}
               </div>
             </div>
@@ -132,34 +118,40 @@
         </div>
       </div>
     {/if}
+  </section>
 
   <!-- Upgrades Tab -->
-  {#if calculatorState.activeTab === 'upgrades'}
-    <div class="space-y-6">
-      <!-- Upgrade Simulator -->
-      <UpgradeSimulator />
+  <section aria-labelledby="upgrades-heading" id="upgrades-panel">
+    {#if calculatorState.activeTab === 'upgrades'}
+      <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
+      <div class="space-y-6">
+        <!-- Upgrade Simulator -->
+        <UpgradeSimulator />
 
-      <!-- Comparison Display -->
-      <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
-        <div class="mb-6">
-          <h2 class="text-xl font-semibold text-textMain">Upgrade Comparison</h2>
-          <p class="text-sm text-textMuted mt-1">View impact of simulated upgrades on your current setup</p>
+        <!-- Comparison Display -->
+        <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
+          <div class="mb-6">
+            <h3 class="text-xl font-semibold text-textMain">Upgrade Comparison</h3>
+            <p class="text-sm text-textMuted mt-1">View impact of simulated upgrades on your current setup</p>
+          </div>
+
+          <div role="region" aria-live="polite">
+            {#if simStats}
+              <ComparisonSummary />
+              <ComparisonDisplay />
+            {:else}
+              <div class="flex flex-col items-center justify-center py-16 text-textMuted">
+                <div class="text-5xl mb-4" aria-hidden="true">📊</div>
+                <div class="text-lg font-medium text-textMain">No upgrade selected</div>
+                <div class="text-sm mt-2">Select an upgrade above to simulate its impact</div>
+              </div>
+            {/if}
+          </div>
         </div>
 
-        {#if simStats}
-          <ComparisonSummary />
-          <ComparisonDisplay />
-        {:else}
-          <div class="flex flex-col items-center justify-center py-16 text-textMuted">
-            <div class="text-5xl mb-4">📊</div>
-            <div class="text-lg font-medium text-textMain">No upgrade selected</div>
-            <div class="text-sm mt-2">Select an upgrade above to simulate its impact</div>
-          </div>
-        {/if}
+        <!-- Upgrade Guidance -->
+        <UpgradeGuidance />
       </div>
-
-      <!-- Upgrade Guidance -->
-      <UpgradeGuidance />
-    </div>
-  {/if}
+    {/if}
+  </section>
 </div>
