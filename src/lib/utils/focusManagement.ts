@@ -1,21 +1,42 @@
+function getFocusableElements(element: HTMLElement): HTMLElement[] {
+  const selector = 'button, [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [contenteditable], [tabindex]:not([tabindex="-1"]):not([disabled])';
+  const elements = element.querySelectorAll<HTMLElement>(selector);
+
+  return Array.from(elements).filter((el) => {
+    const rect = el.getBoundingClientRect();
+    const isVisible = rect.width > 0 && rect.height > 0;
+    const isNotHidden = window.getComputedStyle(el).visibility !== 'hidden';
+    const isNotContentEditableFalse = el.getAttribute('contenteditable') !== 'false';
+    return isVisible && isNotHidden && isNotContentEditableFalse;
+  });
+}
+
 export function trapFocus(element: HTMLElement): () => void {
-  const focusableElements = element.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const firstFocusable = focusableElements[0] as HTMLElement;
-  const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
+  const focusableElements = getFocusableElements(element);
+
+  if (focusableElements.length === 0) {
+    return () => {};
+  }
+
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
 
   function handleTabKey(e: KeyboardEvent) {
     if (e.key !== 'Tab') return;
+
+    const currentFocusableElements = getFocusableElements(element);
+    const currentFirst = currentFocusableElements[0];
+    const currentLast = currentFocusableElements[currentFocusableElements.length - 1];
+
     if (e.shiftKey) {
-      if (document.activeElement === firstFocusable) {
+      if (document.activeElement === currentFirst) {
         e.preventDefault();
-        lastFocusable?.focus();
+        currentLast?.focus();
       }
     } else {
-      if (document.activeElement === lastFocusable) {
+      if (document.activeElement === currentLast) {
         e.preventDefault();
-        firstFocusable?.focus();
+        currentFirst?.focus();
       }
     }
   }
@@ -25,8 +46,6 @@ export function trapFocus(element: HTMLElement): () => void {
 }
 
 export function focusFirstDescendant(element: HTMLElement): void {
-  const focusable = element.querySelector(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  ) as HTMLElement;
-  focusable?.focus();
+  const focusable = getFocusableElements(element);
+  focusable[0]?.focus();
 }

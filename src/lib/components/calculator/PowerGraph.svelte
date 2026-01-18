@@ -1,18 +1,24 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { calculatorState } from '$lib/stores/calculator.svelte';
-  import { AIR_DENSITY, ROLLING_RESISTANCE } from '$lib/utils/physics';
+  import { AIR_DENSITY_KG_M3, ROLLING_RESISTANCE_WATTS } from '$lib/constants/physics';
 
   let canvas: HTMLCanvasElement;
   let ctx: CanvasRenderingContext2D;
   let animationId: number;
   let container: HTMLDivElement;
   let lastFrameTime = 0;
-
-  const FRAME_INTERVAL = 1000 / 30;
+  let isMobile = $state(false);
+  let frameInterval = 1000 / 30;
 
   const stats = $derived(calculatorState.stats);
   const config = $derived(calculatorState.config);
+
+  function handleResize() {
+    isMobile = window.innerWidth < 640;
+    frameInterval = 1000 / (isMobile ? 15 : 30);
+    resizeCanvas();
+  }
 
   onMount(() => {
     if (canvas) {
@@ -21,11 +27,13 @@
       startAnimationLoop();
     }
 
-    window.addEventListener('resize', resizeCanvas);
+    isMobile = window.innerWidth < 640;
+    frameInterval = 1000 / (isMobile ? 15 : 30);
+    window.addEventListener('resize', handleResize);
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('visibilitychange', handleVisibility);
       cancelAnimationFrame(animationId);
     };
@@ -35,15 +43,15 @@
     if (!container || !canvas) return;
 
     const rect = container.getBoundingClientRect();
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
 
     canvas.width = rect.width * dpr;
-    canvas.height = 300 * dpr;
+    canvas.height = (isMobile ? 200 : 300) * dpr;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.scale(dpr, dpr);
     canvas.style.width = rect.width + 'px';
-    canvas.style.height = '300px';
+    canvas.style.height = (isMobile ? 200 : 300) + 'px';
   }
 
   function handleVisibility() {
@@ -54,7 +62,7 @@
 
   function startAnimationLoop() {
     const animate = (time: number) => {
-      if (!document.hidden && time - lastFrameTime >= FRAME_INTERVAL) {
+      if (!document.hidden && time - lastFrameTime >= frameInterval) {
         drawGraph();
         lastFrameTime = time;
       }
@@ -66,7 +74,7 @@
   function drawGraph() {
     if (!ctx || !canvas) return;
 
-    const width = canvas.width / (window.devicePixelRatio || 1);
+    const width = canvas.width / (typeof window !== 'undefined' ? window.devicePixelRatio : 1);
     const height = 300;
     const padding = 40;
     const graphWidth = width - padding * 2;
@@ -147,8 +155,8 @@
     let firstPoint = true;
     for (let v = 0; v <= maxSpeed; v += 1) {
       const speedMps = v / 3.6;
-      const powerDrag = 0.5 * AIR_DENSITY * Math.pow(speedMps, 3) * config.ridePosition;
-      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE;
+      const powerDrag = 0.5 * AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * config.ridePosition;
+      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE_WATTS;
 
       const x = padding + (v / maxSpeed) * graphWidth;
       const y = height - padding - (totalPowerNeeded / maxPower) * graphHeight;
@@ -168,11 +176,11 @@
     gradient.addColorStop(1, 'rgba(112, 0, 255, 0.05)');
 
     ctx.beginPath();
-    ctx.moveTo(padding, height - padding - (ROLLING_RESISTANCE / maxPower) * graphHeight);
+    ctx.moveTo(padding, height - padding - (ROLLING_RESISTANCE_WATTS / maxPower) * graphHeight);
     for (let v = 0; v <= maxSpeed; v += 1) {
       const speedMps = v / 3.6;
-      const powerDrag = 0.5 * AIR_DENSITY * Math.pow(speedMps, 3) * config.ridePosition;
-      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE;
+      const powerDrag = 0.5 * AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * config.ridePosition;
+      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE_WATTS;
 
       const x = padding + (v / maxSpeed) * graphWidth;
       const y = height - padding - (totalPowerNeeded / maxPower) * graphHeight;
@@ -214,6 +222,7 @@
   class="bg-black/20 p-4 rounded-lg mt-5"
 >
   <div class="text-center font-bold mb-3 text-textMuted">Power vs Speed Curve</div>
+  <!-- Inline style used for canvas background color (dark mode specific) -->
   <canvas
     bind:this={canvas}
     class="w-full rounded-lg"

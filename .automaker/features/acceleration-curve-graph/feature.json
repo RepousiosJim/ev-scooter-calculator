@@ -1,0 +1,18 @@
+{
+  "id": "acceleration-curve-graph",
+  "category": "UI",
+  "title": "Acceleration Curve Visualization",
+  "description": "Add 0-30km/h and 0-50km/h acceleration time graphs showing velocity curves for current and upgraded configurations. Interactive timeline shows motor torque transitions and power delivery phases.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.878Z",
+  "updatedAt": "2026-01-16T20:17:19.878Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

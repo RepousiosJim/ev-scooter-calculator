@@ -1,0 +1,20 @@
+{
+  "id": "carbon-footprint-tracker",
+  "category": "UI",
+  "title": "Carbon Footprint Comparison Tool",
+  "description": "Calculate CO2 savings vs car/public transport with lifetime emission tracking. Shows environmental impact metrics, equivalent trees planted, and personalized sustainability badges for milestone achievements.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "simple",
+  "dependencies": [
+    "maintenance-cost-tracker"
+  ],
+  "createdAt": "2026-01-16T20:17:19.881Z",
+  "updatedAt": "2026-01-16T20:17:19.881Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

@@ -4,7 +4,8 @@
   let { message, onClose }: { message: string; onClose: () => void } = $props();
 
   onMount(() => {
-    setTimeout(onClose, 3000);
+    const timer = setTimeout(onClose, 3000);
+    return () => clearTimeout(timer);
   });
 </script>
 

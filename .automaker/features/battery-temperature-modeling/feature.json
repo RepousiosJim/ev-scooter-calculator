@@ -1,0 +1,71 @@
+{
+  "id": "battery-temperature-modeling",
+  "category": "Core",
+  "title": "Battery Temperature Impact Modeling",
+  "description": "Extend physics engine to account for ambient temperature effects on battery performance and range. Cold weather reduces capacity by up to 40%, while hot weather affects discharge rates and longevity. Adds temperature slider (-20°C to 50°C) with real-time range/power adjustments.",
+  "status": "completed",
+  "priority": 1,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.871Z",
+  "updatedAt": "2026-01-16T20:51:38.634Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "feature/improvements",
+  "descriptionHistory": [],
+  "skipTests": false,
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "workMode": "custom",
+  "startedAt": "2026-01-16T20:41:01.992Z",
+  "planSpec": {
+    "status": "approved",
+    "version": 1,
+    "reviewedByUser": true,
+    "generatedAt": "2026-01-16T20:31:56.739Z",
+    "tasks": [
+      {
+        "id": "T001",
+        "description": "Add ambientTemp field to ScooterConfig interface in types.ts",
+        "filePath": "src/lib/types.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T002",
+        "description": "Add ambientTemp validation rule (-20 to 50) to validationRules in validators.ts",
+        "filePath": "src/lib/utils/validators.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T003",
+        "description": "Add calculateTemperatureFactor function and integrate into calculatePerformance in physics.ts",
+        "filePath": "src/lib/utils/physics.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T004",
+        "description": "Add ambientTemp to configKeys array in calculator.svelte.ts store",
+        "filePath": "src/lib/stores/calculator.svelte.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T005",
+        "description": "Add ambientTemp: 20 to all presets in presets.ts",
+        "filePath": "src/lib/data/presets.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T006",
+        "description": "Add temperature slider UI with range -20 to 50°C to BasicConfig.svelte",
+        "filePath": "src/lib/components/calculator/BasicConfig.svelte",
+        "status": "completed"
+      }
+    ],
+    "tasksTotal": 6,
+    "tasksCompleted": 6,
+    "approvedAt": "2026-01-16T20:32:01.938Z"
+  }
+}

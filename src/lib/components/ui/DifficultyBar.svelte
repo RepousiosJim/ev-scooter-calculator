@@ -10,13 +10,12 @@
   } = $props();
 
   const segments = 3;
-  const filledSegments = $state(difficulty === 'easy' ? 1 : difficulty === 'moderate' ? 2 : 3);
-  const fillColor = $state(difficulty === 'easy' ? 'bg-success' : difficulty === 'moderate' ? 'bg-warning' : 'bg-danger');
-  const textColor = $state(difficulty === 'easy' ? 'text-success' : difficulty === 'moderate' ? 'text-warning' : 'text-danger');
-  const heightClass = $state(size === 'sm' ? 'h-1.5' : 'h-2');
-  const barHeightClass = $state(size === 'sm' ? 'h-1' : 'h-1.5');
-  const textSizeClass = $state(size === 'sm' ? 'text-[10px]' : 'text-xs');
-  const barWidthClass = $state(size === 'sm' ? 'w-12' : 'w-16');
+  const filledSegments = $derived(difficulty === 'easy' ? 1 : difficulty === 'moderate' ? 2 : 3);
+  const fillColor = $derived(difficulty === 'easy' ? 'bg-success' : difficulty === 'moderate' ? 'bg-warning' : 'bg-danger');
+  const textColor = $derived(difficulty === 'easy' ? 'text-success' : difficulty === 'moderate' ? 'text-warning' : 'text-danger');
+  const barHeightClass = $derived(size === 'sm' ? 'h-1' : 'h-1.5');
+  const textSizeClass = $derived(size === 'sm' ? 'text-[10px]' : 'text-xs');
+  const barWidthClass = $derived(size === 'sm' ? 'w-12' : 'w-16');
 </script>
 
 <div class="flex items-center gap-2">

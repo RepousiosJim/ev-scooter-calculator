@@ -1,0 +1,27 @@
+{
+  "category": "enhancement",
+  "description": "Replace dropdown menus and modal dialogs with bottom-sheet UI patterns that slide up from the screen bottom. Make them swipeable to dismiss and position primary actions within thumb-reach zones.\n\n**Rationale:** Bottom sheets are more ergonomic on larger mobile screens where top navigation is harder to reach one-handed. This pattern aligns with modern mobile UX conventions and reduces hand strain during extended use.",
+  "title": "Implement bottom-sheet navigation for mobile",
+  "status": "backlog",
+  "id": "feature-1768594483885-hawush5nb",
+  "descriptionHistory": [
+    {
+      "description": "Replace dropdown menus and modal dialogs with bottom-sheet UI patterns that slide up from the screen bottom. Make them swipeable to dismiss and position primary actions within thumb-reach zones.\n\n**Rationale:** Bottom sheets are more ergonomic on larger mobile screens where top navigation is harder to reach one-handed. This pattern aligns with modern mobile UX conventions and reduces hand strain during extended use.",
+      "timestamp": "2026-01-16T20:14:43.886Z",
+      "source": "initial"
+    }
+  ],
+  "skipTests": false,
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "priority": 1,
+  "planningMode": "skip",
+  "requirePlanApproval": false,
+  "workMode": "current",
+  "dependencies": [],
+  "startedAt": "2026-01-16T20:16:22.581Z",
+  "updatedAt": "2026-01-16T20:27:20.485Z"
+}

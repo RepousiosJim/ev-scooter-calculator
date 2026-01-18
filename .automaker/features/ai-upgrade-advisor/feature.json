@@ -1,0 +1,21 @@
+{
+  "id": "ai-upgrade-advisor",
+  "category": "AI",
+  "title": "AI-Powered Upgrade Recommendation Engine",
+  "description": "Machine learning model trained on thousands of upgrade scenarios to provide personalized recommendations based on riding style, budget constraints, and performance priorities. Learns from user feedback to improve suggestions over time.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "complex",
+  "dependencies": [
+    "upgrade-cost-database",
+    "maintenance-cost-tracker"
+  ],
+  "createdAt": "2026-01-16T20:17:19.883Z",
+  "updatedAt": "2026-01-16T20:17:19.883Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

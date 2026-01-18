@@ -1,0 +1,18 @@
+{
+  "id": "upgrade-cost-database",
+  "category": "Database",
+  "title": "Real-Time Component Pricing Database",
+  "description": "Integrate with component pricing APIs or maintain crowd-sourced database of battery, controller, motor, and tire prices from major retailers. Shows best-value upgrade paths with price trend history.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "complex",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.879Z",
+  "updatedAt": "2026-01-16T20:17:19.879Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

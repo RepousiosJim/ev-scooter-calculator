@@ -16,6 +16,13 @@ Use it to sanity-check range and speed, then validate upgrades before spending o
 - Preset library spanning entry to flagship scooters
 - PWA-ready, responsive UI built with SvelteKit
 
+## Documentation
+
+- **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and code standards
+- **[Deployment Guide](DEPLOYMENT.md)** - Production setup and environment variables
+- **[Configuration Guide](CONFIGURATION.md)** - Advanced settings and customization
+- **[Testing Guide](TESTING.md)** - Test coverage and writing tests
+
 ## Quick Start
 
 ```bash

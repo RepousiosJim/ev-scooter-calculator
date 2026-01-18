@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tree:*)",
+      "Bash(npm run test:unit:*)",
+      "Bash(npm run check:*)"
+    ]
+  }
+}

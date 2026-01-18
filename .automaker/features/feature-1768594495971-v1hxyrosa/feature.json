@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Implement smart sticky navigation that hides when scrolling down (to maximize content space) and reappears when scrolling up. Keep critical context like page titles and key actions always accessible.\n\n**Rationale:** Screen real estate is precious on mobile. Scroll-aware headers provide the best of both worlds: maximizing content visibility while keeping navigation readily accessible without forcing users to scroll to the top.",
+  "title": "Add sticky headers with scroll-aware behavior",
+  "status": "backlog",
+  "id": "feature-1768594495971-v1hxyrosa",
+  "descriptionHistory": [
+    {
+      "description": "Implement smart sticky navigation that hides when scrolling down (to maximize content space) and reappears when scrolling up. Keep critical context like page titles and key actions always accessible.\n\n**Rationale:** Screen real estate is precious on mobile. Scroll-aware headers provide the best of both worlds: maximizing content visibility while keeping navigation readily accessible without forcing users to scroll to the top.",
+      "timestamp": "2026-01-16T20:14:55.972Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 2
+}

@@ -1,0 +1,17 @@
+{
+  "category": "enhancement",
+  "description": "Create interactive tooltip tour for first-time users highlighting key calculator features, upgrade paths, and result interpretations. Allow users to skip, replay, or dismiss individual tooltips with progress tracking.",
+  "title": "Tooltip Tour and Onboarding",
+  "dependencies": [],
+  "priority": 2,
+  "status": "backlog",
+  "branchName": "feature/improvements",
+  "id": "feature-1768596413418-pgxfkilqq",
+  "descriptionHistory": [
+    {
+      "description": "Create interactive tooltip tour for first-time users highlighting key calculator features, upgrade paths, and result interpretations. Allow users to skip, replay, or dismiss individual tooltips with progress tracking.",
+      "timestamp": "2026-01-16T20:46:53.419Z",
+      "source": "initial"
+    }
+  ]
+}

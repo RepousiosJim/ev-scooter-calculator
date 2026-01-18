@@ -27,12 +27,12 @@
     return keyboardShortcut(['s'], (event) => {
       if (event.ctrlKey || event.metaKey) {
         event.preventDefault();
-        onSave();
+        handleSave();
       }
     }, 'Ctrl/Cmd + S: Save setup');
   });
 
-  const actionGroups = [
+  const actionGroups = $derived([
     {
       title: 'Profiles',
       actions: [
@@ -40,13 +40,13 @@
           id: 'save',
           label: 'Save Setup',
           icon: '💾',
-          onClick: () => onSave()
+          onClick: handleSave
         },
         {
           id: 'profiles',
           label: 'My Setups',
           icon: '📂',
-          onClick: () => onShowProfiles()
+          onClick: onShowProfiles
         }
       ]
     },
@@ -57,13 +57,13 @@
           id: 'export',
           label: 'Export',
           icon: '📤',
-          onClick: () => onExport()
+          onClick: onExport
         },
         {
           id: 'import',
           label: 'Import',
           icon: '📥',
-          onClick: () => onImport()
+          onClick: onImport
         }
       ]
     },
@@ -74,7 +74,7 @@
           id: 'share',
           label: 'Copy Link',
           icon: '🔗',
-          onClick: () => onShare()
+          onClick: onShare
         }
       ]
     },
@@ -85,11 +85,11 @@
           id: 'reset',
           label: 'Reset',
           icon: '↻',
-          onClick: () => onReset()
+          onClick: onReset
         }
       ]
     }
-  ];
+  ]);
 
   function handleSave() {
     onSave();
@@ -100,21 +100,21 @@
   <button
     type="button"
     onclick={handleSave}
-    class="flex items-center gap-2 bg-gradient-main bg-[length:200%_200%] animate-gradient-shift text-white font-semibold px-5 py-2.5 rounded-lg shadow-lg hover:shadow-glow-sm transition-all duration-300 hover:scale-105"
+    class="flex items-center gap-2 bg-gradient-main bg-[length:200%_200%] animate-gradient-shift text-white font-semibold px-4 py-3 sm:px-5 sm:py-2.5 rounded-lg shadow-lg hover:shadow-glow-sm transition-all duration-300 hover:scale-105"
     aria-label="Save setup"
   >
     <span class="text-lg">💾</span>
     <span>Save Setup</span>
   </button>
 
-  <ActionDropdown isOpen={isDropdownOpen} groups={actionGroups}>
+  <ActionDropdown isOpen={isDropdownOpen} groups={actionGroups} onOpenChange={(open) => isDropdownOpen = open}>
     {#snippet trigger()}
       <div
-        class="flex items-center gap-2 bg-bgInput text-textMain px-4 py-2.5 rounded-lg border border-white/5 hover:bg-white/5 hover:border-white/10 transition-all duration-300"
+        class="flex items-center gap-1.5 sm:gap-2 bg-bgInput text-textMain px-4 py-3 sm:px-4 sm:py-2.5 rounded-lg border border-white/5 hover:bg-white/5 hover:border-white/10 transition-all duration-300"
       >
-        <span>More</span>
+        <span class="text-sm sm:text-base">More</span>
         <span
-          class="text-sm transition-transform duration-300"
+          class="text-xs sm:text-sm transition-transform duration-300"
           style:transform={isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)'}
           aria-hidden="true"
         >

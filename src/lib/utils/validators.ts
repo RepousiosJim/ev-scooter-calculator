@@ -27,7 +27,8 @@ export const validationRules: Record<ConfigNumericKey, ValidationRule> = {
   cost: { min: 0.05, message: 'Recommended: $0.05+ /kWh' },
   slope: { min: 0, max: 100, message: 'Recommended: 0-30%' },
   ridePosition: { min: 0.4, max: 0.6, message: 'Recommended: 0.4-0.6 drag coeff' },
-  soh: { min: 0.5, max: 1, message: 'Recommended: 50-100%' }
+  soh: { min: 0.5, max: 1, message: 'Recommended: 50-100%' },
+  ambientTemp: { min: -20, max: 50, message: 'Recommended: -20°C to 50°C' }
 };
 
 const optionalConfigKeys = new Set<ConfigNumericKey>(['controller', 'rpm', 'motorKv', 'scooterWeight', 'drivetrainEfficiency', 'batterySagPercent']);

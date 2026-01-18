@@ -1,0 +1,21 @@
+{
+  "id": "firmware-voltage-unlock",
+  "category": "Core",
+  "title": "Firmware Unlock Impact Simulator",
+  "description": "Model performance changes from firmware modifications (speed limit removal, voltage unlock, amp limit increases). Includes safety warnings, warranty void alerts, and legal compliance notices per region.",
+  "status": "pending-legal-review",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.880Z",
+  "updatedAt": "2026-01-16T20:17:19.880Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "requires_legal_review": true,
+  "required_approvers": ["legal","product"],
+  "risk_level": "high",
+  "branchName": "feature/firmware-voltage-unlock-pending-review",
+  "descriptionHistory": []
+}

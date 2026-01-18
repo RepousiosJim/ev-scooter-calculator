@@ -17,7 +17,8 @@ export const customPreset: ScooterConfig = {
   cost: 0.20,
   slope: 0,
   ridePosition: 0.6,
-  soh: 1
+  soh: 1,
+  ambientTemp: 20
 };
 
 export const presets: ScooterPreset = {
@@ -39,7 +40,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.6,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   f2pro: {
     v: 36,
@@ -58,7 +60,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.6,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   es4: {
     v: 36,
@@ -77,7 +80,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.6,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   kqi3max: {
     v: 48,
@@ -96,7 +100,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.6,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   apollo_city_2025: {
     v: 52,
@@ -115,7 +120,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.55,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   vsett9plus: {
     v: 52,
@@ -134,7 +140,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.6,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   mantis10: {
     v: 60,
@@ -153,7 +160,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.55,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   gt2: {
     v: 72,
@@ -172,7 +180,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.5,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   thunder3: {
     v: 72,
@@ -191,7 +200,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.5,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   burne2max: {
     v: 72,
@@ -210,7 +220,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.5,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   },
   wolfkinggtr: {
     v: 72,
@@ -229,7 +240,8 @@ export const presets: ScooterPreset = {
     cost: 0.20,
     slope: 0,
     ridePosition: 0.5,
-    soh: 1
+    soh: 1,
+    ambientTemp: 20
   }
 };
 

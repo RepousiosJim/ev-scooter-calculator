@@ -1,0 +1,1168 @@
+# EV Scooter Calculator - Coding Standards & Conventions
+
+This file defines the coding standards, patterns, and conventions for the EV Scooter Calculator project. These rules ensure consistency across the codebase and guide AI assistants in generating code that matches the project's architecture and style.
+
+---
+
+## 1. PROJECT FRAMEWORK & LANGUAGE CHOICES
+
+### Core Technology Stack
+- **Framework**: SvelteKit 2.x with Svelte 5 runes
+- **Language**: TypeScript (strict mode enabled)
+- **Build Tool**: Vite 7.x
+- **Styling**: Tailwind CSS v4 + custom theme tokens in `src/app.css`
+- **Testing**: Vitest (unit tests) + Playwright (e2e tests)
+- **State Management**: Svelte 5 runes (`$state`, `$derived`, `$props`)
+
+### Runtime Environment
+- **Node.js**: 22.x (via Vercel adapter)
+- **Browser Target**: Modern browsers with ES2020+ support
+- **Platform**: PWA-capable (progressive web app)
+
+### Language Preferences
+- **TypeScript over JavaScript**: All code must be written in TypeScript
+- **Strict Mode**: Maintain TypeScript strict mode; avoid `any` types
+- **Explicit Types**: Use interfaces from `src/lib/types.ts` for domain objects
+- **Typed Functions**: Prefer typed helper functions over inline complex logic
+
+---
+
+## 2. CODE STYLE GUIDELINES
+
+### Naming Conventions
+
+#### Files and Directories
+- **Components**: `PascalCase.svelte` (e.g., `BasicConfig.svelte`, `NumberInput.svelte`)
+- **Utilities**: `camelCase.ts` (e.g., `physics.ts`, `validators.ts`)
+- **Stores**: `camelCase.svelte.ts` (e.g., `calculator.svelte.ts`)
+- **Data**: `camelCase.ts` (e.g., `presets.ts`, `ride-modes.ts`)
+- **Types**: `types.ts` (centralized type definitions)
+- **Constants**: `camelCase.ts` or subdirectories (e.g., `physics.ts`, `cache.ts`)
+- **Test Files**: `*.spec.ts` (Vitest) or `*.spec.ts` (Playwright)
+
+#### Code Elements
+- **Components/Classes**: `PascalCase` (e.g., `NumberInput`, `Card`)
+- **Functions/Variables**: `camelCase` (e.g., `calculatePerformance`, `updateConfig`)
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `AIR_DENSITY`, `GRAVITY`, `PERFORMANCE_CACHE_LIMIT`)
+- **Interfaces/Types**: `PascalCase` (e.g., `ScooterConfig`, `PerformanceStats`)
+- **Type Parameters**: `T` or descriptive `TPrefix` (e.g., `T`, `TConfig`)
+- **Boolean Variables**: Prefix with `is`, `has`, `should` (e.g., `isLoaded`, `hasError`)
+
+#### CSS Classes
+- **Tailwind Utilities**: Use standard Tailwind class names
+- **Custom Classes**: `kebab-case` (e.g., `.stat-box`, `.gradient-glow`)
+- **State Modifiers**: `.modifier-name` (e.g., `.is-visible`, `.is-active`)
+
+### Formatting Rules
+
+#### Indentation & Spacing
+- **Indentation**: 2 spaces (never tabs)
+- **Line Length**: Prefer lines under 100 characters; break long lines sensibly
+- **Blank Lines**: One blank line between logical sections; two between top-level functions
+- **Trailing Commas**: Always use trailing commas in multi-line objects, arrays, and function calls
+
+#### Quotes
+- **TypeScript/JavaScript**: Single quotes for strings (`'string'`)
+- **HTML Attributes**: Double quotes for HTML/Svelte attributes
+- **Template Literals**: Backticks for multi-line strings or embedded expressions
+
+#### Semicolons
+- **Required**: Always use semicolons in TypeScript/JavaScript
+- **Never**: Omit semicolons in class properties or method signatures
+
+#### Braces
+- **Opening Brace**: Same line for control structures, new line for multi-line statements
+- **Closing Brace**: New line, aligned with opening statement
+- **Else/Catch**: Same line as closing brace (K&R style for control flow)
+
+### Structural Patterns
+
+#### Import Organization
+```typescript
+// 1. External libraries
+import { describe, it, expect } from 'vitest';
+
+// 2. SvelteKit/Svelte imports
+import type { Page } from '@sveltejs/kit';
+
+// 3. $lib imports (grouped by subdirectory)
+import type { ScooterConfig, PerformanceStats } from '$lib/types';
+import { calculatePerformance } from '$lib/utils/physics';
+import { calculatorState } from '$lib/stores/calculator.svelte';
+
+// 4. Relative/local imports
+import NumberInput from '$lib/components/ui/NumberInput.svelte';
+```
+
+#### Export Organization
+- **Named Exports**: Use named exports for utilities and functions
+- **Default Exports**: Use only for components
+- **Type Exports**: Use `export type` for type-only exports
+- **Re-exports**: Re-export related utilities for cleaner imports
+
+#### Function Organization
+```typescript
+// 1. Imports
+import { ... } from '...';
+
+// 2. Constants
+const CONSTANT_VALUE = 'value';
+
+// 3. Type definitions (if local)
+interface LocalType { ... }
+
+// 4. Helper functions (private)
+function helperFunction() { ... }
+
+// 5. Main exported functions
+export function mainFunction() { ... }
+
+// 6. Exported objects/classes
+export const exportedObject = { ... };
+```
+
+---
+
+## 3. COMPONENT ARCHITECTURE & ORGANIZATION
+
+### Component Structure
+
+#### Svelte Component Template
+```svelte
+<script lang="ts">
+  // 1. Imports (external, then $lib, then local)
+  import type { SomeType } from '$lib/types';
+  import { someFunction } from '$lib/utils/helper';
+  import ChildComponent from '$lib/components/ChildComponent.svelte';
+
+  // 2. Props (using $props)
+  interface Props {
+    prop1: string;
+    prop2?: number;
+  }
+
+  let { prop1, prop2 = 0 }: Props = $props();
+
+  // 3. Local state (using $state)
+  let localState = $state('initial');
+
+  // 4. Derived values (using $derived)
+  const derivedValue = $derived(localState.toUpperCase());
+
+  // 5. Event handlers
+  function handleClick() { ... }
+</script>
+
+<!-- 6. Template -->
+<div class="component-container">
+  <ChildComponent {prop1} {prop2} />
+</div>
+
+<style>
+  /* 7. Scoped styles (minimal, prefer Tailwind) */
+  .component-container {
+    /* component-specific styles */
+  }
+</style>
+```
+
+### Component Categories
+
+#### UI Components (`src/lib/components/ui/`)
+- **Purpose**: Reusable, generic UI primitives
+- **Examples**: `Card`, `NumberInput`, `Button`, `Modal`, `Tabs`
+- **Rules**:
+  - Must be framework-agnostic where possible
+  - Accept data via props, emit events for actions
+  - Use Tailwind for styling
+  - Keep business logic minimal
+  - Include `aria-label` and accessibility attributes
+
+#### Feature Components (`src/lib/components/calculator/`)
+- **Purpose**: Domain-specific calculator UI components
+- **Examples**: `BasicConfig`, `AdvancedConfig`, `ResultDisplay`, `UpgradeCard`
+- **Rules**:
+  - Use stores from `src/lib/stores/` for state
+  - Prefer store helper functions for updates
+  - Domain-specific logic stays in utils, components only handle UI
+  - Use validation rules from `src/lib/utils/validators.ts`
+
+### Store Architecture
+
+#### Store Organization
+```typescript
+// src/lib/stores/calculator.svelte.ts
+
+// 1. Imports
+import type { ... } from '$lib/types';
+import { ... } from '$lib/utils/...';
+
+// 2. Constants
+const CACHE_LIMIT = 200;
+
+// 3. Main state object
+export const calculatorState = $state({
+  // Configuration
+  config: { ... },
+
+  // UI state
+  showAdvanced: false,
+  activeTab: 'configuration',
+
+  // Computed properties (using get)
+  get stats() { return calculatePerformance(this.config); },
+
+  get bottlenecks() { return detectBottlenecks(this.stats, this.config); }
+});
+
+// 4. Action functions
+export function updateConfig(key, value) { ... }
+export function loadPreset(presetKey) { ... }
+export function applyRideMode(mode) { ... }
+```
+
+#### Store Rules
+- **State**: Use `$state` for reactive state
+- **Derived**: Use `get` accessors for computed values
+- **Actions**: Export functions for state mutations
+- **Normalization**: Always normalize inputs using validators
+- **Persistence**: Handle localStorage with try/catch blocks
+- **SSR Safety**: Check `typeof window !== 'undefined'` for browser-only code
+
+### File Organization
+
+#### Directory Structure
+```
+src/
+├── routes/                    # SvelteKit routes
+│   ├── +layout.svelte         # Root layout
+│   ├── +page.svelte           # Main page
+│   └── +page.ts               # Page load logic
+├── lib/
+│   ├── components/
+│   │   ├── calculator/        # Feature components
+│   │   └── ui/               # Reusable UI components
+│   ├── constants/            # Physical/config constants
+│   ├── data/                 # Presets and static data
+│   ├── stores/               # Svelte rune stores
+│   ├── types.ts              # Centralized type definitions
+│   └── utils/                # Utility functions
+│       ├── physics.ts         # Physics calculations
+│       ├── validators.ts      # Input validation
+│       └── handlers.ts        # Event/error handlers
+├── app.css                    # Global styles and theme
+└── app.html                   # HTML template
+```
+
+---
+
+## 4. ERROR HANDLING & LOGGING STANDARDS
+
+### Error Handling Patterns
+
+#### try/catch Usage
+```typescript
+// Always catch and handle errors from external operations
+function loadFromStorage() {
+  try {
+    const data = localStorage.getItem('key');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('[storage] Failed to load data:', error);
+    return null; // Graceful fallback
+  }
+}
+```
+
+#### Error Propagation
+```typescript
+// For critical errors that should propagate up
+function criticalOperation() {
+  try {
+    // ... operation
+  } catch (error) {
+    handleError(error, 'criticalOperation');
+    throw error; // Re-throw for caller to handle
+  }
+}
+
+// For non-critical errors with fallbacks
+function safeOperation() {
+  try {
+    // ... operation
+  } catch (error) {
+    handleError(error, 'safeOperation');
+    return defaultValue; // Return fallback
+  }
+}
+```
+
+### Logging Standards
+
+#### Console Logging
+```typescript
+// Error logging (for failures)
+console.error('[context]', errorObject);
+
+// Warning logging (for deprecations or non-critical issues)
+console.warn('[context]', warningMessage);
+
+// Debug logging (for development only, use sparingly)
+console.debug('[context]', debugData);
+```
+
+#### Error Handler Utility
+```typescript
+// Use centralized error handler from src/lib/utils/errorHandler.ts
+import { handleError, safeLocalStorageGet } from '$lib/utils/errorHandler';
+
+// Wrap localStorage operations
+const data = safeLocalStorageGet('key');
+
+// Handle errors with context
+try {
+  // operation
+} catch (error) {
+  handleError(error, 'functionName');
+}
+```
+
+### Validation Error Handling
+
+#### Input Validation
+```typescript
+// Always validate user inputs
+import { validateField, normalizeConfigValue } from '$lib/utils/validators';
+
+function handleInput(key, value) {
+  const validation = validateField(key, value);
+  if (!validation.isValid) {
+    // Show validation error to user
+    return;
+  }
+
+  // Normalize and update
+  const normalized = normalizeConfigValue(key, value, currentValue);
+  updateConfig(key, normalized);
+}
+```
+
+#### NaN/Infinity Checks
+```typescript
+// Guard against invalid numeric values
+function calculateSomething(input: number) {
+  if (!Number.isFinite(input)) {
+    return 0; // or throw error
+  }
+
+  // ... calculation
+}
+
+// Guard against division by zero
+function divide(a: number, b: number) {
+  if (b === 0) {
+    console.warn('[divide] Division by zero prevented');
+    return 0;
+  }
+  return a / b;
+}
+```
+
+---
+
+## 5. TESTING REQUIREMENTS & PATTERNS
+
+### Unit Tests (Vitest)
+
+#### File Location
+- **Path**: `tests/unit/*.spec.ts`
+- **Naming**: Match file being tested (e.g., `physics.spec.ts` tests `physics.ts`)
+
+#### Test Structure
+```typescript
+import { describe, it, expect } from 'vitest';
+import { functionToTest } from '$lib/utils/physics';
+
+describe('functionToTest', () => {
+  // 1. Happy path tests
+  it('returns expected output for valid input', () => {
+    const result = functionToTest(validInput);
+    expect(result).toBe(expectedValue);
+  });
+
+  // 2. Edge case tests
+  it('handles edge cases correctly', () => {
+    const result = functionToTest(edgeCaseInput);
+    expect(result).not.toBeNaN();
+    expect(result).toBeGreaterThanOrEqual(0);
+  });
+
+  // 3. Error handling tests
+  it('returns fallback for invalid input', () => {
+    const result = functionToTest(invalidInput);
+    expect(result).toBe(defaultValue);
+  });
+});
+```
+
+#### Unit Test Rules
+- **Isolation**: Each test should be independent
+- **Deterministic**: No random values or external dependencies
+- **Fast**: Should complete in milliseconds
+- **Coverage**: Aim for >80% coverage on physics logic
+- **Test Data**: Use minimal, realistic test data
+- **Assertions**: Use specific matchers (toBe, toBeCloseTo, etc.)
+
+### E2E Tests (Playwright)
+
+#### File Location
+- **Path**: `tests/e2e/*.spec.ts`
+- **Naming**: Descriptive feature name (e.g., `calculator.spec.ts`, `accessibility.spec.ts`)
+
+#### Test Structure
+```typescript
+import { test, expect } from '@playwright/test';
+
+test.describe('Feature Name', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+  });
+
+  test('user action produces expected outcome', async ({ page }) => {
+    // Arrange
+    await page.fill('input[name="field"]', 'value');
+
+    // Act
+    await page.click('button:has-text("Submit")');
+
+    // Assert
+    await expect(page.locator('.result')).toBeVisible();
+  });
+});
+```
+
+#### E2E Test Rules
+- **User Flows**: Test actual user interactions, not implementation
+- **Selectors**: Use `data-testid` attributes for reliable element selection
+- **Waiting**: Use Playwright's auto-waiting; avoid `waitForTimeout` unless necessary
+- **Cleanup**: Reset state between tests
+- **Browsers**: Test against Chrome, Firefox, Safari in CI
+- **Accessibility**: Include ARIA tests in `accessibility.spec.ts`
+
+#### Data-testid Attributes
+```html
+<!-- Always add data-testid for testable elements -->
+<button data-testid="submit-button">Submit</button>
+<div data-testid="result-display">...</div>
+<input data-testid="email-input" name="email" />
+```
+
+### Test Commands
+
+#### Running Tests
+```bash
+# All tests
+npm run test
+
+# Unit tests only
+npm run test:unit
+
+# E2E tests only
+npm run test:e2e
+
+# Single test file
+npm run test:unit -- tests/unit/physics.spec.ts
+
+# Single test case
+npm run test:unit -- tests/unit/physics.spec.ts -t "calculates"
+```
+
+---
+
+## 6. PERFORMANCE OPTIMIZATION GUIDELINES
+
+### Caching Strategy
+
+#### Performance Caching
+```typescript
+// Physics calculations are cached
+const PERFORMANCE_CACHE_LIMIT = 200;
+const performanceCache = new Map<string, PerformanceStats>();
+
+function calculatePerformance(config: ScooterConfig) {
+  const cacheKey = getCacheKey(config);
+  const cached = performanceCache.get(cacheKey);
+  if (cached) return cached;
+
+  const result = performCalculation(config);
+
+  if (performanceCache.size >= PERFORMANCE_CACHE_LIMIT) {
+    performanceCache.clear();
+  }
+  performanceCache.set(cacheKey, result);
+
+  return result;
+}
+```
+
+### Derived Values
+
+#### Use $derived for Computed State
+```typescript
+// Good: Reactive derived value
+const stats = $derived(calculatePerformance(calculatorState.config));
+
+// Bad: Computed on every render (not reactive)
+let stats = calculatePerformance(calculatorState.config);
+```
+
+### Reactivity Optimization
+
+#### Batch State Updates
+```typescript
+// Good: Single state update
+calculatorState.config = { ...calculatorState.config, v: 52, ah: 13 };
+
+// Bad: Multiple reactive updates
+calculatorState.config.v = 52;
+calculatorState.config.ah = 13; // Triggers recalculation twice
+```
+
+### Large List Rendering
+
+#### Pagination/Virtualization
+- For lists > 100 items, use pagination
+- Avoid rendering all items at once
+- Consider `svelte-virtual-list` for very large lists
+
+### Asset Optimization
+
+#### Images
+- Use WebP format with fallbacks
+- Implement lazy loading for below-fold images
+- Compress images before adding to codebase
+
+#### Fonts
+- Use system fonts where possible
+- Subset custom fonts to reduce size
+- Use `font-display: swap` for performance
+
+### Bundle Size
+
+#### Code Splitting
+```typescript
+// Lazy load heavy components
+import { onMount } from 'svelte';
+
+let HeavyComponent;
+onMount(async () => {
+  HeavyComponent = (await import('./HeavyComponent.svelte')).default;
+});
+```
+
+#### Tree Shaking
+- Use named exports for better tree shaking
+- Avoid default exports for utility modules
+- Remove unused imports
+
+---
+
+## 7. SECURITY CONSIDERATIONS
+
+### XSS Prevention
+
+#### User Input Sanitization
+```typescript
+// Never render user input directly
+// Bad
+<div>{userInput}</div>
+
+// Good - Svelte automatically escapes by default
+<div>{userInput}</div>
+
+// For HTML content, sanitize first
+import DOMPurify from 'dompurify';
+const safeHTML = DOMPurify.sanitize(userHTML);
+<div>{@html safeHTML}</div>
+```
+
+### localStorage Security
+
+#### Data Validation
+```typescript
+// Always validate data from localStorage
+function loadConfig() {
+  try {
+    const raw = localStorage.getItem('config');
+    if (!raw) return defaultConfig;
+
+    const parsed = JSON.parse(raw);
+    return normalizeConfig(parsed, defaultConfig);
+  } catch (error) {
+    handleError(error, 'loadConfig');
+    return defaultConfig; // Fallback to safe default
+  }
+}
+```
+
+#### Storage Limits
+- Handle `QuotaExceededError` gracefully
+- Implement data cleanup if storage is full
+- Use compression for large datasets
+
+### URL Parameter Security
+
+#### Input Validation
+```typescript
+// Validate URL parameters before use
+function loadFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const value = params.get('param');
+
+  if (value && isValidValue(value)) {
+    // Safe to use
+  }
+}
+```
+
+### Content Security Policy
+
+#### Inline Scripts
+- Avoid inline `<script>` tags
+- Use nonce or hash for inline scripts if necessary
+- Prefer external script files
+
+---
+
+## 8. DOCUMENTATION REQUIREMENTS
+
+### Code Comments
+
+#### When to Comment
+- **Complex Algorithms**: Explain non-obvious logic
+- **Domain Knowledge**: Document physics formulas or business rules
+- **Workarounds**: Document temporary fixes with TODO comments
+- **Public APIs**: Document function parameters and return types
+
+#### Comment Style
+```typescript
+// Single-line comment for quick notes
+
+/**
+ * Multi-line comment for complex logic:
+ * - Point 1
+ * - Point 2
+ * - Point 3
+ */
+
+/**
+ * Calculates performance metrics for a scooter configuration.
+ *
+ * @param config - The scooter configuration parameters
+ * @param mode - Prediction mode ('spec' for manufacturer specs, 'realworld' for realistic estimates)
+ * @returns Performance statistics including range, speed, power, etc.
+ *
+ * @example
+ * ```ts
+ * const stats = calculatePerformance({ v: 48, ah: 13, ... }, 'spec');
+ * console.log(stats.totalRange); // ~45 km
+ * ```
+ */
+export function calculatePerformance(config: ScooterConfig, mode: PredictionMode = 'spec'): PerformanceStats {
+  // ... implementation
+}
+```
+
+#### When NOT to Comment
+```typescript
+// Bad: Comments that repeat the code
+// Set the voltage to 48
+config.v = 48;
+
+// Good: Self-documenting code
+config.voltage = 48;
+```
+
+### Type Documentation
+
+#### Interface Documentation
+```typescript
+/**
+ * Complete scooter configuration with all physical and electrical parameters.
+ *
+ * @remarks
+ * All numeric values use SI units unless otherwise noted:
+ * - Voltage: Volts (V)
+ * - Capacity: Ampere-hours (Ah)
+ * - Power: Watts (W)
+ * - Weight: Kilograms (kg)
+ */
+export interface ScooterConfig {
+  /** Battery voltage in volts */
+  v: number;
+
+  /** Battery capacity in ampere-hours */
+  ah: number;
+
+  /** Number of motors (1-4) */
+  motors: number;
+
+  /** Power per motor in watts */
+  watts: number;
+}
+```
+
+### README Standards
+
+#### Project README (`README.md`)
+- Clear project description
+- Quick start instructions
+- Tech stack overview
+- Key features
+- Installation steps
+- Usage examples
+- Contributing guide link
+
+### Component Documentation
+
+#### Component Props
+```typescript
+interface Props {
+  /** The label text displayed above the input */
+  label: string;
+
+  /** Current value (two-way bound) */
+  value: number;
+
+  /** Minimum allowed value */
+  min: number;
+
+  /** Maximum allowed value */
+  max: number;
+
+  /** Unit suffix to display (e.g., 'V', 'Ah', 'W') */
+  unit: string;
+
+  /** Help text displayed below input */
+  help?: string;
+
+  /** Callback when value changes */
+  onValueChange: (value: number) => void;
+}
+```
+
+---
+
+## 9. DOMAIN-SPECIFIC PATTERNS & ANTI-PATTERNS
+
+### Physics Calculations
+
+#### Patterns
+```typescript
+// ✅ Good: Use named constants for physical values
+export const AIR_DENSITY = 1.225; // kg/m³
+export const GRAVITY = 9.81;      // m/s²
+
+// ✅ Good: Document formulas with references
+// Drag force equation: Fd = 0.5 * ρ * v² * Cd * A
+const powerDrag = 0.5 * AIR_DENSITY * Math.pow(speedMps, 3) * ridePosition;
+
+// ✅ Good: Use helper functions for complex calculations
+function calculateDragLimitedSpeed(totalWatts: number, ridePosition: number, maxSpeed: number): number {
+  // ... implementation
+}
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Magic numbers
+const result = speed * 1.225 * 0.5;
+
+// ❌ Bad: Inline complex physics
+const speed = Math.sqrt((totalWatts / (0.5 * 1.225 * 0.6)));
+
+// ❌ Bad: No unit conversion awareness
+const speedInMeters = speed * 1000; // Wrong: speed is already in m/s
+```
+
+### State Management
+
+#### Patterns
+```typescript
+// ✅ Good: Use store helpers for updates
+export function updateConfig<K extends ConfigNumericKey>(key: K, value: number) {
+  const normalized = normalizeConfigValue(key, value, calculatorState.config[key]);
+  calculatorState.config[key] = normalized;
+}
+
+// ✅ Good: Normalize all inputs
+const normalizedConfig = normalizeConfig(userInput, defaultConfig);
+
+// ✅ Good: Use derived values for computed state
+get stats() {
+  return calculatePerformance(this.config);
+}
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Direct state mutation from components
+<script>
+  calculatorState.config.v = 52; // Should use updateConfig()
+</script>
+
+// ❌ Bad: Unvalidated state updates
+calculatorState.config.ah = userInput; // Should normalize first
+
+// ❌ Bad: Computed state in component
+let stats = calculatePerformance(config); // Should use $derived
+```
+
+### UI Components
+
+#### Patterns
+```typescript
+// ✅ Good: Reusable NumberInput component
+<NumberInput
+  label="Battery Voltage"
+  value={calculatorState.config.v}
+  min={validationRules.v.min}
+  max={validationRules.v.max}
+  unit="V"
+  onValueChange={(value) => updateConfig('v', value)}
+/>
+
+// ✅ Good: Use Tailwind utilities
+<div class="bg-bgCard border border-white/10 rounded-lg p-4">
+
+// ✅ Good: Accessibility attributes
+<input
+  type="number"
+  aria-label="Battery Voltage"
+  aria-valuemin={min}
+  aria-valuemax={max}
+  aria-valuenow={value}
+/>
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Inline styles
+<div style="background: #1e293b; padding: 1rem;">
+
+// ❌ Bad: Missing accessibility
+<input type="number" value={value} />
+
+// ❌ Bad: Duplicated component logic
+<!-- Instead of reusing NumberInput -->
+<input type="number" />
+<input type="number" />
+<input type="number" />
+```
+
+### Validation Patterns
+
+#### Patterns
+```typescript
+// ✅ Good: Centralized validation rules
+export const validationRules: Record<ConfigNumericKey, ValidationRule> = {
+  v: { min: 24, max: 96, message: 'Recommended: 24-96V' },
+  ah: { min: 5, message: 'Recommended: 5+ Ah' },
+  // ...
+};
+
+// ✅ Good: Normalize before using
+const normalized = normalizeConfigValue(key, value, fallback);
+
+// ✅ Good: Validate user input
+const validation = validateField(key, value);
+if (!validation.isValid) {
+  showError(validation.message);
+}
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Inline validation
+if (value < 24 || value > 96) {
+  // ...
+}
+
+// ❌ Bad: No validation
+calculatorState.config.v = userInput; // Could be any value
+
+// ❌ Bad: Scattered validation logic
+// Validation rules spread across multiple files
+```
+
+### Import Patterns
+
+#### Patterns
+```typescript
+// ✅ Good: Grouped imports
+import { describe, it, expect } from 'vitest';
+import type { ScooterConfig } from '$lib/types';
+import { calculatePerformance } from '$lib/utils/physics';
+
+// ✅ Good: Type-only imports
+import type { Page } from '@sveltejs/kit';
+
+// ✅ Good: Re-export for cleaner imports
+export { calculatePerformance, detectBottlenecks } from '$lib/utils/physics';
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Unordered imports
+import { expect } from 'vitest';
+import type { ScooterConfig } from '$lib/types';
+import { describe, it } from 'vitest'; // Mixed with above
+
+// ❌ Bad: Unused imports
+import { unusedFunction } from '$lib/utils/helper';
+
+// ❌ Bad: Deeply nested imports
+import { something } from '../../../utils/helper';
+// Use $lib alias instead
+```
+
+### Testing Anti-Patterns
+
+#### Patterns
+```typescript
+// ✅ Good: Isolated tests
+it('calculates correct range', () => {
+  const result = calculatePerformance(testConfig);
+  expect(result.totalRange).toBeCloseTo(45, 0);
+});
+
+// ✅ Good: Descriptive test names
+it('applies temperature factor to battery capacity', () => { ... });
+```
+
+#### Anti-Patterns
+```typescript
+// ❌ Bad: Non-descriptive test names
+it('works', () => { ... });
+
+// ❌ Bad: Multiple assertions
+it('tests everything', () => {
+  expect(result.range).toBe(45);
+  expect(result.speed).toBe(50);
+  expect(result.power).toBe(1000);
+  expect(result.accelScore).toBe(60);
+  // Should be separate tests
+
+// ❌ Bad: Hardcoded magic numbers
+expect(result).toBe(45.123456789);
+// Use closeTo for floating point
+```
+
+---
+
+## 10. PROJECT-SPECIFIC CONVENTIONS
+
+### Calculator Physics
+
+#### Formulas Reference
+- **Range**: `baseRange = (v * ah * soh * temperatureFactor) / style`
+- **Regen Gain**: `regenGain = baseRange * (regen * 0.2)`
+- **Total Range**: `totalRange = baseRange + regenGain`
+- **Drag Force**: `Fd = 0.5 * ρ * v² * Cd * A`
+- **Power-to-Weight**: `powerToWeight = totalWatts / (scooterWeight + riderWeight)`
+- **Acceleration Score**: `accelScore = min(100, (powerToWeight / 25) * 100)`
+- **C-Rate**: `cRate = amps / ah`
+
+#### Prediction Modes
+- **'spec'**: Manufacturer specification estimates (optimistic)
+- **'realworld'**: Real-world estimates with efficiency corrections (realistic)
+
+### Upgrade System
+
+#### Upgrade Types
+- **'parallel'**: Add parallel battery (doubles Ah)
+- **'voltage'**: Increase voltage by 20%
+- **'controller'**: Remove controller limit
+- **'motor'**: Add second motor + increase power
+- **'tires'**: Increase wheel size for better efficiency
+
+#### Delta Calculation
+- Always calculate both absolute and percentage changes
+- Use `safePercent()` helper to avoid division by zero
+- Format percentages to 0 decimal places for UI
+
+### Bottleneck Detection
+
+#### Thresholds
+- **C-Rate Warning**: > 3.0C
+- **Controller Limit**: controller < (totalWatts / voltage)
+- **Gear Ratio Limit**: speed < 45 AND voltage > 48 AND accelScore < 50
+- **Hill Climb Limit**: hillSpeed < 10 AND slope > 5
+
+### Preset System
+
+#### Preset Structure
+```typescript
+{
+  name: 'Scooter Name',
+  config: {
+    v: 48,
+    ah: 13,
+    motors: 1,
+    watts: 800,
+    // ... all other fields
+  }
+}
+```
+
+#### Preset Loading
+- Preserve user's temperature setting when loading presets
+- Use `normalizeConfig()` to ensure all fields are valid
+
+### Ride Modes
+
+#### Ride Mode Effects
+- **'eco'**: Lower speed limit, higher efficiency
+- **'normal'**: Balanced performance
+- **'sport'**: Higher speed limit, lower efficiency
+- **'turbo'**: Maximum power, minimum efficiency
+
+### Profile Management
+
+#### Profile Structure
+```typescript
+interface Profile {
+  id: number;          // Timestamp-based ID
+  name: string;        // User-defined name
+  config: ScooterConfig; // Normalized config
+}
+```
+
+#### Persistence
+- Store in `localStorage` under key `'scooterProfiles'`
+- Use `normalizeConfig()` when saving
+- Handle storage errors gracefully
+
+### Color Theme
+
+#### Primary Colors
+- **Primary**: `#00d4ff` (cyan)
+- **Secondary**: `#7000ff` (purple)
+- **Background Dark**: `#0f172a`
+- **Background Card**: `#1e293b`
+- **Background Input**: `#334155`
+
+#### UI Text Colors
+- **Text Main**: `#f1f5f9`
+- **Text Muted**: `#cbd5e1`
+- **Text Muted High Contrast**: `#94a3b8`
+
+#### Status Colors
+- **Success**: `#10b981` (green)
+- **Warning**: `#f59e0b` (amber)
+- **Danger**: `#ef4444` (red)
+
+---
+
+## 11. GIT CONVENTIONS
+
+### Commit Messages
+
+#### Conventional Commits Format
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+#### Types
+- **feat**: New feature
+- **fix**: Bug fix
+- **refactor**: Code refactoring (no functionality change)
+- **docs**: Documentation changes
+- **test**: Test additions or changes
+- **chore**: Build process or tooling changes
+- **perf**: Performance improvements
+- **style**: Code style changes (formatting, etc.)
+
+#### Examples
+```
+feat(calculator): add upgrade simulator
+
+Implements upgrade simulation with side-by-side comparison.
+Supports parallel battery, voltage boost, controller, motor, and tire upgrades.
+
+Closes #123
+```
+
+```
+fix(physics): correct temperature factor calculation
+
+Previous implementation had off-by-one error in temperature range.
+Now correctly maps -20°C to 60% and 20°C to 100%.
+
+Fixes #456
+```
+
+### Branch Naming
+
+#### Format
+```
+<type>/<short-description>
+```
+
+#### Examples
+- `feature/upgrade-simulator`
+- `fix/temperature-calculation`
+- `refactor/state-management`
+- `docs/readme-update`
+
+---
+
+## 12. CHECKLIST FOR CODE CHANGES
+
+### Before Committing
+- [ ] Run `npm run check` - TypeScript validation
+- [ ] Run `npm run test:unit` - Unit tests pass
+- [ ] Run `npm run test:e2e` - E2E tests pass (for UI changes)
+- [ ] Check for linter errors
+- [ ] Review for `any` types (replace with proper types)
+- [ ] Ensure all imports are used
+- [ ] Add/update tests for changed logic
+- [ ] Update documentation if behavior changes
+- [ ] Verify accessibility (aria labels, keyboard navigation)
+- [ ] Test responsive behavior (mobile, tablet, desktop)
+
+### Code Review Checklist
+- [ ] Follows naming conventions
+- [ ] Proper error handling with try/catch
+- [ ] Input validation for all user inputs
+- [ ] Uses store helpers for state updates
+- [ ] No magic numbers (use constants)
+- [ ] Comments only where necessary
+- [ ] Tailwind classes preferred over inline styles
+- [ ] Accessibility attributes present
+- [ ] Tests cover new functionality
+- [ ] No console.log left in production code
+
+---
+
+## SUMMARY
+
+This .cursorrules file provides comprehensive guidelines for the EV Scooter Calculator project. Key takeaways:
+
+1. **Use TypeScript strictly** - No `any` types, explicit typing everywhere
+2. **Svelte 5 runes** - Use `$state`, `$derived`, `$props()` consistently
+3. **Component organization** - Separate UI and feature components
+4. **Store pattern** - Centralized state with helper functions
+5. **Validation first** - Always validate and normalize user inputs
+6. **Physics accuracy** - Document formulas, use named constants
+7. **Testing coverage** - Unit tests for logic, E2E for flows
+8. **Performance** - Cache calculations, use derived values
+9. **Accessibility** - ARIA labels, keyboard navigation, semantic HTML
+10. **Clean code** - Minimal comments, clear naming, consistent formatting
+
+When in doubt, refer to existing code in the codebase as examples. The patterns established in `src/lib/utils/physics.ts`, `src/lib/stores/calculator.svelte.ts`, and component files should guide new implementations.

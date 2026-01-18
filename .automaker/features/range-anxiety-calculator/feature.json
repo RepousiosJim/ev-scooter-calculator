@@ -1,0 +1,20 @@
+{
+  "id": "range-anxiety-calculator",
+  "category": "UI",
+  "title": "Range Anxiety Safety Margin Calculator",
+  "description": "Add configurable safety buffer (10-40%) to range calculations accounting for unexpected headwinds, detours, and battery degradation. Visual gauge shows safe turnaround point and nearest charging recommendations.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "medium",
+  "dependencies": [
+    "terrain-profile-system"
+  ],
+  "createdAt": "2026-01-16T20:17:19.877Z",
+  "updatedAt": "2026-01-16T20:17:19.877Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

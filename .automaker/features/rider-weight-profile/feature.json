@@ -1,0 +1,18 @@
+{
+  "id": "rider-weight-profile",
+  "category": "Core",
+  "title": "Rider Weight and Cargo Configuration",
+  "description": "Add rider weight and cargo load inputs to physics calculations affecting acceleration, hill climb, and energy consumption. Includes preset rider profiles (light/average/heavy) and dynamic weight distribution for dual-motor scooters.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.872Z",
+  "updatedAt": "2026-01-16T20:17:19.872Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

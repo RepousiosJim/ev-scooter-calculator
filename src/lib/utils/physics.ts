@@ -1,19 +1,75 @@
 import type { ScooterConfig, PerformanceStats, Bottleneck, Recommendation, UpgradeDelta, PredictionMode } from '$lib/types';
+import * as PHYSICS_CONSTANTS from '$lib/constants/physics';
+import * as CACHE_CONSTANTS from '$lib/constants/cache';
 
-// Physical constants
-export const AIR_DENSITY = 1.225; // kg/m³
-export const GRAVITY = 9.81;      // m/s²
-export const ROLLING_RESISTANCE = 15; // W
 const NOMINAL_VOLTAGE = 52;
-const PERFORMANCE_CACHE_LIMIT = 200;
-const performanceCache = new Map<string, PerformanceStats>();
+
+// LRU Cache implementation for better cache utilization
+class LRUCache<K, V> {
+  private cache = new Map<K, V>();
+  private maxSize: number;
+
+  constructor(maxSize: number) {
+    this.maxSize = maxSize;
+  }
+
+  get(key: K): V | undefined {
+    const value = this.cache.get(key);
+    if (value !== undefined) {
+      // Re-insert to mark as recently used
+      this.cache.delete(key);
+      this.cache.set(key, value);
+    }
+    return value;
+  }
+
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Remove least recently used (first entry)
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  get size(): number {
+    return this.cache.size;
+  }
+}
+
+const performanceCache = new LRUCache<string, PerformanceStats>(CACHE_CONSTANTS.PERFORMANCE_CACHE_LIMIT);
+
+export function calculateTemperatureFactor(ambientTemp: number): number {
+  if (ambientTemp >= 20) return 1.0;
+  if (ambientTemp <= -20) return 0.6;
+  
+  const tempRange = 40;
+  const normalizedTemp = (ambientTemp + 20) / tempRange;
+  const tempFactor = 0.6 + (normalizedTemp * 0.4);
+  
+  return tempFactor;
+}
 
 function getPerformanceCacheKey(config: ScooterConfig, mode: PredictionMode): string {
   const entries = Object.keys(config)
     .sort()
     .map((key) => {
       const value = config[key as keyof ScooterConfig];
-      return `${key}:${typeof value === 'number' && Number.isFinite(value) ? value : ''}`;
+      if (value === undefined) return `${key}:undefined`;
+      if (value === null) return `${key}:null`;
+      if (typeof value === 'number' && !Number.isFinite(value)) return `${key}:${String(value)}`;
+      if (typeof value === 'number') return `${key}:${value}`;
+      if (typeof value === 'string') return `${key}:"${value}"`;
+      if (typeof value === 'boolean') return `${key}:${value}`;
+      return `${key}:${JSON.stringify(value)}`;
     })
     .join('|');
 
@@ -24,6 +80,7 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const cacheKey = getPerformanceCacheKey(config, mode);
   const cached = performanceCache.get(cacheKey);
   if (cached) return cached;
+  
   // Apply mode-specific corrections
   const drivetrainEfficiency = config.drivetrainEfficiency ?? 0.9;
   const batterySagPercent = config.batterySagPercent ?? 0.08;
@@ -35,8 +92,11 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const minSagPercent = mode === 'realworld' ? 0.05 : 0;
   const effectiveSagPercent = Math.max(batterySagPercent, minSagPercent);
 
-  // 1. Apply battery health
-  const effectiveAh = config.ah * config.soh;
+  // Calculate temperature factor (affects battery capacity and power)
+  const temperatureFactor = calculateTemperatureFactor(config.ambientTemp);
+
+  // 1. Apply battery health and temperature to capacity
+  const effectiveAh = config.ah * config.soh * temperatureFactor;
   const wh = config.v * effectiveAh;
   const voltageFactor = config.v / NOMINAL_VOLTAGE;
 
@@ -44,19 +104,20 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const effectiveVoltage = config.v * (1 - effectiveSagPercent);
   const effectiveVoltageFactor = effectiveVoltage / NOMINAL_VOLTAGE;
 
-  const totalWatts = config.motors * config.watts * effectiveVoltageFactor;
+  // 2. Calculate total power (apply temperature factor once to power only)
+  const totalWatts = config.motors * config.watts * effectiveVoltageFactor * temperatureFactor;
 
-  // 2. Calculate maximum speed based on motorKv or voltage
+  // 3. Calculate maximum speed based on motorKv or voltage
   const maxSpeed = calculateMaxSpeed(config, effectiveDrivetrainEfficiency);
 
-  // 3. Apply aerodynamic drag to find equilibrium speed
+  // 4. Apply aerodynamic drag to find equilibrium speed (optimized O(1))
   const speed = calculateDragLimitedSpeed(
     totalWatts,
     config.ridePosition,
     maxSpeed
   );
 
-  // 4. Calculate hill climb speed
+  // 5. Calculate hill climb speed (optimized with binary search)
   const hillSpeed = calculateHillSpeed(
     totalWatts,
     config.ridePosition,
@@ -66,26 +127,26 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
     config.slope
   );
 
-  // 5. Calculate range (with regen)
+  // 6. Calculate range (with regen)
   const baseRange = wh / config.style;
   const regenGain = baseRange * (config.regen * 0.2);
   const totalRange = baseRange + regenGain;
 
-  // 6. Calculate charging time
+  // 7. Calculate charging time
   const chargerWatts = config.charger * config.v;
   const chargeTime = chargerWatts > 0 ? (wh / chargerWatts) * 1.2 : 0;
 
-  // 7. Calculate cost
+  // 8. Calculate cost
   const costPerCharge = (wh / 1000) * config.cost;
   const costPer100km = (100 / totalRange) * costPerCharge;
 
-  // 8. Calculate acceleration score (power to weight)
+  // 9. Calculate acceleration score (power to weight)
   const scooterWeight = config.scooterWeight ?? ((wh * 0.06) + 15);
   const totalWeight = scooterWeight + config.weight;
   const powerToWeight = totalWatts / totalWeight;
   const accelScore = Math.min(100, (powerToWeight / 25) * 100);
 
-  // 9. Calculate current draw and C-rate
+  // 10. Calculate current draw and C-rate
   const amps = totalWatts / config.v;
   const cRate = amps / config.ah;
 
@@ -102,7 +163,7 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
     cRate
   };
 
-  if (performanceCache.size >= PERFORMANCE_CACHE_LIMIT) {
+  if (performanceCache.size >= CACHE_CONSTANTS.PERFORMANCE_CACHE_LIMIT) {
     performanceCache.clear();
   }
   performanceCache.set(cacheKey, result);
@@ -128,19 +189,15 @@ function calculateDragLimitedSpeed(
   ridePosition: number,
   maxSpeed: number
 ): number {
-  let speed = 0;
+  // Solve: totalWatts = 0.5 * ρ * (v/3.6)³ * Cd * A + RollingResistance
+  // Use cubic root for O(1) solution: v = (2 * (P - Pr) / (ρ * Cd * A))^(1/3) * 3.6
+  const powerAvailable = totalWatts - PHYSICS_CONSTANTS.ROLLING_RESISTANCE_WATTS;
+  if (powerAvailable <= 0) return 0;
 
-  for (let v = 0; v <= maxSpeed; v += 0.5) {
-    const speedMps = v / 3.6;
-    const powerDrag = 0.5 * AIR_DENSITY * Math.pow(speedMps, 3) * ridePosition;
-    const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE;
+  const speedMps = Math.cbrt((2 * powerAvailable) / (PHYSICS_CONSTANTS.AIR_DENSITY_KG_M3 * ridePosition));
+  const speedKmh = speedMps * 3.6;
 
-    if (totalPowerNeeded <= totalWatts) {
-      speed = v;
-    }
-  }
-
-  return speed;
+  return Math.min(speedKmh, maxSpeed);
 }
 
 function calculateHillSpeed(
@@ -156,22 +213,25 @@ function calculateHillSpeed(
   const angleRad = Math.atan(slopePercent / 100);
   const scooterWeight = (wh * 0.06) + 15;
   const totalWeight = scooterWeight + riderWeight;
-  const gravityForce = totalWeight * GRAVITY * Math.sin(angleRad);
+  const gravityForce = totalWeight * PHYSICS_CONSTANTS.GRAVITY_M_S2 * Math.sin(angleRad);
 
-  let hillSpeed = 0;
-
-  for (let v = 0; v <= maxSpeed; v += 0.1) {
-    const speedMps = v / 3.6;
-    const powerDrag = 0.5 * AIR_DENSITY * Math.pow(speedMps, 3) * ridePosition;
+  // Binary search for more efficient hill speed calculation (O(log n) vs O(n))
+  let low = 0, high = maxSpeed;
+  for (let i = 0; i < 20; i++) {
+    const mid = (low + high) / 2;
+    const speedMps = mid / 3.6;
+    const powerDrag = 0.5 * PHYSICS_CONSTANTS.AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * ridePosition;
     const powerGravity = gravityForce * speedMps;
-    const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE + powerGravity;
-
+    const totalPowerNeeded = powerDrag + PHYSICS_CONSTANTS.ROLLING_RESISTANCE_WATTS + powerGravity;
+    
     if (totalPowerNeeded <= totalWatts) {
-      hillSpeed = v;
+      low = mid;
+    } else {
+      high = mid;
     }
   }
 
-  return hillSpeed;
+  return (low + high) / 2;
 }
 
 export function detectBottlenecks(
@@ -282,7 +342,7 @@ export function generateRecommendations(config: ScooterConfig, stats: Performanc
       whatChanges: 'Allows motors to reach full power output for better acceleration and hill climbing.',
       expectedGains: {
         spec: `+${(((config.motors * config.watts * (config.v / NOMINAL_VOLTAGE)) - (config.controller * config.v)) / (config.controller * config.v) * 100).toFixed(0)}% power output`,
-        realworld: `Improved acceleration and hill climbing in real-world conditions`
+        realworld: 'Improved acceleration and hill climbing in real-world conditions'
       },
       tradeoffs: 'May require thicker gauge wiring. Check motor thermal limits.',
       confidence: 'high',

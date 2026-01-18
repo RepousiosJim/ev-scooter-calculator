@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { loadPreset } from '$lib/stores/calculator.svelte';
+  import BottomSheet from './BottomSheet.svelte';
 
   let { onClose }: { onClose: () => void } = $props();
   let currentStep = $state(0);
+  let isOpen = $state(true);
 
   const tourSteps = [
     {
@@ -37,14 +37,31 @@
   }
 
   function completeTour() {
-    localStorage.setItem('tour-completed', 'true');
+    try {
+      localStorage.setItem('tour-completed', 'true');
+    } catch (error) {
+      // Ignore localStorage errors (e.g., private mode)
+    }
+    isOpen = false;
     onClose();
   }
 
+  let modalElement: HTMLElement | undefined;
+
   function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      completeTour();
-    } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
+    if (event.defaultPrevented) return;
+
+    const target = event.target as HTMLElement;
+    if (
+      target.tagName === 'INPUT' ||
+      target.tagName === 'TEXTAREA' ||
+      target.isContentEditable ||
+      !modalElement?.contains(target)
+    ) {
+      return;
+    }
+
+    if (event.key === 'ArrowRight' || event.key === 'Enter') {
       nextStep();
     } else if (event.key === 'ArrowLeft' && currentStep > 0) {
       currentStep -= 1;
@@ -54,53 +71,36 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<div
-  class="fixed inset-0 z-[70] flex items-center justify-center bg-black/70 px-4"
-  role="dialog"
-  aria-modal="true"
-  aria-labelledby="tour-heading"
->
-  <div class="bg-bgCard rounded-2xl p-8 max-w-md w-full mx-4 border border-white/10 shadow-2xl">
-    <div class="flex items-center justify-between mb-6">
-      <div>
-        <h2 id="tour-heading" class="text-2xl font-bold text-textMain">Quick Tour</h2>
-      </div>
-      <button
-        type="button"
-        onclick={completeTour}
-        class="text-textMuted hover:text-textMain transition"
-        aria-label="Skip tour"
-      >
-        ✕
-      </button>
-    </div>
-
-    <div class="space-y-6">
-      <div class="text-lg font-semibold text-primary">
+<BottomSheet bind:isOpen title="Quick Tour" onClose={completeTour} height="auto">
+  {#snippet children()}
+    <div bind:this={modalElement} class="space-y-6 pb-4">
+    <div class="space-y-4">
+      <div class="text-xl font-semibold text-primary">
         {tourSteps[currentStep].title}
       </div>
-      <div class="text-textMain">
+      <div class="text-base text-textMain leading-relaxed">
         {tourSteps[currentStep].content}
       </div>
     </div>
 
-    <div class="flex items-center justify-between pt-4 border-t border-white/10">
-      <button
-        type="button"
-        onclick={completeTour}
-        class="text-textMuted hover:text-textMain"
-      >
-        Skip Tour
-      </button>
-      <div class="flex items-center gap-3">
-        <span class="text-textMuted">
-          {currentStep + 1}/{tourSteps.length}
-        </span>
+    <!-- Progress indicator -->
+    <div class="flex justify-center gap-2 py-4">
+      {#each tourSteps as _, index}
+        <div
+          class="h-2 rounded-full transition-all duration-300 {index === currentStep ? 'w-8 bg-primary' : 'w-2 bg-white/20'}"
+          aria-hidden="true"
+        ></div>
+      {/each}
+    </div>
+
+    <!-- Action buttons in thumb-reach zone -->
+    <div class="space-y-3 pt-4 border-t border-white/10">
+      <div class="flex items-center justify-between gap-3">
         <button
           type="button"
           onclick={() => currentStep > 0 ? (currentStep -= 1) : null}
           disabled={currentStep === 0}
-          class="px-3 py-2 rounded bg-bgInput text-textMain disabled:opacity-50 hover:bg-bgInput/80"
+          class="flex-1 px-4 py-3.5 rounded-xl bg-bgInput text-textMain disabled:opacity-40 disabled:cursor-not-allowed hover:bg-white/5 transition-colors font-medium"
           aria-label="Previous step"
         >
           ← Previous
@@ -108,12 +108,22 @@
         <button
           type="button"
           onclick={nextStep}
-          class="px-3 py-2 rounded bg-primary text-white hover:bg-primaryDark"
+          class="flex-1 px-4 py-3.5 rounded-xl bg-gradient-main bg-[length:200%_200%] animate-gradient-shift text-white hover:shadow-glow-sm transition-all font-medium"
           aria-label="Next step"
         >
           {currentStep === tourSteps.length - 1 ? 'Get Started' : 'Next →'}
         </button>
       </div>
+      <div class="text-center">
+        <button
+          type="button"
+          onclick={completeTour}
+          class="text-textMuted hover:text-textMain transition-colors text-sm py-2"
+        >
+          Skip Tour ({currentStep + 1}/{tourSteps.length})
+        </button>
+      </div>
     </div>
   </div>
-</div>
+  {/snippet}
+</BottomSheet>

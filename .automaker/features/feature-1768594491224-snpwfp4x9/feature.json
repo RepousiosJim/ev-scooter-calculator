@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Redesign forms for mobile with single-column layouts, smart field ordering, and collapsible sections for related inputs. Implement floating labels and inline validation that doesn't require scrolling to see.\n\n**Rationale:** Forms are notoriously difficult on mobile due to limited screen space and keyboard interactions. Optimized layouts reduce cognitive load, minimize scrolling, and improve completion rates significantly.",
+  "title": "Create mobile-optimized form layouts with field grouping",
+  "status": "backlog",
+  "id": "feature-1768594491224-snpwfp4x9",
+  "descriptionHistory": [
+    {
+      "description": "Redesign forms for mobile with single-column layouts, smart field ordering, and collapsible sections for related inputs. Implement floating labels and inline validation that doesn't require scrolling to see.\n\n**Rationale:** Forms are notoriously difficult on mobile due to limited screen space and keyboard interactions. Optimized layouts reduce cognitive load, minimize scrolling, and improve completion rates significantly.",
+      "timestamp": "2026-01-16T20:14:51.225Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 2
+}

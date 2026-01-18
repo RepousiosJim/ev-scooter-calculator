@@ -1,9 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { calculatorState, loadConfigFromUrl, applyConfig, defaultConfig } from '$lib/stores/calculator.svelte';
-  
+  import { calculatorState, loadConfigFromUrl } from '$lib/stores/calculator.svelte';
+  import { analytics } from '$lib/utils/analytics';
+  import { initBehaviorTracking, trackWebVitals, startSession, initAllABTests } from '$lib/utils/analytics';
+
   // Components
   import Tabs from '$lib/components/ui/Tabs.svelte';
+  import Hero from '$lib/components/ui/Hero.svelte';
+  import TourModal from '$lib/components/ui/TourModal.svelte';
   import PresetSelector from '$lib/components/calculator/PresetSelector.svelte';
   import BasicConfig from '$lib/components/calculator/BasicConfig.svelte';
   import AdvancedConfig from '$lib/components/calculator/AdvancedConfig.svelte';
@@ -17,6 +21,12 @@
   import EfficiencyPanel from '$lib/components/calculator/EfficiencyPanel.svelte';
   import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
   import BottleneckPanel from '$lib/components/calculator/BottleneckPanel.svelte';
+  import SectionDivider from '$lib/components/ui/SectionDivider.svelte';
+
+  // New UI Components
+  import VisualCRateIndicator from '$lib/components/ui/VisualCRateIndicator.svelte';
+  import PerformanceGradeBadge from '$lib/components/ui/PerformanceGradeBadge.svelte';
+  import ComparisonDeltaCard from '$lib/components/ui/ComparisonDeltaCard.svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -27,178 +37,413 @@
 
   function startTour() {
     showTour = true;
+    analytics.trackEvent('tour_started' as any);
   }
 
   function nextTourStep() {
     if (tourStep < 4) {
-      tourStep += 1;
+      tourStep = tourStep + 1;
     } else {
       completeTour();
     }
   }
 
   function completeTour() {
-    localStorage.setItem('tour-completed', 'true');
+    try {
+      localStorage.setItem('tour-completed', 'true');
+      analytics.trackEvent('tour_completed' as any, { steps_completed: tourStep + 1 });
+    } catch (error) {
+      analytics.trackError(error as Error, { context: 'tour_complete' });
+    }
+    showTour = false;
+  }
+
+  function skipTour() {
+    try {
+      localStorage.setItem('tour-completed', 'true');
+      analytics.trackEvent('tour_skipped' as any, { steps_completed: tourStep });
+    } catch (error) {
+      analytics.trackError(error as Error, { context: 'tour_skip' });
+    }
     showTour = false;
   }
 
   function handleKeydown(event: KeyboardEvent) {
+    if (!showTour) return;
+
     if (event.key === 'Escape') {
-      completeTour();
+      skipTour();
     } else if (event.key === 'ArrowRight' || event.key === 'Enter') {
       nextTourStep();
     } else if (event.key === 'ArrowLeft' && tourStep > 0) {
-      tourStep -= 1;
+      tourStep = tourStep - 1;
     }
   }
 
   const tourSteps = [
     { title: 'Welcome!', content: 'This tool helps you analyze and optimize your EV scooter performance.' },
-    { title: 'Preset Selector', content: 'Choose from popular scooter models to get started quickly.' },
-    { title: 'Configuration', content: 'Adjust your scooter specifications in real-time.' },
-    { title: 'Results', content: 'View instant performance analysis and bottleneck warnings.' },
-    { title: 'Upgrades', content: 'Simulate upgrades and see their impact before buying.' }
+    { title: 'Quick Start', content: 'Choose a preset or enter your specs to see instant results.' },
+    { title: 'Deep Dive', content: 'Advanced controls for detailed configuration and analysis.' },
+    { title: 'Performance', content: 'Real-time metrics with visual indicators and insights.' },
+    { title: 'Upgrades', content: 'Simulate upgrades before buying and compare results.' }
   ];
+
+  // Calculate performance grade
+  const performanceGrade = $derived(() => {
+    const score = stats.accelScore + (stats.cRate < 2 ? 20 : stats.cRate < 3 ? 10 : 0);
+    if (score >= 90) return 'A+';
+    if (score >= 80) return 'A';
+    if (score >= 70) return 'A-';
+    if (score >= 60) return 'B+';
+    if (score >= 50) return 'B';
+    if (score >= 40) return 'B-';
+    if (score >= 30) return 'C+';
+    if (score >= 20) return 'C';
+    if (score >= 10) return 'C-';
+    return 'D+';
+  });
 
   onMount(() => {
     loadConfigFromUrl();
-    showTour = !localStorage.getItem('tour-completed');
+
+    startSession();
+    initBehaviorTracking();
+    trackWebVitals();
+    initAllABTests();
+
+    analytics.startFunnel('configuration_flow', 'page_load');
+
+    try {
+      const tourCompleted = localStorage.getItem('tour-completed');
+      showTour = !tourCompleted;
+      if (!showTour) {
+        analytics.trackEvent('tour_previously_completed' as any);
+      }
+    } catch (error) {
+      analytics.trackError(error as Error, { context: 'tour_check' });
+      showTour = false;
+    }
+
+    window.addEventListener('beforeunload', () => {
+      analytics.endSession();
+    });
   });
 
-  // Tab configuration
-  const tabs = [
-    { label: 'Configuration', value: 'configuration' },
+  // Tab configuration with progress tracking
+  const tabs = $derived(() => [
+    { label: 'Quick Start', value: 'configuration' },
+    { label: 'Deep Dive', value: 'advanced' },
     { label: 'Upgrades', value: 'upgrades' }
-  ];
+  ]);
 
-  // Calculate analysis text
-  const analysisText = $derived(() => {
-    let text = '';
-
-    if (stats.cRate > 3) {
-      text += `⚠️ <strong>High Stress:</strong> Battery discharge is high (${stats.cRate.toFixed(1)}C). Expect voltage sag.`;
-    } else if (stats.cRate > 1.5) {
-      text += '✅ <strong>Moderate Stress:</strong> Battery is well matched.';
-    } else {
-      text += '🔋 <strong>Efficient:</strong> Very low battery stress.';
-    }
-
-    if (stats.accelScore > 80) {
-      text += ' <br>🚀 <strong>Extreme Acceleration.</strong>';
-    } else if (stats.accelScore > 40) {
-      text += ' <br>🛵 <strong>Good Acceleration.</strong>';
-    }
-
-    if (bottlenecks.length > 0) {
-      text += '<br><br><strong>⚠️ Bottlenecks Detected:</strong>';
-      bottlenecks.forEach(b => {
-        text += `<br>• ${b.message}`;
-      });
-    }
-
-    return text;
-  });
-
-
+  const tabIcons = {
+    configuration: '⚡',
+    advanced: '⚙️',
+    upgrades: '🚀'
+  };
 </script>
 
 <svelte:head>
-  <title>EV Scooter Pro Calculator v1.3</title>
+  <title>EV Scooter Pro Calculator v2.0</title>
   <meta name="description" content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters" />
 </svelte:head>
 
-<div class="max-w-7xl mx-auto px-4 py-8">
-  <!-- Header -->
-  <header class="text-center mb-10">
-    <p class="text-xs uppercase tracking-[0.3em] text-textMuted mb-3">Scooter Performance Studio</p>
-    <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent mb-3">
-      EV Scooter Pro Calculator
-    </h1>
-    <p class="text-textMuted max-w-2xl mx-auto">
-      Model speed, range, and upgrade impact in seconds with a clear performance snapshot.
-    </p>
-  </header>
+<div class="min-h-screen bg-bg-primary">
+  <!-- Hero Section -->
+  <Hero
+    features={[
+      { icon: '⚡', text: 'Real-time Analysis' },
+      { icon: '🔋', text: 'Battery Modeling' },
+      { icon: '📊', text: 'Upgrade Simulation' }
+    ]}
+  />
 
-  <!-- Profile Manager (Global) -->
-  <ProfileManager />
+  <div class="max-w-7xl mx-auto px-4 py-8">
+    <!-- Profile Manager (Global) -->
+    <ProfileManager />
 
-  <!-- Tour Button -->
-  <div class="flex justify-end mb-8">
-    {#if !localStorage.getItem('tour-completed')}
+    <!-- Tour Button -->
+    <div class="flex justify-end mb-6">
       <button
         type="button"
         onclick={startTour}
-        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-bg-secondary border border-white/5
+          hover:bg-bg-hover hover:border-white/10 transition-all duration-slow"
         aria-label="Start guided tour"
       >
-        🚀 Quick Tour
+        <span aria-hidden="true">🚀</span>
+        <span class="text-sm font-semibold text-text-primary">Quick Tour</span>
       </button>
-    {/if}
-  </div>
+    </div>
 
-  <nav class="flex justify-center mb-8" aria-label="Main tabs">
-    <Tabs tabs={tabs} bind:activeTab={calculatorState.activeTab} />
-  </nav>
-              <span class="text-primary text-lg" aria-hidden="true">{calculatorState.showAdvanced ? '▼' : '▶'}</span>
-            </button>
+    <!-- Main Navigation Tabs -->
+    <nav class="flex justify-center mb-8" aria-label="Main tabs">
+      <Tabs tabs={tabs()} bind:activeTab={calculatorState.activeTab} icons={tabIcons} showProgress={true} />
+    </nav>
 
-            <AdvancedConfig />
+    <!-- Configuration Tab (Quick Start) -->
+    <section aria-labelledby="configuration-heading" id="configuration-panel">
+      {#if calculatorState.activeTab === 'configuration'}
+        <h2 id="configuration-heading" class="sr-only">Quick Start Configuration</h2>
+
+        <!-- Mobile Layout: Single Column -->
+        <div class="space-y-6 lg:hidden">
+          <!-- Preset & Input Section -->
+          <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg">
+            <div class="space-y-6">
+              <PresetSelector />
+              <BasicConfig />
+            </div>
+          </div>
+
+          <!-- Performance Results -->
+          <div class="space-y-6">
+            <!-- Grade Badge -->
+            <div class="flex justify-center">
+              <PerformanceGradeBadge
+                grade={performanceGrade()}
+                trend="neutral"
+                size="lg"
+              />
+            </div>
+
+            <PerformanceSummary />
+
+            <SectionDivider icon="📈" label="Efficiency" />
+            <EfficiencyPanel />
+
+            <SectionDivider icon="🔋" label="Battery Health" />
+            <VisualCRateIndicator value={stats.cRate} />
+            <ComponentHealthPanel />
+
+            <SectionDivider icon="⚡" label="Power Analysis" />
+            <PowerGraph />
+            <BottleneckPanel />
           </div>
         </div>
 
-        <div class="lg:col-span-8">
-          <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
-            <h3 class="text-xl font-semibold text-textMain">Performance Analysis</h3>
-            <p class="text-xs text-textMuted mt-1 mb-4">Live results as you tune inputs and presets.</p>
+        <!-- Tablet Layout: Two Column -->
+        <div class="hidden lg:grid lg:grid-cols-5 gap-6 xl:hidden">
+          <div class="lg:col-span-2">
+            <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg sticky top-4">
+              <div class="space-y-6">
+                <PresetSelector />
+                <BasicConfig />
+              </div>
+            </div>
+          </div>
 
-            <div class="space-y-6" role="region" aria-live="polite" aria-atomic="true">
-              <PerformanceSummary />
-              <EfficiencyPanel />
-              <ComponentHealthPanel />
-              <PowerGraph />
-              <BottleneckPanel />
-              <div class="rounded-lg border border-white/5 bg-black/20 p-4 text-sm text-textMuted" role="alert">
-                {@html analysisText()}
+          <div class="lg:col-span-3 space-y-6">
+            <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg sticky top-4">
+              <div class="flex items-start justify-between mb-6">
+                <div>
+                  <h3 class="text-h2 font-semibold text-text-primary">Performance Analysis</h3>
+                  <p class="text-body-sm text-text-secondary mt-1">Live results as you tune inputs.</p>
+                </div>
+                <PerformanceGradeBadge grade={performanceGrade()} size="md" />
+              </div>
+
+              <div class="space-y-6" role="region" aria-live="polite" aria-atomic="true">
+                <PerformanceSummary />
+
+                <SectionDivider icon="📈" label="Efficiency" />
+                <EfficiencyPanel />
+
+                <SectionDivider icon="🔋" label="Battery Health" />
+                <VisualCRateIndicator value={stats.cRate} />
+                <ComponentHealthPanel />
+
+                <SectionDivider icon="⚡" label="Power Analysis" />
+                <PowerGraph />
+                <BottleneckPanel />
               </div>
             </div>
           </div>
         </div>
-      </div>
-    {/if}
-  </section>
 
-  <!-- Upgrades Tab -->
-  <section aria-labelledby="upgrades-heading" id="upgrades-panel">
-    {#if calculatorState.activeTab === 'upgrades'}
-      <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
-      <div class="space-y-6">
-        <!-- Upgrade Simulator -->
-        <UpgradeSimulator />
-
-        <!-- Comparison Display -->
-        <div class="bg-bgCard rounded-xl p-6 border border-white/5 shadow-lg">
-          <div class="mb-6">
-            <h3 class="text-xl font-semibold text-textMain">Upgrade Comparison</h3>
-            <p class="text-sm text-textMuted mt-1">View impact of simulated upgrades on your current setup</p>
+        <!-- Desktop Layout: Three Column -->
+        <div class="hidden xl:grid xl:grid-cols-12 gap-6">
+          <!-- Column 1: Quick Inputs (25%) -->
+          <div class="xl:col-span-3">
+            <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg sticky top-4">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg" aria-hidden="true">⚡</span>
+                <h3 class="text-h3 font-semibold text-text-primary">Quick Start</h3>
+              </div>
+              <PresetSelector />
+            </div>
           </div>
 
-          <div role="region" aria-live="polite">
-            {#if simStats}
-              <ComparisonSummary />
-              <ComparisonDisplay />
-            {:else}
-              <div class="flex flex-col items-center justify-center py-16 text-textMuted">
-                <div class="text-5xl mb-4" aria-hidden="true">📊</div>
-                <div class="text-lg font-medium text-textMain">No upgrade selected</div>
-                <div class="text-sm mt-2">Select an upgrade above to simulate its impact</div>
+          <!-- Column 2: Configuration (35%) -->
+          <div class="xl:col-span-4">
+            <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg sticky top-4">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg" aria-hidden="true">⚙️</span>
+                <h3 class="text-h3 font-semibold text-text-primary">Configuration</h3>
               </div>
-            {/if}
+              <BasicConfig />
+            </div>
+          </div>
+
+          <!-- Column 3: Results (40%) -->
+          <div class="xl:col-span-5 space-y-6">
+            <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg sticky top-4">
+              <div class="flex items-start justify-between mb-6">
+                <div>
+                  <h3 class="text-h2 font-semibold text-text-primary">Performance Analysis</h3>
+                  <p class="text-body-sm text-text-secondary mt-1">Live results as you tune inputs.</p>
+                </div>
+                <PerformanceGradeBadge grade={performanceGrade()} size="md" />
+              </div>
+
+              <div class="space-y-6" role="region" aria-live="polite" aria-atomic="true">
+                <PerformanceSummary />
+
+                <SectionDivider icon="📈" label="Efficiency" />
+                <EfficiencyPanel />
+
+                <SectionDivider icon="🔋" label="Battery Health" />
+                <VisualCRateIndicator value={stats.cRate} />
+                <ComponentHealthPanel />
+
+                <SectionDivider icon="⚡" label="Power Analysis" />
+                <PowerGraph />
+                <BottleneckPanel />
+              </div>
+            </div>
+          </div>
+        </div>
+      {/if}
+    </section>
+
+    <!-- Advanced Configuration Tab -->
+    <section aria-labelledby="advanced-heading" id="advanced-panel">
+      {#if calculatorState.activeTab === 'advanced'}
+        <h2 id="advanced-heading" class="sr-only">Deep Dive Configuration</h2>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Basic Config -->
+          <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-lg" aria-hidden="true">⚙️</span>
+              <h3 class="text-h3 font-semibold text-text-primary">Basic Settings</h3>
+            </div>
+            <BasicConfig />
+          </div>
+
+          <!-- Advanced Config -->
+          <div class="bg-bg-secondary rounded-xl p-6 border border-white/5 shadow-lg">
+            <div class="flex items-center gap-2 mb-4">
+              <span class="text-lg" aria-hidden="true">🔧</span>
+              <h3 class="text-h3 font-semibold text-text-primary">Advanced Settings</h3>
+            </div>
+            <AdvancedConfig />
           </div>
         </div>
 
-        <!-- Upgrade Guidance -->
-        <UpgradeGuidance />
-      </div>
+        <!-- Performance Results -->
+        <div class="mt-6 space-y-6">
+          <PerformanceSummary />
+          <EfficiencyPanel />
+          <ComponentHealthPanel />
+          <PowerGraph />
+          <BottleneckPanel />
+        </div>
+      {/if}
+    </section>
+
+    <!-- Upgrades Tab -->
+    <section aria-labelledby="upgrades-heading" id="upgrades-panel">
+      {#if calculatorState.activeTab === 'upgrades'}
+        <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
+        <div class="space-y-6">
+          <!-- Upgrade Simulator -->
+          <UpgradeSimulator />
+
+          <!-- Upgrade Comparison -->
+          {#if simStats && calculatorState.upgradeDelta}
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 mb-4">
+                <span class="text-lg" aria-hidden="true">📊</span>
+                <h3 class="text-h2 font-semibold text-text-primary">Upgrade Comparison</h3>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ComparisonDeltaCard
+                  label="Range"
+                  beforeValue={stats.totalRange}
+                  afterValue={simStats.totalRange}
+                  unit="km"
+                  deltaPercent={calculatorState.upgradeDelta.rangePercent}
+                />
+
+                <ComparisonDeltaCard
+                  label="Top Speed"
+                  beforeValue={stats.speed}
+                  afterValue={simStats.speed}
+                  unit="km/h"
+                  deltaPercent={calculatorState.upgradeDelta.speedPercent}
+                />
+
+                <ComparisonDeltaCard
+                  label="Power"
+                  beforeValue={stats.totalWatts}
+                  afterValue={simStats.totalWatts}
+                  unit="W"
+                  deltaPercent={calculatorState.upgradeDelta.powerPercent}
+                />
+
+                <ComparisonDeltaCard
+                  label="Charge Time"
+                  beforeValue={stats.chargeTime}
+                  afterValue={simStats.chargeTime}
+                  unit="h"
+                  deltaPercent={-calculatorState.upgradeDelta.chargeTimePercent}
+                />
+
+                <ComparisonDeltaCard
+                  label="Cost per 100km"
+                  beforeValue={stats.costPer100km}
+                  afterValue={simStats.costPer100km}
+                  unit="$"
+                  deltaPercent={-calculatorState.upgradeDelta.costPercent}
+                />
+
+                <ComparisonDeltaCard
+                  label="Acceleration"
+                  beforeValue={stats.accelScore}
+                  afterValue={simStats.accelScore}
+                  unit=""
+                  deltaPercent={calculatorState.upgradeDelta.accelPercent}
+                />
+              </div>
+
+              <ComparisonSummary />
+              <ComparisonDisplay />
+            </div>
+          {:else}
+            <div class="bg-bg-secondary rounded-xl p-12 border border-white/5 shadow-lg">
+              <div class="flex flex-col items-center justify-center text-center py-16">
+                <div class="text-6xl mb-4 animate-float" aria-hidden="true">📊</div>
+                <div class="text-h2 font-semibold text-text-primary mb-2">No upgrade selected</div>
+                <div class="text-body text-text-secondary">
+                  Select an upgrade above to simulate its impact on your current setup
+                </div>
+              </div>
+            </div>
+          {/if}
+
+          <!-- Upgrade Guidance -->
+          <UpgradeGuidance />
+        </div>
+      {/if}
+    </section>
+
+    <!-- Tour Modal -->
+    {#if showTour}
+      <TourModal
+        onClose={completeTour}
+      />
     {/if}
-  </section>
+  </div>
 </div>

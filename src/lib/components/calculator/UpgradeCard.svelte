@@ -77,6 +77,7 @@
   onclick={!isApplied ? handleUpgradeType : undefined}
   onkeydown={handleKeydown}
   role="button"
+  tabindex={0}
 >
   <div class="p-5">
     <!-- Header -->
@@ -103,7 +104,7 @@
         <button
           type="button"
           onclick={expandClick}
-          class="text-textMuted hover:text-textMain transition-transform p-1"
+          class="touch-target-icon text-textMuted hover:text-textMain transition-transform p-2.5 rounded-lg hover:bg-white/5"
           aria-label={isCardExpanded ? 'Collapse details' : 'Expand details'}
         >
           {#if isCardExpanded}
@@ -134,7 +135,7 @@
           <button
             type="button"
             onclick={(e) => toggleSectionClick(e, 'why')}
-            class="flex items-center justify-between w-full text-left"
+            class="flex items-center justify-between w-full text-left py-3 sm:py-2 px-1 rounded-lg hover:bg-white/5 transition-colors"
             aria-expanded={expandedSection === 'why'}
           >
             <span class="text-sm font-semibold text-textMain">Why upgrade?</span>
@@ -157,7 +158,7 @@
           <button
             type="button"
             onclick={(e) => toggleSectionClick(e, 'changes')}
-            class="flex items-center justify-between w-full text-left"
+            class="flex items-center justify-between w-full text-left py-3 sm:py-2 px-1 rounded-lg hover:bg-white/5 transition-colors"
             aria-expanded={expandedSection === 'changes'}
           >
             <span class="text-sm font-semibold text-textMain">What it changes</span>
@@ -180,7 +181,7 @@
           <button
             type="button"
             onclick={(e) => toggleSectionClick(e, 'gains')}
-            class="flex items-center justify-between w-full text-left"
+            class="flex items-center justify-between w-full text-left py-3 sm:py-2 px-1 rounded-lg hover:bg-white/5 transition-colors"
             aria-expanded={expandedSection === 'gains'}
           >
             <span class="text-sm font-semibold text-textMain">Expected gains</span>
@@ -210,7 +211,7 @@
           <button
             type="button"
             onclick={(e) => toggleSectionClick(e, 'tradeoffs')}
-            class="flex items-center justify-between w-full text-left"
+            class="flex items-center justify-between w-full text-left py-3 sm:py-2 px-1 rounded-lg hover:bg-white/5 transition-colors"
             aria-expanded={expandedSection === 'tradeoffs'}
           >
             <span class="text-sm font-semibold text-warning">Tradeoffs</span>
@@ -234,7 +235,7 @@
             <button
               type="button"
               onclick={applyClick}
-              class={`w-full py-3 px-6 rounded-lg font-medium transition-all ${
+              class={`w-full py-3.5 sm:py-3 px-6 rounded-lg font-medium transition-all ${
                 isSelected
                   ? 'bg-primary text-white hover:bg-primaryDark ring-2 ring-primary/50'
                   : 'bg-bgInput text-textMain hover:bg-bgInput/80'

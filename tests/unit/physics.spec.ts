@@ -15,7 +15,8 @@ const defaultConfig: ScooterConfig = {
   cost: 0.20,
   slope: 0,
   ridePosition: 0.6,
-  soh: 1
+  soh: 1,
+  ambientTemp: 20
 };
 
 describe('Physics Calculations', () => {
@@ -101,7 +102,7 @@ describe('Physics Calculations', () => {
   });
 
   describe('Prediction Modes', () => {
-    it('spec mode provides higher performance estimates', () => {
+    it('both prediction modes return valid results', () => {
       const specResult = calculatePerformance(defaultConfig, 'spec');
       const realworldResult = calculatePerformance(defaultConfig, 'realworld');
 
@@ -212,7 +213,8 @@ describe('Bottleneck Detection', () => {
       cost: 0.20,
       slope: 0,
       ridePosition: 0.6,
-      soh: 1
+      soh: 1,
+      ambientTemp: 20
     };
 
     const stats = calculatePerformance(config);
@@ -236,7 +238,8 @@ describe('Bottleneck Detection', () => {
       slope: 0,
       ridePosition: 0.6,
       soh: 1,
-      controller: 50
+      controller: 50,
+      ambientTemp: 20
     };
 
     const stats = calculatePerformance(config);
@@ -259,7 +262,8 @@ describe('Bottleneck Detection', () => {
       cost: 0.20,
       slope: 15,
       ridePosition: 0.6,
-      soh: 1
+      soh: 1,
+      ambientTemp: 20
     };
 
     const stats = calculatePerformance(config);

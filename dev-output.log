@@ -1,0 +1,896 @@
+
+> ev-scooter-calc-v2@1.3.2 dev
+> vite dev
+
+
+  [32m[1mVITE[22m v7.3.1[39m  [2mready in [0m[1m1479[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m3000[22m/[39m
+[2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: localStorage is not defined
+    at $$render_inner (src\routes\+page.svelte:183:5)
+    at eval (src\routes\+page.svelte:373:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:42:13)
+    at eval (.svelte-kit\generated\root.svelte:73:7)
+    at F:\Desktop\ev-scooter-calc-v2\src\routes\+layout.svelte:12:10
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _layout (src\routes\+layout.svelte:14:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: localStorage is not defined
+    at $$render_inner (src\routes\+page.svelte:183:5)
+    at eval (src\routes\+page.svelte:373:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:42:13)
+    at eval (.svelte-kit\generated\root.svelte:73:7)
+    at F:\Desktop\ev-scooter-calc-v2\src\routes\+layout.svelte:12:10
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _layout (src\routes\+layout.svelte:14:13)
+[2m6:16:47 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+
+Google Chrome is requesting /.well-known/appspecific/com.chrome.devtools.json to automatically configure devtools project settings. To learn why, and how to prevent this message, see https://svelte.dev/docs/cli/devtools-json
+
+[2m6:23:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:23:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtailwind.config.js[22m
+[2m6:24:03 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:24:03 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtailwind.config.js[22m
+[2m6:24:12 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:24:12 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtailwind.config.js[22m
+[2m6:25:01 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:25:01 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/app.css[22m
+[2m6:28:06 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PerformanceSummary.svelte, /src/app.css[22m
+[2m6:28:06 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PerformanceSummary.svelte[22m
+[2m6:28:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/Tabs.svelte, /src/app.css[22m
+[2m6:28:37 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Tabs.svelte[22m
+[2m6:29:28 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:29:28 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Card.svelte[22m
+[2m6:30:00 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:30:00 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:30:10 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:30:10 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:30:22 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:30:22 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:30:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:30:54 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:31:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:31:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:32:05 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m6:32:05 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:32:37 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m6:34:01 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/Hero.svelte, /src/app.css[22m
+[2m6:34:01 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Hero.svelte[22m
+[2m6:35:36 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/Hero.svelte, /src/app.css[22m
+[2m6:35:36 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Hero.svelte[22m
+[2m6:45:10 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/ProfileManager.svelte, /src/app.css[22m
+[2m6:45:10 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/stores/profiles.svelte.ts[22m
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:32:19 This reference only captures the initial value of `onSave`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:38:19 This reference only captures the initial value of `onShowProfiles`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:49:19 This reference only captures the initial value of `onExport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:55:19 This reference only captures the initial value of `onImport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:66:19 This reference only captures the initial value of `onShare`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:77:19 This reference only captures the initial value of `onReset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:18:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:6 `inputRef` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
+https://svelte.dev/e/non_reactive_update
+[2m6:46:34 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/ProfileManager.svelte, /src/app.css[22m
+[2m6:46:34 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/ProfileManager.svelte[22m
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:54:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+6:46:34 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:54:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:34:19 This reference only captures the initial value of `onSave`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:40:19 This reference only captures the initial value of `onShowProfiles`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:51:19 This reference only captures the initial value of `onExport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:57:19 This reference only captures the initial value of `onImport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:68:19 This reference only captures the initial value of `onShare`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:79:19 This reference only captures the initial value of `onReset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:47:23 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:34:19 This reference only captures the initial value of `onSave`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:40:19 This reference only captures the initial value of `onShowProfiles`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:51:19 This reference only captures the initial value of `onExport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:57:19 This reference only captures the initial value of `onImport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:68:19 This reference only captures the initial value of `onShare`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:79:19 This reference only captures the initial value of `onReset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:43:19 This reference only captures the initial value of `onSave`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:49:19 This reference only captures the initial value of `onShowProfiles`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:60:19 This reference only captures the initial value of `onExport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:66:19 This reference only captures the initial value of `onImport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:77:19 This reference only captures the initial value of `onShare`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:88:19 This reference only captures the initial value of `onReset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:47:31 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:43:19 This reference only captures the initial value of `onSave`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:49:19 This reference only captures the initial value of `onShowProfiles`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:60:19 This reference only captures the initial value of `onExport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:66:19 This reference only captures the initial value of `onImport`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:77:19 This reference only captures the initial value of `onShare`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:47:31 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionToolbar.svelte:88:19 This reference only captures the initial value of `onReset`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:48:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+6:48:14 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:58:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+6:48:14 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:58:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+[2m6:48:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionDropdown.svelte, /src/app.css[22m
+6:48:14 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:58:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+6:48:14 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:58:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+6:48:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:57:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+6:48:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:57:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+[2m6:48:23 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionDropdown.svelte, /src/app.css[22m
+6:48:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:57:2 Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events
+6:48:23 μ.μ. [vite-plugin-svelte] src/lib/components/ui/ActionDropdown.svelte:57:2 `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions
+[2m6:48:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionDropdown.svelte, /src/app.css[22m
+[2m6:48:49 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+6:49:01 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:49:01 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:49:01 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:49:13 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:49:13 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:49:13 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:49:41 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:49:41 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:49:41 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:49:48 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:49:48 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:49:48 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:50:42 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:50:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:50:42 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+6:50:49 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:50:49 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+6:50:49 μ.μ. [vite-plugin-svelte] src/lib/components/ui/EditProfileModal.svelte:17:25 This reference only captures the initial value of `initialName`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m6:51:17 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/EditProfileModal.svelte, /src/app.css[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:52:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+node_invalid_placement_ssr: `<button>` (src/lib/components/ui/ActionDropdown.svelte:112:6) cannot be a child of `<button>` (src/lib/components/ui/ActionDropdown.svelte:57:2)
+
+This can cause content to shift around as the browser repairs the HTML, and will likely result in a `hydration_mismatch` warning.
+[2m6:54:21 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionDropdown.svelte, /src/app.css[22m
+[2m6:54:21 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/ActionDropdown.svelte[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m6:55:54 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m6:58:06 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:58:06 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m6:58:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:58:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m6:58:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:58:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m6:58:55 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:58:55 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/calculator.spec.ts[22m
+[2m6:59:08 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:08 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/main-page.spec.ts[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/047e5fe03c250c9d71090bdd9efa1120245f13ee.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b0c481130416c0e9159079e21ca3287ecb711b41.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/23a6471a1a20512fc3bcf54a7270d1154066de24.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/f7706a03c75325e3604b81fb4a5462aea1046cc0.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/74e08c5dd236400e6cd36762291745936d6d13bf.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/a87218315ea3842f7bfbfc47daff468f925c389b.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b2c00d83dd78a5e5e101607d8f8201d7a28bed94.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bfc04a0a43199dae752bfdbaf5fc84ae3b06970a.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/de2482c5c6987004271ef9ae3e6c218bc2a86737.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/ee4c5ab52593be275ae433275e88ed57f15422e1.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/047e5fe03c250c9d71090bdd9efa1120245f13ee.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b0c481130416c0e9159079e21ca3287ecb711b41.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/23a6471a1a20512fc3bcf54a7270d1154066de24.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/f7706a03c75325e3604b81fb4a5462aea1046cc0.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bfc04a0a43199dae752bfdbaf5fc84ae3b06970a.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b2c00d83dd78a5e5e101607d8f8201d7a28bed94.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/de2482c5c6987004271ef9ae3e6c218bc2a86737.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/ee4c5ab52593be275ae433275e88ed57f15422e1.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/de2482c5c6987004271ef9ae3e6c218bc2a86737.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/a87218315ea3842f7bfbfc47daff468f925c389b.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bfc04a0a43199dae752bfdbaf5fc84ae3b06970a.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bfc04a0a43199dae752bfdbaf5fc84ae3b06970a.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b0c481130416c0e9159079e21ca3287ecb711b41.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/a87218315ea3842f7bfbfc47daff468f925c389b.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/23a6471a1a20512fc3bcf54a7270d1154066de24.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/f7706a03c75325e3604b81fb4a5462aea1046cc0.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b2c00d83dd78a5e5e101607d8f8201d7a28bed94.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/de2482c5c6987004271ef9ae3e6c218bc2a86737.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/ee4c5ab52593be275ae433275e88ed57f15422e1.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/74e08c5dd236400e6cd36762291745936d6d13bf.md[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m6:59:26 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:00:03 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:00:03 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/main-page.spec.ts[22m
+[2m7:00:38 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:00:38 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:00:58 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:00:58 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:01:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:01:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:01:31 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:01:31 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:01:46 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:01:46 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:02:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:02:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/upgrades.spec.ts[22m
+[2m7:03:10 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:03:10 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/upgrades.spec.ts[22m
+[2m7:03:27 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:03:27 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/upgrades.spec.ts[22m
+[2m7:03:36 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:03:36 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/upgrades.spec.ts[22m
+[2m7:03:55 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:03:55 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/upgrades.spec.ts[22m
+[2m7:04:22 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:04:22 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:04:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:04:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:05:15 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/047e5fe03c250c9d71090bdd9efa1120245f13ee.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b0c481130416c0e9159079e21ca3287ecb711b41.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/23a6471a1a20512fc3bcf54a7270d1154066de24.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/f7706a03c75325e3604b81fb4a5462aea1046cc0.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bfc04a0a43199dae752bfdbaf5fc84ae3b06970a.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b2c00d83dd78a5e5e101607d8f8201d7a28bed94.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/de2482c5c6987004271ef9ae3e6c218bc2a86737.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/ee4c5ab52593be275ae433275e88ed57f15422e1.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/a87218315ea3842f7bfbfc47daff468f925c389b.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/74e08c5dd236400e6cd36762291745936d6d13bf.md[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:05:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:05:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m7:07:15 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:07:15 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:07:40 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:07:40 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:07:46 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:07:46 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:08:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:08:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:08:28 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:08:28 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:08:35 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:08:35 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:09:08 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:09:08 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:09:17 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:09:17 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:09:22 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:09:22 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:09:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:09:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:10:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:10:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:10:35 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:10:35 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:10:49 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:10:49 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m7:10:56 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+[2m7:11:44 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:11:44 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:11:55 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:11:55 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:12:06 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:12:06 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:12:12 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:12:12 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/047e5fe03c250c9d71090bdd9efa1120245f13ee.md[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/b0c481130416c0e9159079e21ca3287ecb711b41.md[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:13 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/23a6471a1a20512fc3bcf54a7270d1154066de24.md[22m
+[2m7:12:22 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:12:22 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:12:25 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:25 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:12:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m7:12:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m7:12:32 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:32 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:12:36 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:12:36 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:12:41 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:12:41 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mtests/e2e/accessibility.spec.ts[22m
+[2m7:12:48 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/BasicConfig.svelte, /src/app.css[22m
+[2m7:12:48 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/BasicConfig.svelte[22m
+[2m7:13:00 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:13:00 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/app.css[22m
+[2m7:13:06 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m7:13:06 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m7:14:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m7:14:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m7:14:35 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m7:14:35 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m7:14:43 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:14:43 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:14:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:14:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:14:58 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:14:58 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:16:03 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PerformanceSummary.svelte, /src/app.css[22m
+[2m7:16:03 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PerformanceSummary.svelte[22m
+[2m7:16:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PerformanceSummary.svelte, /src/app.css[22m
+[2m7:16:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PerformanceSummary.svelte[22m
+[2m7:17:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m7:17:42 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/app.css[22m
+[2m7:18:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/TourModal.svelte, /src/app.css[22m
+[2m7:18:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/TourModal.svelte[22m
+[2m7:18:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/TourModal.svelte, /src/app.css[22m
+[2m7:18:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/TourModal.svelte[22m
+[2m7:18:41 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/TourModal.svelte, /src/app.css[22m
+[2m7:18:41 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/TourModal.svelte[22m
+[2m7:18:49 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/TourModal.svelte, /src/app.css[22m
+[2m7:18:49 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/TourModal.svelte[22m
+[2m7:23:25 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:23:25 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:24:16 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+[2m7:24:16 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/ActionToolbar.svelte[22m
+[2m7:25:30 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:25:30 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:26:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:26:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:27:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:27:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m7:28:04 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/StatsCard.svelte, /src/app.css[22m
+[2m7:28:04 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/StatsCard.svelte[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2msrc/app.html[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/app.html[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/routes/+page.svelte, /src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/routes/+page.svelte[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/ActionToolbar.svelte[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/ActionToolbar.svelte, /src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/ActionToolbar.svelte[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/Tabs.svelte, /src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Tabs.svelte[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/Tabs.svelte, /src/app.css[22m
+[2m11:00:14 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/Tabs.svelte[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PowerGraph.svelte, /src/app.css[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PowerGraph.svelte[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/ProfileManager.svelte, /src/app.css[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/ProfileManager.svelte[22m
+11:00:33 μ.μ. [vite-plugin-svelte] src/lib/components/calculator/PowerGraph.svelte:13:33 This reference only captures the initial value of `isMobile`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+11:00:33 μ.μ. [vite-plugin-svelte] src/lib/components/calculator/PowerGraph.svelte:13:33 This reference only captures the initial value of `isMobile`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PowerGraph.svelte, /src/app.css[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PowerGraph.svelte[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/ProfileManager.svelte, /src/app.css[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/ProfileManager.svelte[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/ProfileManager.svelte, /src/app.css[22m
+[2m11:00:33 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/ProfileManager.svelte[22m
+11:00:33 μ.μ. [vite-plugin-svelte] src/lib/components/calculator/PowerGraph.svelte:13:33 This reference only captures the initial value of `isMobile`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally
+[2m11:01:07 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m11:01:07 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m11:01:23 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m11:01:23 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+[2m11:01:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/calculator/PowerGraph.svelte, /src/app.css[22m
+[2m11:01:42 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/calculator/PowerGraph.svelte[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:02:02 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:02:09 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/10337557c2dae02b844967339499840a30259635.md[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/bc17a15f19594ce04186d21a46defed412b20bc0.md[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:03:04 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/dc1b452d11a693c533dd0850597c30e69e34e57b.md[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:03:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/lib/components/ui/NumberInput.svelte, /src/app.css[22m
+[2m11:03:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2msrc/lib/components/ui/NumberInput.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:04:16 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:04:16 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/e513ab80c29763c7fefaeb6a0c402620510805a2.md[22m
+[2m11:04:16 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:04:16 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:04:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:04:50 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:05:29 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:05:29 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright.config.ts[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:05:42 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:06:41 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:06:41 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:06:41 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:06:41 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/e513ab80c29763c7fefaeb6a0c402620510805a2.md[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:06:48 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:06:48 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright.config.ts[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:06:52 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:07:50 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:07:50 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:07:56 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:07:56 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright.config.ts[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:08:36 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:08:36 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/0.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/1.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/nodes/2.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/app.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/server/internal.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/client/matchers.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.js[22m
+[2m11:09:11 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2m.svelte-kit/generated/root.svelte[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:10:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:10:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/data/ec5f527af3c8bcff01195b8b1d3127a6cd397311.md[22m
+[2m11:10:24 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+[2m11:10:24 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright-report/index.html[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+[2m11:10:47 μ.μ.[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/app.css[22m
+[2m11:10:47 μ.μ.[22m [36m[1m[vite][22m[39m [34m[2m(ssr)[22m[39m [32mpage reload [39m[2mplaywright.config.ts[22m
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)
+
+[1;31m[500] GET /[0m
+ReferenceError: window is not defined
+    at F:\Desktop\ev-scooter-calc-v2\src\lib\components\calculator\PowerGraph.svelte:11:25
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at PowerGraph (src\lib\components\calculator\PowerGraph.svelte:16:13)
+    at $$render_inner (src\routes\+page.svelte:291:40)
+    at eval (src\routes\+page.svelte:406:5)
+    at Renderer.child (node_modules\svelte\src\internal\server\renderer.js:185:18)
+    at Renderer.component (node_modules\svelte\src\internal\server\renderer.js:210:22)
+    at _page (src\routes\+page.svelte:48:13)

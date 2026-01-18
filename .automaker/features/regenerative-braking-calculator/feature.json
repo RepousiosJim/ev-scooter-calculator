@@ -1,0 +1,20 @@
+{
+  "id": "regenerative-braking-calculator",
+  "category": "Core",
+  "title": "Regenerative Braking Energy Recovery",
+  "description": "Calculate energy recovery from regenerative braking based on terrain profile, braking frequency, and regen efficiency (10-30%). Shows percentage range extension and brake wear reduction benefits.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "terrain-profile-system"
+  ],
+  "createdAt": "2026-01-16T20:17:19.875Z",
+  "updatedAt": "2026-01-16T20:17:19.875Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

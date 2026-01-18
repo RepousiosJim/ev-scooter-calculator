@@ -1,0 +1,21 @@
+{
+  "id": "route-planner",
+  "category": "UI",
+  "title": "GPS Route Planning with Elevation",
+  "description": "Map-based route planner using elevation APIs to calculate real-world range for specific journeys. Shows charging station locations, steep grade warnings, and alternate route suggestions optimized for range.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "complex",
+  "dependencies": [
+    "terrain-profile-system",
+    "range-anxiety-calculator"
+  ],
+  "createdAt": "2026-01-16T20:17:19.879Z",
+  "updatedAt": "2026-01-16T20:17:19.879Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

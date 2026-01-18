@@ -1,18 +1,31 @@
 <script lang="ts">
-  import { calculatorState } from '$lib/stores/calculator.svelte';
-
-  const stats = $derived(calculatorState.stats);
+  import { copyToClipboard } from '$lib/utils/fileHandler';
 
   let showToast = $state(false);
   let toastMessage = $state('');
 
   async function handleShare() {
-    const { exportConfiguration } = await import('$lib/utils/configHandler');
-    const link = (await import('$lib/stores/calculator.svelte')).createShareLink(calculatorState.config);
-    if (link) {
-      await navigator.clipboard.writeText(link);
-      toastMessage = 'Link copied to clipboard!';
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', new Date().getTime().toString());
+      const shareUrl = url.toString();
+      
+      await copyToClipboard(shareUrl);
+      
+      toastMessage = 'Configuration link copied!';
       showToast = true;
+      
+      setTimeout(() => {
+        showToast = false;
+      }, 3000);
+    } catch (error) {
+      console.error('Failed to copy link:', error);
+      toastMessage = 'Failed to copy link';
+      showToast = true;
+      
+      setTimeout(() => {
+        showToast = false;
+      }, 3000);
     }
   }
 </script>
@@ -27,7 +40,7 @@
 </button>
 
 {#if showToast}
-  <div class="fixed bottom-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60]">
+  <div class="fixed bottom-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60]" role="alert" aria-live="polite">
     {toastMessage}
   </div>
 {/if}

@@ -58,6 +58,27 @@ export function updateProfile(id: number, name: string, config: ScooterConfig) {
   saveToStorage();
 }
 
+export function duplicateProfile(id: number) {
+  const profileToDuplicate = profilesStore.profiles.find(p => p.id === id);
+  if (!profileToDuplicate) return;
+
+  const duplicate: Profile = {
+    id: Date.now(),
+    name: `Copy of ${profileToDuplicate.name}`,
+    config: normalizeConfig(structuredClone(profileToDuplicate.config), defaultConfig)
+  };
+
+  profilesStore.profiles = [...profilesStore.profiles, duplicate];
+  saveToStorage();
+}
+
+export function renameProfile(id: number, newName: string) {
+  profilesStore.profiles = profilesStore.profiles.map(p =>
+    p.id === id ? { ...p, name: newName } : p
+  );
+  saveToStorage();
+}
+
 function normalizeProfile(raw: unknown, index: number): Profile | null {
   if (!raw || typeof raw !== 'object') return null;
 

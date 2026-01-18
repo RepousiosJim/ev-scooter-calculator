@@ -1,0 +1,72 @@
+{
+  "id": "ride-mode-presets",
+  "category": "Core",
+  "title": "Ride Mode Configuration Presets",
+  "description": "Add eco/normal/sport/turbo mode presets that adjust power output, acceleration curves, and top speed limits. Each mode shows efficiency tradeoffs and estimated range impact with customizable mode parameters.",
+  "status": "in_progress",
+  "priority": 1,
+  "complexity": "simple",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.874Z",
+  "updatedAt": "2026-01-16T20:39:02.178Z",
+  "model": "opencode/glm-4.7-free",
+  "thinkingLevel": "none",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": [],
+  "skipTests": false,
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "workMode": "current",
+  "startedAt": "2026-01-16T20:33:39.840Z",
+  "planSpec": {
+    "status": "approved",
+    "version": 1,
+    "reviewedByUser": true,
+    "generatedAt": "2026-01-16T20:34:21.058Z",
+    "tasks": [
+      {
+        "id": "T001",
+        "description": "Add RideMode and RideModePreset types",
+        "filePath": "src/lib/types.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T002",
+        "description": "Create ride mode presets data file with eco/normal/sport/turbo configurations",
+        "filePath": "src/lib/data/rideModes.ts",
+        "status": "completed"
+      },
+      {
+        "id": "T003",
+        "description": "Add rideMode state to calculatorState and create applyRideMode function",
+        "filePath": "src/lib/stores/calculator.svelte.ts",
+        "status": "pending"
+      },
+      {
+        "id": "T004",
+        "description": "Create RideModeSelector component with mode buttons and impact display",
+        "filePath": "src/lib/components/calculator/RideModeSelector.svelte",
+        "status": "pending"
+      },
+      {
+        "id": "T005",
+        "description": "Add calculateRideModeImpact function in physics.ts",
+        "filePath": "src/lib/utils/physics.ts",
+        "status": "pending"
+      },
+      {
+        "id": "T006",
+        "description": "Add RideModeSelector to configuration page",
+        "filePath": "src/routes/+page.svelte",
+        "status": "pending"
+      }
+    ],
+    "tasksTotal": 6,
+    "tasksCompleted": 2,
+    "approvedAt": "2026-01-16T20:34:41.724Z",
+    "currentTaskId": "T003"
+  }
+}

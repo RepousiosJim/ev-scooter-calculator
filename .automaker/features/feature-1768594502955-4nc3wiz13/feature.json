@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Replace generic spinners with content-aware skeleton screens that match the layout of loaded content. Add progressive loading for images and lazy-load below-fold content on mobile connections.\n\n**Rationale:** Mobile users often experience slower connections and are more impatient with loading times. Skeleton screens provide perceived performance improvements and reduce bounce rates during content loading.",
+  "title": "Implement mobile-specific loading states and skeleton screens",
+  "status": "backlog",
+  "id": "feature-1768594502955-4nc3wiz13",
+  "descriptionHistory": [
+    {
+      "description": "Replace generic spinners with content-aware skeleton screens that match the layout of loaded content. Add progressive loading for images and lazy-load below-fold content on mobile connections.\n\n**Rationale:** Mobile users often experience slower connections and are more impatient with loading times. Skeleton screens provide perceived performance improvements and reduce bounce rates during content loading.",
+      "timestamp": "2026-01-16T20:15:02.956Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 2
+}

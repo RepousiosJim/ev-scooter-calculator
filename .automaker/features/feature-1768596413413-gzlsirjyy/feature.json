@@ -1,0 +1,17 @@
+{
+  "category": "enhancement",
+  "description": "Redesign the main calculator dashboard with responsive grid layouts that adapt from mobile (single column) to tablet (2 columns) to desktop (3 columns). Optimize information density and whitespace usage for each breakpoint.",
+  "title": "Responsive Dashboard Layout Redesign",
+  "dependencies": [],
+  "priority": 1,
+  "status": "backlog",
+  "branchName": "feature/1768596413413-responsive-dashboard",
+  "id": "feature-1768596413413-gzlsirjyy",
+  "descriptionHistory": [
+    {
+      "description": "Redesign the main calculator dashboard with responsive grid layouts that adapt from mobile (single column) to tablet (2 columns) to desktop (3 columns). Optimize information density and whitespace usage for each breakpoint.",
+      "timestamp": "2026-01-16T20:46:53.414Z",
+      "source": "initial"
+    }
+  ]
+}

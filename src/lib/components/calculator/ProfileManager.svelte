@@ -1,29 +1,47 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
-  import { fly } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
+  import { onDestroy } from 'svelte';
   import { applyConfig, calculatorState, createShareLink } from '$lib/stores/calculator.svelte';
-  import { profilesStore, saveProfile, deleteProfile } from '$lib/stores/profiles.svelte';
+  import { profilesStore, saveProfile, deleteProfile, duplicateProfile, renameProfile } from '$lib/stores/profiles.svelte';
   import { exportConfiguration, importConfiguration } from '$lib/utils/configHandler';
+  import ActionToolbar from '$lib/components/ui/ActionToolbar.svelte';
+  import EditProfileModal from '$lib/components/ui/EditProfileModal.svelte';
   import ConfirmDialog from '$lib/components/ui/ConfirmDialog.svelte';
-
-  let showImportConfirm = $state(false);
-  let showResetConfirm = $state(false);
 
   let showProfiles = $state(false);
   let copyState = $state<'idle' | 'success' | 'error'>('idle');
   let copyTimer: ReturnType<typeof setTimeout> | undefined;
 
+  let showSaveModal = $state(false);
+  let showRenameModal = $state(false);
+  let profileToRename = $state<number | null>(null);
+  let showResetConfirm = $state(false);
+  let showDeleteConfirm = $state(false);
+  let profileToDelete = $state<number | null>(null);
+
   const profiles = $derived(profilesStore.profiles);
-  const shareLabel = $derived(() => {
-    if (copyState === 'success') return 'Link Copied';
-    if (copyState === 'error') return 'Copy Failed';
-    return 'Copy Share Link';
+
+  onDestroy(() => {
+    if (copyTimer) {
+      clearTimeout(copyTimer);
+      copyTimer = undefined;
+    }
   });
 
   function handleSave() {
-    const name = prompt('Enter a name for this setup:');
-    if (!name) return;
+    showSaveModal = true;
+  }
+
+  function handleSaveProfile(name: string) {
     saveProfile(name, calculatorState.config);
+  }
+
+  function getProfileSummary(profile: typeof profiles[number]) {
+    return `${profile.config.motors}x ${profile.config.watts}W | ${profile.config.v}V ${profile.config.ah}Ah`;
+  }
+
+  function handleShowProfiles() {
+    showProfiles = !showProfiles;
   }
 
   async function handleCopyShareLink() {
@@ -47,9 +65,28 @@
   }
 
   function handleDelete(id: number) {
-    if (confirm('Delete this setup?')) {
-      deleteProfile(id);
+    profileToDelete = id;
+    showDeleteConfirm = true;
+  }
+
+  function confirmDelete() {
+    if (profileToDelete !== null) {
+      deleteProfile(profileToDelete);
     }
+    showDeleteConfirm = false;
+    profileToDelete = null;
+  }
+
+  function handleRename(id: number) {
+    profileToRename = id;
+    showRenameModal = true;
+  }
+
+  function handleRenameProfile(newName: string) {
+    if (profileToRename !== null) {
+      renameProfile(profileToRename, newName);
+    }
+    profileToRename = null;
   }
 
   function handleExport() {
@@ -57,12 +94,7 @@
   }
 
   function handleImport() {
-    showImportConfirm = true;
-  }
-
-  async function confirmImport() {
-    await importConfiguration();
-    showImportConfirm = false;
+    importConfiguration();
   }
 
   function handleReset() {
@@ -71,99 +103,134 @@
 
   function confirmReset() {
     applyConfig({});
-
     showResetConfirm = false;
   }
 </script>
 
-  <!-- Profile Controls -->
-  <div class="flex justify-between items-center mb-5 gap-3 flex-wrap">
-    <div class="flex gap-3">
-      <button
-        onclick={handleSave}
-        class="bg-primary text-bgDark font-bold px-4 py-2 rounded-lg hover:opacity-90 transition"
-        aria-label="Save current configuration"
-      >
-        💾 Save Setup
-      </button>
-      <button
-        onclick={() => showProfiles = !showProfiles}
-        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
-        aria-label="View saved profiles"
-      >
-        📂 My Setups ({profiles.length})
-      </button>
-      <button
-        onclick={handleExport}
-        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
-        aria-label="Export configuration to file"
-      >
-        📥 Export
-      </button>
-      <button
-        onclick={handleImport}
-        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
-        aria-label="Import configuration from file"
-      >
-        📥 Import
-      </button>
-      <button
-        onclick={handleCopyShareLink}
-        class={`bg-bgInput text-textMain px-4 py-2 rounded-lg transition ${copyState === 'error'
-          ? 'border border-danger text-danger'
-          : 'hover:opacity-90'}`}
-        aria-label="Copy share link"
-      >
-        🔗 {shareLabel()}
-      </button>
-      <button
-        onclick={handleReset}
-        class="bg-bgInput text-textMain px-4 py-2 rounded-lg hover:opacity-90 transition"
-        aria-label="Reset to default"
-      >
-        ↻ Reset
-      </button>
-    </div>
-  </div>
+<!-- Profile Controls -->
+<div class="mb-6">
+  <ActionToolbar
+    onSave={handleSave}
+    onShowProfiles={handleShowProfiles}
+    onExport={handleExport}
+    onImport={handleImport}
+    onShare={handleCopyShareLink}
+    onReset={handleReset}
+  />
+</div>
 
-<!-- Profiles List -->
-{#if showProfiles}
-  <div
-    class="bg-bgCard rounded-xl p-5 mb-5"
-    transition:fly={{ y: -20, duration: 300 }}
-  >
-    <h3 class="text-xl font-semibold mb-4 text-textMain">Saved Profiles</h3>
+<!-- Save Modal -->
+<EditProfileModal
+  bind:isOpen={showSaveModal}
+  title="Save Setup"
+  initialName=""
+  onSave={handleSaveProfile}
+/>
+
+<!-- Rename Modal -->
+{#if profileToRename !== null}
+  {@const profile = profiles.find(p => p.id === profileToRename)}
+  {#if profile}
+    <EditProfileModal
+      bind:isOpen={showRenameModal}
+      title="Rename Setup"
+      initialName={profile.name}
+      onSave={handleRenameProfile}
+    />
+  {/if}
+{/if}
+
+<!-- Reset Confirm Dialog -->
+<ConfirmDialog
+  bind:isOpen={showResetConfirm}
+  title="Reset Configuration"
+  message="Are you sure you want to reset to default values? This cannot be undone."
+  confirmLabel="Reset"
+  isDanger={true}
+  onConfirm={confirmReset}
+  onCancel={() => showResetConfirm = false}
+/>
+
+<!-- Delete Confirm Dialog -->
+<ConfirmDialog
+  bind:isOpen={showDeleteConfirm}
+  title="Delete Setup"
+  message="Are you sure you want to delete this setup? This cannot be undone."
+  confirmLabel="Delete"
+  isDanger={true}
+  onConfirm={confirmDelete}
+  onCancel={() => showDeleteConfirm = false}
+/>
+
+ <!-- Profiles List -->
+ {#if showProfiles}
+   <div
+     class="bg-bgCard rounded-xl p-4 sm:p-6 mb-6 border border-white/5 shadow-lg"
+     transition:fly={{ y: -20, duration: 300 }}
+   >
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-semibold text-textMain">Saved Setups</h3>
+      <span class="text-sm text-textMuted">{profiles.length} {profiles.length === 1 ? 'setup' : 'setups'}</span>
+    </div>
 
     {#if profiles.length === 0}
-      <p class="text-textMuted text-center py-8">No saved profiles yet</p>
+      <div class="flex flex-col items-center justify-center py-16 text-textMuted">
+        <div class="text-6xl mb-4 animate-float" aria-hidden="true">📂</div>
+        <div class="text-lg font-medium text-textMain mb-2">No saved setups yet</div>
+        <div class="text-sm mb-4">Save your current configuration to get started</div>
+        <button
+          type="button"
+          onclick={handleSave}
+          class="px-5 py-2.5 bg-gradient-main bg-[length:200%_200%] animate-gradient-shift text-white rounded-lg font-medium hover:shadow-glow-sm transition-all duration-300"
+        >
+          Save Current Setup
+        </button>
+      </div>
     {:else}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-80 overflow-y-auto">
-        {#each profiles as profile (profile.id)}
-          <div
-            class="bg-bgInput p-4 rounded-lg border border-transparent hover:border-primary transition cursor-pointer"
-            transition:fade={{ duration: 200 }}
-          >
-            <div class="font-bold text-textMain mb-1">{profile.name}</div>
-            <div class="text-sm text-textMuted mb-3">
-              {profile.config.motors}x {profile.config.watts}W | {profile.config.v}V {profile.config.ah}Ah
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+         {#each profiles as profile (profile.id)}
+           <div
+             class="bg-gradient-card p-3 sm:p-5 rounded-xl border border-white/5 hover:border-primary/30 transition-all duration-300 card-lift"
+             transition:fade={{ duration: 200 }}
+           >
+            <div class="mb-4">
+              <div class="font-bold text-textMain mb-1 truncate">{profile.name}</div>
+              <div class="text-sm text-textMuted truncate" title={getProfileSummary(profile)}>
+                {getProfileSummary(profile)}
+              </div>
             </div>
-            <div class="flex gap-2 justify-end">
+            
+            <div class="flex gap-2 flex-wrap">
               <button
-                class="text-xs bg-primary text-bgDark px-2 py-1 rounded hover:opacity-80"
+                type="button"
+                class="text-xs bg-primary text-bgDark px-3 py-1.5 rounded-lg hover:opacity-80 transition font-medium"
                 onclick={() => applyConfig(profile.config)}
               >
-                Load
+                ⚡ Load
               </button>
               <button
-                class="text-xs bg-secondary text-white px-2 py-1 rounded hover:opacity-80"
+                type="button"
+                class="text-xs bg-bgInput text-textMain px-3 py-1.5 rounded-lg border border-white/5 hover:bg-white/5 transition"
+                onclick={() => handleRename(profile.id)}
+                title="Rename"
               >
-                Compare
+                ✏️ Rename
               </button>
               <button
-                class="text-xs bg-danger text-white px-2 py-1 rounded hover:opacity-80"
+                type="button"
+                class="text-xs bg-bgInput text-textMain px-3 py-1.5 rounded-lg border border-white/5 hover:bg-white/5 transition"
+                onclick={() => duplicateProfile(profile.id)}
+                title="Duplicate"
+              >
+                📋 Copy
+              </button>
+              <button
+                type="button"
+                class="text-xs bg-danger text-white px-3 py-1.5 rounded-lg hover:opacity-80 transition"
                 onclick={() => handleDelete(profile.id)}
+                title="Delete"
               >
-                Del
+                🗑️ Delete
               </button>
             </div>
           </div>

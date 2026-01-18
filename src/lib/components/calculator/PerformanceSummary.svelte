@@ -1,5 +1,6 @@
 <script lang="ts">
   import { calculatorState } from '$lib/stores/calculator.svelte';
+  import StatsCard from '$lib/components/ui/StatsCard.svelte';
 
   const stats = $derived(calculatorState.stats);
 
@@ -33,48 +34,72 @@
   const costGrade = $derived(() => getMetricGrade(costEfficiencyValue));
 </script>
 
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-  <div class="col-span-2 md:col-span-4 bg-black/20 rounded-xl p-5 border-2" style:border-color={performanceGrade().color}>
-    <div class="flex items-center justify-between mb-2">
-      <span class="text-xs text-textMuted uppercase tracking-wider">Performance Grade</span>
-      <div class="flex items-center gap-3">
-        <span class="text-4xl font-bold" style:color={performanceGrade().color}>{performanceGrade().grade}</span>
-        <div class="flex flex-col items-start">
-          <span class="text-2xl" style:color={performanceGrade().color}>{performanceGrade().trend}</span>
-          <span class="text-xs text-textMuted">{performanceGrade().label}</span>
+<div class="space-y-4">
+  <div 
+    class="relative bg-gradient-card rounded-xl p-6 border-2 shadow-lg card-lift transition-all duration-300"
+    style:border-color={performanceGrade().color}
+  >
+    <div class="flex items-center justify-between">
+      <div class="space-y-2">
+        <span class="text-sm font-semibold text-textMain/80 uppercase tracking-wider">
+          Performance Grade
+        </span>
+        <div class="text-sm text-textMain/70">
+          Weighted Score: <span class="font-semibold" style:color={performanceGrade().color}>{performanceScore.toFixed(0)}/100</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex flex-col items-end">
+          <span class="text-3xl font-bold" style:color={performanceGrade().color}>{performanceGrade().grade}</span>
+          <span class="text-sm text-textMain/70">{performanceGrade().label}</span>
+        </div>
+        <div 
+          class="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+          style:background-color={`${performanceGrade().color}20`}
+          style:color={performanceGrade().color}
+        >
+          {performanceGrade().trend}
         </div>
       </div>
     </div>
-    <div class="text-sm text-textMuted">
-      Weighted Score: <span class="font-semibold" style:color={performanceGrade().color}>{performanceScore.toFixed(0)}/100</span>
-    </div>
+    <div class="absolute top-0 left-0 w-32 h-32 opacity-10 bg-gradient-to-br from-primary/30 to-transparent rounded-br-3xl" aria-hidden="true"></div>
   </div>
 
-  <div class="bg-white/3 rounded-lg border border-white/5 p-4 text-center">
-    <span class="text-2xl mb-1">⚡</span>
-    <div class="text-xs text-textMuted uppercase mb-1">Top Speed</div>
-    <div class="text-2xl font-bold" style:color={speedGrade().color}>{Math.round(stats.speed)} km/h</div>
-    <div class="text-xs" style:color={speedGrade().color}>{speedGrade().label}</div>
-  </div>
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <StatsCard
+      label="Top Speed"
+      value={Math.round(stats.speed)}
+      unit="km/h"
+      icon="⚡"
+      trend={speedGrade().label}
+      trendColor={speedGrade().color}
+    />
 
-  <div class="bg-white/3 rounded-lg border border-white/5 p-4 text-center">
-    <span class="text-2xl mb-1">🔋</span>
-    <div class="text-xs text-textMuted uppercase mb-1">Range</div>
-    <div class="text-2xl font-bold" style:color={rangeGrade().color}>{Math.round(stats.totalRange)} km</div>
-    <div class="text-xs" style:color={rangeGrade().color}>{rangeGrade().label}</div>
-  </div>
+    <StatsCard
+      label="Range"
+      value={Math.round(stats.totalRange)}
+      unit="km"
+      icon="🔋"
+      trend={rangeGrade().label}
+      trendColor={rangeGrade().color}
+    />
 
-  <div class="bg-white/3 rounded-lg border border-white/5 p-4 text-center">
-    <span class="text-2xl mb-1">🚀</span>
-    <div class="text-xs text-textMuted uppercase mb-1">Acceleration</div>
-    <div class="text-2xl font-bold" style:color={accelGrade().color}>{Math.round(accelEfficiencyValue)}/100</div>
-    <div class="text-xs" style:color={accelGrade().color}>{accelGrade().label}</div>
-  </div>
+    <StatsCard
+      label="Acceleration"
+      value={Math.round(accelEfficiencyValue)}
+      unit="/100"
+      icon="🚀"
+      trend={accelGrade().label}
+      trendColor={accelGrade().color}
+    />
 
-  <div class="bg-white/3 rounded-lg border border-white/5 p-4 text-center">
-    <span class="text-2xl mb-1">💰</span>
-    <div class="text-xs text-textMuted uppercase mb-1">Running Cost</div>
-    <div class="text-2xl font-bold" style:color={costGrade().color}>${stats.costPer100km.toFixed(2)}</div>
-    <div class="text-xs" style:color={costGrade().color}>{costGrade().label}</div>
+    <StatsCard
+      label="Running Cost"
+      value={`$${stats.costPer100km.toFixed(2)}`}
+      unit="per 100km"
+      icon="💰"
+      trend={costGrade().label}
+      trendColor={costGrade().color}
+    />
   </div>
 </div>

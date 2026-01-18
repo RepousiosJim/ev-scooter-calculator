@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
-  
+  import { scale } from 'svelte/transition';
+
   let {
     label,
     value,
@@ -8,7 +8,9 @@
     icon,
     trend,
     trendColor,
-    highlight = false
+    highlight = false,
+    isCompact = false,
+    onClick
   }: {
     label: string;
     value: number | string;
@@ -17,6 +19,8 @@
     trend?: string;
     trendColor?: string;
     highlight?: boolean;
+    isCompact?: boolean;
+    onClick?: () => void;
   } = $props();
 
   const formattedValue = $derived(
@@ -26,42 +30,73 @@
   );
 </script>
 
-<div 
-  class="relative bg-gradient-card rounded-xl p-5 border border-white/5 
-    {highlight ? 'border-primary/30 shadow-glow-sm' : ''}
-    hover:border-white/10 transition-all duration-300 card-lift"
+<button
+  type="button"
+  onclick={onClick}
+  disabled={!onClick}
+  class="relative group w-full bg-bg-secondary rounded-xl p-5 border
+    {highlight ? 'border-primary/30 shadow-glow-sm' : 'border-white/5'}
+    hover:border-white/10 transition-all duration-slow disabled:cursor-default
+    hover:shadow-lg hover:-translate-y-0.5"
+  aria-label={label}
 >
-  <div class="space-y-3">
-    <div class="flex items-center gap-2 mb-1">
+  <div class="space-y-4">
+    <!-- Header -->
+    <div class="flex items-center gap-2">
       {#if icon}
         <span class="text-xl" aria-hidden="true">{icon}</span>
       {/if}
-      <span class="text-[10px] font-semibold text-textMain/80 uppercase tracking-wider">
-        {label}
-      </span>
-    </div>
-
-    <div class="space-y-1">
-      <div class="flex items-baseline gap-1">
-        <span
-          class="text-3xl font-bold"
-          style:color={trendColor || 'var(--text-main)'}
-          class:text-primary={highlight}
-          transition:fade
-        >
-          {formattedValue}
-        </span>
-        {#if unit}
-          <span class="text-lg text-textMain/70">{unit}</span>
-        {/if}
-      </div>
-      {#if trend}
-        <div class="text-sm font-medium" style:color={trendColor}>
-          {trend}
+      <span class="label text-text-secondary">{label}</span>
+      {#if highlight}
+        <div class="ml-auto flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
         </div>
       {/if}
     </div>
+
+    <!-- Value -->
+    <div class="flex items-baseline gap-2">
+      {#key formattedValue}
+        <span
+          transition:scale
+          class="{isCompact ? 'data' : 'data-lg'} font-bold
+            {highlight ? 'text-primary' : 'text-text-primary'} font-data"
+        >
+          {formattedValue}
+        </span>
+      {/key}
+      {#if unit}
+        <span class="text-sm text-text-tertiary">{unit}</span>
+      {/if}
+    </div>
+
+    <!-- Trend -->
+    {#if trend && !isCompact}
+      <div
+        transition:scale
+        class="flex items-center gap-1 pt-2 border-t border-white/5 text-sm font-medium"
+        style:color={trendColor || 'var(--color-text-secondary)'}
+      >
+        {trend}
+      </div>
+    {/if}
   </div>
-  
-  <div class="absolute top-0 right-0 w-20 h-20 opacity-5 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-3xl" aria-hidden="true"></div>
-</div>
+
+  <!-- Subtle gradient decoration -->
+  <div
+    class="absolute top-0 right-0 w-20 h-20 opacity-0 bg-gradient-to-br from-primary/10 to-transparent rounded-bl-3xl
+      group-hover:opacity-100 transition-opacity duration-slow"
+    aria-hidden="true"
+  ></div>
+</button>
+
+<style>
+  /* Mobile: Ensure minimum touch target */
+  @media (max-width: 640px) {
+    button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+  }
+</style>

@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project_specification>
+  <project_name>EV Scooter Pro Calculator</project_name>
+
+  <overview>
+    EV Scooter Pro Calculator is a sophisticated physics-based SvelteKit web application designed for electric scooter enthusiasts and owners to analyze, simulate, and optimize their vehicle&apos;s performance metrics. The application uses real physics calculations including aerodynamic drag (using air density constants), rolling resistance, hill climb physics (gravity forces), and battery discharge modeling to provide accurate predictions of range, top speed, hill climbing capabilities, and acceleration scores. Users can configure detailed scooter specifications (voltage, amperage, motor power, wheel size, motor KV ratings, drivetrain efficiency, battery sag) and compare them against real-world and manufacturer specifications. The upgrade simulator allows users to test hardware modifications (parallel batteries, voltage boosts, controller upgrades, motor changes, tire swaps) before purchasing, with side-by-side comparisons showing percentage changes in all metrics. A comprehensive bottleneck detection system alerts users to battery stress (C-rate warnings), controller limitations, gear ratio issues, and hill climb performance problems, providing actionable upgrade recommendations with cost estimates and difficulty ratings. The application includes a preset library spanning 11 popular scooter models from entry-level (Xiaomi M365) to flagship (Wolf King GTR), profile management with localStorage persistence, configuration sharing via URL encoding, and JSON import/export. Built as a PWA-ready responsive interface with dark theme, it supports offline usage, mobile-optimized touch targets, and accessibility features including keyboard navigation, screen reader support, and reduced motion preferences.
+  </overview>
+
+  <technology_stack>
+    <technology>SvelteKit 2.49.1</technology>
+    <technology>Svelte 5.45.6 (with runes reactivity)</technology>
+    <technology>TypeScript 5.9.3</technology>
+    <technology>Tailwind CSS 4.1.18</technology>
+    <technology>Vite 7.2.6</technology>
+    <technology>Vite PWA Plugin 1.2.0 (Service Worker &amp; Workbox)</technology>
+    <technology>Playwright 1.57.0 (E2E Testing)</technology>
+    <technology>Vitest 4.0.17 (Unit Testing)</technology>
+    <technology>PostCSS 8.5.6</technology>
+    <technology>Autoprefixer 10.4.23</technology>
+    <technology>Vercel Adapter (Node.js 22.x runtime)</technology>
+    <technology>svelte-check 4.3.4</technology>
+    <technology>LocalStorage API (Profile Persistence)</technology>
+    <technology>Canvas API (Power Graph Visualization)</technology>
+    <technology>Web Share API (Configuration Sharing)</technology>
+    <technology>Base64 URL Encoding (Shareable Links)</technology>
+  </technology_stack>
+
+  <core_capabilities>
+    <capability>Real-time physics-based performance calculations (drag, hill climb, battery modeling)</capability>
+    <capability>Comprehensive scooter configuration with 20+ parameters including voltage, Ah, motors, watts, controller amps, motor KV, drivetrain efficiency, battery sag</capability>
+    <capability>Dual prediction modes: Spec (manufacturer) vs Real-world (85% efficiency factor)</capability>
+    <capability>Upgrade simulation with 5 upgrade types: parallel battery, voltage boost, controller upgrade, motor upgrade, tire changes</capability>
+    <capability>Side-by-side comparison display showing delta percentages for all metrics</capability>
+    <capability>Bottleneck detection system for battery stress, controller limits, gear ratios, and hill climb issues</capability>
+    <capability>Intelligent upgrade recommendations with cost estimates, difficulty ratings, and confidence levels</capability>
+    <capability>11 pre-configured scooter presets from entry-level to flagship models with manufacturer metadata</capability>
+    <capability>Profile management system with save, load, duplicate, rename, and delete operations</capability>
+    <capability>Configuration import/export via JSON files</capability>
+    <capability>Shareable configuration links via Base64 URL encoding</capability>
+    <capability>Interactive Power vs Speed curve graph with Canvas API animation</capability>
+    <capability>Performance grading system (A-F) with weighted scoring</capability>
+    <capability>Efficiency metrics visualization with progress bars</capability>
+    <capability>Component health monitoring (C-rate, current draw analysis)</capability>
+    <capability>PWA support with offline capability and auto-update service worker</capability>
+    <capability>Responsive design with mobile-optimized touch targets (48px minimum)</capability>
+    <capability>Accessibility features: keyboard navigation, ARIA labels, screen reader support</capability>
+    <capability>Dark theme with custom scrollbar and glass effects</capability>
+    <capability>Reduced motion and high contrast mode support</capability>
+    <capability>Print-friendly styles for report generation</capability>
+    <capability>Guided tour for first-time users</capability>
+  </core_capabilities>
+
+  <implemented_features>
+    <feature>
+      <name>Physics Engine</name>
+      <description>Complete physics calculation system implementing aerodynamic drag (using air density 1.225 kg/m³), rolling resistance (15W constant), gravity-based hill climb calculations, battery sag modeling, and drivetrain efficiency factors. Calculates top speed, range, hill speed, acceleration score, C-rate, charge time, and cost per 100km.</description>
+      <file_locations>
+        <location>src/lib/utils/physics.ts</location>
+        <location>src/lib/constants/physics.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Calculator State Management</name>
+      <description>Svelte 5 runes-based reactive state store managing scooter configuration, prediction mode (spec/realworld), simulated configurations, active upgrades, and computed derived values for stats, bottlenecks, and recommendations.</description>
+      <file_locations>
+        <location>src/lib/stores/calculator.svelte.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Scooter Preset Library</name>
+      <description>Pre-configured profiles for 11 popular scooter models including Xiaomi M365 2025, Segway F2 Pro, Ninebot ES4, NIU KQi3 Max, Apollo City 2025, VSETT 9+, Kaabo Mantis 10, Apollo Ghost 2, Dualtron Thunder 3, EMOVE RoadRunner, and Wolf King GTR with manufacturer specifications metadata.</description>
+      <file_locations>
+        <location>src/lib/data/presets.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Upgrade Simulator</name>
+      <description>Interactive upgrade simulation system allowing users to test 5 upgrade types (parallel battery, voltage boost, controller upgrade, motor upgrade, tires) with real-time delta calculations showing percentage changes in all performance metrics.</description>
+      <file_locations>
+        <location>src/lib/components/calculator/UpgradeSimulator.svelte</location>
+        <location>src/lib/components/calculator/UpgradeCard.svelte</location>
+        <location>src/lib/utils/physics.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Bottleneck Detection</name>
+      <description>Intelligent system detecting 4 types of bottlenecks: SAG_WARNING (C-rate &gt; 3.0), CONTROLLER_LIMIT (amp restriction), GEAR_RATIO_LIMIT (low speed despite high voltage), and HILL_CLIMB_LIMIT (poor incline performance). Each bottleneck includes suggested upgrade path.</description>
+      <file_locations>
+        <location>src/lib/utils/physics.ts</location>
+        <location>src/lib/components/calculator/BottleneckPanel.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Upgrade Recommendations Engine</name>
+      <description>Smart recommendation system generating contextual upgrade suggestions based on current configuration analysis, including expected gains for both spec and real-world modes, tradeoffs, cost estimates ($80-$800), difficulty ratings (easy/moderate/hard), and confidence levels.</description>
+      <file_locations>
+        <location>src/lib/utils/physics.ts</location>
+        <location>src/lib/components/calculator/UpgradeGuidance.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Profile Management</name>
+      <description>Complete profile system with localStorage persistence supporting save, load, delete, duplicate, and rename operations. Profiles store full scooter configurations with validation and normalization.</description>
+      <file_locations>
+        <location>src/lib/stores/profiles.svelte.ts</location>
+        <location>src/lib/components/calculator/ProfileManager.svelte</location>
+        <location>src/lib/components/ui/EditProfileModal.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Configuration Sharing</name>
+      <description>URL-based configuration sharing using Base64 URL-safe encoding, plus JSON file import/export functionality for complete configuration backup and transfer.</description>
+      <file_locations>
+        <location>src/lib/stores/calculator.svelte.ts</location>
+        <location>src/lib/utils/configHandler.ts</location>
+        <location>src/lib/utils/fileHandler.ts</location>
+        <location>src/lib/components/ui/ShareButton.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Power vs Speed Graph</name>
+      <description>Real-time animated Canvas-based visualization showing power requirements at different speeds, with drag curve, available power line, and pulsing equilibrium point indicating top speed. Adaptive frame rate (30fps desktop, 15fps mobile).</description>
+      <file_locations>
+        <location>src/lib/components/calculator/PowerGraph.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Performance Summary Dashboard</name>
+      <description>Comprehensive dashboard displaying performance grade (A-F), weighted score, and four primary metrics (speed, range, acceleration, cost) with trend indicators and color-coded ratings.</description>
+      <file_locations>
+        <location>src/lib/components/calculator/PerformanceSummary.svelte</location>
+        <location>src/lib/components/ui/StatsCard.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Efficiency Metrics Panel</name>
+      <description>Visual progress bar display showing efficiency percentages for speed, range, acceleration, and cost with color-coded labels (Excellent/Good/Fair/Needs Improvement).</description>
+      <file_locations>
+        <location>src/lib/components/calculator/EfficiencyPanel.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Comparison Display</name>
+      <description>Side-by-side comparison view showing current vs simulated upgrade values with delta badges, percentage changes, and direction indicators for 8 performance metrics.</description>
+      <file_locations>
+        <location>src/lib/components/calculator/ComparisonDisplay.svelte</location>
+        <location>src/lib/components/calculator/ComparisonSummary.svelte</location>
+        <location>src/lib/components/ui/DeltaBadge.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Input Validation System</name>
+      <description>Comprehensive validation rules for all 20+ configuration parameters with min/max bounds, normalization functions, and user-friendly validation messages.</description>
+      <file_locations>
+        <location>src/lib/utils/validators.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>PWA Configuration</name>
+      <description>Progressive Web App setup with Vite PWA plugin, manifest configuration, service worker with Workbox runtime caching for Google Fonts, and auto-update functionality.</description>
+      <file_locations>
+        <location>vite.config.ts</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Responsive UI Components</name>
+      <description>Complete UI component library including Tabs, Hero, Cards, Toast notifications, Confirm dialogs, Loading skeletons, Action dropdowns, and Section dividers with dark theme and glassmorphism effects.</description>
+      <file_locations>
+        <location>src/lib/components/ui/Tabs.svelte</location>
+        <location>src/lib/components/ui/Hero.svelte</location>
+        <location>src/lib/components/ui/Card.svelte</location>
+        <location>src/lib/components/ui/Toast.svelte</location>
+        <location>src/lib/components/ui/ConfirmDialog.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Guided Tour System</name>
+      <description>First-time user onboarding modal with 5 steps explaining key features, keyboard navigation support (arrows, Enter, Escape), and localStorage persistence for completion state.</description>
+      <file_locations>
+        <location>src/lib/components/ui/TourModal.svelte</location>
+        <location>src/routes/+page.svelte</location>
+      </file_locations>
+    </feature>
+    <feature>
+      <name>Accessibility Features</name>
+      <description>ARIA labels, keyboard navigation, focus-visible styles, screen reader support with aria-live regions, high contrast mode support, and prefers-reduced-motion compliance.</description>
+      <file_locations>
+        <location>src/app.css</location>
+        <location>src/routes/+page.svelte</location>
+      </file_locations>
+    </feature>
+  </implemented_features>
+
+  <additional_requirements>
+    <requirement>Node.js 22.x runtime (configured for Vercel deployment)</requirement>
+    <requirement>Modern browser with ES2020+ support</requirement>
+    <requirement>LocalStorage API for profile persistence</requirement>
+    <requirement>Canvas API support for power graph visualization</requirement>
+    <requirement>Clipboard API for share link copying</requirement>
+    <requirement>Service Worker support for PWA offline functionality</requirement>
+    <requirement>Minimum 48px touch targets on mobile devices</requirement>
+    <requirement>prefers-color-scheme: dark media query support recommended</requirement>
+  </additional_requirements>
+
+  <development_guidelines>
+    <guideline>Use Svelte 5 runes ($state, $derived, $effect) for reactive state management</guideline>
+    <guideline>Follow TypeScript strict mode with explicit type definitions</guideline>
+    <guideline>Implement input validation with min/max bounds in validators.ts</guideline>
+    <guideline>Use Tailwind CSS 4 @theme directive for custom colors</guideline>
+    <guideline>Cache physics calculations to avoid redundant computations (200-entry LRU cache)</guideline>
+    <guideline>Implement debouncing for user inputs to prevent excessive recalculations</guideline>
+    <guideline>Maintain accessibility with ARIA labels, keyboard navigation, and screen reader support</guideline>
+    <guideline>Use semantic HTML elements (section, nav, article) with proper heading hierarchy</guideline>
+    <guideline>Support prefers-reduced-motion for users with motion sensitivity</guideline>
+    <guideline>Implement responsive design with mobile-first breakpoints (sm: 640px, lg: 1024px)</guideline>
+    <guideline>Export/import configurations use JSON format for portability</guideline>
+    <guideline>URL sharing uses Base64 URL-safe encoding for compact representation</guideline>
+    <guideline>Unit tests with Vitest, E2E tests with Playwright</guideline>
+    <guideline>Deploy via Vercel adapter with Node.js 22.x runtime</guideline>
+  </development_guidelines>
+
+  <implementation_roadmap>
+    <phase>
+      <name>Core Physics Engine</name>
+      <status>completed</status>
+      <description>Implemented comprehensive physics calculations including aerodynamic drag, rolling resistance, hill climb physics, battery sag modeling, and drivetrain efficiency factors</description>
+    </phase>
+    <phase>
+      <name>State Management &amp; Configuration</name>
+      <status>completed</status>
+      <description>Built Svelte 5 runes-based reactive stores for calculator state, profile management, and configuration validation with localStorage persistence</description>
+    </phase>
+    <phase>
+      <name>Preset Library</name>
+      <status>completed</status>
+      <description>Created preset database with 11 popular scooter models from entry-level to flagship, including manufacturer specification metadata</description>
+    </phase>
+    <phase>
+      <name>Upgrade Simulation System</name>
+      <status>completed</status>
+      <description>Implemented upgrade simulator with 5 upgrade types, delta calculations, and side-by-side comparison displays</description>
+    </phase>
+    <phase>
+      <name>Bottleneck Detection &amp; Recommendations</name>
+      <status>completed</status>
+      <description>Built intelligent bottleneck detection for battery, controller, gearing, and hill climb issues with contextual upgrade recommendations</description>
+    </phase>
+    <phase>
+      <name>Data Visualization</name>
+      <status>completed</status>
+      <description>Created interactive Power vs Speed graph with Canvas API, efficiency metrics panels, and performance grading dashboard</description>
+    </phase>
+    <phase>
+      <name>PWA &amp; Responsive UI</name>
+      <status>completed</status>
+      <description>Configured PWA with service worker, implemented responsive design with mobile optimizations, and built comprehensive UI component library</description>
+    </phase>
+    <phase>
+      <name>Sharing &amp; Export</name>
+      <status>completed</status>
+      <description>Implemented URL-based configuration sharing with Base64 encoding and JSON import/export functionality</description>
+    </phase>
+    <phase>
+      <name>Testing Infrastructure</name>
+      <status>completed</status>
+      <description>Set up Vitest for unit testing and Playwright for E2E testing with test scripts configured</description>
+    </phase>
+  </implementation_roadmap>
+</project_specification>

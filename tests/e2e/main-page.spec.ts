@@ -1,9 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 
 const getStatValue = async (page: Page, label: string) => {
-  const statsGrid = page.locator('div.grid.grid-cols-2.md\\:grid-cols-3.lg\\:grid-cols-4').first();
-  const statBox = statsGrid.getByText(label, { exact: true }).locator('..');
-  const valueText = await statBox.locator('.text-2xl').textContent();
+  const statsGrid = page.locator('div.grid.grid-cols-2.lg\\:grid-cols-4').first();
+  const statBox = statsGrid.getByText(label, { exact: true }).locator('..').locator('..');
+  const valueText = await statBox.locator('.text-3xl').textContent();
   return parseFloat(valueText ?? '0');
 };
 
@@ -60,7 +60,7 @@ test.describe('Main Page', () => {
   });
 
   test('shows component status cards', async ({ page }) => {
-    const statusSection = page.getByRole('heading', { name: 'System Status' }).locator('..');
+    const statusSection = page.getByRole('heading', { name: 'Component Health' }).locator('..');
     await expect(statusSection).toBeVisible();
     await expect(statusSection.getByText('Battery', { exact: true })).toBeVisible();
     await expect(statusSection.getByText('Controller', { exact: true })).toBeVisible();

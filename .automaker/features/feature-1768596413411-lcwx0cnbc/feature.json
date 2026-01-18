@@ -1,0 +1,17 @@
+{
+  "category": "enhancement",
+  "description": "Implement system-aware dark mode with user preference override. Ensure all UI components, graphs, and color-coded metrics remain legible in both light and dark themes. Include smooth transitions between themes and persist user selection.",
+  "title": "Dark Mode Theme Support",
+  "dependencies": [],
+  "priority": 1,
+  "status": "backlog",
+  "branchName": "feature/improvements",
+  "id": "feature-1768596413411-lcwx0cnbc",
+  "descriptionHistory": [
+    {
+      "description": "Implement system-aware dark mode with user preference override. Ensure all UI components, graphs, and color-coded metrics remain legible in both light and dark themes. Include smooth transitions between themes and persist user selection.",
+      "timestamp": "2026-01-16T20:46:53.412Z",
+      "source": "initial"
+    }
+  ]
+}
