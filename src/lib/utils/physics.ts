@@ -50,11 +50,11 @@ const performanceCache = new LRUCache<string, PerformanceStats>(CACHE_CONSTANTS.
 export function calculateTemperatureFactor(ambientTemp: number): number {
   if (ambientTemp >= 20) return 1.0;
   if (ambientTemp <= -20) return 0.6;
-  
+
   const tempRange = 40;
   const normalizedTemp = (ambientTemp + 20) / tempRange;
   const tempFactor = 0.6 + (normalizedTemp * 0.4);
-  
+
   return tempFactor;
 }
 
@@ -80,7 +80,7 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const cacheKey = getPerformanceCacheKey(config, mode);
   const cached = performanceCache.get(cacheKey);
   if (cached) return cached;
-  
+
   // Apply mode-specific corrections
   const drivetrainEfficiency = config.drivetrainEfficiency ?? 0.9;
   const batterySagPercent = config.batterySagPercent ?? 0.08;
@@ -111,20 +111,30 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
   const maxSpeed = calculateMaxSpeed(config, effectiveDrivetrainEfficiency);
 
   // 4. Apply aerodynamic drag to find equilibrium speed (optimized O(1))
-  const speed = calculateDragLimitedSpeed(
+  // 4. Apply aerodynamic drag and rolling resistance to find equilibrium speed
+  const CdA = (config.dragCoefficient && config.frontalArea)
+    ? config.dragCoefficient * config.frontalArea
+    : config.ridePosition;
+
+  const speed = calculateEquilibriumSpeed(
     totalWatts,
-    config.ridePosition,
-    maxSpeed
+    CdA,
+    config.weight,
+    config.scooterWeight ?? ((wh * 0.06) + 15),
+    maxSpeed,
+    0,
+    config.rollingResistance
   );
 
-  // 5. Calculate hill climb speed (optimized with binary search)
-  const hillSpeed = calculateHillSpeed(
+  // 5. Calculate hill climb speed
+  const hillSpeed = calculateEquilibriumSpeed(
     totalWatts,
-    config.ridePosition,
-    wh,
+    CdA,
     config.weight,
-    speed,
-    config.slope
+    config.scooterWeight ?? ((wh * 0.06) + 15),
+    maxSpeed,
+    config.slope,
+    config.rollingResistance
   );
 
   // 6. Calculate range (with regen)
@@ -184,55 +194,9 @@ function calculateMaxSpeed(config: ScooterConfig, efficiency: number = 1.0): num
   return (config.v / NOMINAL_VOLTAGE) * 75;
 }
 
-function calculateDragLimitedSpeed(
-  totalWatts: number,
-  ridePosition: number,
-  maxSpeed: number
-): number {
-  // Solve: totalWatts = 0.5 * ρ * (v/3.6)³ * Cd * A + RollingResistance
-  // Use cubic root for O(1) solution: v = (2 * (P - Pr) / (ρ * Cd * A))^(1/3) * 3.6
-  const powerAvailable = totalWatts - PHYSICS_CONSTANTS.ROLLING_RESISTANCE_WATTS;
-  if (powerAvailable <= 0) return 0;
 
-  const speedMps = Math.cbrt((2 * powerAvailable) / (PHYSICS_CONSTANTS.AIR_DENSITY_KG_M3 * ridePosition));
-  const speedKmh = speedMps * 3.6;
 
-  return Math.min(speedKmh, maxSpeed);
-}
 
-function calculateHillSpeed(
-  totalWatts: number,
-  ridePosition: number,
-  wh: number,
-  riderWeight: number,
-  maxSpeed: number,
-  slopePercent: number
-): number {
-  if (slopePercent <= 0) return maxSpeed;
-
-  const angleRad = Math.atan(slopePercent / 100);
-  const scooterWeight = (wh * 0.06) + 15;
-  const totalWeight = scooterWeight + riderWeight;
-  const gravityForce = totalWeight * PHYSICS_CONSTANTS.GRAVITY_M_S2 * Math.sin(angleRad);
-
-  // Binary search for more efficient hill speed calculation (O(log n) vs O(n))
-  let low = 0, high = maxSpeed;
-  for (let i = 0; i < 20; i++) {
-    const mid = (low + high) / 2;
-    const speedMps = mid / 3.6;
-    const powerDrag = 0.5 * PHYSICS_CONSTANTS.AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * ridePosition;
-    const powerGravity = gravityForce * speedMps;
-    const totalPowerNeeded = powerDrag + PHYSICS_CONSTANTS.ROLLING_RESISTANCE_WATTS + powerGravity;
-    
-    if (totalPowerNeeded <= totalWatts) {
-      low = mid;
-    } else {
-      high = mid;
-    }
-  }
-
-  return (low + high) / 2;
-}
 
 export function detectBottlenecks(
   stats: PerformanceStats,
@@ -394,6 +358,101 @@ export function generateRecommendations(config: ScooterConfig, stats: Performanc
   return recommendations;
 }
 
+export function getAllUpgrades(config: ScooterConfig, stats: PerformanceStats): Recommendation[] {
+  const allPossible: Recommendation[] = [];
+  const currentSpec = calculatePerformance(config, 'spec');
+  const currentRealworld = calculatePerformance(config, 'realworld');
+
+  const upgradeTypes: Recommendation['upgradeType'][] = ['parallel', 'voltage', 'controller', 'motor', 'tires'];
+
+  upgradeTypes.forEach(type => {
+    let title = '';
+    let reason = 'Experimental/Not currently recommended for this model.';
+    let whatChanges = '';
+    let expectedGains = { spec: '', realworld: '' };
+    let tradeoffs = '';
+    let confidence: Recommendation['confidence'] = 'low';
+    let estimatedCost = '';
+    let difficulty: Recommendation['difficulty'] = 'hard';
+
+    const upgradedConfig = simulateUpgrade(config, type);
+    const upgradedSpec = calculatePerformance(upgradedConfig, 'spec');
+    const upgradedRealworld = calculatePerformance(upgradedConfig, 'realworld');
+
+    switch (type) {
+      case 'parallel':
+        title = 'Add Parallel Battery';
+        whatChanges = 'Doubles battery capacity, halves C-rate, significantly reduces voltage sag.';
+        expectedGains = {
+          spec: `+${((upgradedSpec.totalRange / currentSpec.totalRange - 1) * 100).toFixed(0)}% range`,
+          realworld: `+${((upgradedRealworld.totalRange / currentRealworld.totalRange - 1) * 100).toFixed(0)}% range`
+        };
+        tradeoffs = 'Increases weight by ~8-12kg.';
+        estimatedCost = '$300-600';
+        difficulty = 'moderate';
+        break;
+      case 'voltage':
+        title = 'Voltage Boost (+20%)';
+        whatChanges = 'Increases motor RPM and torque for higher top speed.';
+        expectedGains = {
+          spec: `+${((upgradedSpec.speed / currentSpec.speed - 1) * 100).toFixed(0)}% top speed`,
+          realworld: `+${((upgradedRealworld.speed / currentRealworld.speed - 1) * 100).toFixed(0)}% top speed`
+        };
+        tradeoffs = 'Requires new controller and charger.';
+        estimatedCost = '$200-500';
+        difficulty = 'hard';
+        break;
+      case 'controller':
+        title = 'High-Amp Controller';
+        whatChanges = 'Allows motors to reach higher peak power output.';
+        expectedGains = {
+          spec: `+${((upgradedSpec.totalWatts / currentSpec.totalWatts - 1) * 100).toFixed(0)}% peak power`,
+          realworld: 'Better acceleration'
+        };
+        tradeoffs = 'Higher battery stress. Check thermal limits.';
+        estimatedCost = '$150-300';
+        difficulty = 'moderate';
+        break;
+      case 'motor':
+        title = 'Dual High-Power Motors';
+        whatChanges = 'Adds/Upgrades motors for dual-drive traction.';
+        expectedGains = {
+          spec: `+${(upgradedSpec.accelScore - currentSpec.accelScore).toFixed(0)} accel score`,
+          realworld: 'Improved hill climbing'
+        };
+        tradeoffs = 'Higher consumption. Needs dual controllers.';
+        estimatedCost = '$400-800';
+        difficulty = 'hard';
+        break;
+      case 'tires':
+        title = 'Low-Rolling Tires';
+        whatChanges = 'Switch to high-performance low-resistance tires.';
+        expectedGains = {
+          spec: '+5-10% range',
+          realworld: '+5-10% range'
+        };
+        tradeoffs = 'Reduced off-road grip.';
+        estimatedCost = '$80-150';
+        difficulty = 'easy';
+        break;
+    }
+
+    allPossible.push({
+      upgradeType: type,
+      title,
+      reason,
+      whatChanges,
+      expectedGains,
+      tradeoffs,
+      confidence,
+      estimatedCost,
+      difficulty
+    });
+  });
+
+  return allPossible;
+}
+
 export function simulateUpgrade(
   config: ScooterConfig,
   upgradeType: 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires'
@@ -465,4 +524,94 @@ export function calculateUpgradeDelta(
     ampsPercent: safePercent(currentSpec.amps, upgradedSpec.amps),
     cRatePercent: safePercent(currentSpec.cRate, upgradedSpec.cRate)
   };
+}
+
+export interface RideModeImpact {
+  rangeDelta: number;
+  rangePercent: number;
+  speedDelta: number;
+  speedPercent: number;
+  powerDelta: number;
+  powerPercent: number;
+}
+
+export function calculateRideModeImpact(
+  config: ScooterConfig,
+  targetStyle: number,
+  targetRegen: number,
+  mode: PredictionMode = 'spec'
+): RideModeImpact {
+  const currentStats = calculatePerformance(config, mode);
+
+  const modifiedConfig: ScooterConfig = {
+    ...config,
+    style: targetStyle,
+    regen: targetRegen
+  };
+
+  const modifiedStats = calculatePerformance(modifiedConfig, mode);
+
+  const safePercent = (current: number, modified: number) => {
+    if (current === 0) return 0;
+    return (modified / current - 1) * 100;
+  };
+
+  return {
+    rangeDelta: modifiedStats.totalRange - currentStats.totalRange,
+    rangePercent: safePercent(currentStats.totalRange, modifiedStats.totalRange),
+    speedDelta: modifiedStats.speed - currentStats.speed,
+    speedPercent: safePercent(currentStats.speed, modifiedStats.speed),
+    powerDelta: modifiedStats.totalWatts - currentStats.totalWatts,
+    powerPercent: safePercent(currentStats.totalWatts, modifiedStats.totalWatts)
+  };
+}
+
+function calculateEquilibriumSpeed(
+  totalWatts: number,
+  CdA: number,
+  riderWeight: number,
+  scooterWeight: number,
+  maxMechanicalSpeedKmh: number,
+  slopePercent: number,
+  rollingResistance?: number
+): number {
+  const totalWeight = riderWeight + scooterWeight;
+  const slopeRad = Math.atan(slopePercent / 100);
+
+  // Force Gravity parallel to slope (component acting against motion)
+  const F_gravity = totalWeight * PHYSICS_CONSTANTS.GRAVITY_M_S2 * Math.sin(slopeRad);
+
+  // Force Rolling Resistance (approx F_normal ≈ mg * cos(theta))
+  const Cr = rollingResistance ?? PHYSICS_CONSTANTS.ROLLING_RESISTANCE_COEFFICIENT;
+  const F_rolling = Cr * totalWeight * PHYSICS_CONSTANTS.GRAVITY_M_S2 * Math.cos(slopeRad);
+
+  const F_constant = F_gravity + F_rolling;
+
+  // Power(v) = 0.5 * ρ * CdA * v^3 + F_constant * v
+  // Solving for v where Power(v) = totalWatts
+
+  // Binary search for v (m/s)
+  let low = 0;
+  let high = (maxMechanicalSpeedKmh / 3.6) + 10;
+
+  for (let i = 0; i < 20; i++) {
+    const mid = (low + high) / 2;
+    if (mid <= 0) { low = mid; continue; }
+
+    // P_drag = 0.5 * rho * CdA * v^3
+    const P_aero = 0.5 * PHYSICS_CONSTANTS.AIR_DENSITY_KG_M3 * Math.pow(mid, 3) * CdA;
+    // P_rolling_gravity = F_constant * v
+    const P_linear = F_constant * mid;
+
+    const P_needed = P_aero + P_linear;
+
+    if (P_needed < totalWatts) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+
+  const speedKmh = ((low + high) / 2) * 3.6;
+  return Math.min(speedKmh, maxMechanicalSpeedKmh);
 }

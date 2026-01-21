@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Icon from './atoms/Icon.svelte';
+
   let { 
     variant = 'solid',
     label = '',
@@ -12,25 +14,25 @@
   } = $props();
 </script>
 
-<div class="relative py-8 {className}" aria-hidden="true">
+<div class="relative py-4 {className}" aria-hidden="true">
   <div class="absolute inset-0 flex items-center">
     {#if variant === 'gradient'}
-      <div class="w-full h-px bg-gradient-border bg-[length:200%_200%] animate-gradientShift"></div>
+      <div class="w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
     {:else if variant === 'dotted'}
-      <div class="w-full h-px border-t-2 border-dotted border-white/10"></div>
+      <div class="w-full h-px border-t border-dotted border-white/5"></div>
     {:else}
-      <div class="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+      <div class="w-full h-px bg-white/5"></div>
     {/if}
   </div>
   
   {#if label || icon}
     <div class="relative flex justify-center">
-      <div class="bg-bg-card px-4 flex items-center gap-2">
+      <div class="bg-bg-primary px-3 flex items-center gap-2">
         {#if icon}
-          <span class="text-primary">{icon}</span>
+          <Icon name={icon} size="xs" class="opacity-50" />
         {/if}
         {#if label}
-          <span class="text-sm font-medium text-textMuted uppercase tracking-wider">{label}</span>
+          <span class="text-[10px] font-bold text-text-secondary uppercase tracking-widest">{label}</span>
         {/if}
       </div>
     </div>

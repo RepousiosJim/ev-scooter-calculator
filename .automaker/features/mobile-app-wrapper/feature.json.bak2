@@ -1,0 +1,20 @@
+{
+  "id": "mobile-app-wrapper",
+  "category": "UI",
+  "title": "Native Mobile App with Bluetooth Integration",
+  "description": "Convert PWA to native iOS/Android app using Capacitor with Bluetooth BLE support to read real-time data from scooter ESCs (speed, battery, temperature). Syncs actual vs predicted performance for calibration.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "complex",
+  "dependencies": [
+    "weather-integration"
+  ],
+  "createdAt": "2026-01-16T20:17:19.882Z",
+  "updatedAt": "2026-01-16T20:17:19.882Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

@@ -1,105 +1,106 @@
 <script lang="ts">
-  import { calculatorState } from '$lib/stores/calculator.svelte';
-  import StatsCard from '$lib/components/ui/StatsCard.svelte';
+  import { calculatorState } from "$lib/stores/calculator.svelte";
+  import StatsCard from "$lib/components/ui/StatsCard.svelte";
+  import PerformanceGradeBadge from "$lib/components/ui/PerformanceGradeBadge.svelte";
+  import Icon from "$lib/components/ui/atoms/Icon.svelte";
 
   const stats = $derived(calculatorState.stats);
-
-  const speedEfficiencyValue = $derived(Math.min(100, (stats.speed / 100) * 100));
-  const rangeEfficiencyValue = $derived(Math.min(100, (stats.totalRange / 150) * 100));
-  const accelEfficiencyValue = $derived(stats.accelScore);
-  const costEfficiencyValue = $derived(Math.min(100, (5 / stats.costPer100km) * 100));
-
-  const performanceScore = $derived(
-    (speedEfficiencyValue * 1.2 + rangeEfficiencyValue * 1.5 + accelEfficiencyValue * 1.0 + costEfficiencyValue * 1.3) / 5
-  );
-
-  const performanceGrade = $derived(() => {
-    if (performanceScore >= 90) return { grade: 'A', color: '#10b981', label: 'Excellent', trend: '↑' };
-    if (performanceScore >= 80) return { grade: 'B', color: '#22c55e', label: 'Very Good', trend: '↑' };
-    if (performanceScore >= 70) return { grade: 'C', color: '#84cc16', label: 'Good', trend: '→' };
-    if (performanceScore >= 60) return { grade: 'D', color: '#f59e0b', label: 'Fair', trend: '→' };
-    return { grade: 'F', color: '#f97316', label: 'Needs Improvement', trend: '↓' };
-  });
-
-  const getMetricGrade = (value: number) => {
-    if (value >= 85) return { color: '#3b82f6', label: 'Excellent' };
-    if (value >= 70) return { color: '#60a5fa', label: 'Good' };
-    if (value >= 55) return { color: '#d97706', label: 'Fair' };
-    return { color: '#f43f5e', label: 'Needs Improvement' };
-  };
-
-  const speedGrade = $derived(() => getMetricGrade(speedEfficiencyValue));
-  const rangeGrade = $derived(() => getMetricGrade(rangeEfficiencyValue));
-  const accelGrade = $derived(() => getMetricGrade(accelEfficiencyValue));
-  const costGrade = $derived(() => getMetricGrade(costEfficiencyValue));
+  const grade = $derived(calculatorState.performanceGrade);
 </script>
 
-<div class="space-y-4">
-  <div 
-    class="relative bg-gradient-card rounded-xl p-6 border-2 shadow-lg card-lift transition-all duration-300"
-    style:border-color={performanceGrade().color}
-  >
-    <div class="flex items-center justify-between">
-      <div class="space-y-2">
-        <span class="text-sm font-semibold text-textMain/80 uppercase tracking-wider">
-          Performance Grade
-        </span>
-        <div class="text-sm text-textMain/70">
-          Weighted Score: <span class="font-semibold" style:color={performanceGrade().color}>{performanceScore.toFixed(0)}/100</span>
-        </div>
+<div class="space-y-8">
+  <!-- Grade and Description -->
+  <div class="flex items-center justify-between gap-6 px-1">
+    <div class="space-y-1.5 flex-grow">
+      <div class="flex items-center gap-2">
+        <h3 class="text-xl font-bold text-text-primary tracking-tight">
+          System Capability
+        </h3>
+        <div
+          class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"
+        ></div>
       </div>
-      <div class="flex items-center gap-4">
-        <div class="flex flex-col items-end">
-          <span class="text-3xl font-bold" style:color={performanceGrade().color}>{performanceGrade().grade}</span>
-          <span class="text-sm text-textMain/70">{performanceGrade().label}</span>
-        </div>
-        <div 
-          class="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
-          style:background-color={`${performanceGrade().color}20`}
-          style:color={performanceGrade().color}
-        >
-          {performanceGrade().trend}
-        </div>
-      </div>
+      <p class="text-sm text-text-secondary leading-relaxed max-w-md">
+        Hardware synergy analysis based on the current configuration and ride
+        dynamics.
+      </p>
     </div>
-    <div class="absolute top-0 left-0 w-32 h-32 opacity-10 bg-gradient-to-br from-primary/30 to-transparent rounded-br-3xl" aria-hidden="true"></div>
+    <div class="flex-shrink-0 animate-fadeIn">
+      <PerformanceGradeBadge {grade} size="lg" />
+    </div>
   </div>
 
+  <!-- Primary Stats Grid -->
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
     <StatsCard
-      label="Top Speed"
-      value={Math.round(stats.speed)}
-      unit="km/h"
-      icon="⚡"
-      trend={speedGrade().label}
-      trendColor={speedGrade().color}
-    />
-
-    <StatsCard
-      label="Range"
-      value={Math.round(stats.totalRange)}
+      label="Max Range"
+      value={stats.totalRange}
       unit="km"
-      icon="🔋"
-      trend={rangeGrade().label}
-      trendColor={rangeGrade().color}
+      highlight={true}
     />
+    <StatsCard label="Top Speed" value={stats.speed} unit="km/h" />
+    <StatsCard label="Peak Power" value={stats.totalWatts} unit="W" />
+    <StatsCard label="Charge Time" value={stats.chargeTime} unit="h" />
+  </div>
 
-    <StatsCard
-      label="Acceleration"
-      value={Math.round(accelEfficiencyValue)}
-      unit="/100"
-      icon="🚀"
-      trend={accelGrade().label}
-      trendColor={accelGrade().color}
-    />
+  <!-- Secondary Insights -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Acceleration Score Block -->
+    <div
+      class="group p-6 rounded-2xl bg-white/2 border border-white/5 hover:border-white/10 transition-all duration-300"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <span
+          class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest"
+          >Acceleration Performance</span
+        >
+        <Icon
+          name="upgrades"
+          size="xs"
+          class="text-primary/40 group-hover:text-primary transition-colors"
+        />
+      </div>
+      <div class="flex items-baseline gap-2">
+        <span
+          class="text-4xl font-black text-text-primary tracking-tighter italic"
+        >
+          {Math.round(stats.accelScore)}
+        </span>
+        <span class="text-xs font-bold text-text-tertiary">/ 100</span>
+      </div>
+      <div class="mt-4 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+        <div
+          class="h-full bg-primary shadow-glow-sm transition-all duration-500"
+          style:width={`${stats.accelScore}%`}
+        ></div>
+      </div>
+    </div>
 
-    <StatsCard
-      label="Running Cost"
-      value={`$${stats.costPer100km.toFixed(2)}`}
-      unit="per 100km"
-      icon="💰"
-      trend={costGrade().label}
-      trendColor={costGrade().color}
-    />
+    <!-- Energy Efficiency Block -->
+    <div
+      class="group p-6 rounded-2xl bg-white/2 border border-white/5 hover:border-white/10 transition-all duration-300"
+    >
+      <div class="flex items-center justify-between mb-4">
+        <span
+          class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest"
+          >Running Costs</span
+        >
+        <Icon
+          name="efficiency"
+          size="xs"
+          class="text-success/40 group-hover:text-success transition-colors"
+        />
+      </div>
+      <div class="flex items-baseline gap-1.5">
+        <span
+          class="text-4xl font-black text-text-primary tracking-tighter italic"
+          >${stats.costPer100km.toFixed(2)}</span
+        >
+        <span class="text-xs font-bold text-text-tertiary">per 100km</span>
+      </div>
+      <p class="mt-4 text-[11px] text-text-secondary leading-relaxed">
+        Estimated electrical cost based on standard rates and modeled Wh/km.
+      </p>
+    </div>
   </div>
 </div>

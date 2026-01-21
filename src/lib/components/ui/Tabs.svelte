@@ -43,7 +43,7 @@
 </script>
 
 <div class="relative" role="tablist" aria-label="Main navigation">
-  <div class="flex items-center gap-2 p-1.5 bg-bg-secondary rounded-2xl border border-white/5 shadow-lg">
+  <div class="flex items-center gap-1 p-1 bg-white/2 rounded-full border border-white/5">
     {#each tabs as tab, index (tab.value)}
       <button
         bind:this={tabButtons[index]}
@@ -54,35 +54,22 @@
         aria-controls={`${tab.value}-panel`}
         id={`${tab.value}-tab`}
         tabindex={activeTab === tab.value ? 0 : -1}
-        class="relative flex-1 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-slow flex items-center justify-center gap-2
+        class="relative flex-1 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-300
           {activeTab === tab.value
-            ? 'text-white bg-gradient-brand shadow-lg scale-105'
-            : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
+            ? 'text-text-primary bg-white/5 shadow-sm'
+            : 'text-text-secondary hover:text-text-primary hover:bg-white/2'
           }"
       >
-        {#if icons[tab.value]}
-          <span class="text-lg" aria-hidden="true">{icons[tab.value]}</span>
-        {/if}
         <span class="whitespace-nowrap">{tab.label}</span>
 
-        <!-- Progress Indicator (optional) -->
-        {#if showProgress && tab.progress !== undefined}
+        <!-- Active Underline -->
+        {#if activeTab === tab.value}
           <div
-            class="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 rounded-full
-              {activeTab === tab.value ? 'bg-gradient-brand' : 'bg-bg-tertiary'}
-              transition-all duration-slow"
-            style="width: {tab.progress}%"
+            class="absolute -bottom-px left-1/2 -translate-x-1/2 w-4 h-0.5 bg-primary rounded-full"
             aria-hidden="true"
           ></div>
         {/if}
       </button>
     {/each}
   </div>
-
-  <!-- Active Tab Underline Animation -->
-  <div
-    class="absolute bottom-0 left-0 h-0.5 bg-gradient-brand rounded-full transition-all duration-slow ease-out"
-    style="width: {100 / tabs.length}%; transform: translateX({activeIndex * 100}%)"
-    aria-hidden="true"
-  ></div>
 </div>

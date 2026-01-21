@@ -1,0 +1,18 @@
+{
+  "id": "multi-scooter-comparison",
+  "category": "UI",
+  "title": "Multi-Scooter Side-by-Side Comparison",
+  "description": "Compare up to 4 scooter configurations simultaneously in a responsive table view with sortable columns and radar chart visualization. Includes preset vs custom config comparisons and export to CSV/PDF.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "complex",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.875Z",
+  "updatedAt": "2026-01-16T20:17:19.875Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

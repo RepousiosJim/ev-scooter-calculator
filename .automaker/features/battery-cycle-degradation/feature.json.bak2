@@ -1,0 +1,18 @@
+{
+  "id": "battery-cycle-degradation",
+  "category": "Core",
+  "title": "Battery Degradation Timeline",
+  "description": "Model battery capacity loss over charge cycles (0-1000 cycles) showing projected range degradation curves. Provides maintenance timeline with recommended replacement thresholds and long-term cost analysis.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.874Z",
+  "updatedAt": "2026-01-16T20:17:19.874Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

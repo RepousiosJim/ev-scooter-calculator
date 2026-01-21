@@ -1,0 +1,20 @@
+{
+  "id": "weather-integration",
+  "category": "API",
+  "title": "Real-Time Weather Impact Integration",
+  "description": "Optional API integration to fetch local weather (temperature, wind speed, precipitation) for automatic range adjustments. Provides ride recommendations and alerts for unsafe conditions (ice, heavy rain).",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "complex",
+  "dependencies": [
+    "battery-temperature-modeling"
+  ],
+  "createdAt": "2026-01-16T20:17:19.878Z",
+  "updatedAt": "2026-01-16T20:17:19.878Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

@@ -1,0 +1,27 @@
+{
+  "category": "enhancement",
+  "description": "Expand all interactive elements (buttons, links, form inputs) to meet the minimum 44x44px touch target size recommended by Apple and Google. Add adequate spacing between adjacent clickable elements to prevent mis-taps.\n\n**Rationale:** Small touch targets are a primary source of user frustration on mobile devices, leading to errors, slower task completion, and accessibility issues. Meeting platform guidelines improves usability for all users, especially those with motor impairments.",
+  "title": "Increase touch target sizes for mobile interactions",
+  "status": "in_progress",
+  "id": "feature-1768594480368-u38l3866k",
+  "descriptionHistory": [
+    {
+      "description": "Expand all interactive elements (buttons, links, form inputs) to meet the minimum 44x44px touch target size recommended by Apple and Google. Add adequate spacing between adjacent clickable elements to prevent mis-taps.\n\n**Rationale:** Small touch targets are a primary source of user frustration on mobile devices, leading to errors, slower task completion, and accessibility issues. Meeting platform guidelines improves usability for all users, especially those with motor impairments.",
+      "timestamp": "2026-01-16T20:14:40.369Z",
+      "source": "initial"
+    }
+  ],
+  "skipTests": false,
+  "model": "opencode/glm-4.7-free",
+  "thinkingLevel": "none",
+  "reasoningEffort": "none",
+  "imagePaths": [],
+  "textFilePaths": [],
+  "priority": 1,
+  "planningMode": "spec",
+  "requirePlanApproval": false,
+  "workMode": "current",
+  "dependencies": [],
+  "startedAt": "2026-01-18T15:09:58.943Z",
+  "updatedAt": "2026-01-18T15:04:50.118Z"
+}

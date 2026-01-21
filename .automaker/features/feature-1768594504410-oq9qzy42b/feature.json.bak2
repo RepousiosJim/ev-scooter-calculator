@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Reposition primary actions and frequently-used controls to the bottom third of the screen within natural thumb reach. Use heat-map analysis of screen ergonomics to guide placement decisions.\n\n**Rationale:** Most users hold phones one-handed with their thumb as the primary input. Placing key actions in hard-to-reach top corners creates strain and slows interactions. Thumb-zone optimization dramatically improves mobile ergonomics.",
+  "title": "Create thumb-zone optimized action placement",
+  "status": "backlog",
+  "id": "feature-1768594504410-oq9qzy42b",
+  "descriptionHistory": [
+    {
+      "description": "Reposition primary actions and frequently-used controls to the bottom third of the screen within natural thumb reach. Use heat-map analysis of screen ergonomics to guide placement decisions.\n\n**Rationale:** Most users hold phones one-handed with their thumb as the primary input. Placing key actions in hard-to-reach top corners creates strain and slows interactions. Thumb-zone optimization dramatically improves mobile ergonomics.",
+      "timestamp": "2026-01-16T20:15:04.411Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 1
+}

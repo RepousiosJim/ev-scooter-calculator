@@ -1,0 +1,20 @@
+{
+  "id": "terrain-profile-system",
+  "category": "Core",
+  "title": "Multi-Terrain Route Profiling",
+  "description": "Allow users to define mixed-terrain routes with percentages of flat/uphill/downhill riding and surface types (asphalt/gravel/dirt). Calculates weighted average range and provides terrain-specific performance breakdowns with regenerative braking gains.",
+  "status": "backlog",
+  "priority": 1,
+  "complexity": "complex",
+  "dependencies": [
+    "rider-weight-profile"
+  ],
+  "createdAt": "2026-01-16T20:17:19.873Z",
+  "updatedAt": "2026-01-16T20:17:19.873Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

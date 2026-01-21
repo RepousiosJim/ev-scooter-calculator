@@ -10,9 +10,11 @@ Use it to sanity-check range and speed, then validate upgrades before spending o
 ## Highlights
 
 - Range, speed, and acceleration in real time
-- Drag, hill climb, and efficiency modeling
+- Drag, hill climb, and efficiency modeling with advanced physics (Cd, Cr, Area)
 - Upgrade simulator with side-by-side deltas
 - Bottleneck alerts for battery, controller, and gearing
+- Unified Ride Dynamics control for Eco/Sport/Turbo modes
+- High-fidelity "Deep Dive" configuration for power users
 - Preset library spanning entry to flagship scooters
 - PWA-ready, responsive UI built with SvelteKit
 

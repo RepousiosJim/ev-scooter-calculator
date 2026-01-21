@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Add left/right swipe gestures on list items to reveal contextual actions (delete, archive, share). Include visual indicators and undo functionality for destructive actions triggered by swipe.\n\n**Rationale:** Swipe gestures make common actions faster and more discoverable without cluttering the interface with buttons. This interaction pattern is familiar from email and messaging apps, making it intuitive for users.",
+  "title": "Implement swipe gestures for common actions",
+  "status": "backlog",
+  "id": "feature-1768594493978-h3j2a0ni4",
+  "descriptionHistory": [
+    {
+      "description": "Add left/right swipe gestures on list items to reveal contextual actions (delete, archive, share). Include visual indicators and undo functionality for destructive actions triggered by swipe.\n\n**Rationale:** Swipe gestures make common actions faster and more discoverable without cluttering the interface with buttons. This interaction pattern is familiar from email and messaging apps, making it intuitive for users.",
+      "timestamp": "2026-01-16T20:14:53.979Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 2
+}

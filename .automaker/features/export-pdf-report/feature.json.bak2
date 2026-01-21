@@ -1,0 +1,20 @@
+{
+  "id": "export-pdf-report",
+  "category": "UI",
+  "title": "Professional PDF Performance Report",
+  "description": "Generate comprehensive PDF reports with all metrics, graphs, upgrade recommendations, and cost analysis. Includes customizable branding, comparison tables, and shareable format for purchase decisions or insurance documentation.",
+  "status": "backlog",
+  "priority": 2,
+  "complexity": "moderate",
+  "dependencies": [
+    "multi-scooter-comparison"
+  ],
+  "createdAt": "2026-01-16T20:17:19.882Z",
+  "updatedAt": "2026-01-16T20:17:19.882Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

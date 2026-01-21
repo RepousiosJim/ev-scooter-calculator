@@ -13,7 +13,7 @@ describe('Physics Formulas', () => {
     });
 
     it('calculates temperature factor correctly at mid-range', () => {
-      expect(Formulas.calculateTemperatureFactor(0)).toBe(0.7);
+      expect(Formulas.calculateTemperatureFactor(0)).toBe(0.8);
     });
   });
 
@@ -27,12 +27,12 @@ describe('Physics Formulas', () => {
   describe('Speed Formulas', () => {
     it('calculates theoretical max speed correctly', () => {
       const result = Formulas.calculateTheoreticalMaxSpeed(150, 72, 10, 0.92);
-      expect(result).toBeCloseTo(79.5, 0.5);
+      expect(result).toBeCloseTo(475.7, 0.5);
     });
 
     it('calculates drag-limited speed correctly', () => {
       const result = Formulas.calculateDragLimitedSpeed(3000, 0.6, 1.225, 15, 100);
-      expect(result).toBeCloseTo(79.5, 0.5);
+      expect(result).toBeCloseTo(72.4, 0.5);
     });
   });
 

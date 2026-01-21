@@ -1,0 +1,19 @@
+{
+  "category": "enhancement",
+  "description": "Implement keyboard shortcuts for common actions (save config, switch modes, reset values). Add visible shortcut hints in tooltips and a help modal listing all available keyboard commands.",
+  "title": "Keyboard Navigation Shortcuts",
+  "dependencies": [
+    "feature-1768594711667-o0qvzf1pk"
+  ],
+  "priority": 2,
+  "status": "backlog",
+  "branchName": "feature/improvements",
+  "id": "feature-1768596413415-ovt3i48eh",
+  "descriptionHistory": [
+    {
+      "description": "Implement keyboard shortcuts for common actions (save config, switch modes, reset values). Add visible shortcut hints in tooltips and a help modal listing all available keyboard commands.",
+      "timestamp": "2026-01-16T20:46:53.416Z",
+      "source": "initial"
+    }
+  ]
+}

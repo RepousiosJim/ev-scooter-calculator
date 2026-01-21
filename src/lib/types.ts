@@ -22,6 +22,9 @@ export interface ScooterConfig {
   cost: number;                // Electricity cost per kWh
   slope: number;              // Hill slope (%)
   ridePosition: number;       // Drag coefficient (0.4-0.6)
+  dragCoefficient?: number;    // Aerodynamic drag coefficient
+  frontalArea?: number;        // Frontal area (m²)
+  rollingResistance?: number;  // Rolling resistance coefficient
   soh: number;                // Battery state of health (0-1)
   ambientTemp: number;         // Ambient temperature (°C, -20 to 50)
   id?: number;                // Profile ID
@@ -100,11 +103,14 @@ export interface Recommendation {
 }
 
 export interface PresetMetadata {
+  name: string;
+  year: number;
   manufacturer: {
     topSpeed: number;
     range: number;
     batteryWh: number;
     powerToWeight?: number;
+    price?: number; // Estimated retail price (USD)
   };
   tested?: {
     topSpeed: number;

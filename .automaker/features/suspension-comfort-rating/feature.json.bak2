@@ -1,0 +1,20 @@
+{
+  "id": "suspension-comfort-rating",
+  "category": "Core",
+  "title": "Suspension and Comfort Scoring",
+  "description": "Add suspension type inputs (none/spring/hydraulic/air) with travel distance to calculate comfort scores for different terrain types. Compares ride quality across configurations with vibration dampening estimates.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "simple",
+  "dependencies": [
+    "terrain-profile-system"
+  ],
+  "createdAt": "2026-01-16T20:17:19.880Z",
+  "updatedAt": "2026-01-16T20:17:19.880Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

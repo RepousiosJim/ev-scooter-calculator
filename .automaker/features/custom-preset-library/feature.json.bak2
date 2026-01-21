@@ -1,0 +1,18 @@
+{
+  "id": "custom-preset-library",
+  "category": "UI",
+  "title": "Community Preset Sharing Platform",
+  "description": "Allow users to publish and download community-created scooter presets with voting, comments, and verification badges. Includes search/filter by brand, price range, and performance category with moderation queue.",
+  "status": "backlog",
+  "priority": 3,
+  "complexity": "complex",
+  "dependencies": [],
+  "createdAt": "2026-01-16T20:17:19.877Z",
+  "updatedAt": "2026-01-16T20:17:19.877Z",
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "descriptionHistory": []
+}

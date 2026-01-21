@@ -62,13 +62,13 @@
 
 <div class="mb-4">
     {#if showSlider}
-     <div class="flex gap-2 items-center mb-2">
+      <div class="flex gap-2 items-center mb-2">
         <label id={labelId} class="block text-sm font-medium text-textMain" for={inputId}>{label}</label>
        {#if help}
          <div class="relative group lg:relative">
            <button
              type="button"
-             class="touch-target-icon w-8 h-8 sm:w-6 sm:h-6 bg-bgInput/80 hover:bg-bgInput border border-white/20 rounded-full text-textMain text-sm flex items-center justify-center cursor-help transition-colors"
+             class="touch-target-icon w-11 h-11 sm:w-6 sm:h-6 bg-bgInput/80 hover:bg-bgInput border border-white/20 rounded-full text-textMain text-sm flex items-center justify-center cursor-help transition-colors"
              aria-describedby={helpId}
              aria-label="Help information"
            >
@@ -114,12 +114,12 @@
     </div>
   {:else}
      <div class="flex items-center gap-2">
-       <label id={labelId} class="block text-sm font-medium text-textMain" for={inputId}>{label}</label>
+        <label id={labelId} class="block text-sm font-medium text-textMain" for={inputId}>{label}</label>
        {#if help}
          <div class="relative group lg:relative">
            <button
              type="button"
-             class="touch-target-icon w-8 h-8 sm:w-6 sm:h-6 bg-bgInput/80 hover:bg-bgInput border border-white/20 rounded-full text-textMain text-sm flex items-center justify-center cursor-help transition-colors"
+             class="touch-target-icon w-11 h-11 sm:w-6 sm:h-6 bg-bgInput/80 hover:bg-bgInput border border-white/20 rounded-full text-textMain text-sm flex items-center justify-center cursor-help transition-colors"
              aria-describedby={helpId}
              aria-label="Help information"
            >

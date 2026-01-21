@@ -106,8 +106,8 @@ totalRange = baseRange + regenGain
 
 Speed is drag-limited based on:
 - Available motor power
-- Aerodynamic drag (ridePosition factor)
-- Rolling resistance
+- Aerodynamic drag (Cd × Frontal Area or ridePosition factor)
+- Rolling resistance (Dynamic based on tire profile)
 - Efficiency losses (drivetrain, battery sag)
 
 ### Acceleration Score

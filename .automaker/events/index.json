@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "id": "evt-1768749424899-86c2252a",
+      "trigger": "feature_error",
+      "timestamp": "2026-01-18T15:17:04.903Z",
+      "featureId": "feature-1768594480368-u38l3866k"
+    },
+    {
+      "id": "evt-1768748690125-e451aa08",
+      "trigger": "feature_error",
+      "timestamp": "2026-01-18T15:04:50.125Z",
+      "featureId": "feature-1768594480368-u38l3866k"
+    }
+  ]
+}

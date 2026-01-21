@@ -52,11 +52,11 @@
     onkeydown={handleKeydown}
     aria-label="Show help information"
     aria-expanded={showTooltip}
-    class="w-6 h-6 flex items-center justify-center rounded-full bg-bg-tertiary text-text-tertiary
+    class="w-11 h-11 sm:w-6 sm:h-6 flex items-center justify-center rounded-full bg-bg-tertiary text-text-tertiary
       hover:bg-bg-hover hover:text-text-primary hover:scale-110 transition-all duration-fast
       focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-bg-primary"
   >
-    <span class="text-xs font-bold" aria-hidden="true">?</span>
+    <span class="text-xs sm:text-xs font-bold" aria-hidden="true">?</span>
   </button>
 
   <!-- Tooltip Content -->
@@ -73,7 +73,7 @@
         <button
           type="button"
           onclick={closeTooltip}
-          class="absolute top-0 right-0 -mt-2 -mr-2 w-6 h-6 flex items-center justify-center rounded-full bg-bg-tertiary
+          class="absolute top-0 right-0 -mt-2 -mr-2 w-11 h-11 sm:w-6 sm:h-6 flex items-center justify-center rounded-full bg-bg-tertiary
             text-text-tertiary hover:bg-bg-hover hover:text-text-primary transition-all duration-fast"
           aria-label="Close help"
         >

@@ -1,0 +1,20 @@
+{
+  "category": "enhancement",
+  "description": "Implement native pull-to-refresh functionality on list views and content feeds. Include visual feedback with a loading spinner and haptic feedback on supported devices to confirm the action.\n\n**Rationale:** Pull-to-refresh is an expected mobile interaction pattern that feels natural and intuitive. Users instinctively try this gesture on mobile apps, and its absence creates a perception of poor mobile optimization.",
+  "title": "Add pull-to-refresh gesture support",
+  "status": "backlog",
+  "id": "feature-1768594489288-0x44jawa4",
+  "descriptionHistory": [
+    {
+      "description": "Implement native pull-to-refresh functionality on list views and content feeds. Include visual feedback with a loading spinner and haptic feedback on supported devices to confirm the action.\n\n**Rationale:** Pull-to-refresh is an expected mobile interaction pattern that feels natural and intuitive. Users instinctively try this gesture on mobile apps, and its absence creates a perception of poor mobile optimization.",
+      "timestamp": "2026-01-16T20:14:49.288Z",
+      "source": "initial"
+    }
+  ],
+  "model": "sonnet",
+  "thinkingLevel": "low",
+  "planningMode": "spec",
+  "requirePlanApproval": true,
+  "branchName": "",
+  "priority": 2
+}

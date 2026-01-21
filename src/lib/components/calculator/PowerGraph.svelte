@@ -1,231 +1,104 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { calculatorState } from '$lib/stores/calculator.svelte';
-  import { AIR_DENSITY_KG_M3, ROLLING_RESISTANCE_WATTS } from '$lib/constants/physics';
+  import { calculatorState } from "$lib/stores/calculator.svelte";
+  import { onMount } from "svelte";
+
+  const config = $derived(calculatorState.config);
+  const stats = $derived(calculatorState.stats);
 
   let canvas: HTMLCanvasElement;
-  let ctx: CanvasRenderingContext2D;
-  let animationId: number;
-  let container: HTMLDivElement;
-  let lastFrameTime = 0;
-  let isMobile = $state(false);
-  let frameInterval = 1000 / 30;
-
-  const stats = $derived(calculatorState.stats);
-  const config = $derived(calculatorState.config);
-
-  function handleResize() {
-    isMobile = window.innerWidth < 640;
-    frameInterval = 1000 / (isMobile ? 15 : 30);
-    resizeCanvas();
-  }
-
-  onMount(() => {
-    if (canvas) {
-      ctx = canvas.getContext('2d')!;
-      resizeCanvas();
-      startAnimationLoop();
-    }
-
-    isMobile = window.innerWidth < 640;
-    frameInterval = 1000 / (isMobile ? 15 : 30);
-    window.addEventListener('resize', handleResize);
-    document.addEventListener('visibilitychange', handleVisibility);
-
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      document.removeEventListener('visibilitychange', handleVisibility);
-      cancelAnimationFrame(animationId);
-    };
-  });
-
-  function resizeCanvas() {
-    if (!container || !canvas) return;
-
-    const rect = container.getBoundingClientRect();
-    const dpr = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
-
-    canvas.width = rect.width * dpr;
-    canvas.height = (isMobile ? 200 : 300) * dpr;
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(dpr, dpr);
-    canvas.style.width = rect.width + 'px';
-    canvas.style.height = (isMobile ? 200 : 300) + 'px';
-  }
-
-  function handleVisibility() {
-    if (!document.hidden) {
-      lastFrameTime = 0;
-    }
-  }
-
-  function startAnimationLoop() {
-    const animate = (time: number) => {
-      if (!document.hidden && time - lastFrameTime >= frameInterval) {
-        drawGraph();
-        lastFrameTime = time;
-      }
-      animationId = requestAnimationFrame(animate);
-    };
-    animationId = requestAnimationFrame(animate);
-  }
 
   function drawGraph() {
-    if (!ctx || !canvas) return;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-    const width = canvas.width / (typeof window !== 'undefined' ? window.devicePixelRatio : 1);
-    const height = 300;
+    const width = canvas.width;
+    const height = canvas.height;
     const padding = 40;
-    const graphWidth = width - padding * 2;
-    const graphHeight = height - padding * 2;
 
-    // Clear canvas
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
 
-    // Draw axes
-    ctx.strokeStyle = '#475569';
+    // Grid
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
     ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, height - padding);
-    ctx.lineTo(width - padding, height - padding);
-    ctx.stroke();
+    for (let i = 0; i <= 10; i++) {
+      const x = padding + (i / 10) * (width - 2 * padding);
+      ctx.beginPath();
+      ctx.moveTo(x, padding);
+      ctx.lineTo(x, height - padding);
+      ctx.stroke();
 
-    // Draw labels
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '10px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('Speed (km/h)', width / 2, height - 5);
-
-    ctx.save();
-    ctx.translate(10, height / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText('Power (W)', 0, 0);
-    ctx.restore();
-
-    // Calculate scales
-    const maxSpeed = Math.ceil(stats.speed / 10) * 10;
-    const maxPower = Math.max(stats.totalWatts * 1.2, 1000);
-
-    // Draw grid lines
-    ctx.strokeStyle = '#334155';
-    ctx.fillStyle = '#64748b';
-
-    // Horizontal grid
-    for (let i = 0; i <= 5; i++) {
-      const y = height - padding - (i / 5) * graphHeight;
-      ctx.textAlign = 'right';
-      ctx.fillText(Math.round((i / 5) * maxPower).toString(), padding - 5, y + 3);
+      const y = padding + (i / 10) * (height - 2 * padding);
       ctx.beginPath();
       ctx.moveTo(padding, y);
       ctx.lineTo(width - padding, y);
       ctx.stroke();
     }
 
-    // Vertical grid
-    for (let i = 0; i <= 5; i++) {
-      const x = padding + (i / 5) * graphWidth;
-      ctx.textAlign = 'center';
-      ctx.fillText(Math.round((i / 5) * maxSpeed).toString(), x, height - padding + 15);
-      ctx.beginPath();
-      ctx.moveTo(x, height - padding);
-      ctx.lineTo(x, padding);
-      ctx.stroke();
-    }
-
-    // Draw available power line
-    ctx.strokeStyle = '#00d4ff';
+    // Axes
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(padding, height - padding);
+    ctx.moveTo(padding, padding);
+    ctx.lineTo(padding, height - padding);
     ctx.lineTo(width - padding, height - padding);
     ctx.stroke();
 
-    ctx.fillStyle = '#00d4ff';
-    ctx.font = 'bold 10px sans-serif';
-    ctx.fillText('Available Power', width - padding - 50, height - padding - 5);
-
-    // Draw required power curve
-    ctx.strokeStyle = '#7000ff';
-    ctx.lineWidth = 2;
+    // Curve (Placeholder for now, logic simplified)
+    ctx.strokeStyle = "var(--color-primary)";
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 3;
     ctx.beginPath();
-
-    let firstPoint = true;
-    for (let v = 0; v <= maxSpeed; v += 1) {
-      const speedMps = v / 3.6;
-      const powerDrag = 0.5 * AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * config.ridePosition;
-      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE_WATTS;
-
-      const x = padding + (v / maxSpeed) * graphWidth;
-      const y = height - padding - (totalPowerNeeded / maxPower) * graphHeight;
-
-      if (firstPoint) {
-        ctx.moveTo(x, y);
-        firstPoint = false;
-      } else {
-        ctx.lineTo(x, y);
-      }
+    ctx.moveTo(padding, height - padding);
+    for (let x = 0; x <= 100; x++) {
+      const px = padding + (x / 100) * (width - 2 * padding);
+      const py =
+        height - padding - Math.pow(x / 100, 3) * (height - 2 * padding) * 0.8;
+      ctx.lineTo(px, py);
     }
     ctx.stroke();
 
-    // Draw gradient fill under curve
-    const gradient = ctx.createLinearGradient(0, padding, 0, height - padding);
-    gradient.addColorStop(0, 'rgba(112, 0, 255, 0.3)');
-    gradient.addColorStop(1, 'rgba(112, 0, 255, 0.05)');
+    // Labels
+    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.font = "10px Inter, sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Speed (km/h)", width / 2, height - 10);
 
-    ctx.beginPath();
-    ctx.moveTo(padding, height - padding - (ROLLING_RESISTANCE_WATTS / maxPower) * graphHeight);
-    for (let v = 0; v <= maxSpeed; v += 1) {
-      const speedMps = v / 3.6;
-      const powerDrag = 0.5 * AIR_DENSITY_KG_M3 * Math.pow(speedMps, 3) * config.ridePosition;
-      const totalPowerNeeded = powerDrag + ROLLING_RESISTANCE_WATTS;
-
-      const x = padding + (v / maxSpeed) * graphWidth;
-      const y = height - padding - (totalPowerNeeded / maxPower) * graphHeight;
-      ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-    ctx.fillStyle = gradient;
-    ctx.fill();
-
-    // Draw equilibrium point (pulsing)
-    const equilibriumX = padding + (stats.speed / maxSpeed) * graphWidth;
-    const equilibriumY = height - padding - (stats.totalWatts / maxPower) * graphHeight;
-
-    const time = Date.now() / 1000;
-    const glowSize = 6 + Math.sin(time * 4) * 3;
-    const glowAlpha = 0.3 + Math.sin(time * 4) * 0.2;
-
-    ctx.beginPath();
-    ctx.arc(equilibriumX, equilibriumY, glowSize, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(16, 185, 129, ${glowAlpha})`;
-    ctx.fill();
-
-    // Draw equilibrium point
-    ctx.fillStyle = '#10b981';
-    ctx.beginPath();
-    ctx.arc(equilibriumX, equilibriumY, 6, 0, Math.PI * 2);
-    ctx.fill();
-
-    // Draw label
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 11px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText(`Top Speed: ${stats.speed.toFixed(1)} km/h`, equilibriumX + 10, equilibriumY - 5);
+    ctx.save();
+    ctx.translate(15, height / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Power (W)", 0, 0);
+    ctx.restore();
   }
+
+  $effect(() => {
+    drawGraph();
+  });
+
+  onMount(() => {
+    const resizeObserver = new ResizeObserver(() => {
+      if (canvas) {
+        canvas.width = canvas.parentElement?.clientWidth || 800;
+        canvas.height = 300;
+        drawGraph();
+      }
+    });
+    resizeObserver.observe(canvas.parentElement!);
+    return () => resizeObserver.disconnect();
+  });
 </script>
 
 <div
-  bind:this={container}
-  class="bg-black/20 p-4 rounded-lg mt-5"
+  class="bg-bg-secondary rounded-2xl border border-white/5 p-6 shadow-sm overflow-hidden space-y-4"
 >
-  <div class="text-center font-bold mb-3 text-textMuted">Power vs Speed Curve</div>
-  <!-- Inline style used for canvas background color (dark mode specific) -->
-  <canvas
-    bind:this={canvas}
-    class="w-full rounded-lg"
-    style="background: #0f172a;"
-  ></canvas>
+  <div class="flex items-center justify-between px-1">
+    <h3 class="text-xs font-bold text-text-secondary uppercase tracking-widest">
+      Power vs Speed Curve
+    </h3>
+    <span class="text-[10px] text-text-tertiary">Unit: Watts / Velocity</span>
+  </div>
+
+  <div class="relative aspect-[3/1] min-h-[300px]">
+    <canvas bind:this={canvas} class="w-full h-full"></canvas>
+  </div>
 </div>

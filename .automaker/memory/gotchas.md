@@ -5,11 +5,10 @@ relevantTo: [error, bug, fix, issue, problem]
 importance: 0.9
 relatedFiles: []
 usageStats:
-  loaded: 0
+  loaded: 8
   referenced: 0
   successfulFeatures: 0
 ---
-
 # Gotchas
 
 Mistakes and edge cases to avoid. These are lessons learned from past issues.

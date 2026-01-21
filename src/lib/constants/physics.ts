@@ -1,7 +1,7 @@
 export const NOMINAL_VOLTAGE = 52;
 export const PERFORMANCE_CACHE_LIMIT = 200;
 export const DRAG_COEFFICIENT = 0.6;
-export const ROLLING_RESISTANCE_WATTS = 15;
+export const ROLLING_RESISTANCE_COEFFICIENT = 0.02;
 export const AIR_DENSITY_KG_M3 = 1.225;
 export const GRAVITY_M_S2 = 9.81;
 export const MAX_SPEED_INCREMENT_KMH = 0.5;

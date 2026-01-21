@@ -28,10 +28,16 @@ export const validationRules: Record<ConfigNumericKey, ValidationRule> = {
   slope: { min: 0, max: 100, message: 'Recommended: 0-30%' },
   ridePosition: { min: 0.4, max: 0.6, message: 'Recommended: 0.4-0.6 drag coeff' },
   soh: { min: 0.5, max: 1, message: 'Recommended: 50-100%' },
-  ambientTemp: { min: -20, max: 50, message: 'Recommended: -20°C to 50°C' }
+  ambientTemp: { min: -20, max: 50, message: 'Recommended: -20°C to 50°C' },
+  dragCoefficient: { min: 0.3, max: 1.2, message: 'Recommended: 0.3-1.2 Cd' },
+  frontalArea: { min: 0.3, max: 1.0, message: 'Recommended: 0.3-1.0 m²' },
+  rollingResistance: { min: 0.005, max: 0.05, message: 'Recommended: 0.005-0.05' }
 };
 
-const optionalConfigKeys = new Set<ConfigNumericKey>(['controller', 'rpm', 'motorKv', 'scooterWeight', 'drivetrainEfficiency', 'batterySagPercent']);
+const optionalConfigKeys = new Set<ConfigNumericKey>([
+  'controller', 'rpm', 'motorKv', 'scooterWeight', 'drivetrainEfficiency', 'batterySagPercent',
+  'dragCoefficient', 'frontalArea', 'rollingResistance'
+]);
 
 export function validateField(
   field: ConfigNumericKey,

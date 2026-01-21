@@ -1,0 +1,10 @@
+{
+  "id": "evt-1768748690125-e451aa08",
+  "trigger": "feature_error",
+  "timestamp": "2026-01-18T15:04:50.125Z",
+  "projectPath": "F:\\Desktop\\ev-scooter-calc-v2",
+  "projectName": "ev-scooter-calc-v2",
+  "featureId": "feature-1768594480368-u38l3866k",
+  "error": "Operation was cancelled",
+  "errorType": "cancellation"
+}

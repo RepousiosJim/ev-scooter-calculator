@@ -1,10 +1,9 @@
 import type { ScooterConfig, PerformanceStats, Bottleneck, Recommendation, PredictionMode, UpgradeDelta, RideMode, FormulaTrace } from '$lib/types';
 import { defaultConfig, presets, presetMetadata } from '$lib/data/presets';
 import { rideModePresets } from '$lib/data/ride-modes';
-import { calculatePerformance, detectBottlenecks, generateRecommendations, simulateUpgrade as simulateUpgradePhysics, calculateUpgradeDelta } from '$lib/utils/physics';
+import { calculatePerformance, detectBottlenecks, generateRecommendations, getAllUpgrades, simulateUpgrade as simulateUpgradePhysics, calculateUpgradeDelta } from '$lib/utils/physics';
 import { generateFormulaTraces } from '$lib/utils/formulaGenerator';
 import { normalizeConfig, normalizeConfigValue, type ConfigNumericKey } from '$lib/utils/validators';
-import { exportConfiguration, importConfiguration } from '$lib/utils/configHandler';
 import * as PHYSICS_CONSTANTS from '$lib/constants/physics';
 import * as CACHE_CONSTANTS from '$lib/constants/cache';
 
@@ -87,10 +86,46 @@ export const calculatorState = $state({
   showAdvanced: false,
   compareMode: false,
   predictionMode: 'spec' as PredictionMode,
-  activeTab: 'configuration' as 'configuration' | 'upgrades',
+  activeTab: 'configuration' as 'configuration' | 'advanced' | 'upgrades' | 'compare',
   simulatedConfig: null as ScooterConfig | null,
   activeUpgrade: null as 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires' | null,
   rideMode: 'normal' as RideMode,
+  activePresetKey: 'custom' as string,
+
+  // Computed values
+  get activePresetName(): string {
+    if (this.activePresetKey === 'custom') return 'Custom Configuration';
+    return presetMetadata[this.activePresetKey]?.name || 'Unknown Model';
+  },
+
+  get performanceGrade(): 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'F' {
+    const s = this.stats;
+    const accel = s.accelScore; // 0-100
+
+    // Strain penalty: Penalize C-rates above 2.5C
+    const strainPenalty = Math.max(0, (s.cRate - 2.5) * 15);
+
+    // Efficiency bonus: Reward low Wh/km (standard is ~25-30)
+    const efficiencyBonus = Math.max(0, (30 - this.config.style) * 0.5);
+
+    let score = accel - strainPenalty + efficiencyBonus;
+
+    // Clamp score to 0-100 for grading
+    score = Math.max(0, Math.min(100, score));
+
+    if (score >= 95) return 'A+';
+    if (score >= 88) return 'A';
+    if (score >= 82) return 'A-';
+    if (score >= 75) return 'B+';
+    if (score >= 68) return 'B';
+    if (score >= 60) return 'B-';
+    if (score >= 52) return 'C+';
+    if (score >= 45) return 'C';
+    if (score >= 38) return 'C-';
+    if (score >= 30) return 'D+';
+    if (score >= 20) return 'D';
+    return 'F';
+  },
 
   // Formula details state
   formulas: [] as FormulaTrace[],
@@ -116,6 +151,11 @@ export const calculatorState = $state({
 
   get recommendations(): Recommendation[] {
     return generateRecommendations(this.config, this.stats);
+  },
+
+  get incompatibleUpgrades(): Recommendation[] {
+    const recommendedTypes = new Set(this.recommendations.map(r => r.upgradeType));
+    return getAllUpgrades(this.config, this.stats).filter(u => !recommendedTypes.has(u.upgradeType));
   },
 
   get upgradeDelta(): UpgradeDelta | null {
@@ -149,6 +189,7 @@ export function loadPreset(presetKey: string) {
     const currentTemp = calculatorState.config.ambientTemp;
     applyConfig(preset);
     calculatorState.config.ambientTemp = currentTemp;
+    calculatorState.activePresetKey = presetKey;
   }
 }
 
@@ -172,7 +213,6 @@ export function loadConfigFromUrl() {
   return true;
 }
 
-export { exportConfiguration, importConfiguration };
 
 export function updateConfig<K extends ConfigNumericKey>(
   key: K,
@@ -180,6 +220,7 @@ export function updateConfig<K extends ConfigNumericKey>(
 ) {
   const normalizedValue = normalizeConfigValue(key, value, calculatorState.config[key]);
   calculatorState.config[key] = normalizedValue as ScooterConfig[K];
+  calculatorState.activePresetKey = 'custom';
   calculatorState.regenerateFormulas();
 }
 
@@ -213,6 +254,6 @@ export function toggleCompareMode(enabled: boolean) {
   calculatorState.compareMode = enabled;
 }
 
-export function setActiveTab(tab: 'configuration' | 'upgrades') {
+export function setActiveTab(tab: 'configuration' | 'advanced' | 'upgrades' | 'compare') {
   calculatorState.activeTab = tab;
 }

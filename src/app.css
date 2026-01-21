@@ -2,60 +2,45 @@
 
 @theme {
   /* Brand Colors */
-  --color-primary: #00d4ff;
-  --color-primary-dark: #009ac2;
-  --color-primary-hover: #00e0ff;
-  --color-primary-light: rgba(0, 212, 255, 0.1);
-  
-  --color-secondary: #6366f1;
-  --color-secondary-hover: #818cf8;
-  --color-secondary-light: rgba(99, 102, 241, 0.1);
+  --color-primary: #38bdf8;
+  --color-primary-dark: #0284c7;
+  --color-primary-hover: #7dd3fc;
+  --color-primary-light: rgba(56, 189, 248, 0.05);
+
+  --color-secondary: #818cf8;
+  --color-secondary-hover: #a5b4fc;
+  --color-secondary-light: rgba(129, 140, 248, 0.05);
 
   /* Background Colors */
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-bg-input: #1e293b;
-  --color-bg-hover: rgba(255, 255, 255, 0.05);
-  --color-bg-active: rgba(255, 255, 255, 0.1);
+  --color-bg-primary: #020617;
+  --color-bg-secondary: #0f172a;
+  --color-bg-tertiary: #1e293b;
+  --color-bg-input: #0f172a;
+  --color-bg-hover: rgba(255, 255, 255, 0.03);
+  --color-bg-active: rgba(255, 255, 255, 0.06);
 
   /* Text Colors */
-  --color-text-primary: #f1f5f9;
+  --color-text-primary: #f8fafc;
   --color-text-secondary: #94a3b8;
-  --color-text-tertiary: #64748b;
-  --color-text-disabled: #475569;
-  --color-text-on-primary: #ffffff;
+  --color-text-tertiary: #475569;
+  --color-text-disabled: #334155;
+  --color-text-on-primary: #020617;
 
   /* Semantic Colors */
-  --color-success: #10b981;
-  --color-success-light: rgba(16, 185, 129, 0.1);
-  --color-success-hover: #059669;
-
-  --color-warning: #f59e0b;
-  --color-warning-light: rgba(245, 158, 11, 0.1);
-  --color-warning-hover: #d97706;
-
-  --color-danger: #ef4444;
-  --color-danger-light: rgba(239, 68, 68, 0.1);
-  --color-danger-hover: #dc2626;
-
-  --color-info: #06b6d4;
-  --color-info-light: rgba(6, 182, 212, 0.1);
-  --color-info-hover: #0891b2;
+  --color-success: #22c55e;
+  --color-success-light: rgba(34, 197, 94, 0.05);
+  --color-success-hover: #4ade80;
 
   /* Gradients */
-  --gradient-brand: linear-gradient(135deg, #00d4ff 0%, #6366f1 100%);
-  --gradient-card: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%);
-  --gradient-glow: radial-gradient(circle at center, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
-  --gradient-hover: linear-gradient(135deg, rgba(0, 212, 255, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
-  --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  --gradient-info: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  --gradient-brand: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+  --gradient-card: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+  --gradient-glow: radial-gradient(circle at center, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+  --gradient-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
 }
 
 /* Typography Variables */
 :root {
+  color-scheme: dark;
   --font-display: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --font-data: 'JetBrains Mono', 'SF Mono', 'Roboto Mono', monospace;
@@ -171,6 +156,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -195,6 +181,7 @@ input[type="range"]::-moz-range-thumb:hover {
 
 /* Mobile touch targets */
 @media (max-width: 640px) {
+
   button,
   input[type="number"],
   input[type="range"],

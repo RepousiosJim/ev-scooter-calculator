@@ -74,7 +74,7 @@
           transition:scale
           class="data-lg font-bold {highlight ? 'text-primary' : 'text-text-primary'} font-data"
         >
-          {formattedValue()}
+          {formattedValue}
         </span>
       {/key}
       {#if unit}

@@ -90,6 +90,19 @@ This implementation represents a complete overhaul of the EV Scooter Pro Calcula
 - Implemented try-catch blocks
 - Added safe localStorage wrappers
 
+✅ **Phase 5: Minimalist Redesign & Advanced Physics** (Current)
+✅ **UI/UX Modernization**
+  - Consolidated "Ride Dynamics" into a unified, premium selector
+  - Refined "Deep Dive" tab with custom Tire Profile selector
+  - Implemented `color-scheme: dark` for native element integration
+  - Simplified layout for a cleaner, focused user experience
+
+✅ **Physics Engine Upgrade**
+  - Integrated Aerodynamic Drag Coefficient (Cd) and Frontal Area
+  - Added dynamic Rolling Resistance based on tire profiles
+  - Corrected drivetrain efficiency property mappings
+  - Verified physics accuracy with updated unit, validation and integration tests
+
 ## Test Coverage
 - Unit Tests: 18/18 passing
 - Accessibility E2E Tests: 13/13 passing

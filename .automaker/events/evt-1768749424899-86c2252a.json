@@ -1,0 +1,10 @@
+{
+  "id": "evt-1768749424899-86c2252a",
+  "trigger": "feature_error",
+  "timestamp": "2026-01-18T15:17:04.903Z",
+  "projectPath": "F:\\Desktop\\ev-scooter-calc-v2",
+  "projectName": "ev-scooter-calc-v2",
+  "featureId": "feature-1768594480368-u38l3866k",
+  "error": "RangeError: Out of memory",
+  "errorType": "execution"
+}
