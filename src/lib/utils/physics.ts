@@ -3,6 +3,20 @@ import * as PHYSICS_CONSTANTS from '$lib/constants/physics';
 import * as CACHE_CONSTANTS from '$lib/constants/cache';
 
 const NOMINAL_VOLTAGE = 52;
+const PERFORMANCE_CACHE_LIMIT = 200;
+const performanceCache = new Map<string, PerformanceStats>();
+
+function getPerformanceCacheKey(config: ScooterConfig, mode: PredictionMode): string {
+  const entries = Object.keys(config)
+    .sort()
+    .map((key) => {
+      const value = config[key as keyof ScooterConfig];
+      return `${key}:${typeof value === 'number' && Number.isFinite(value) ? value : ''}`;
+    })
+    .join('|');
+
+  return `${mode}|${entries}`;
+}
 
 // LRU Cache implementation for better cache utilization
 class LRUCache<K, V> {

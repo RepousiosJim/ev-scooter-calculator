@@ -1,0 +1,228 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e7]:
+    - paragraph [ref=e8]: Scooter Performance Studio
+    - heading "EV Scooter Pro Calculator" [level=1] [ref=e9]
+    - paragraph [ref=e10]: Model speed, range, and upgrade impact in seconds with a clear performance snapshot.
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - generic [ref=e13]: ⚡
+        - generic [ref=e14]: Real-time Analysis
+      - generic [ref=e15]:
+        - generic [ref=e16]: 🔋
+        - generic [ref=e17]: Battery Modeling
+      - generic [ref=e18]:
+        - generic [ref=e19]: 📊
+        - generic [ref=e20]: Upgrade Simulation
+  - generic [ref=e23]:
+    - button "Save setup" [ref=e24]:
+      - generic [ref=e25]: 💾
+      - generic [ref=e26]: Save Setup
+    - button "More actions" [ref=e28]:
+      - button "More actions" [ref=e29]:
+        - generic [ref=e30]: More
+        - generic [ref=e31]: ▼
+  - button "Start guided tour" [ref=e33]: 🚀 Quick Tour
+  - navigation "Main tabs" [ref=e34]:
+    - tablist "Main navigation" [ref=e35]:
+      - tab "Configuration" [selected] [ref=e36]:
+        - generic [ref=e37]: ⚙️
+        - text: Configuration
+      - tab "Upgrades" [ref=e39]:
+        - generic [ref=e40]: 🚀
+        - text: Upgrades
+  - region "Configuration" [ref=e41]:
+    - heading "Configuration" [level=2] [ref=e42]
+    - generic [ref=e43]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e48]: Quick Start
+          - paragraph [ref=e49]: Choose a popular scooter model to prefill the basics.
+          - generic [ref=e50]:
+            - button "Selected Preset Manual Entry Change preset" [ref=e51]:
+              - generic [ref=e52]: Selected Preset
+              - generic [ref=e53]:
+                - generic [ref=e54]: ✍️
+                - text: Manual Entry
+              - text: Change preset
+            - button "Reset to selected preset" [disabled] [ref=e55]: Reset to Preset
+        - generic [ref=e59]:
+          - generic [ref=e60]: Core Specs
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63]: Battery Voltage
+              - 'button "Help: Battery Voltage" [ref=e65]': "?"
+            - generic [ref=e66]:
+              - spinbutton "Battery Voltage" [ref=e67]: "52"
+              - generic [ref=e68]: V
+          - generic [ref=e69]:
+            - generic [ref=e70]:
+              - generic [ref=e71]: Battery Capacity
+              - 'button "Help: Battery Capacity" [ref=e73]': "?"
+            - generic [ref=e74]:
+              - spinbutton "Battery Capacity" [ref=e75]: "16"
+              - generic [ref=e76]: Ah
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - generic [ref=e79]:
+                - generic [ref=e80]: Motor Count
+                - 'button "Help: Motor Count" [ref=e82]': "?"
+              - generic [ref=e83]:
+                - spinbutton "Motor Count" [ref=e84]: "2"
+                - generic [ref=e85]: x
+            - generic [ref=e86]:
+              - generic [ref=e87]:
+                - generic [ref=e88]: Power per Motor
+                - 'button "Help: Power per Motor" [ref=e90]': "?"
+              - generic [ref=e91]:
+                - spinbutton "Power per Motor" [ref=e92]: "1600"
+                - generic [ref=e93]: W
+        - generic [ref=e94]:
+          - generic [ref=e95]: Usage
+          - generic [ref=e96]:
+            - generic [ref=e97]: Controller Amp Limit
+            - spinbutton "Controller Amp Limit" [ref=e98]
+            - paragraph [ref=e99]: Leave blank to use the estimated controller limit.
+          - generic [ref=e100]:
+            - generic [ref=e101]: Riding Style (Consumption)
+            - combobox "Riding Style" [ref=e102]:
+              - option "Eco (20 Wh/km)"
+              - option "Mixed (30 Wh/km)" [selected]
+              - option "Aggressive (45 Wh/km)"
+              - option "Racing (60 Wh/km)"
+            - paragraph [ref=e103]: Used to estimate range based on consumption.
+          - generic [ref=e104]:
+            - generic [ref=e105]: "Battery Health: 100%"
+            - 'slider "Battery Health: 100%" [ref=e106] [cursor=pointer]': "100"
+            - paragraph [ref=e107]: Lower health reduces usable capacity and range.
+        - button "Advanced Settings" [ref=e108]:
+          - generic [ref=e109]: Advanced Settings
+          - generic [ref=e110]: ▶
+      - generic [ref=e112]:
+        - generic [ref=e113]:
+          - generic [ref=e114]:
+            - heading "Performance Analysis" [level=3] [ref=e115]
+            - paragraph [ref=e116]: Live results as you tune inputs and presets.
+          - generic [ref=e117]: 📊
+        - region [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e121]:
+              - generic [ref=e122]:
+                - text: Performance Grade
+                - generic [ref=e123]: "Weighted Score: 65/100"
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - generic [ref=e126]: D
+                  - generic [ref=e127]: Fair
+                - generic [ref=e128]: →
+            - generic [ref=e130]:
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e135]:
+                    - generic [ref=e136]: ⚡
+                    - generic [ref=e137]: Top Speed
+                  - generic [ref=e138]: Good
+                - generic [ref=e139]:
+                  - generic [ref=e140]: "72"
+                  - generic [ref=e141]: km/h
+              - generic [ref=e144]:
+                - generic [ref=e145]:
+                  - generic [ref=e147]:
+                    - generic [ref=e148]: 🔋
+                    - generic [ref=e149]: Range
+                  - generic [ref=e150]: Needs Improvement
+                - generic [ref=e151]:
+                  - generic [ref=e152]: "28"
+                  - generic [ref=e153]: km
+              - generic [ref=e156]:
+                - generic [ref=e157]:
+                  - generic [ref=e159]:
+                    - generic [ref=e160]: 🚀
+                    - generic [ref=e161]: Acceleration
+                  - generic [ref=e162]: Good
+                - generic [ref=e163]:
+                  - generic [ref=e164]: "81"
+                  - generic [ref=e165]: /100
+              - generic [ref=e168]:
+                - generic [ref=e169]:
+                  - generic [ref=e171]:
+                    - generic [ref=e172]: 💰
+                    - generic [ref=e173]: Running Cost
+                  - generic [ref=e174]: Excellent
+                - generic [ref=e175]:
+                  - generic [ref=e176]: $0.59
+                  - generic [ref=e177]: per 100km
+          - generic [ref=e183]:
+            - generic [ref=e184]: 📈
+            - generic [ref=e185]: Efficiency
+          - generic [ref=e186]:
+            - heading "Efficiency Metrics" [level=3] [ref=e187]
+            - generic [ref=e188]:
+              - generic [ref=e189]:
+                - generic [ref=e190]:
+                  - generic [ref=e191]: Speed Efficiency
+                  - generic [ref=e192]: Fair
+                - generic [ref=e195]: 72%
+              - generic [ref=e196]:
+                - generic [ref=e197]:
+                  - generic [ref=e198]: Range Efficiency
+                  - generic [ref=e199]: Needs Improvement
+                - generic [ref=e202]: 19%
+              - generic [ref=e203]:
+                - generic [ref=e204]:
+                  - generic [ref=e205]: Acceleration Score
+                  - generic [ref=e206]: Good
+                - generic [ref=e209]: 81%
+              - generic [ref=e210]:
+                - generic [ref=e211]:
+                  - generic [ref=e212]: Cost Efficiency
+                  - generic [ref=e213]: Excellent
+                - generic [ref=e216]: 100%
+          - generic [ref=e221]:
+            - generic [ref=e222]: 🔧
+            - generic [ref=e223]: System Health
+          - generic [ref=e224]:
+            - heading "Component Health" [level=3] [ref=e225]
+            - generic [ref=e226]:
+              - generic [ref=e228]:
+                - generic [ref=e229]: 🔋
+                - generic [ref=e230]:
+                  - generic [ref=e231]: Battery
+                  - generic [ref=e232]: Moderate
+              - generic [ref=e236]:
+                - generic [ref=e237]: ⚡
+                - generic [ref=e238]:
+                  - generic [ref=e239]: Controller
+                  - generic [ref=e240]: Not Set
+              - generic [ref=e243]:
+                - generic [ref=e244]: 🔧
+                - generic [ref=e245]:
+                  - generic [ref=e246]: Motor
+                  - generic [ref=e247]: Extreme
+          - generic [ref=e254]:
+            - generic [ref=e255]: ⚡
+            - generic [ref=e256]: Power Analysis
+          - generic [ref=e258]: Power vs Speed Curve
+          - generic [ref=e260]:
+            - generic [ref=e261]:
+              - heading "Issues Detected" [level=3] [ref=e262]
+              - generic [ref=e263]: 1 issue
+            - generic [ref=e266]:
+              - generic [ref=e267]:
+                - generic [ref=e268]: 🔴
+                - generic [ref=e269]:
+                  - generic [ref=e270]: Battery discharge is too high. Expect voltage sag and reduced performance.
+                  - generic [ref=e271]: "Recommended upgrade: Add Parallel Battery"
+              - button "Fix →" [ref=e272]
+          - alert [ref=e273]:
+            - text: ⚠️
+            - strong [ref=e274]: "High Stress:"
+            - text: Battery discharge is high (3.5C). Expect voltage sag.
+            - text: 🚀
+            - strong [ref=e275]: Extreme Acceleration.
+            - strong [ref=e276]: "⚠️ Bottlenecks Detected:"
+            - text: • Battery discharge is too high. Expect voltage sag and reduced performance.
+  - region
+```
