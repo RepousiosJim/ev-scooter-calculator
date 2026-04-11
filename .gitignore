@@ -26,15 +26,18 @@ Desktop.ini
 
 # Editor / IDE
 .vscode/settings.json
+.cursor/
+.cursorrules
 .idea
 *.swp
 *.swo
 *~
 
-# Claude / AI tooling
+# AI tooling
 .claude/
 .auto-claude/
 .automaker/
+AGENTS.md
 
 # Testing
 test-results/
@@ -49,9 +52,11 @@ coverage/
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Logs
+# Logs / output dumps
 *.log
 npm-debug.log*
+build_output.txt
+check_output.txt
 
 # Local data (root only)
 /data/
