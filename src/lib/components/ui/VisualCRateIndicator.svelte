@@ -32,28 +32,40 @@
   const config = $derived(() => sizeConfig[size]);
 </script>
 
-<div class="space-y-3">
+<div
+  class="space-y-1.5"
+  role="region"
+  aria-label="Battery discharge rate indicator"
+  aria-live="polite"
+>
   <div class="flex items-center justify-between">
-    <span class="font-semibold text-text-primary">
-      Battery Discharge Rate
+    <span class="text-xs font-bold text-text-secondary uppercase tracking-wider" id="crate-label">
+      Discharge Rate
     </span>
-    <span class="{config().text} font-medium font-data {threshold().textColor}">
-      {value.toFixed(1)}C
-    </span>
+    <div class="flex items-center gap-2">
+      <span class="text-xs font-bold {threshold().textColor}">{threshold().label}</span>
+      <span class="text-xs font-mono font-bold {threshold().textColor}">
+        {value.toFixed(1)}C
+      </span>
+    </div>
   </div>
 
   <div class="relative">
-    <!-- Track -->
-    <div class="{config().width} {config().height} bg-bg-tertiary rounded-full overflow-hidden">
-      <!-- Gauge Fill -->
+    <div
+      class="w-full h-2 bg-bg-tertiary rounded-full overflow-hidden"
+      role="meter"
+      aria-labelledby="crate-label"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      aria-valuetext="{value.toFixed(1)}C - {threshold().label}"
+    >
       <div
         class="h-full transition-all duration-normal ease-out {threshold().color}"
         style="width: {percentage()}%"
         aria-hidden="true"
       ></div>
     </div>
-
-    <!-- Threshold Markers -->
     <div class="absolute top-0 left-0 w-full h-full pointer-events-none flex" aria-hidden="true">
       <div class="w-1/3 border-r border-white/10 h-full"></div>
       <div class="w-1/3 border-r border-white/10 h-full"></div>
@@ -61,20 +73,9 @@
     </div>
   </div>
 
-  <!-- Legend -->
-  <div class="flex items-center justify-between text-xs text-text-secondary">
+  <div class="flex items-center justify-between text-[10px] text-text-tertiary" aria-hidden="true">
     <span>Efficient</span>
     <span>Moderate</span>
     <span>High Stress</span>
-  </div>
-
-  <!-- Status Label -->
-  <div
-    transition:scale
-    class="text-center py-2 rounded-lg bg-white/5 border border-white/10"
-  >
-    <span class="{config().text} font-medium {threshold().textColor}">
-      {threshold().label}
-    </span>
   </div>
 </div>

@@ -1,11 +1,8 @@
-import type { ScooterConfig, PerformanceStats, Bottleneck, Recommendation, PredictionMode, UpgradeDelta, RideMode, FormulaTrace } from '$lib/types';
+import type { ScooterConfig, PerformanceStats, Bottleneck, Recommendation, PredictionMode, UpgradeDelta, RideMode } from '$lib/types';
 import { defaultConfig, presets, presetMetadata } from '$lib/data/presets';
 import { rideModePresets } from '$lib/data/ride-modes';
-import { calculatePerformance, detectBottlenecks, generateRecommendations, getAllUpgrades, simulateUpgrade as simulateUpgradePhysics, calculateUpgradeDelta } from '$lib/utils/physics';
-import { generateFormulaTraces } from '$lib/utils/formulaGenerator';
+import { calculatePerformance, detectBottlenecks, generateRecommendations, getAllUpgrades, simulateUpgrade as simulateUpgradePhysics, calculateUpgradeDelta } from '$lib/physics';
 import { normalizeConfig, normalizeConfigValue, type ConfigNumericKey } from '$lib/utils/validators';
-import * as PHYSICS_CONSTANTS from '$lib/constants/physics';
-import * as CACHE_CONSTANTS from '$lib/constants/cache';
 
 const baseConfig = normalizeConfig(defaultConfig, defaultConfig);
 
@@ -33,19 +30,27 @@ const configKeys: ShareConfigKey[] = [
   'ambientTemp'
 ];
 
-function canUseBase64() {
+function canUseBase64(): boolean {
   return typeof window !== 'undefined' && typeof btoa === 'function' && typeof atob === 'function';
 }
 
-function toBase64Url(value: string) {
-  return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+function toBase64Url(value: string): string {
+  try {
+    return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  } catch {
+    return '';
+  }
 }
 
-function fromBase64Url(value: string) {
-  const restored = value.replace(/-/g, '+').replace(/_/g, '/');
-  const padLength = restored.length % 4;
-  const padded = padLength ? `${restored}${'='.repeat(4 - padLength)}` : restored;
-  return atob(padded);
+function fromBase64Url(value: string): string | null {
+  try {
+    const restored = value.replace(/-/g, '+').replace(/_/g, '/');
+    const padLength = restored.length % 4;
+    const padded = padLength ? `${restored}${'='.repeat(4 - padLength)}` : restored;
+    return atob(padded);
+  } catch {
+    return null;
+  }
 }
 
 function encodeConfig(config: ScooterConfig) {
@@ -61,6 +66,7 @@ function decodeConfig(encoded: string) {
   if (!canUseBase64()) return null;
   try {
     const json = fromBase64Url(encoded);
+    if (!json) return null;
     const values = JSON.parse(json);
     if (!Array.isArray(values)) return null;
 
@@ -78,15 +84,41 @@ function decodeConfig(encoded: string) {
   }
 }
 
+// Toast state
+export const toastState = $state({
+  toasts: [] as { id: string; message: string; type: 'success' | 'info' | 'warning' | 'error' }[]
+});
+
+function generateToastId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 11)}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
+export function showToast(
+  message: string,
+  type: 'success' | 'info' | 'warning' | 'error' = 'info',
+  duration: number = 2500
+) {
+  const id = generateToastId();
+  toastState.toasts.push({ id, message, type });
+
+  setTimeout(() => {
+    toastState.toasts = toastState.toasts.filter(t => t.id !== id);
+  }, duration);
+}
+
+export function clearToast(id: string) {
+  toastState.toasts = toastState.toasts.filter(t => t.id !== id);
+}
+
+export function clearAllToasts() {
+  toastState.toasts = [];
+}
+
 // Main calculator state
 export const calculatorState = $state({
   config: { ...baseConfig },
 
-  // UI state
-  showAdvanced: false,
-  compareMode: false,
   predictionMode: 'spec' as PredictionMode,
-  activeTab: 'configuration' as 'configuration' | 'advanced' | 'upgrades' | 'compare',
   simulatedConfig: null as ScooterConfig | null,
   activeUpgrade: null as 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires' | null,
   rideMode: 'normal' as RideMode,
@@ -127,17 +159,9 @@ export const calculatorState = $state({
     return 'F';
   },
 
-  // Formula details state
-  formulas: [] as FormulaTrace[],
-  showFormulas: false,
-
   // Computed values
   get stats(): PerformanceStats {
     return calculatePerformance(this.config, this.predictionMode);
-  },
-
-  get computedFormulas(): FormulaTrace[] {
-    return generateFormulaTraces(this.config, this.stats);
   },
 
   get simStats(): PerformanceStats | null {
@@ -163,23 +187,11 @@ export const calculatorState = $state({
     return calculateUpgradeDelta(this.config, this.activeUpgrade);
   },
 
-  setFormulas(formulas: FormulaTrace[]) {
-    this.formulas = formulas;
-  },
-
-  setShowFormulas(show: boolean) {
-    this.showFormulas = show;
-  },
-
-  regenerateFormulas() {
-    this.formulas = generateFormulaTraces(this.config, this.stats);
-  }
 });
 
 // Actions
 export function applyConfig(config: Partial<ScooterConfig>) {
   calculatorState.config = normalizeConfig(config, baseConfig);
-  calculatorState.regenerateFormulas();
 }
 
 export function loadPreset(presetKey: string) {
@@ -190,6 +202,11 @@ export function loadPreset(presetKey: string) {
     applyConfig(preset);
     calculatorState.config.ambientTemp = currentTemp;
     calculatorState.activePresetKey = presetKey;
+
+    const presetName = presetKey === 'custom'
+      ? 'Manual Entry'
+      : presetMetadata[presetKey]?.name || presetKey;
+    showToast(`Preset loaded: ${presetName}`, 'success');
   }
 }
 
@@ -221,7 +238,6 @@ export function updateConfig<K extends ConfigNumericKey>(
   const normalizedValue = normalizeConfigValue(key, value, calculatorState.config[key]);
   calculatorState.config[key] = normalizedValue as ScooterConfig[K];
   calculatorState.activePresetKey = 'custom';
-  calculatorState.regenerateFormulas();
 }
 
 export function setPredictionMode(mode: PredictionMode) {
@@ -250,10 +266,8 @@ export function clearSimulation() {
   calculatorState.activeUpgrade = null;
 }
 
-export function toggleCompareMode(enabled: boolean) {
-  calculatorState.compareMode = enabled;
-}
-
-export function setActiveTab(tab: 'configuration' | 'advanced' | 'upgrades' | 'compare') {
-  calculatorState.activeTab = tab;
+export function resetConfig() {
+  applyConfig(baseConfig);
+  calculatorState.activePresetKey = 'custom';
+  showToast('Configuration reset', 'info');
 }

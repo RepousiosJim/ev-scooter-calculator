@@ -110,7 +110,7 @@ export interface PresetMetadata {
     range: number;
     batteryWh: number;
     powerToWeight?: number;
-    price?: number; // Estimated retail price (USD)
+    price?: number;        // Current retail price (USD)
   };
   tested?: {
     topSpeed: number;
@@ -118,6 +118,14 @@ export interface PresetMetadata {
     whPerKm: number;
     powerToWeight?: number;
   };
+  // Data tracking fields
+  addedDate?: string;        // ISO date when first added (YYYY-MM-DD)
+  lastVerified?: string;     // ISO date when data was last checked (YYYY-MM-DD)
+  source?: string;           // Where the data came from (e.g. "manufacturer website")
+  sourceUrl?: string;        // URL for verification
+  status?: 'current' | 'discontinued' | 'upcoming' | 'unverified';
+  priceHistory?: Array<{ date: string; price: number }>; // Price change log
+  notes?: string;            // Freeform notes (e.g. "2025 refresh rumored")
 }
 
 export type RideMode = 'eco' | 'normal' | 'sport' | 'turbo';
@@ -158,4 +166,45 @@ export interface FormulaTrace {
     label: string;
   };
   timestamp: number;
+}
+
+export type PerformancePriority = 'speed' | 'range' | 'acceleration' | 'value' | 'hill_climb' | 'cost_efficiency';
+export type BudgetLevel = 'low' | 'medium' | 'high' | 'unlimited';
+
+export interface AdvisorUserPreferences {
+  budgetLevel: BudgetLevel;
+  budgetLimit?: number;
+  performancePriorities: PerformancePriority[];
+  rideMode: RideMode;
+  difficultyPreference: 'easy' | 'moderate' | 'hard' | 'any';
+}
+
+export interface RecommendationFeedback {
+  id: string;
+  upgradeType: 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires';
+  helpful: boolean;
+  timestamp: number;
+  userProfile?: string;
+}
+
+export interface LearnedWeights {
+  [upgradeType: string]: {
+    score: number;
+    sampleCount: number;
+  };
+}
+
+export interface AdvisorState {
+  preferences: AdvisorUserPreferences;
+  feedbackHistory: RecommendationFeedback[];
+  learnedWeights: LearnedWeights;
+  lastUpdated: number;
+}
+
+export interface AIRecommendation extends Recommendation {
+  relevanceScore: number;
+  personalizedReason: string;
+  matchesPriorities: PerformancePriority[];
+  confidenceScore: number;
+  expectedROI?: string;
 }

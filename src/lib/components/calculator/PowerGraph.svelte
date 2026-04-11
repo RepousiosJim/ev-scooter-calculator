@@ -6,6 +6,10 @@
   const stats = $derived(calculatorState.stats);
 
   let canvas: HTMLCanvasElement;
+  let isMobile = $state(false);
+
+  // Responsive canvas height: 400px on mobile, 300px on desktop
+  const canvasHeight = $derived(isMobile ? 400 : 300);
 
   function drawGraph() {
     if (!canvas) return;
@@ -14,7 +18,7 @@
 
     const width = canvas.width;
     const height = canvas.height;
-    const padding = 40;
+    const padding = isMobile ? 48 : 40; // Slightly larger padding on mobile for touch
 
     ctx.clearRect(0, 0, width, height);
 
@@ -47,7 +51,7 @@
     // Curve (Placeholder for now, logic simplified)
     ctx.strokeStyle = "var(--color-primary)";
     ctx.shadowBlur = 0;
-    ctx.lineWidth = 3;
+    ctx.lineWidth = isMobile ? 4 : 3; // Thicker line on mobile for visibility
     ctx.beginPath();
     ctx.moveTo(padding, height - padding);
     for (let x = 0; x <= 100; x++) {
@@ -58,33 +62,59 @@
     }
     ctx.stroke();
 
-    // Labels
+    // Labels - larger font on mobile
+    const fontSize = isMobile ? 12 : 10;
     ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
-    ctx.font = "10px Inter, sans-serif";
+    ctx.font = `${fontSize}px Inter, sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("Speed (km/h)", width / 2, height - 10);
+    ctx.fillText("Speed (km/h)", width / 2, height - (isMobile ? 8 : 10));
 
     ctx.save();
-    ctx.translate(15, height / 2);
+    ctx.translate(isMobile ? 18 : 15, height / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillText("Power (W)", 0, 0);
     ctx.restore();
   }
 
+  function checkMobile() {
+    isMobile = window.innerWidth < 768;
+  }
+
   $effect(() => {
-    drawGraph();
+    // Redraw when mobile state or canvas height changes
+    if (canvas) {
+      canvas.height = canvasHeight;
+      drawGraph();
+    }
   });
 
   onMount(() => {
+    checkMobile();
+
+    const handleResize = () => {
+      checkMobile();
+      if (canvas) {
+        canvas.width = canvas.parentElement?.clientWidth || 800;
+        canvas.height = canvasHeight;
+        drawGraph();
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
     const resizeObserver = new ResizeObserver(() => {
       if (canvas) {
         canvas.width = canvas.parentElement?.clientWidth || 800;
-        canvas.height = 300;
+        canvas.height = canvasHeight;
         drawGraph();
       }
     });
     resizeObserver.observe(canvas.parentElement!);
-    return () => resizeObserver.disconnect();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
+    };
   });
 </script>
 
@@ -98,7 +128,8 @@
     <span class="text-[10px] text-text-tertiary">Unit: Watts / Velocity</span>
   </div>
 
-  <div class="relative aspect-[3/1] min-h-[300px]">
+  <!-- Responsive height: 400px on mobile (md:), 300px on desktop -->
+  <div class="relative min-h-[400px] md:min-h-[300px]">
     <canvas bind:this={canvas} class="w-full h-full"></canvas>
   </div>
 </div>

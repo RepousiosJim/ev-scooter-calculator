@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { calculatePerformance } from '$lib/utils/physics';
+import { calculatePerformance } from '$lib/physics';
 import { defaultConfig } from '$lib/data/presets';
 
 describe('Calculation Performance', () => {

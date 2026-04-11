@@ -1,161 +1,243 @@
 # Agent Guidelines (ev-scooter-calc-v2)
 
-This file guides agentic coding assistants working in this repo.
+Guidelines for agentic coding assistants working in this repository.
 
 ## Repository Overview
-- Framework: SvelteKit 2.x with Svelte 5 runes
-- Language: TypeScript (strict)
-- Build tool: Vite 7.x
-- Styling: Tailwind CSS v4 + app.css theme tokens
-- Tests: Vitest (unit), Playwright (e2e)
-- State: Svelte runes with $state / $derived stores
+
+- **Framework**: SvelteKit 2.x with Svelte 5 runes
+- **Language**: TypeScript (strict mode)
+- **Build Tool**: Vite 7.x
+- **Styling**: Tailwind CSS v4 + custom theme tokens
+- **Testing**: Vitest (unit) + Playwright (e2e)
+- **State**: Svelte runes (`$state`, `$derived`, `$props`)
 
 ## Source Layout
-- `src/routes/+page.svelte`: main UI composition
-- `src/lib/components/calculator`: calculator feature components
-- `src/lib/components/ui`: reusable UI components
-- `src/lib/stores`: app state + persistence
-- `src/lib/utils`: physics + formatting + validation
-- `src/lib/data`: presets
-- `tests/unit`: Vitest specs
-- `tests/e2e`: Playwright specs
+
+```
+src/
+├── routes/                    # SvelteKit routes
+│   ├── +page.svelte          # Main calculator page
+│   └── +layout.svelte        # Root layout
+├── lib/
+│   ├── components/
+│   │   ├── calculator/       # Feature components (BasicConfig, ResultDisplay)
+│   │   └── ui/              # Reusable UI primitives (Card, NumberInput)
+│   ├── stores/              # Svelte rune stores
+│   ├── utils/               # Physics, validation, formatting
+│   ├── data/                # Presets and static data
+│   └── types.ts             # Centralized type definitions
+├── tests/
+│   ├── unit/                # Vitest specs (*.spec.ts)
+│   └── e2e/                 # Playwright specs (*.spec.ts)
+```
 
 ## Commands
-### Install
-- `npm install`
 
 ### Development
-- `npm run dev` (Vite dev server, http://localhost:5173)
+- `npm install` - Install dependencies
+- `npm run dev` - Start dev server (http://localhost:5173)
+- `npm run build` - Production build
+- `npm run preview` - Preview build (http://localhost:4173)
 
-### Build / Preview
-- `npm run build`
-- `npm run preview` (serves build at http://localhost:4173)
+### Type Checking
+- `npm run check` - TypeScript validation
+- `npm run check:watch` - Watch mode
 
-### Type Check
-- `npm run check`
-- `npm run check:watch`
+### Testing
+- `npm run test` - Run all tests
+- `npm run test:unit` - Unit tests only
+- `npm run test:unit:watch` - Unit tests in watch mode
+- `npm run test:e2e` - E2E tests (requires `npm run preview`)
+- `npm run test:e2e:ui` - E2E tests with UI
+- `npm run test:e2e:debug` - Debug mode
 
-### Unit Tests (Vitest)
-- `npm run test:unit`
-- `npm run test:unit:watch`
+### Running Single Tests
+```bash
+# Vitest - single file
+npm run test:unit -- tests/unit/physics.spec.ts
 
-### E2E Tests (Playwright)
-- `npm run test:e2e`
-- `npm run test:e2e:ui`
-- `npm run test:e2e:debug`
+# Vitest - single test case
+npm run test:unit -- tests/unit/physics.spec.ts -t "calculates"
 
-### All Tests
-- `npm run test`
+# Playwright - single file
+npm run test:e2e -- tests/e2e/main-page.spec.ts
 
-## Running a Single Test
-### Vitest (unit)
-- `npm run test:unit -- tests/unit/physics.spec.ts`
-- `npm run test:unit -- tests/unit/physics.spec.ts -t "calculates"`
+# Playwright - single test by name
+npm run test:e2e -- tests/e2e/main-page.spec.ts -g "loads page"
 
-### Playwright (e2e)
-- `npm run test:e2e -- tests/e2e/main-page.spec.ts`
-- `npm run test:e2e -- tests/e2e/main-page.spec.ts -g "loads page"`
-- `npm run test:e2e -- --project=chromium`
+# Playwright - specific browser
+npm run test:e2e -- --project=chromium
+```
 
-## Code Style Conventions
-### General
-- Prefer small, focused changes that align with existing structure.
-- Keep UI logic in Svelte components and calculations in `utils`.
-- Use minimal comments; prefer clear naming and structure.
-- Avoid adding new dependencies without reason.
+## Code Style Guidelines
 
 ### TypeScript
-- Strict mode is enabled; keep types accurate and explicit.
-- Use interfaces from `src/lib/types.ts`.
-- Prefer typed helper functions over inline complex logic.
-- Avoid `any`; use explicit unions or generics instead.
+- Strict mode enabled; avoid `any` types
+- Use interfaces from `src/lib/types.ts`
+- Use `import type` for type-only imports
+- Prefer typed helper functions over inline complex logic
 
 ### Svelte 5 Runes
-- Use `$state` for stores and component state.
-- Use `$derived` for computed values.
-- Use `$props()` for component props.
-- Keep `script` blocks minimal and logic organized.
+- Use `$state` for reactive state
+- Use `$derived` for computed values
+- Use `$props()` for component props
+- Use `get` accessors for computed state in stores
 
 ### Imports
-- Use `$lib` alias for internal modules.
-- Group imports by type: external, then `$lib`, then local.
-- Use `import type` for types.
-- Avoid unused imports.
+Group in this order:
+1. External libraries
+2. SvelteKit/Svelte imports
+3. `$lib` imports (types, utils, stores, components)
+4. Relative imports (avoid; use `$lib` alias)
+
+### Naming Conventions
+- **Components**: `PascalCase` (files and exports)
+- **Functions/Variables**: `camelCase`
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `AIR_DENSITY`, `GRAVITY`)
+- **Interfaces/Types**: `PascalCase`
+- **Boolean Variables**: Prefix with `is`, `has`, `should`
+- **Files**: Match the main export (components: PascalCase, utils: camelCase)
 
 ### Formatting
-- Indentation: 2 spaces (existing code uses 2 spaces).
-- Use single quotes in TS/JS.
-- Keep lines readable; wrap long template literals or JSX/Svelte markup.
-- Prefer trailing commas in multi-line object literals.
-
-### Naming
-- Components: `PascalCase` filenames and component names.
-- Stores/utilities: `camelCase`.
-- Constants: `UPPER_SNAKE_CASE` for physical constants.
-- Use descriptive names for calculations and derived values.
+- **Indentation**: 2 spaces (no tabs)
+- **Quotes**: Single quotes in TS/JS, double in HTML
+- **Trailing Commas**: Always in multi-line objects/arrays
+- **Semicolons**: Required
+- **Line Length**: Prefer under 100 characters
 
 ### State Management
-- Store shared state in `src/lib/stores`.
-- Avoid direct mutation outside store helpers unless already established.
-- Use store helpers (e.g., `updateConfig`) to update config values.
+- Store shared state in `src/lib/stores/`
+- Export action functions for mutations (e.g., `updateConfig()`)
+- Always normalize inputs using validators
+- Handle localStorage with try/catch blocks
+- Check `typeof window !== 'undefined'` for browser-only code
 
 ### Error Handling
-- Handle `localStorage` access with `try/catch`.
-- Log errors with `console.error` only when needed.
-- Prefer early returns for invalid states.
+```typescript
+// Always catch errors from external operations
+try {
+  const data = localStorage.getItem('key');
+  return JSON.parse(data);
+} catch (error) {
+  console.error('[context] Failed:', error);
+  return defaultValue; // Graceful fallback
+}
+
+// Guard against invalid numeric values
+if (!Number.isFinite(value)) return 0;
+
+// Prevent division by zero
+if (divisor === 0) {
+  console.warn('[context] Division by zero prevented');
+  return 0;
+}
+```
 
 ### UI / Styling
-- Use Tailwind utility classes for styling.
-- Prefer existing theme colors in `tailwind.config.js`.
-- Avoid inline styles unless needed for dynamic values.
-- Keep HTML structure consistent with current layout.
+- Use Tailwind utility classes (avoid inline styles)
+- Prefer theme colors from `tailwind.config.js`
+- Include accessibility attributes (`aria-label`, `aria-valuenow`)
+- Use `data-testid` attributes for testable elements
 
 ### Validation
-- Use `validationRules` and `validateField` for input guidance.
-- Clamp numeric values with `clampValue` if needed.
+- Use `validationRules` and `validateField` from `validators.ts`
+- Always normalize inputs with `normalizeConfigValue()`
+- Clamp numeric values with `clampValue()` if needed
 
-## Testing Guidance
-- Update/add unit tests when editing physics logic.
-- Update/add e2e tests when changing main UI flows.
-- Keep tests deterministic; avoid long timeouts.
+## Testing Guidelines
 
-## Config Notes
-- Playwright runs against `npm run preview` at port 4173.
-- `playwright.config.ts` includes multi-browser projects.
-- PWA config is in `vite.config.ts` via `vite-plugin-pwa`.
+### Unit Tests (Vitest)
+- Location: `tests/unit/*.spec.ts`
+- Keep tests isolated and deterministic
+- Use specific matchers (`toBe`, `toBeCloseTo`)
+- Aim for >80% coverage on physics logic
+- Test edge cases and error handling
 
-## Cursor / Copilot Rules
-- No `.cursor/rules/`, `.cursorrules`, or `.github/copilot-instructions.md` files were found.
+### E2E Tests (Playwright)
+- Location: `tests/e2e/*.spec.ts`
+- Test user flows, not implementation
+- Use `data-testid` attributes for selectors
+- Use Playwright's auto-waiting; avoid `waitForTimeout`
+- Runs against `npm run preview` at port 4173
 
-## Agent Etiquette
-- Do not edit `node_modules` or generated `.svelte-kit` output.
-- Keep changes scoped to the request.
-- Avoid introducing new global CSS rules unless necessary.
+## Key Patterns
+
+### Store Pattern
+```typescript
+// src/lib/stores/calculator.svelte.ts
+export const calculatorState = $state({
+  config: { ... },
+  showAdvanced: false,
+  get stats() { return calculatePerformance(this.config); },
+});
+
+export function updateConfig(key, value) {
+  const normalized = normalizeConfigValue(key, value, calculatorState.config[key]);
+  calculatorState.config[key] = normalized;
+}
+```
+
+### Component Structure
+```svelte
+<script lang="ts">
+  // 1. Imports (external, $lib, local)
+  import type { Props } from '$lib/types';
+  import { helper } from '$lib/utils/helper';
+
+  // 2. Props
+  let { prop1, prop2 = defaultValue }: Props = $props();
+
+  // 3. Local state
+  let localState = $state(initial);
+
+  // 4. Derived values
+  const derived = $derived(compute(localState));
+</script>
+
+<!-- 5. Template with Tailwind classes -->
+<div class="bg-bgCard border border-white/10 rounded-lg p-4">
+  <!-- content -->
+</div>
+```
 
 ## Contribution Checklist
-- Run `npm run check` for type validation when changing TS.
-- Run the narrowest relevant test first (unit or e2e).
-- Ensure formatting matches existing files.
 
-## Notes for UI Components
-- Prefer reuse of `NumberInput` for numeric fields.
-- Keep `ResultDisplay` and `ComponentStatus` focused on display logic.
-- Put physics logic in `utils/physics.ts`.
+Before committing:
+- [ ] Run `npm run check` - TypeScript validation
+- [ ] Run relevant tests (`npm run test:unit` for logic, `npm run test:e2e` for UI)
+- [ ] No `any` types (replace with proper types)
+- [ ] All imports are used
+- [ ] Follow naming conventions
+- [ ] Error handling with try/catch for external operations
+- [ ] Input validation for user inputs
+- [ ] Accessibility attributes present
+- [ ] No console.log in production code
 
-## Notes for Data
-- Presets live in `src/lib/data/presets.ts`.
-- Profile persistence uses `localStorage`.
+## Important Notes
+
+- **Physics Logic**: Document formulas, use named constants (e.g., `AIR_DENSITY`, `GRAVITY`)
+- **Performance**: Physics calculations are cached (limit: 200 entries)
+- **Security**: Always validate localStorage data; sanitize any HTML content
+- **State Updates**: Batch updates to avoid multiple reactive recalculations
+- **Browser APIs**: Check `typeof window !== 'undefined'` before using `window`, `localStorage`, `document`
 
 ## When Adding Features
-- Update config types in `src/lib/types.ts`.
-- Add rules to `src/lib/utils/validators.ts`.
-- Extend calculations in `src/lib/utils/physics.ts`.
-- Update UI in `BasicConfig`/`AdvancedConfig` and `ResultDisplay`.
 
-## When Modifying State
-- Use `calculatorState` in `src/lib/stores/calculator.svelte.ts`.
-- Keep `simulateUpgrade` behavior consistent with UI expectations.
+1. Update types in `src/lib/types.ts`
+2. Add validation rules in `src/lib/utils/validators.ts`
+3. Extend calculations in `src/lib/utils/physics.ts`
+4. Update stores if needed in `src/lib/stores/calculator.svelte.ts`
+5. Update UI components in `src/lib/components/calculator/`
+6. Add/update tests
 
-## If Something Is Unclear
-- Prefer asking for clarification rather than guessing.
-- Document assumptions in the PR description or notes.
+## Cursor/Copilot Rules
+
+Comprehensive coding standards are defined in `.cursorrules` (1169 lines). Key highlights:
+- Follow conventional commit format: `type(scope): subject`
+- Branch naming: `type/short-description`
+- Always validate user inputs before use
+- Never use magic numbers; use named constants
+- Prefer `$derived` over computed values in render
+- Use store helpers, never mutate state directly from components
+
+If something is unclear, prefer asking for clarification rather than guessing.

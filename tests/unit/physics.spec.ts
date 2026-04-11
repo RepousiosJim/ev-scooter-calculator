@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculatePerformance, detectBottlenecks, generateRecommendations, simulateUpgrade, calculateUpgradeDelta } from '$lib/utils/physics';
+import { calculatePerformance, detectBottlenecks, generateRecommendations, simulateUpgrade, calculateUpgradeDelta } from '$lib/physics';
 import type { ScooterConfig } from '$lib/types';
 
 const defaultConfig: ScooterConfig = {

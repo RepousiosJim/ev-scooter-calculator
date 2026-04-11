@@ -3,6 +3,7 @@
   import { presets } from '$lib/data/presets';
   import { loadPreset } from '$lib/stores/calculator.svelte';
   import { analytics } from '$lib/utils/analytics';
+  import BottomSheet from '$lib/components/ui/BottomSheet.svelte';
   import Button from '$lib/components/ui/atoms/Button.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
   import Input from '$lib/components/ui/atoms/Input.svelte';
@@ -83,7 +84,7 @@
     type="button"
     class="w-full flex items-center justify-between px-4 py-3 bg-tertiary border border-gray-600 rounded-lg hover:border-gray-500 transition-colors"
     onclick={() => showPresetModal = true}
-    aria-haspopup="true"
+    aria-haspopup="dialog"
     aria-expanded={showPresetModal}
   >
     <span class="flex items-center gap-2">
@@ -98,8 +99,8 @@
     <div class="mt-3 flex gap-2 flex-wrap">
       {#each cardSpecs as spec}
         <div class="flex items-center gap-1.5 bg-tertiary border border-gray-600 rounded-lg px-3 py-1.5">
-          <span class="text-xs text-textMuted">{spec.label}:</span>
-          <span class="text-sm font-medium text-textMain font-number">
+          <span class="text-xs text-text-secondary">{spec.label}:</span>
+          <span class="text-sm font-medium text-text-primary font-number">
             {spec.value(selectedOption.config)}
           </span>
         </div>
@@ -107,60 +108,35 @@
     </div>
   {/if}
 
-  <!-- Preset Modal -->
-  {#if showPresetModal}
-    <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-    <div
-      class="fixed inset-0 z-modalBackdrop bg-gray-900/80 backdrop-blur-sm animate-fade-in"
-      onclick={closeModal}
-      aria-modal="true"
-      role="dialog"
-      aria-labelledby="preset-modal-title"
-    >
-      <!-- svelte-ignore a11y_click_events_have_key_events a11y_no_static_element_interactions -->
-      <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[80vh] overflow-auto bg-tertiary border border-gray-600 rounded-card shadow-2xl animate-scale-in"
-        onclick={(e) => e.stopPropagation()}
-        role="document"
-      >
-        <!-- Modal Header -->
-        <div class="sticky top-0 z-10 bg-tertiary border-b border-gray-600 px-6 py-4">
-          <div class="flex items-center justify-between">
-            <h2 id="preset-modal-title" class="text-h2 text-textMain">
-              Choose Preset
-            </h2>
-            <button
-              type="button"
-              class="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-              onclick={closeModal}
-              aria-label="Close modal"
-            >
-              <Icon name="close" size="md" />
-            </button>
-          </div>
-        </div>
+  <!-- Preset Bottom Sheet -->
+  <BottomSheet bind:isOpen={showPresetModal} height="large" onClose={closeModal}>
+    {#snippet children()}
+      <div class="space-y-6">
+        <h2 class="text-h2 text-text-primary">
+          Choose Preset
+        </h2>
 
         <!-- Search Bar -->
-        <div class="px-6 pb-4">
+        <div>
           <input
             type="text"
             placeholder="Search presets..."
             value={searchQuery}
             oninput={(e) => searchQuery = (e.currentTarget as HTMLInputElement).value}
-            class="w-full px-4 py-3 bg-bgInput border border-gray-600 rounded-lg text-textMain focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+            class="w-full px-4 py-3 bg-bg-secondary border border-white/10 rounded-lg text-text-primary focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
             aria-label="Search presets"
           />
         </div>
 
         <!-- Preset Grid -->
-        <div class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 gap-4">
           {#each filteredPresets as preset}
             <button
               type="button"
-              class={`relative flex flex-col gap-3 p-4 border rounded-card transition-all duration-normal card-lift
+              class={`relative flex flex-col gap-3 p-4 border rounded-xl transition-all
                 ${selectedPreset === preset.value
-                  ? 'border-primary bg-primary/10 shadow-glow-sm'
-                  : 'border-gray-600 bg-hover/50 hover:border-gray-500'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-white/10 bg-bg-secondary hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5'
                 }`}
               onclick={() => applyPreset(preset.value)}
               aria-pressed={selectedPreset === preset.value}
@@ -172,7 +148,7 @@
                   text="Selected"
                   variant="primary"
                   size="sm"
-                  class="absolute top-2 right-2"
+                  class="absolute top-3 right-3"
                 />
               {/if}
 
@@ -180,18 +156,18 @@
               <div class="flex items-center gap-3">
                 <span class="text-2xl" aria-hidden="true">{preset.emoji}</span>
                 <div class="text-left">
-                  <div class="font-semibold text-textMain text-h3">
+                  <div class="font-semibold text-text-primary text-base">
                     {preset.label}
                   </div>
                 </div>
               </div>
 
               <!-- Quick Specs -->
-              <div class="flex gap-2 flex-wrap mt-1">
+              <div class="flex gap-2 flex-wrap">
                 {#each cardSpecs as spec}
                   <div class="flex items-center gap-1">
-                    <span class="text-xs text-textMuted">{spec.label}:</span>
-                    <span class="text-xs font-medium text-textMain font-number">
+                    <span class="text-xs text-text-secondary">{spec.label}:</span>
+                    <span class="text-xs font-medium text-text-primary font-number">
                       {spec.value(preset.config)}
                     </span>
                   </div>
@@ -203,10 +179,10 @@
           <!-- Manual Entry Option -->
           <button
             type="button"
-            class={`relative flex flex-col gap-3 p-4 border rounded-card transition-all duration-normal card-lift
+            class={`relative flex flex-col gap-3 p-4 border rounded-xl transition-all
               ${selectedPreset === 'custom'
-                ? 'border-primary bg-primary/10 shadow-glow-sm'
-                : 'border-gray-600 bg-hover/50 hover:border-gray-500'
+                ? 'border-primary bg-primary/10'
+                : 'border-white/10 bg-bg-secondary hover:border-primary/50 hover:shadow-md hover:-translate-y-0.5'
               }`}
             onclick={() => applyPreset('custom')}
             aria-pressed={selectedPreset === 'custom'}
@@ -217,17 +193,17 @@
                 text="Selected"
                 variant="primary"
                 size="sm"
-                class="absolute top-2 right-2"
+                class="absolute top-3 right-3"
               />
             {/if}
 
             <div class="flex items-center gap-3">
               <Icon name="settings" size="lg" />
               <div class="text-left">
-                <div class="font-semibold text-textMain text-h3">
+                <div class="font-semibold text-text-primary text-base">
                   Manual Entry
                 </div>
-                <div class="text-xs text-textMuted">
+                <div class="text-xs text-text-secondary">
                   Configure your scooter manually
                 </div>
               </div>
@@ -235,31 +211,17 @@
           </button>
         </div>
 
-        <!-- Modal Footer -->
-        <div class="sticky bottom-0 bg-tertiary border-t border-gray-600 px-6 py-4">
-          <div class="flex items-center justify-between">
-            <span class="text-sm text-textMuted">
-              {filteredPresets.length} preset{filteredPresets.length !== 1 ? 's' : ''} available
-            </span>
-            <button
-              type="button"
-              class="px-4 py-2 text-textMuted hover:text-textMain transition-colors"
-              onclick={closeModal}
-            >
-              Cancel
-            </button>
-          </div>
+        <!-- Bottom Sheet Footer -->
+        <div class="pt-4 border-t border-white/10 pb-4">
+          <button
+            type="button"
+            class="w-full py-3 text-text-secondary hover:text-text-primary transition-colors"
+            onclick={closeModal}
+          >
+            Cancel
+          </button>
         </div>
       </div>
-    </div>
-  {/if}
+    {/snippet}
+  </BottomSheet>
 </div>
-
-<style>
-  /* Mobile responsive adjustments */
-  @media (max-width: 640px) {
-    .grid-cols-1 {
-      grid-template-columns: repeat(1, minmax(0, 1fr));
-    }
-  }
-</style>

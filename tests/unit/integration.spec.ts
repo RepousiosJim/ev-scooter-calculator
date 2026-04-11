@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { calculatorState, loadPreset, simulateUpgrade, applyRideMode, updateConfig } from '$lib/stores/calculator.svelte';
+import { uiState } from '$lib/stores/ui.svelte';
 import { defaultConfig } from '$lib/data/presets';
 
 describe('Calculator Integration', () => {
@@ -99,10 +100,10 @@ describe('Calculator Integration', () => {
   });
 
   it('toggles advanced settings', () => {
-    expect(calculatorState.showAdvanced).toBe(false);
+    expect(uiState.showAdvanced).toBe(false);
 
-    calculatorState.showAdvanced = true;
-    expect(calculatorState.showAdvanced).toBe(true);
+    uiState.showAdvanced = true;
+    expect(uiState.showAdvanced).toBe(true);
   });
 
   it('calculates hill speed correctly', () => {

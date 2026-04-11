@@ -1,6 +1,7 @@
 <script lang="ts">
   import { calculatorState } from "$lib/stores/calculator.svelte";
   import type { Recommendation } from "$lib/types";
+  import { distanceVal, distanceUnit, speedVal, speedUnit } from "$lib/utils/units";
 
   let { upgrade }: { upgrade: Recommendation } = $props();
 
@@ -18,13 +19,13 @@
       return null;
     }
 
-    const rangeChange = simStats.totalRange - stats.totalRange;
+    const rangeChange = distanceVal(simStats.totalRange) - distanceVal(stats.totalRange);
     const rangePercent =
-      stats.totalRange > 0 ? (rangeChange / stats.totalRange) * 100 : 0;
+      stats.totalRange > 0 ? (rangeChange / distanceVal(stats.totalRange)) * 100 : 0;
 
-    const speedChange = simStats.speed - stats.speed;
+    const speedChange = speedVal(simStats.speed) - speedVal(stats.speed);
     const speedPercent =
-      stats.speed > 0 ? (speedChange / stats.speed) * 100 : 0;
+      stats.speed > 0 ? (speedChange / speedVal(stats.speed)) * 100 : 0;
 
     const costChange = simStats.costPer100km - stats.costPer100km;
     const costPercent =
@@ -34,14 +35,14 @@
       {
         label: "Range",
         value: rangeChange,
-        unit: "km",
+        unit: distanceUnit(),
         percent: rangePercent,
         isGood: true,
       },
       {
         label: "Speed",
         value: speedChange,
-        unit: "kmh",
+        unit: speedUnit(),
         percent: speedPercent,
         isGood: true,
       },
@@ -82,12 +83,5 @@
         </span>
       </div>
     {/each}
-  </div>
-{:else}
-  <div class="py-2 text-center">
-    <span
-      class="text-[10px] text-text-tertiary uppercase tracking-widest font-medium"
-      >Simulation Idle</span
-    >
   </div>
 {/if}

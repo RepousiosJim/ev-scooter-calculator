@@ -28,6 +28,10 @@ export const presets: ScooterPreset = {
   custom: customPreset,
 
   // --- 2024/2025 Models ---
+  m365_2025: {
+    v: 52, ah: 16, motors: 1, watts: 500, style: 24, weight: 80, wheel: 8.5, motorKv: 55, scooterWeight: 14.5,
+    drivetrainEfficiency: 0.88, batterySagPercent: 0.08, charger: 2, regen: 0.08, cost: 0.20, slope: 0, ridePosition: 0.6, soh: 1, ambientTemp: 20
+  },
   emove_roadster: {
     v: 84, ah: 40, motors: 2, watts: 3000, style: 50, weight: 80, wheel: 11, motorKv: 85, scooterWeight: 65,
     drivetrainEfficiency: 0.92, batterySagPercent: 0.05, charger: 5, regen: 0.15, cost: 0.20, slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20
@@ -41,7 +45,7 @@ export const presets: ScooterPreset = {
     drivetrainEfficiency: 0.9, batterySagPercent: 0.07, charger: 5, regen: 0.1, cost: 0.20, slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20
   },
   teverun_fighter_supreme: {
-    v: 72, ah: 60, motors: 2, watts: 2500, style: 48, weight: 80, wheel: 11, motorKv: 80, scooterWeight: 45,
+    v: 72, ah: 60, motors: 2, watts: 2500, style: 48, weight: 80, wheel: 11, motorKv: 80, scooterWeight: 60,
     drivetrainEfficiency: 0.9, batterySagPercent: 0.06, charger: 5, regen: 0.12, cost: 0.20, slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20
   },
   nami_klima: {
@@ -115,7 +119,7 @@ export const presets: ScooterPreset = {
     drivetrainEfficiency: 0.9, batterySagPercent: 0.08, charger: 3, regen: 0.05, cost: 0.20, slope: 0, ridePosition: 0.6, soh: 1, ambientTemp: 20
   },
   xiaomi_4_ultra: {
-    v: 48, ah: 12, motors: 1, watts: 500, style: 28, weight: 80, wheel: 10, motorKv: 55, scooterWeight: 25,
+    v: 48, ah: 12.8, motors: 1, watts: 500, style: 28, weight: 80, wheel: 10, motorKv: 55, scooterWeight: 25,
     drivetrainEfficiency: 0.88, batterySagPercent: 0.08, charger: 2.5, regen: 0.08, cost: 0.20, slope: 0, ridePosition: 0.6, soh: 1, ambientTemp: 20
   },
 
@@ -172,43 +176,222 @@ export const defaultConfig: ScooterConfig = {
   rpm: undefined
 };
 
+// Data catalog version — bump when presets change
+export const CATALOG_VERSION = "1.1.0";
+export const CATALOG_LAST_UPDATED = "2026-04-11";
+
 export const presetMetadata: Record<string, PresetMetadata> = {
   // --- 2024/2025 Models ---
-  emove_roadster: { name: "EMOVE Roadster", year: 2025, manufacturer: { topSpeed: 112, range: 110, batteryWh: 3360, powerToWeight: 92, price: 5995 } },
-  inmotion_rs: { name: "InMotion RS", year: 2024, manufacturer: { topSpeed: 110, range: 120, batteryWh: 2880, powerToWeight: 68, price: 3999 } },
-  wolf_king_gtr: { name: "Kaabo Wolf King GTR", year: 2024, manufacturer: { topSpeed: 105, range: 140, batteryWh: 2520, powerToWeight: 63, price: 3995 } },
-  teverun_fighter_supreme: { name: "Teverun Fighter Supreme", year: 2024, manufacturer: { topSpeed: 110, range: 120, batteryWh: 4320, powerToWeight: 110, price: 4299 } },
-  nami_klima: { name: "NAMI Klima", year: 2024, manufacturer: { topSpeed: 67, range: 80, batteryWh: 1500, powerToWeight: 55, price: 2199 } },
-  apollo_city_2024_pro: { name: "Apollo City Pro (2024)", year: 2024, manufacturer: { topSpeed: 51, range: 69, batteryWh: 960, powerToWeight: 33, price: 1699 } },
-  apollo_go: { name: "Apollo Go", year: 2024, manufacturer: { topSpeed: 45, range: 48, batteryWh: 540, powerToWeight: 33, price: 1199 } },
-  niu_kqi_air: { name: "NIU KQi Air", year: 2024, manufacturer: { topSpeed: 32, range: 50, batteryWh: 451, powerToWeight: 29, price: 1049 } },
-  navee_gt3: { name: "Navee GT3", year: 2024, manufacturer: { topSpeed: 32, range: 30, batteryWh: 576, price: 499 } },
-  segway_e2_pro: { name: "Segway E2 Pro", year: 2024, manufacturer: { topSpeed: 25, range: 27, batteryWh: 275, price: 399 } },
-  xiaomi_4_lite_2: { name: "Xiaomi 4 Lite 2nd Gen", year: 2024, manufacturer: { topSpeed: 25, range: 25, batteryWh: 275, price: 299 } },
+  m365_2025: {
+    name: "Xiaomi Electric Scooter 5", year: 2025,
+    manufacturer: { topSpeed: 35, range: 40, batteryWh: 832, price: 599 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Xiaomi Global", sourceUrl: "https://www.mi.com/global/product/xiaomi-electric-scooter-5",
+  },
+  emove_roadster: {
+    name: "EMOVE Roadster", year: 2025,
+    manufacturer: { topSpeed: 112, range: 110, batteryWh: 3360, powerToWeight: 92, price: 5995 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Voro Motors", sourceUrl: "https://www.voromotors.com/products/emove-roadster",
+    priceHistory: [{ date: "2024-06-01", price: 6495 }, { date: "2025-01-10", price: 5995 }],
+  },
+  inmotion_rs: {
+    name: "InMotion RS", year: 2024,
+    manufacturer: { topSpeed: 110, range: 120, batteryWh: 2880, powerToWeight: 68, price: 3999 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "InMotion Official", sourceUrl: "https://www.inmotionworld.com/",
+  },
+  wolf_king_gtr: {
+    name: "Kaabo Wolf King GTR", year: 2024,
+    manufacturer: { topSpeed: 105, range: 140, batteryWh: 2520, powerToWeight: 63, price: 3995 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Kaabo Official", sourceUrl: "https://www.kaabo-official.com/",
+    priceHistory: [{ date: "2024-01-01", price: 4295 }, { date: "2025-01-10", price: 3995 }],
+  },
+  teverun_fighter_supreme: {
+    name: "Teverun Fighter Supreme", year: 2024,
+    manufacturer: { topSpeed: 110, range: 120, batteryWh: 4320, powerToWeight: 110, price: 4299 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Teverun Official", sourceUrl: "https://teverun.com/",
+  },
+  nami_klima: {
+    name: "NAMI Klima", year: 2024,
+    manufacturer: { topSpeed: 67, range: 80, batteryWh: 1500, powerToWeight: 55, price: 2199 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "NAMI Electric", sourceUrl: "https://www.namielectric.com/",
+  },
+  apollo_city_2024_pro: {
+    name: "Apollo City Pro (2024)", year: 2024,
+    manufacturer: { topSpeed: 51, range: 69, batteryWh: 960, powerToWeight: 33, price: 1699 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Apollo Scooters", sourceUrl: "https://apolloscooters.co/",
+  },
+  apollo_go: {
+    name: "Apollo Go", year: 2024,
+    manufacturer: { topSpeed: 45, range: 48, batteryWh: 540, powerToWeight: 33, price: 1199 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Apollo Scooters", sourceUrl: "https://apolloscooters.co/",
+  },
+  niu_kqi_air: {
+    name: "NIU KQi Air", year: 2024,
+    manufacturer: { topSpeed: 32, range: 50, batteryWh: 451, powerToWeight: 29, price: 1049 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "NIU Official", sourceUrl: "https://www.niu.com/",
+  },
+  navee_gt3: {
+    name: "Navee GT3", year: 2024,
+    manufacturer: { topSpeed: 32, range: 30, batteryWh: 576, price: 499 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Navee Official", sourceUrl: "https://naveetech.com/",
+  },
+  segway_e2_pro: {
+    name: "Segway E2 Pro", year: 2024,
+    manufacturer: { topSpeed: 25, range: 27, batteryWh: 275, price: 399 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Segway-Ninebot", sourceUrl: "https://store.segway.com/",
+  },
+  xiaomi_4_lite_2: {
+    name: "Xiaomi 4 Lite 2nd Gen", year: 2024,
+    manufacturer: { topSpeed: 25, range: 25, batteryWh: 275, price: 299 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Xiaomi Global", sourceUrl: "https://www.mi.com/global/",
+  },
 
   // --- 2023 Models ---
-  nami_burn_e_2_max: { name: "NAMI Burn-E 2 Max", year: 2023, manufacturer: { topSpeed: 96, range: 140, batteryWh: 2304, powerToWeight: 64, price: 3499 } },
-  segway_gt2: { name: "Segway SuperScooter GT2", year: 2023, manufacturer: { topSpeed: 70, range: 90, batteryWh: 1512, powerToWeight: 57, price: 3999 } },
-  segway_gt1: { name: "Segway SuperScooter GT1", year: 2023, manufacturer: { topSpeed: 60, range: 70, batteryWh: 1008, powerToWeight: 62, price: 1999 } },
-  kaabo_mantis_king_gt: { name: "Kaabo Mantis King GT", year: 2023, manufacturer: { topSpeed: 70, range: 80, batteryWh: 1440, powerToWeight: 64, price: 2195 } },
-  mukuta_10_plus: { name: "Mukuta 10 Plus", year: 2023, manufacturer: { topSpeed: 74, range: 100, batteryWh: 1248, powerToWeight: 77, price: 1999 } },
-  roadrunner_rs5_plus: { name: "RoadRunner RS5+", year: 2023, manufacturer: { topSpeed: 72, range: 80, batteryWh: 1216, powerToWeight: 66, price: 2090 } },
-  segway_max_g2: { name: "Ninebot Max G2", year: 2023, manufacturer: { topSpeed: 35, range: 70, batteryWh: 551, powerToWeight: 18, price: 899 } },
-  niu_kqi3_max: { name: "NIU KQi3 Max", year: 2023, manufacturer: { topSpeed: 38, range: 65, batteryWh: 608, powerToWeight: 21, price: 899 } },
-  gotrax_g4: { name: "Gotrax G4", year: 2023, manufacturer: { topSpeed: 32, range: 40, batteryWh: 374, powerToWeight: 21, price: 499 } },
-  emove_cruiser_s: { name: "EMOVE Cruiser S", year: 2023, manufacturer: { topSpeed: 53, range: 100, batteryWh: 1560, powerToWeight: 43, price: 1399 } },
-  xiaomi_4_ultra: { name: "Xiaomi 4 Ultra", year: 2023, manufacturer: { topSpeed: 25, range: 70, batteryWh: 561, powerToWeight: 20, price: 999 } },
+  nami_burn_e_2_max: {
+    name: "NAMI Burn-E 2 Max", year: 2023,
+    manufacturer: { topSpeed: 96, range: 140, batteryWh: 2304, powerToWeight: 64, price: 3499 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "NAMI Electric", sourceUrl: "https://www.namielectric.com/",
+  },
+  segway_gt2: {
+    name: "Segway SuperScooter GT2", year: 2023,
+    manufacturer: { topSpeed: 70, range: 90, batteryWh: 1512, powerToWeight: 57, price: 3999 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Segway-Ninebot", sourceUrl: "https://store.segway.com/",
+    priceHistory: [{ date: "2023-06-01", price: 4499 }, { date: "2024-06-01", price: 3999 }],
+  },
+  segway_gt1: {
+    name: "Segway SuperScooter GT1", year: 2023,
+    manufacturer: { topSpeed: 60, range: 70, batteryWh: 1008, powerToWeight: 62, price: 1999 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Segway-Ninebot", sourceUrl: "https://store.segway.com/",
+  },
+  kaabo_mantis_king_gt: {
+    name: "Kaabo Mantis King GT", year: 2023,
+    manufacturer: { topSpeed: 70, range: 80, batteryWh: 1440, powerToWeight: 64, price: 2195 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Kaabo Official", sourceUrl: "https://www.kaabo-official.com/",
+  },
+  mukuta_10_plus: {
+    name: "Mukuta 10 Plus", year: 2023,
+    manufacturer: { topSpeed: 74, range: 100, batteryWh: 1248, powerToWeight: 77, price: 1999 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Mukuta Official", sourceUrl: "https://www.mukuta.com/",
+  },
+  roadrunner_rs5_plus: {
+    name: "RoadRunner RS5+", year: 2023,
+    manufacturer: { topSpeed: 72, range: 80, batteryWh: 1216, powerToWeight: 66, price: 2090 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "RoadRunner Scooters", sourceUrl: "https://roadrunnerscooters.com/",
+  },
+  segway_max_g2: {
+    name: "Ninebot Max G2", year: 2023,
+    manufacturer: { topSpeed: 35, range: 70, batteryWh: 551, powerToWeight: 18, price: 899 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Segway-Ninebot", sourceUrl: "https://store.segway.com/",
+  },
+  niu_kqi3_max: {
+    name: "NIU KQi3 Max", year: 2023,
+    manufacturer: { topSpeed: 38, range: 65, batteryWh: 608, powerToWeight: 21, price: 899 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "NIU Official", sourceUrl: "https://www.niu.com/",
+  },
+  gotrax_g4: {
+    name: "Gotrax G4", year: 2023,
+    manufacturer: { topSpeed: 32, range: 40, batteryWh: 374, powerToWeight: 21, price: 499 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Gotrax Official", sourceUrl: "https://gotrax.com/",
+  },
+  emove_cruiser_s: {
+    name: "EMOVE Cruiser S", year: 2023,
+    manufacturer: { topSpeed: 53, range: 100, batteryWh: 1560, powerToWeight: 43, price: 1399 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Voro Motors", sourceUrl: "https://www.voromotors.com/",
+  },
+  xiaomi_4_ultra: {
+    name: "Xiaomi 4 Ultra", year: 2023,
+    manufacturer: { topSpeed: 25, range: 70, batteryWh: 614, powerToWeight: 20, price: 999 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Xiaomi Global", sourceUrl: "https://www.mi.com/global/",
+  },
 
   // --- 2022 & Classics ---
-  vsett_10_plus: { name: "VSETT 10+", year: 2022, manufacturer: { topSpeed: 80, range: 100, batteryWh: 1536, powerToWeight: 77, price: 1799 } },
-  vsett_9_plus: { name: "VSETT 9+", year: 2022, manufacturer: { topSpeed: 53, range: 70, batteryWh: 921, powerToWeight: 52, price: 1290 } },
-  vsett_8: { name: "VSETT 8", year: 2022, manufacturer: { topSpeed: 42, range: 50, batteryWh: 748, powerToWeight: 28, price: 899 } },
-  turboant_x7_max: { name: "Turboant X7 Max", year: 2022, manufacturer: { topSpeed: 32, range: 51, batteryWh: 360, price: 449 } },
-  hiboy_s2_pro: { name: "Hiboy S2 Pro", year: 2022, manufacturer: { topSpeed: 30, range: 40, batteryWh: 417, price: 399 } },
-  niu_kqi2_pro: { name: "NIU KQi2 Pro", year: 2022, manufacturer: { topSpeed: 28, range: 40, batteryWh: 374, price: 419 } },
-  unagi_voyager: { name: "Unagi Model One Voyager", year: 2022, manufacturer: { topSpeed: 25, range: 25, batteryWh: 360, price: 1190 } },
-  uscooters_gt_sport: { name: "Uscooters GT Sport", year: 2022, manufacturer: { topSpeed: 48, range: 35, batteryWh: 504, powerToWeight: 53, price: 1099 } },
-  inokim_light_2: { name: "Inokim Light 2", year: 2022, manufacturer: { topSpeed: 34, range: 35, batteryWh: 374, price: 799 } },
-  dualtron_thunder_3: { name: "Dualtron Thunder 3", year: 2022, manufacturer: { topSpeed: 100, range: 125, batteryWh: 2880, powerToWeight: 85, price: 4499 } },
-  m365_pro_2: { name: "Xiaomi M365 Pro 2", year: 2021, manufacturer: { topSpeed: 25, range: 45, batteryWh: 460, price: 500 } }
+  vsett_10_plus: {
+    name: "VSETT 10+", year: 2022,
+    manufacturer: { topSpeed: 80, range: 100, batteryWh: 1536, powerToWeight: 77, price: 1799 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "VSETT Official", sourceUrl: "https://vsett.com/",
+  },
+  vsett_9_plus: {
+    name: "VSETT 9+", year: 2022,
+    manufacturer: { topSpeed: 53, range: 70, batteryWh: 921, powerToWeight: 52, price: 1290 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "VSETT Official", sourceUrl: "https://vsett.com/",
+  },
+  vsett_8: {
+    name: "VSETT 8", year: 2022,
+    manufacturer: { topSpeed: 42, range: 50, batteryWh: 748, powerToWeight: 28, price: 899 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "VSETT Official", sourceUrl: "https://vsett.com/",
+  },
+  turboant_x7_max: {
+    name: "Turboant X7 Max", year: 2022,
+    manufacturer: { topSpeed: 32, range: 51, batteryWh: 360, price: 449 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Turboant Official", sourceUrl: "https://www.turboant.com/",
+  },
+  hiboy_s2_pro: {
+    name: "Hiboy S2 Pro", year: 2022,
+    manufacturer: { topSpeed: 30, range: 40, batteryWh: 417, price: 399 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Hiboy Official", sourceUrl: "https://www.hiboy.com/",
+  },
+  niu_kqi2_pro: {
+    name: "NIU KQi2 Pro", year: 2022,
+    manufacturer: { topSpeed: 28, range: 40, batteryWh: 374, price: 419 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "NIU Official", sourceUrl: "https://www.niu.com/",
+  },
+  unagi_voyager: {
+    name: "Unagi Model One Voyager", year: 2022,
+    manufacturer: { topSpeed: 25, range: 25, batteryWh: 360, price: 1190 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Unagi Scooters", sourceUrl: "https://unagiscooters.com/",
+  },
+  uscooters_gt_sport: {
+    name: "Uscooters GT Sport", year: 2022,
+    manufacturer: { topSpeed: 48, range: 35, batteryWh: 504, powerToWeight: 53, price: 1099 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "UScooters Official", sourceUrl: "https://uscooters.com/",
+  },
+  inokim_light_2: {
+    name: "Inokim Light 2", year: 2022,
+    manufacturer: { topSpeed: 34, range: 35, batteryWh: 374, price: 799 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Inokim Official", sourceUrl: "https://www.myinokim.com/",
+  },
+  dualtron_thunder_3: {
+    name: "Dualtron Thunder 3", year: 2022,
+    manufacturer: { topSpeed: 100, range: 125, batteryWh: 2880, powerToWeight: 85, price: 4499 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "current",
+    source: "Minimotors", sourceUrl: "https://www.minimotorsusa.com/",
+  },
+  m365_pro_2: {
+    name: "Xiaomi M365 Pro 2", year: 2021,
+    manufacturer: { topSpeed: 25, range: 45, batteryWh: 460, price: 500 },
+    addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "discontinued",
+    source: "Xiaomi Global", sourceUrl: "https://www.mi.com/global/", notes: "Succeeded by Xiaomi 4 series",
+    priceHistory: [{ date: "2021-01-01", price: 599 }, { date: "2023-01-01", price: 500 }],
+  },
 };

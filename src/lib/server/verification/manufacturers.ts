@@ -1,0 +1,269 @@
+/**
+ * Manufacturer registry for electric scooter brands.
+ * Each manufacturer has product listing URLs that can be scanned
+ * by the discovery system to find new scooter models.
+ */
+
+export interface Manufacturer {
+	id: string;
+	name: string;
+	website: string;
+	/** URLs to scan for product listings (collection pages, product catalogs) */
+	productListingUrls: string[];
+	/** Scooter keys in our system that belong to this manufacturer */
+	knownScooterKeys: string[];
+	/** Whether the site serves static HTML (scrapable) or is JS-rendered */
+	scrapable: boolean;
+	country: string;
+	/** Price tier: budget (<$500), mid ($500-$1500), premium ($1500-$3000), ultra (>$3000) */
+	tier: 'budget' | 'mid' | 'premium' | 'ultra' | 'mixed';
+}
+
+export const manufacturers: Manufacturer[] = [
+	{
+		id: 'apollo',
+		name: 'Apollo Scooters',
+		website: 'https://apolloscooters.com',
+		productListingUrls: [
+			'https://apolloscooters.com/collections/electric-scooters',
+		],
+		knownScooterKeys: ['apollo_city_2024_pro', 'apollo_go'],
+		scrapable: false, // JS-rendered
+		country: 'Canada',
+		tier: 'mid',
+	},
+	{
+		id: 'segway',
+		name: 'Segway-Ninebot',
+		website: 'https://store.segway.com',
+		productListingUrls: [
+			'https://store.segway.com/electric-scooters',
+			'https://store.segway.com/ninebot-kickscooters',
+		],
+		knownScooterKeys: ['segway_e2_pro', 'segway_gt1', 'segway_gt2', 'segway_max_g2'],
+		scrapable: true,
+		country: 'China',
+		tier: 'mixed',
+	},
+	{
+		id: 'kaabo',
+		name: 'Kaabo',
+		website: 'https://www.kaabo.com',
+		productListingUrls: [
+			'https://www.voromotors.com/collections/kaabo',
+			'https://fluidfreeride.com/collections/kaabo',
+		],
+		knownScooterKeys: ['wolf_king_gtr', 'kaabo_mantis_king_gt'],
+		scrapable: true,
+		country: 'China',
+		tier: 'premium',
+	},
+	{
+		id: 'emove',
+		name: 'EMOVE (Voro Motors)',
+		website: 'https://www.voromotors.com',
+		productListingUrls: [
+			'https://www.voromotors.com/collections/emove-electric-scooters',
+			'https://www.voromotors.com/collections/all',
+		],
+		knownScooterKeys: ['emove_roadster', 'emove_cruiser_s'],
+		scrapable: true,
+		country: 'USA',
+		tier: 'mixed',
+	},
+	{
+		id: 'nami',
+		name: 'NAMI Electric',
+		website: 'https://www.namiscooters.com',
+		productListingUrls: [
+			'https://fluidfreeride.com/collections/nami',
+			'https://www.voromotors.com/collections/nami',
+		],
+		knownScooterKeys: ['nami_klima', 'nami_burn_e_2_max'],
+		scrapable: true,
+		country: 'South Korea',
+		tier: 'ultra',
+	},
+	{
+		id: 'vsett',
+		name: 'VSETT',
+		website: 'https://vsett.com',
+		productListingUrls: [
+			'https://revrides.com/collections/vsett',
+			'https://fluidfreeride.com/collections/vsett',
+		],
+		knownScooterKeys: ['vsett_10_plus', 'vsett_9_plus', 'vsett_8'],
+		scrapable: true,
+		country: 'China',
+		tier: 'mid',
+	},
+	{
+		id: 'xiaomi',
+		name: 'Xiaomi',
+		website: 'https://www.mi.com',
+		productListingUrls: [
+			'https://www.mi.com/global/product/electric-scooter',
+		],
+		knownScooterKeys: ['xiaomi_4_lite_2', 'xiaomi_4_ultra', 'm365_pro_2'],
+		scrapable: false, // JS-rendered
+		country: 'China',
+		tier: 'budget',
+	},
+	{
+		id: 'niu',
+		name: 'NIU',
+		website: 'https://global.niu.com',
+		productListingUrls: [
+			'https://global.niu.com/product',
+		],
+		knownScooterKeys: ['niu_kqi_air', 'niu_kqi3_max', 'niu_kqi2_pro'],
+		scrapable: true,
+		country: 'China',
+		tier: 'mid',
+	},
+	{
+		id: 'gotrax',
+		name: 'Gotrax',
+		website: 'https://gotrax.com',
+		productListingUrls: [
+			'https://gotrax.com/collections/electric-scooters',
+		],
+		knownScooterKeys: ['gotrax_g4'],
+		scrapable: true,
+		country: 'USA',
+		tier: 'budget',
+	},
+	{
+		id: 'hiboy',
+		name: 'Hiboy',
+		website: 'https://www.hiboy.com',
+		productListingUrls: [
+			'https://www.hiboy.com/collections/electric-scooter',
+		],
+		knownScooterKeys: ['hiboy_s2_pro'],
+		scrapable: true,
+		country: 'China',
+		tier: 'budget',
+	},
+	{
+		id: 'dualtron',
+		name: 'Dualtron (MiniMotors)',
+		website: 'https://www.minimotorsusa.com',
+		productListingUrls: [
+			'https://www.voromotors.com/collections/dualtron',
+		],
+		knownScooterKeys: ['dualtron_thunder_3'],
+		scrapable: true,
+		country: 'South Korea',
+		tier: 'ultra',
+	},
+	{
+		id: 'inmotion',
+		name: 'InMotion',
+		website: 'https://www.inmotionworld.com',
+		productListingUrls: [
+			'https://fluidfreeride.com/collections/inmotion',
+		],
+		knownScooterKeys: ['inmotion_rs'],
+		scrapable: true,
+		country: 'China',
+		tier: 'premium',
+	},
+	{
+		id: 'teverun',
+		name: 'Teverun',
+		website: 'https://teverun.com',
+		productListingUrls: [
+			'https://www.voromotors.com/collections/teverun',
+		],
+		knownScooterKeys: ['teverun_fighter_supreme'],
+		scrapable: true,
+		country: 'China',
+		tier: 'ultra',
+	},
+	{
+		id: 'unagi',
+		name: 'Unagi',
+		website: 'https://unagiscooters.com',
+		productListingUrls: [
+			'https://unagiscooters.com/collections/all',
+		],
+		knownScooterKeys: ['unagi_voyager'],
+		scrapable: true,
+		country: 'USA',
+		tier: 'mid',
+	},
+	{
+		id: 'inokim',
+		name: 'Inokim',
+		website: 'https://www.inokim.com',
+		productListingUrls: [
+			'https://www.inokim.com/product-category/electric-scooters/',
+		],
+		knownScooterKeys: ['inokim_light_2'],
+		scrapable: true,
+		country: 'Israel',
+		tier: 'mid',
+	},
+	{
+		id: 'navee',
+		name: 'NAVEE',
+		website: 'https://www.naveetech.com',
+		productListingUrls: [
+			'https://www.naveetech.com',
+		],
+		knownScooterKeys: ['navee_gt3'],
+		scrapable: true,
+		country: 'China',
+		tier: 'budget',
+	},
+	// --- Retailers (multi-brand, good for discovery) ---
+	{
+		id: 'fluidfreeride',
+		name: 'FluidFreeRide',
+		website: 'https://fluidfreeride.com',
+		productListingUrls: [
+			'https://fluidfreeride.com/collections/electric-scooters',
+		],
+		knownScooterKeys: [],
+		scrapable: true,
+		country: 'USA',
+		tier: 'mixed',
+	},
+	{
+		id: 'voromotors',
+		name: 'Voro Motors',
+		website: 'https://www.voromotors.com',
+		productListingUrls: [
+			'https://www.voromotors.com/collections/electric-scooters',
+		],
+		knownScooterKeys: [],
+		scrapable: true,
+		country: 'USA',
+		tier: 'mixed',
+	},
+	{
+		id: 'revrides',
+		name: 'RevRides',
+		website: 'https://revrides.com',
+		productListingUrls: [
+			'https://revrides.com/collections/electric-scooters',
+		],
+		knownScooterKeys: [],
+		scrapable: true,
+		country: 'USA',
+		tier: 'mixed',
+	},
+];
+
+export function getManufacturer(id: string): Manufacturer | undefined {
+	return manufacturers.find((m) => m.id === id);
+}
+
+export function getManufacturerForScooter(scooterKey: string): Manufacturer | undefined {
+	return manufacturers.find((m) => m.knownScooterKeys.includes(scooterKey));
+}
+
+export function getScrapableManufacturers(): Manufacturer[] {
+	return manufacturers.filter((m) => m.scrapable && m.productListingUrls.length > 0);
+}

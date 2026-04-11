@@ -1,18 +1,14 @@
 <script lang="ts">
-  import { calculatorState } from '$lib/stores/calculator.svelte';
-
-  const stats = $derived(calculatorState.stats);
+  import { calculatorState, createShareLink } from '$lib/stores/calculator.svelte';
 
   let showToast = $state(false);
-  let toastMessage = $state('');
 
   async function handleShare() {
-    const { exportConfiguration } = await import('$lib/utils/configHandler');
-    const link = (await import('$lib/stores/calculator.svelte')).createShareLink(calculatorState.config);
+    const link = createShareLink(calculatorState.config);
     if (link) {
       await navigator.clipboard.writeText(link);
-      toastMessage = 'Link copied to clipboard!';
       showToast = true;
+      setTimeout(() => showToast = false, 2500);
     }
   }
 </script>
@@ -20,14 +16,14 @@
 <button
   type="button"
   onclick={handleShare}
-  class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primaryDark transition-colors"
+  class="px-3 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider flex items-center gap-1.5"
   aria-label="Share configuration"
 >
-  Share Configuration
+  Share
 </button>
 
 {#if showToast}
-  <div class="fixed bottom-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60]">
-    {toastMessage}
+  <div class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60] text-sm font-medium">
+    Link copied to clipboard!
   </div>
 {/if}

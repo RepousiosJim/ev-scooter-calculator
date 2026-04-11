@@ -15,7 +15,7 @@
 
   const getVariantClasses = () => {
     const variants = {
-      default: 'bg-tertiary text-textMain border-gray-600',
+      default: 'bg-tertiary text-text-primary border-gray-600',
       primary: 'bg-primary/10 text-primary border-primary/30',
       success: 'bg-success/10 text-success border-success/30',
       warning: 'bg-warning/10 text-warning border-warning/30',

@@ -53,11 +53,11 @@
 <div class="flex flex-col gap-2">
   {#if label}
     <div class="flex items-center justify-between">
-      <label for={sliderId} class="text-sm font-medium text-textSecondary">
+      <label for={sliderId} class="text-sm font-medium text-text-primary">
         {label}
       </label>
       {#if showValue}
-        <span class="text-sm font-semibold text-primary font-number">
+        <span class="text-sm font-semibold text-primary font-data">
           {Math.round(value || 0)}
         </span>
       {/if}
@@ -97,7 +97,7 @@
   </div>
 
   {#if help}
-    <p id={helpId} class="text-xs text-textMuted mt-1">
+    <p id={helpId} class="text-xs text-text-secondary mt-1">
       {help}
     </p>
   {/if}
@@ -125,8 +125,9 @@
     margin-top: -8px;
   }
 
-  /* Webkit slider thumb hover */
-  input[type="range"]::-webkit-slider-thumb:hover {
+  /* Webkit slider thumb hover/focus */
+  input[type="range"]::-webkit-slider-thumb:hover,
+  input[type="range"]::-webkit-slider-thumb:focus-visible {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
   }
@@ -143,8 +144,9 @@
     transition: transform 0.2s, box-shadow 0.2s;
   }
 
-  /* Firefox slider thumb hover */
-  input[type="range"]::-moz-range-thumb:hover {
+  /* Firefox slider thumb hover/focus */
+  input[type="range"]::-moz-range-thumb:hover,
+  input[type="range"]::-moz-range-thumb:focus-visible {
     transform: scale(1.1);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
   }
@@ -171,5 +173,13 @@
 
   input[type="range"]:focus:not(:focus-visible) {
     outline: none;
+  }
+
+  input[type="range"]:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.6);
+  }
+
+  input[type="range"]:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.6);
   }
 </style>

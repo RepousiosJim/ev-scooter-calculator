@@ -15,7 +15,7 @@
     switch (direction) {
       case 'up': return 'text-success';
       case 'down': return 'text-danger';
-      default: return 'text-textMuted';
+      default: return 'text-text-tertiary';
     }
   });
 

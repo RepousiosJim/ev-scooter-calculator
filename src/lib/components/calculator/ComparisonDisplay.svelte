@@ -40,7 +40,7 @@
 
   function getDeltaClass(current: number, upgraded: number, isPositiveGood: boolean = true) {
     const delta = getDeltaInfo(current, upgraded);
-    if (!hasSignificantChange(current, upgraded)) return 'text-textMuted';
+    if (!hasSignificantChange(current, upgraded)) return 'text-text-tertiary';
     
     const isGood = delta.direction === 'up' ? isPositiveGood : !isPositiveGood;
     return isGood ? 'text-success' : 'text-danger';
@@ -59,18 +59,18 @@
           <div class="flex items-center gap-3">
             <span class="text-2xl">{stat.icon}</span>
             <div>
-              <div class="text-xs text-textMuted uppercase tracking-wide">{stat.label}</div>
+              <div class="text-xs text-text-tertiary uppercase tracking-wide">{stat.label}</div>
               <div class="flex items-baseline gap-2">
                 <span class={`text-xl font-bold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
                   {formatValue(stat.simValue)}
                 </span>
-                <span class="text-sm text-textMuted">{stat.unit}</span>
+                <span class="text-sm text-text-tertiary">{stat.unit}</span>
               </div>
             </div>
           </div>
           
           <div class="flex flex-col items-end gap-1">
-            <span class="text-xs text-textMuted">{formatValue(stat.value)} {stat.unit}</span>
+            <span class="text-xs text-text-tertiary">{formatValue(stat.value)} {stat.unit}</span>
             <DeltaBadge 
               direction={getDeltaInfo(stat.value, stat.simValue).direction} 
               value={getDeltaInfo(stat.value, stat.simValue).percent}
@@ -85,21 +85,21 @@
   <div class="border-t border-white/10 pt-4">
     <div class="flex items-center gap-2 mb-3">
       <span class="text-lg">📊</span>
-      <h3 class="text-sm font-semibold text-textMain">Secondary Stats</h3>
+      <h3 class="text-sm font-semibold text-text-primary">Secondary Stats</h3>
     </div>
     
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       {#each secondaryStats as stat (stat.label)}
         <div class="bg-black/20 rounded-lg border border-white/5 p-3">
-          <div class="text-xs text-textMuted mb-1">{stat.label}</div>
+          <div class="text-xs text-text-tertiary mb-1">{stat.label}</div>
           <div class="flex items-baseline justify-between gap-2">
             <span class={`text-base font-semibold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
               {formatValue(stat.simValue)}
             </span>
-            <span class="text-xs text-textMuted">{stat.unit}</span>
+            <span class="text-xs text-text-tertiary">{stat.unit}</span>
           </div>
           <div class="flex items-center justify-between mt-1">
-            <span class="text-xs text-textMuted">{formatValue(stat.value)}</span>
+            <span class="text-xs text-text-tertiary">{formatValue(stat.value)}</span>
             <DeltaBadge 
               direction={getDeltaInfo(stat.value, stat.simValue).direction} 
               value={getDeltaInfo(stat.value, stat.simValue).percent}

@@ -68,23 +68,10 @@
       aria-hidden="true"
       transition:fly={{ y: -10, duration: 150 }}
     >
-      <div class="relative">
-        <!-- Close Button -->
-        <button
-          type="button"
-          onclick={closeTooltip}
-          class="absolute top-0 right-0 -mt-2 -mr-2 w-11 h-11 sm:w-6 sm:h-6 flex items-center justify-center rounded-full bg-bg-tertiary
-            text-text-tertiary hover:bg-bg-hover hover:text-text-primary transition-all duration-fast"
-          aria-label="Close help"
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-
-        <!-- Content -->
-        <p class="text-sm text-text-secondary leading-relaxed">
-          {@html content}
-        </p>
-      </div>
+      <!-- Content -->
+      <p class="text-sm text-text-secondary leading-relaxed">
+        {@html content}
+      </p>
 
       <!-- Arrow -->
       <div

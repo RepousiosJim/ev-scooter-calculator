@@ -1,102 +1,30 @@
 /**
- * Analytics and User Research Tracking Utilities
- *
- * Provides centralized analytics for:
- * - User behavior tracking (clicks, scrolls, dwell time)
- * - Funnel analytics (task completion rates)
- * - A/B testing framework
- * - Error tracking
- * - Performance metrics
+ * Analytics - Lean tracking utilities for session, funnel, behavior, vitals, and A/B tests.
  */
 
-// ============================================================================
-// TYPES
-// ============================================================================
-
 export type EventType =
-  | 'page_view'
-  | 'preset_selected'
-  | 'config_field_changed'
-  | 'config_completed'
-  | 'tab_switched'
-  | 'upgrade_simulated'
-  | 'upgrade_completed'
-  | 'profile_saved'
-  | 'profile_loaded'
-  | 'error_occurred'
-  | 'search_performed'
-  | 'help_viewed'
-  | 'session_end'
-  | 'funnel_start'
-  | 'funnel_step'
-  | 'funnel_complete'
-  | 'click'
-  | 'scroll'
-  | 'behavior_tracked'
-  | 'ab_test_assigned'
-  | 'funnel_advance'
-  | 'funnel_abandon'
-  | 'rage_click'
-  | 'scroll_depth'
-  | 'form_submit'
-  | 'time_on_page'
-  | 'validation_error'
-  | 'performance_metric'
-  | 'web_vital'
-  | 'page_performance'
-  | 'ab_test_assignment'
-  | 'ab_test_conversion';
+  | 'page_view' | 'preset_selected' | 'session_end'
+  | 'funnel_start' | 'funnel_advance'
+  | 'rage_click' | 'scroll_depth' | 'time_on_page'
+  | 'web_vital' | 'page_performance' | 'ab_test_assignment';
 
-export interface AnalyticsEvent {
+interface AnalyticsEvent {
   type: EventType;
   properties?: Record<string, string | number | boolean | null>;
   timestamp?: number;
 }
 
-export interface FunnelStep {
-  step: string;
-  timestamp: number;
-  completed: boolean;
-}
+// -- Session ------------------------------------------------------------------
 
-export interface UserSession {
-  sessionId: string;
-  startTime: number;
-  endTime?: number;
-  events: AnalyticsEvent[];
-  funnels: Map<string, FunnelStep[]>;
-  viewport: {
-    width: number;
-    height: number;
-    isMobile: boolean;
-  };
-}
-
-// ============================================================================
-// SESSION MANAGEMENT
-// ============================================================================
-
-let currentSession: UserSession | null = null;
-
-function generateSessionId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-}
+let currentSession: { sessionId: string; startTime: number; endTime?: number; events: AnalyticsEvent[] } | null = null;
 
 export function startSession(): void {
   if (typeof window === 'undefined') return;
-
   currentSession = {
-    sessionId: generateSessionId(),
+    sessionId: `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     startTime: Date.now(),
     events: [],
-    funnels: new Map(),
-    viewport: {
-      width: window.innerWidth,
-      height: window.innerHeight,
-      isMobile: window.innerWidth < 640,
-    },
   };
-
   trackEvent('page_view', {
     path: window.location.pathname,
     referrer: document.referrer,
@@ -106,421 +34,167 @@ export function startSession(): void {
   });
 }
 
-export function endSession(): void {
+function endSession(): void {
   if (!currentSession) return;
-
   currentSession.endTime = Date.now();
-  const duration = currentSession.endTime - currentSession.startTime;
-
   trackEvent('session_end', {
     session_id: currentSession.sessionId,
-    duration_ms: duration,
+    duration_ms: currentSession.endTime - currentSession.startTime,
     events_count: currentSession.events.length,
   });
-
-  // Flush to external analytics service
-  flushAnalytics();
-
-  currentSession = null;
-}
-
-// ============================================================================
-// EVENT TRACKING
-// ============================================================================
-
-export function trackEvent(type: EventType, properties?: Record<string, string | number | boolean | null>): void {
-  if (!currentSession || typeof window === 'undefined') return;
-
-  const event: AnalyticsEvent = {
-    type,
-    properties,
-    timestamp: Date.now(),
-  };
-
-  currentSession.events.push(event);
-
-  // Console log for development (replace with actual analytics service)
-  if (import.meta.env.DEV) {
-    console.log('[Analytics]', event.type, event.properties);
-  }
-
-  // Send to external analytics service
-  sendToAnalyticsService(event);
-}
-
-function sendToAnalyticsService(event: AnalyticsEvent): void {
-  // Placeholder for actual analytics integration
-  // Options: Google Analytics, Plausible, PostHog, Amplitude
-  // Example implementation with custom event:
-
-  try {
-    // Example: Send to custom endpoint or analytics SDK
-    if (typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', event.type, event.properties);
-    }
-  } catch (error) {
-    // Silent fail - analytics shouldn't break the app
-    console.warn('Analytics send failed:', error);
-  }
-}
-
-function flushAnalytics(): void {
-  if (!currentSession) return;
-
-  // Send all queued events to analytics service
-  currentSession.events.forEach(sendToAnalyticsService);
-
-  // Send session summary
+  // Flush session summary to external service
   try {
     if (typeof (window as any).gtag === 'function') {
       (window as any).gtag('event', 'session_complete', {
         session_id: currentSession.sessionId,
-        duration: currentSession.endTime
-          ? currentSession.endTime - currentSession.startTime
-          : Date.now() - currentSession.startTime,
+        duration: currentSession.endTime - currentSession.startTime,
         event_count: currentSession.events.length,
       });
     }
-  } catch (error) {
-    console.warn('Analytics flush failed:', error);
-  }
+  } catch { /* silent */ }
+  currentSession = null;
 }
 
-// ============================================================================
-// FUNNEL ANALYTICS
-// ============================================================================
+// -- Event tracking -----------------------------------------------------------
 
-const ACTIVE_FUNNELS = new Map<string, FunnelStep[]>();
-
-export function startFunnel(funnelName: string, firstStep: string): void {
-  const step: FunnelStep = {
-    step: firstStep,
-    timestamp: Date.now(),
-    completed: true,
-  };
-
-  ACTIVE_FUNNELS.set(funnelName, [step]);
-
-  trackEvent('funnel_start', {
-    funnel: funnelName,
-    step: firstStep,
-  });
+function trackEvent(type: EventType, properties?: Record<string, string | number | boolean | null>): void {
+  if (!currentSession || typeof window === 'undefined') return;
+  const event: AnalyticsEvent = { type, properties, timestamp: Date.now() };
+  currentSession.events.push(event);
+  if (import.meta.env.DEV) console.log('[Analytics]', event.type, event.properties);
+  try {
+    if (typeof (window as any).gtag === 'function') (window as any).gtag('event', event.type, event.properties);
+  } catch { /* silent */ }
 }
 
-export function advanceFunnel(funnelName: string, stepName: string): void {
+// -- Funnels ------------------------------------------------------------------
+
+const ACTIVE_FUNNELS = new Map<string, { step: string; timestamp: number }[]>();
+
+function startFunnel(funnelName: string, firstStep: string): void {
+  ACTIVE_FUNNELS.set(funnelName, [{ step: firstStep, timestamp: Date.now() }]);
+  trackEvent('funnel_start', { funnel: funnelName, step: firstStep });
+}
+
+function advanceFunnel(funnelName: string, stepName: string): void {
   const funnel = ACTIVE_FUNNELS.get(funnelName);
-  if (!funnel) {
-    startFunnel(funnelName, stepName);
-    return;
-  }
-
-  const previousStep = funnel[funnel.length - 1];
-  const timeInStep = Date.now() - previousStep.timestamp;
-
-  const step: FunnelStep = {
-    step: stepName,
-    timestamp: Date.now(),
-    completed: true,
-  };
-
-  funnel.push(step);
-
+  if (!funnel) { startFunnel(funnelName, stepName); return; }
+  const prev = funnel[funnel.length - 1];
+  funnel.push({ step: stepName, timestamp: Date.now() });
   trackEvent('funnel_advance', {
-    funnel: funnelName,
-    step: stepName,
-    previous_step: previousStep.step,
-    time_in_previous_step_ms: timeInStep,
+    funnel: funnelName, step: stepName,
+    previous_step: prev.step,
+    time_in_previous_step_ms: Date.now() - prev.timestamp,
   });
 }
 
-export function completeFunnel(funnelName: string): void {
-  const funnel = ACTIVE_FUNNELS.get(funnelName);
-  if (!funnel) return;
+// -- Behavior tracking --------------------------------------------------------
 
-  const totalTime = Date.now() - funnel[0].timestamp;
+type Cleanup = () => void;
 
-  trackEvent('funnel_complete', {
-    funnel: funnelName,
-    total_steps: funnel.length,
-    total_time_ms: totalTime,
-  });
+export function initBehaviorTracking(): Cleanup {
+  if (typeof window === 'undefined') return () => {};
+  const cleanups: Cleanup[] = [];
 
-  ACTIVE_FUNNELS.delete(funnelName);
-}
-
-export function abandonFunnel(funnelName: string, reason?: string): void {
-  const funnel = ACTIVE_FUNNELS.get(funnelName);
-  if (!funnel) return;
-
-  const totalTime = Date.now() - funnel[0].timestamp;
-  const lastStep = funnel[funnel.length - 1];
-
-  trackEvent('funnel_abandon', {
-    funnel: funnelName,
-    last_step: lastStep.step,
-    total_steps: funnel.length,
-    total_time_ms: totalTime,
-    reason: reason || null,
-  });
-
-  ACTIVE_FUNNELS.delete(funnelName);
-}
-
-// ============================================================================
-// BEHAVIORAL TRACKING
-// ============================================================================
-
-let clickTimeout: ReturnType<typeof setTimeout> | null = null;
-let lastClickPosition = { x: 0, y: 0 };
-
-export function initBehaviorTracking(): void {
-  if (typeof window === 'undefined') return;
-
-  // Click tracking
-  document.addEventListener('click', (e) => {
-    const target = e.target as HTMLElement;
-    const clickData = {
-      x: e.clientX,
-      y: e.clientY,
-      target_tag: target.tagName,
-      target_id: target.id,
-      target_class: target.className,
-    };
-
-    // Track rapid clicks (rage clicks)
-    const distance = Math.sqrt(
-      Math.pow(e.clientX - lastClickPosition.x, 2) +
-        Math.pow(e.clientY - lastClickPosition.y, 2)
-    );
-
-    if (distance < 10 && clickTimeout) {
-      trackEvent('rage_click', clickData);
+  // Rage-click detection
+  let clickTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastX = 0, lastY = 0;
+  const onClick = (e: MouseEvent) => {
+    const dist = Math.sqrt((e.clientX - lastX) ** 2 + (e.clientY - lastY) ** 2);
+    if (dist < 10 && clickTimer) {
+      const t = e.target as HTMLElement;
+      trackEvent('rage_click', { x: e.clientX, y: e.clientY, target_tag: t.tagName, target_id: t.id });
     }
+    lastX = e.clientX; lastY = e.clientY;
+    if (clickTimer) clearTimeout(clickTimer);
+    clickTimer = setTimeout(() => { clickTimer = null; }, 500);
+  };
+  document.addEventListener('click', onClick);
+  cleanups.push(() => { document.removeEventListener('click', onClick); if (clickTimer) clearTimeout(clickTimer); });
 
-    lastClickPosition = { x: e.clientX, y: e.clientY };
-
-    if (clickTimeout) clearTimeout(clickTimeout);
-    clickTimeout = setTimeout(() => {
-      clickTimeout = null;
-    }, 500);
-  });
-
-  // Scroll tracking (throttled)
-  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
-  let maxScrollDepth = 0;
-
-  document.addEventListener('scroll', () => {
-    const scrollDepth =
-      (window.scrollY + window.innerHeight) / document.body.scrollHeight;
-
-    if (scrollDepth > maxScrollDepth) {
-      maxScrollDepth = scrollDepth;
-    }
-
-    if (scrollTimeout) clearTimeout(scrollTimeout);
-
-    scrollTimeout = setTimeout(() => {
-      trackEvent('scroll_depth', {
-        max_depth: Math.round(maxScrollDepth * 100),
-        current_depth: Math.round(scrollDepth * 100),
-      });
+  // Scroll depth (throttled)
+  let scrollTimer: ReturnType<typeof setTimeout> | null = null;
+  let maxDepth = 0;
+  const onScroll = () => {
+    const depth = (window.scrollY + window.innerHeight) / document.body.scrollHeight;
+    if (depth > maxDepth) maxDepth = depth;
+    if (scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      trackEvent('scroll_depth', { max_depth: Math.round(maxDepth * 100), current_depth: Math.round(depth * 100) });
     }, 1000);
-  });
+  };
+  document.addEventListener('scroll', onScroll);
+  cleanups.push(() => { document.removeEventListener('scroll', onScroll); if (scrollTimer) clearTimeout(scrollTimer); });
 
-  // Form interaction tracking
-  const forms = document.querySelectorAll('form, [role="form"]');
-  forms.forEach((form) => {
-    form.addEventListener('submit', (e) => {
-      const formData = new FormData(e.target as HTMLFormElement);
-      trackEvent('form_submit', {
-        form_id: form.id || 'unnamed',
-        field_count: Array.from(formData.keys()).length,
-      });
-    });
-  });
-
-  // Time on page tracking
-  let timeOnPage = 0;
-  setInterval(() => {
-    if (!document.hidden) {
-      timeOnPage += 30;
-      if (timeOnPage % 60 === 0) {
-        trackEvent('time_on_page', {
-          seconds: timeOnPage,
-        });
-      }
-    }
+  // Time on page (every 60s while visible)
+  let seconds = 0;
+  const timer = setInterval(() => {
+    if (!document.hidden) { seconds += 30; if (seconds % 60 === 0) trackEvent('time_on_page', { seconds }); }
   }, 30000);
+  cleanups.push(() => clearInterval(timer));
+
+  return () => cleanups.forEach(fn => fn());
 }
 
-// ============================================================================
-// ERROR TRACKING
-// ============================================================================
+// -- Web Vitals ---------------------------------------------------------------
 
-export function trackError(error: Error, context?: Record<string, unknown>): void {
-  trackEvent('error_occurred', {
-    error_message: error.message,
-    error_name: error.name,
-    error_stack: error.stack ? error.stack.substring(0, 500) : null,
-    context: context ? JSON.stringify(context) : null,
-  });
-}
+export function trackWebVitals(): Cleanup {
+  if (typeof window === 'undefined') return () => {};
+  const cleanups: Cleanup[] = [];
 
-export function trackValidationError(fieldName: string, value: unknown, reason: string): void {
-  trackEvent('validation_error', {
-    field_name: fieldName,
-    field_value: String(value),
-    reason,
-  });
-}
-
-// ============================================================================
-// PERFORMANCE TRACKING
-// ============================================================================
-
-let performanceMarks: Map<string, number> = new Map();
-
-export function startPerformanceMark(name: string): void {
-  performanceMarks.set(name, performance.now());
-}
-
-export function endPerformanceMark(name: string): number {
-  const startTime = performanceMarks.get(name);
-  if (!startTime) return 0;
-
-  const duration = performance.now() - startTime;
-  performanceMarks.delete(name);
-
-  trackEvent('performance_metric', {
-    mark_name: name,
-    duration_ms: Math.round(duration),
-  });
-
-  return duration;
-}
-
-export function trackWebVitals(): void {
-  if (typeof window === 'undefined') return;
-
-  // First Contentful Paint
   const observer = new PerformanceObserver((list) => {
-    list.getEntries().forEach((entry) => {
-      if (entry.entryType === 'paint') {
-        trackEvent('web_vital', {
-          metric: entry.name,
-          value: Math.round(entry.startTime),
-        });
-      }
-    });
+    for (const entry of list.getEntries()) {
+      if (entry.entryType === 'paint') trackEvent('web_vital', { metric: entry.name, value: Math.round(entry.startTime) });
+    }
   });
-
   observer.observe({ entryTypes: ['paint'] });
+  cleanups.push(() => observer.disconnect());
 
-  // Navigation timing
-  window.addEventListener('load', () => {
+  const onLoad = () => {
     setTimeout(() => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-
-      if (navigation) {
-        trackEvent('page_performance', {
-          dom_content_loaded: Math.round(navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart),
-          load_complete: Math.round(navigation.loadEventEnd - navigation.loadEventStart),
-          dns_lookup: Math.round(navigation.domainLookupEnd - navigation.domainLookupStart),
-          tcp_connection: Math.round(navigation.connectEnd - navigation.connectStart),
-          request_response: Math.round(navigation.responseStart - navigation.requestStart),
-        });
-      }
+      const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      if (nav) trackEvent('page_performance', {
+        dom_content_loaded: Math.round(nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart),
+        load_complete: Math.round(nav.loadEventEnd - nav.loadEventStart),
+        dns_lookup: Math.round(nav.domainLookupEnd - nav.domainLookupStart),
+        tcp_connection: Math.round(nav.connectEnd - nav.connectStart),
+        request_response: Math.round(nav.responseStart - nav.requestStart),
+      });
     }, 0);
-  });
+  };
+  window.addEventListener('load', onLoad);
+  cleanups.push(() => window.removeEventListener('load', onLoad));
+
+  return () => cleanups.forEach(fn => fn());
 }
 
-// ============================================================================
-// A/B TESTING FRAMEWORK
-// ============================================================================
+// -- A/B Testing --------------------------------------------------------------
 
-type Variant = 'A' | 'B' | 'C';
-type TestName =
-  | 'preset_layout'
-  | 'config_input_style'
-  | 'results_display_density'
-  | 'upgrade_simulator_visibility';
+type Variant = 'A' | 'B';
+type TestName = 'preset_layout' | 'config_input_style' | 'results_display_density' | 'upgrade_simulator_visibility';
 
-const ACTIVE_TESTS: Map<TestName, { variant: Variant; assigned: boolean }> = new Map();
-const STORAGE_KEY_PREFIX = 'ab_test_';
-
-export function initABTest(testName: TestName, variants: Variant[] = ['A', 'B']): Variant {
+function initABTest(testName: TestName): Variant {
   if (typeof window === 'undefined') return 'A';
-
-  // Check if already assigned
-  const stored = localStorage.getItem(`${STORAGE_KEY_PREFIX}${testName}`);
-  if (stored && variants.includes(stored as Variant)) {
-    ACTIVE_TESTS.set(testName, {
-      variant: stored as Variant,
-      assigned: true,
-    });
-    return stored as Variant;
-  }
-
-  // Random assignment
-  const variant = variants[Math.floor(Math.random() * variants.length)];
-
-  // Store assignment
-  localStorage.setItem(`${STORAGE_KEY_PREFIX}${testName}`, variant);
-  ACTIVE_TESTS.set(testName, { variant, assigned: true });
-
-  // Track assignment
-  trackEvent('ab_test_assignment', {
-    test_name: testName,
-    variant,
-  });
-
+  const key = `ab_test_${testName}`;
+  const stored = localStorage.getItem(key);
+  if (stored === 'A' || stored === 'B') return stored;
+  const variant: Variant = Math.random() < 0.5 ? 'A' : 'B';
+  localStorage.setItem(key, variant);
+  trackEvent('ab_test_assignment', { test_name: testName, variant });
   return variant;
 }
 
-export function getABVariant(testName: TestName): Variant | null {
-  const test = ACTIVE_TESTS.get(testName);
-  return test?.variant || null;
-}
-
-export function trackABTestConversion(testName: TestName, goal: string): void {
-  const test = ACTIVE_TESTS.get(testName);
-  if (!test) return;
-
-  trackEvent('ab_test_conversion', {
-    test_name: testName,
-    variant: test.variant,
-    goal,
-  });
-}
-
-// Predefined test configurations
 export function initAllABTests(): void {
-  initABTest('preset_layout', ['A', 'B']); // Grid vs List
-  initABTest('config_input_style', ['A', 'B']); // Hybrid vs Sliders
-  initABTest('results_display_density', ['A', 'B']); // Compact vs Expanded
-  initABTest('upgrade_simulator_visibility', ['A', 'B']); // Tab vs Inline
+  initABTest('preset_layout');
+  initABTest('config_input_style');
+  initABTest('results_display_density');
+  initABTest('upgrade_simulator_visibility');
 }
 
-// ============================================================================
-// EXPORTS
-// ============================================================================
+// -- Public API ---------------------------------------------------------------
 
 export const analytics = {
-  startSession,
-  endSession,
-  trackEvent,
-  startFunnel,
-  advanceFunnel,
-  completeFunnel,
-  abandonFunnel,
-  initBehaviorTracking,
-  trackError,
-  trackValidationError,
-  startPerformanceMark,
-  endPerformanceMark,
-  trackWebVitals,
-  initABTest,
-  getABVariant,
-  trackABTestConversion,
-  initAllABTests,
+  startSession, endSession, trackEvent,
+  startFunnel, advanceFunnel,
+  initBehaviorTracking, trackWebVitals, initAllABTests,
 };

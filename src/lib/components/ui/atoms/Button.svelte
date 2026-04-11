@@ -29,8 +29,8 @@
   const getVariantClasses = () => {
     const variants = {
       primary: 'bg-primary hover:bg-primaryHover text-textOnPrimary focus:ring-2 focus:ring-primary/50',
-      secondary: 'bg-tertiary border border-gray-600 text-textMain hover:bg-hover focus:ring-2 focus:ring-primary/50',
-      ghost: 'bg-transparent text-textMain hover:bg-hover/50 focus:ring-2 focus:ring-primary/50',
+      secondary: 'bg-tertiary border border-gray-600 text-text-primary hover:bg-hover focus:ring-2 focus:ring-primary/50',
+      ghost: 'bg-transparent text-text-primary hover:bg-hover/50 focus:ring-2 focus:ring-primary/50',
       danger: 'bg-danger hover:bg-dangerHover text-textOnPrimary focus:ring-2 focus:ring-danger/50',
       success: 'bg-success hover:bg-successHover text-textOnPrimary focus:ring-2 focus:ring-success/50',
     };

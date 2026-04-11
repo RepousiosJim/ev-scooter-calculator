@@ -1,29 +1,60 @@
+# Dependencies
 node_modules
 
-# Output
+# Build output
 .output
+/build
+dist
+
+# SvelteKit
+/.svelte-kit
+
+# Vercel / Cloudflare
 .vercel
 .wrangler
 
-/.svelte-kit
-/build
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Env
+# Environment variables
 .env
 .env.*
 !.env.example
 !.env.test
 
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor / IDE
+.vscode/settings.json
+.idea
+*.swp
+*.swo
+*~
+
+# Claude / AI tooling
+.claude/
+.auto-claude/
+.automaker/
+
+# Testing
+test-results/
+playwright-report/
+playwright/.cache/
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-# Auto Claude data directory
-.auto-claude/
+# Logs
+*.log
+npm-debug.log*
 
-# Invalid/reserved Windows device name
+# Local data (root only)
+/data/
+
+# Windows reserved names
 nul

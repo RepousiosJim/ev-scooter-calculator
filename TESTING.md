@@ -66,7 +66,7 @@ Unit tests use Vitest and are located in `tests/unit/`.
 Example:
 ```typescript
 import { describe, it, expect } from 'vitest';
-import { calculatePerformance } from '$lib/utils/physics';
+import { calculatePerformance } from '$lib/physics';
 
 describe('calculatePerformance', () => {
   it('calculates valid performance stats', () => {

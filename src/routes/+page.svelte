@@ -1,10 +1,11 @@
 <script lang="ts">
   import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
+  import { fly, slide } from "svelte/transition";
   import {
     calculatorState,
     loadConfigFromUrl,
   } from "$lib/stores/calculator.svelte";
+  import { uiState } from "$lib/stores/ui.svelte";
   import { analytics } from "$lib/utils/analytics";
   import {
     initBehaviorTracking,
@@ -14,14 +15,12 @@
   } from "$lib/utils/analytics";
 
   // Components
-  import Tabs from "$lib/components/ui/Tabs.svelte";
   import Hero from "$lib/components/ui/Hero.svelte";
   import PresetSelector from "$lib/components/calculator/PresetSelector.svelte";
   import BasicConfig from "$lib/components/calculator/BasicConfig.svelte";
   import AdvancedConfig from "$lib/components/calculator/AdvancedConfig.svelte";
   import PowerGraph from "$lib/components/calculator/PowerGraph.svelte";
   import UpgradeSimulator from "$lib/components/calculator/UpgradeSimulator.svelte";
-  import UpgradeGuidance from "$lib/components/calculator/UpgradeGuidance.svelte";
   import ComparisonDisplay from "$lib/components/calculator/ComparisonDisplay.svelte";
   import ComparisonSummary from "$lib/components/calculator/ComparisonSummary.svelte";
   import PerformanceSummary from "$lib/components/calculator/PerformanceSummary.svelte";
@@ -31,49 +30,45 @@
   import SectionDivider from "$lib/components/ui/SectionDivider.svelte";
   import RideModeSelector from "$lib/components/calculator/RideModeSelector.svelte";
   import ScooterComparisonTable from "$lib/components/calculator/ScooterComparisonTable.svelte";
+  import ShareButton from "$lib/components/ui/ShareButton.svelte";
 
   // New UI Components
   import VisualCRateIndicator from "$lib/components/ui/VisualCRateIndicator.svelte";
-  import PerformanceGradeBadge from "$lib/components/ui/PerformanceGradeBadge.svelte";
   import ComparisonDeltaCard from "$lib/components/ui/ComparisonDeltaCard.svelte";
   import Icon from "$lib/components/ui/atoms/Icon.svelte";
+  import { distanceVal, speedVal, distanceUnit, speedUnit, costPer100Val, costDistanceLabel } from "$lib/utils/units";
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
-  const bottlenecks = $derived(calculatorState.bottlenecks);
-  const performanceGrade = $derived(calculatorState.performanceGrade);
 
   onMount(() => {
     loadConfigFromUrl();
 
     startSession();
-    initBehaviorTracking();
-    trackWebVitals();
+    const cleanupBehaviorTracking = initBehaviorTracking();
+    const cleanupWebVitals = trackWebVitals();
     initAllABTests();
 
     analytics.startFunnel("configuration_flow", "page_load");
 
-    window.addEventListener("beforeunload", () => {
+    const handleBeforeUnload = () => {
       analytics.endSession();
-    });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+
+      // Clean up analytics listeners and intervals
+      cleanupBehaviorTracking();
+      cleanupWebVitals();
+    };
   });
 
   let showDetailedAnalysis = $state(false);
+  let showAdvancedConfig = $state(false);
 
-  // Tab configuration
-  const navTabs = $derived.by(() => [
-    { label: "Quick Start", value: "configuration" },
-    { label: "Deep Dive", value: "advanced" },
-    { label: "Upgrades", value: "upgrades" },
-    { label: "Compare", value: "compare" },
-  ]);
-
-  const tabIcons = {
-    configuration: "config",
-    advanced: "settings",
-    upgrades: "upgrades",
-    compare: "scooter",
-  };
 </script>
 
 <svelte:head>
@@ -84,308 +79,267 @@
   />
 </svelte:head>
 
-<div class="min-h-screen bg-bg-primary">
-  <Hero />
+<div class="min-h-screen bg-bg-primary relative overflow-hidden">
+  <!-- Decorative background elements -->
+  <div class="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
+  <div class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
-  <div class="max-w-7xl mx-auto px-4 pb-16">
-    <!-- Main Navigation Tabs -->
-    <nav class="flex justify-center mb-12" aria-label="Main tabs">
-      <Tabs
-        tabs={navTabs}
-        bind:activeTab={calculatorState.activeTab}
-        icons={tabIcons}
-        showProgress={true}
-      />
-    </nav>
+  <div class="relative">
+    <Hero />
 
-    <!-- Configuration Tab (Quick Start) -->
-    <section aria-labelledby="configuration-heading" id="configuration-panel">
-      {#if calculatorState.activeTab === "configuration"}
-        <h2 id="configuration-heading" class="sr-only">
-          Quick Start Configuration
-        </h2>
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-6 lg:pt-8 pb-20 lg:pb-16">
+      <!-- Calculator Tab -->
+      <section
+        aria-labelledby="configuration-heading"
+        id="configuration-panel"
+        role="tabpanel"
+        aria-hidden={uiState.activeTab !== "configuration"}
+        tabindex={uiState.activeTab === "configuration" ? 0 : -1}
+      >
+        {#if uiState.activeTab === "configuration"}
+          <h2 id="configuration-heading" class="sr-only">
+            Calculator
+          </h2>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-          <!-- Left Column: Configuration -->
-          <div class="lg:col-span-5 space-y-8">
-            <div class="space-y-6">
-              <div class="flex items-center gap-2 mb-2">
-                <Icon name="config" size="md" class="text-primary" />
-                <h3
-                  class="text-h3 font-bold text-text-primary uppercase tracking-wider"
-                >
-                  Configuration
-                </h3>
-              </div>
-              <PresetSelector />
-              <RideModeSelector />
-              <BasicConfig />
-            </div>
-          </div>
-
-          <!-- Right Column: Results -->
-          <div class="lg:col-span-7 space-y-8">
-            <div
-              class="bg-bg-secondary rounded-2xl p-6 lg:p-8 border border-white/5 shadow-xl"
-            >
-              <div class="mb-8">
-                <h3 class="text-h2 font-bold text-text-primary">
-                  Performance Analysis
-                </h3>
-                <p class="text-body-sm text-text-secondary mt-1">
-                  Real-time results based on your configuration.
-                </p>
-              </div>
-
-              <div
-                class="space-y-8"
-                role="region"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                <PerformanceSummary />
-
-                <SectionDivider icon="efficiency" label="Efficiency & Health" />
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <EfficiencyPanel />
-                  <ComponentHealthPanel />
-                </div>
-
-                <VisualCRateIndicator value={stats.cRate} />
-
-                <!-- Detailed Analysis Toggle -->
-                <div class="pt-4">
-                  <button
-                    type="button"
-                    onclick={() =>
-                      (showDetailedAnalysis = !showDetailedAnalysis)}
-                    class="w-full py-4 px-6 rounded-xl border border-white/5 bg-white/2 hover:bg-white/5 transition-all flex items-center justify-between group"
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 lg:gap-12">
+            <!-- Left Column: Configuration -->
+            <div class="lg:col-span-5 space-y-6">
+              <div class="space-y-5">
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
+                  <h3
+                    class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]"
                   >
-                    <div class="flex items-center gap-3">
-                      <Icon
-                        name={showDetailedAnalysis ? "chart" : "efficiency"}
-                        size="md"
-                        class="group-hover:scale-110 transition-transform"
-                      />
-                      <span
-                        class="text-sm font-bold uppercase tracking-widest text-text-primary"
-                      >
-                        {showDetailedAnalysis
-                          ? "Hide Detailed Analysis"
-                          : "Show Detailed Analysis"}
-                      </span>
-                    </div>
-                    <span
-                      class="text-text-secondary transition-transform duration-300"
-                      style:transform={showDetailedAnalysis
-                        ? "rotate(180deg)"
-                        : ""}
-                    >
-                      ▼
-                    </span>
-                  </button>
-
-                  {#if showDetailedAnalysis}
-                    <div class="mt-8 space-y-8 animate-fadeIn">
-                      <SectionDivider icon="chart" label="Power Analysis" />
-                      <PowerGraph />
-                      <BottleneckPanel />
-                    </div>
-                  {/if}
+                    Configuration
+                  </h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      {/if}
-    </section>
-
-    <!-- Advanced Configuration Tab -->
-    <section aria-labelledby="advanced-heading" id="advanced-panel">
-      {#if calculatorState.activeTab === "advanced"}
-        <div class="space-y-12" transition:fly={{ y: 20, duration: 400 }}>
-          <header class="px-1 border-b border-white/5 pb-8">
-            <h1
-              id="advanced-heading"
-              class="text-3xl font-bold text-text-primary tracking-tight"
-            >
-              Advanced Diagnostics
-            </h1>
-            <p class="text-text-secondary mt-2 text-balance leading-relaxed">
-              Fine-tune hardware parameters and analyze performance telemetry
-              with precision physics modeling.
-            </p>
-          </header>
-
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-            <!-- Configuration Column -->
-            <div class="lg:col-span-5 space-y-12">
-              <section id="basic-config" class="space-y-6">
-                <div class="flex items-center gap-2 px-1">
-                  <div class="w-1.5 h-1.5 rounded-full bg-primary/40"></div>
-                  <h2
-                    class="text-sm font-bold uppercase tracking-widest text-text-secondary"
-                  >
-                    Core Specifications
-                  </h2>
-                </div>
+                <PresetSelector />
+                <RideModeSelector />
                 <BasicConfig />
-              </section>
+              </div>
 
-              <section
-                id="advanced-config"
-                class="space-y-6 border-t border-white/5 pt-10"
-              >
-                <div class="flex items-center gap-2 px-1">
-                  <div class="w-1.5 h-1.5 rounded-full bg-secondary/40"></div>
-                  <h2
-                    class="text-sm font-bold uppercase tracking-widest text-text-secondary"
+              <!-- Collapsible Advanced Config -->
+              <div class="border-t border-white/5 pt-4">
+                <button
+                  type="button"
+                  onclick={() => (showAdvancedConfig = !showAdvancedConfig)}
+                  class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
+                >
+                  <div class="flex items-center gap-3">
+                    <Icon
+                      name="settings"
+                      size="md"
+                      class="text-secondary group-hover:scale-110 transition-transform"
+                    />
+                    <span
+                      class="text-xs font-bold uppercase tracking-[0.16em] text-text-primary"
+                    >
+                      Advanced Parameters
+                    </span>
+                  </div>
+                  <span
+                    class="text-text-tertiary transition-transform duration-300"
+                    style:transform={showAdvancedConfig
+                      ? "rotate(180deg)"
+                      : ""}
                   >
-                    Technical Overrides
-                  </h2>
-                </div>
-                <AdvancedConfig />
-              </section>
+                    ▼
+                  </span>
+                </button>
+
+                {#if showAdvancedConfig}
+                  <div transition:slide={{ duration: 300 }} class="mt-6 space-y-8">
+                    <AdvancedConfig />
+                  </div>
+                {/if}
+              </div>
             </div>
 
-            <!-- Analysis Column -->
-            <div class="lg:col-span-7 space-y-12">
-              <section id="results-summary" class="space-y-8">
-                <div class="flex items-center justify-between px-1">
-                  <div class="flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-success/40"></div>
-                    <h2
-                      class="text-sm font-bold uppercase tracking-widest text-text-secondary"
+            <!-- Right Column: Results -->
+            <div class="lg:col-span-7 space-y-6">
+              <div
+                class="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-5 lg:p-6 shadow-2xl shadow-black/10"
+              >
+                <div class="mb-6 flex items-center justify-between gap-4">
+                  <h3 class="text-xl font-black text-text-primary tracking-tight">
+                    Performance Analysis
+                  </h3>
+                  <div class="flex items-center gap-3 flex-shrink-0">
+                    <!-- Unit Toggle -->
+                    <button
+                      type="button"
+                      onclick={() => uiState.unitSystem = uiState.unitSystem === 'metric' ? 'imperial' : 'metric'}
+                      class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
+                      aria-label="Toggle units between metric and imperial"
                     >
-                      Performance Analysis
-                    </h2>
+                      {uiState.unitSystem === 'metric' ? 'km/kg' : 'mi/lbs'}
+                    </button>
+                    <ShareButton />
                   </div>
                 </div>
 
-                <PerformanceSummary />
+                <div class="space-y-6">
+                  <PerformanceSummary />
 
-                <div class="space-y-6 pt-4">
-                  <div class="flex items-center gap-2 px-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary/30"></div>
-                    <h2
-                      class="text-sm font-bold uppercase tracking-widest text-text-secondary"
-                    >
-                      Power Curve
-                    </h2>
+                  <SectionDivider icon="efficiency" label="Efficiency & Health" />
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <EfficiencyPanel />
+                    <ComponentHealthPanel />
                   </div>
-                  <PowerGraph />
+
+                  <VisualCRateIndicator value={stats.cRate} />
+
+                  <!-- Detailed Analysis Toggle -->
+                  <div class="pt-2">
+                    <button
+                      type="button"
+                      onclick={() =>
+                        (showDetailedAnalysis = !showDetailedAnalysis)}
+                      class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
+                    >
+                      <div class="flex items-center gap-2">
+                        <Icon
+                          name={showDetailedAnalysis ? "chart" : "efficiency"}
+                          size="sm"
+                          class="group-hover:scale-110 transition-transform"
+                        />
+                        <span
+                          class="text-xs font-bold uppercase tracking-[0.12em] text-text-primary"
+                        >
+                          {showDetailedAnalysis
+                            ? "Hide Detailed Analysis"
+                            : "Show Detailed Analysis"}
+                        </span>
+                      </div>
+                      <span
+                        class="text-text-tertiary transition-transform duration-300"
+                        style:transform={showDetailedAnalysis
+                          ? "rotate(180deg)"
+                          : ""}
+                      >
+                        ▼
+                      </span>
+                    </button>
+
+                    {#if showDetailedAnalysis}
+                      <div class="mt-6 space-y-6 animate-fadeIn">
+                        <SectionDivider icon="chart" label="Power Analysis" />
+                        <PowerGraph />
+                        <BottleneckPanel />
+                      </div>
+                    {/if}
+                  </div>
                 </div>
-              </section>
+              </div>
             </div>
           </div>
-        </div>
-      {/if}
-    </section>
+        {/if}
+      </section>
 
-    <!-- Upgrades Tab -->
-    <section aria-labelledby="upgrades-heading" id="upgrades-panel">
-      {#if calculatorState.activeTab === "upgrades"}
-        <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
-        <div class="space-y-6">
-          <!-- Upgrade Simulator -->
-          <UpgradeSimulator />
+      <!-- Upgrades Tab -->
+      <section aria-labelledby="upgrades-heading" id="upgrades-panel">
+        {#if uiState.activeTab === "upgrades"}
+          <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
+          <div class="space-y-6 md:space-y-8">
+            <!-- Upgrade Simulator -->
+            <UpgradeSimulator />
 
-          <!-- Upgrade Comparison -->
-          {#if simStats && calculatorState.upgradeDelta}
-            <div class="space-y-4">
-              <div class="flex items-center gap-2 mb-4">
-                <span class="text-lg" aria-hidden="true">📊</span>
-                <h3 class="text-h2 font-semibold text-text-primary">
-                  Upgrade Comparison
-                </h3>
+            <!-- Upgrade Comparison -->
+            {#if simStats && calculatorState.upgradeDelta}
+              <div class="space-y-6">
+                <div class="flex items-center gap-3 mb-4">
+                  <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
+                  <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">
+                    Upgrade Comparison
+                  </h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <ComparisonDeltaCard
+                    label="Range"
+                    beforeValue={distanceVal(stats.totalRange)}
+                    afterValue={distanceVal(simStats.totalRange)}
+                    unit={distanceUnit()}
+                    deltaPercent={calculatorState.upgradeDelta.rangePercent}
+                  />
+
+                  <ComparisonDeltaCard
+                    label="Top Speed"
+                    beforeValue={speedVal(stats.speed)}
+                    afterValue={speedVal(simStats.speed)}
+                    unit={speedUnit()}
+                    deltaPercent={calculatorState.upgradeDelta.speedPercent}
+                  />
+
+                  <ComparisonDeltaCard
+                    label="Power"
+                    beforeValue={stats.totalWatts}
+                    afterValue={simStats.totalWatts}
+                    unit="W"
+                    deltaPercent={calculatorState.upgradeDelta.powerPercent}
+                  />
+
+                  <ComparisonDeltaCard
+                    label="Charge Time"
+                    beforeValue={stats.chargeTime}
+                    afterValue={simStats.chargeTime}
+                    unit="h"
+                    deltaPercent={-calculatorState.upgradeDelta.chargeTimePercent}
+                  />
+
+                  <ComparisonDeltaCard
+                    label={"Cost " + costDistanceLabel()}
+                    beforeValue={costPer100Val(stats.costPer100km)}
+                    afterValue={costPer100Val(simStats.costPer100km)}
+                    unit="$"
+                    deltaPercent={-calculatorState.upgradeDelta.costPercent}
+                  />
+
+                  <ComparisonDeltaCard
+                    label="Acceleration"
+                    beforeValue={stats.accelScore}
+                    afterValue={simStats.accelScore}
+                    unit=""
+                    deltaPercent={calculatorState.upgradeDelta.accelPercent}
+                  />
+                </div>
+
+                <ComparisonSummary />
+                <ComparisonDisplay />
               </div>
-
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <ComparisonDeltaCard
-                  label="Range"
-                  beforeValue={stats.totalRange}
-                  afterValue={simStats.totalRange}
-                  unit="km"
-                  deltaPercent={calculatorState.upgradeDelta.rangePercent}
-                />
-
-                <ComparisonDeltaCard
-                  label="Top Speed"
-                  beforeValue={stats.speed}
-                  afterValue={simStats.speed}
-                  unit="km/h"
-                  deltaPercent={calculatorState.upgradeDelta.speedPercent}
-                />
-
-                <ComparisonDeltaCard
-                  label="Power"
-                  beforeValue={stats.totalWatts}
-                  afterValue={simStats.totalWatts}
-                  unit="W"
-                  deltaPercent={calculatorState.upgradeDelta.powerPercent}
-                />
-
-                <ComparisonDeltaCard
-                  label="Charge Time"
-                  beforeValue={stats.chargeTime}
-                  afterValue={simStats.chargeTime}
-                  unit="h"
-                  deltaPercent={-calculatorState.upgradeDelta.chargeTimePercent}
-                />
-
-                <ComparisonDeltaCard
-                  label="Cost per 100km"
-                  beforeValue={stats.costPer100km}
-                  afterValue={simStats.costPer100km}
-                  unit="$"
-                  deltaPercent={-calculatorState.upgradeDelta.costPercent}
-                />
-
-                <ComparisonDeltaCard
-                  label="Acceleration"
-                  beforeValue={stats.accelScore}
-                  afterValue={simStats.accelScore}
-                  unit=""
-                  deltaPercent={calculatorState.upgradeDelta.accelPercent}
-                />
-              </div>
-
-              <ComparisonSummary />
-              <ComparisonDisplay />
-            </div>
-          {:else}
-            <div
-              class="bg-bg-secondary rounded-xl p-12 border border-white/5 shadow-lg"
-            >
+            {:else}
               <div
-                class="flex flex-col items-center justify-center text-center py-16"
+                class="bg-white/[0.02] border border-white/[0.06] p-5 sm:p-6 md:p-10"
               >
-                <div class="text-6xl mb-4 animate-float" aria-hidden="true">
-                  📊
-                </div>
-                <div class="text-h2 font-semibold text-text-primary mb-2">
-                  No upgrade selected
-                </div>
-                <div class="text-body text-text-secondary">
-                  Select an upgrade above to simulate its impact on your current
-                  setup
+                <div
+                  class="flex flex-col items-center justify-center text-center py-8 md:py-12"
+                >
+                  <div class="text-5xl mb-4 opacity-30" aria-hidden="true">
+                    +
+                  </div>
+                  <div class="text-lg font-bold text-text-primary mb-2">
+                    No upgrade selected
+                  </div>
+                  <div class="text-sm text-text-tertiary">
+                    Select an upgrade above to simulate its impact on your current
+                    setup
+                  </div>
                 </div>
               </div>
-            </div>
-          {/if}
+            {/if}
+          </div>
+        {/if}
+      </section>
 
-          <!-- Upgrade Guidance -->
-          <UpgradeGuidance />
-        </div>
-      {/if}
-    </section>
-
-    <!-- Compare Tab -->
-    <section aria-labelledby="compare-heading" id="compare-panel">
-      {#if calculatorState.activeTab === "compare"}
-        <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
-        <ScooterComparisonTable />
-      {/if}
-    </section>
+      <!-- Compare Tab -->
+      <section aria-labelledby="compare-heading" id="compare-panel">
+        {#if uiState.activeTab === "compare"}
+          <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
+          <ScooterComparisonTable />
+        {/if}
+      </section>
+    </div>
   </div>
 </div>

@@ -50,7 +50,7 @@
   {#if label}
     <label
       for={selectId}
-      class="text-sm font-medium text-textSecondary uppercase tracking-wider"
+      class="text-sm font-medium text-text-primary uppercase tracking-wider"
       class:text-danger={error}
     >
       {label}
@@ -106,7 +106,7 @@
   {/if}
 
   {#if help}
-    <p id={helpId} class="text-xs text-textMuted mt-1">
+    <p id={helpId} class="text-xs text-text-secondary mt-1">
       {help}
     </p>
   {/if}

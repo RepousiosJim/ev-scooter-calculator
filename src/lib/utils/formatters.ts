@@ -1,4 +1,5 @@
 export function formatNumber(value: number, decimals: number = 1): string {
+  if (!Number.isFinite(value)) return '-';
   if (Number.isInteger(value)) {
     return value.toString();
   }
@@ -6,14 +7,17 @@ export function formatNumber(value: number, decimals: number = 1): string {
 }
 
 export function formatCurrency(value: number, currency: string = '$'): string {
+  if (!Number.isFinite(value)) return `${currency}--`;
   return `${currency}${value.toFixed(2)}`;
 }
 
 export function formatPercentage(value: number): string {
+  if (!Number.isFinite(value)) return '--%';
   return `${Math.round(value * 100)}%`;
 }
 
 export function formatEnergy(value: number): string {
+  if (!Number.isFinite(value)) return '-- Wh';
   return `${Math.round(value)} Wh`;
 }
 
@@ -30,6 +34,7 @@ export function formatTime(value: number): string {
 }
 
 export function formatPower(value: number): string {
+  if (!Number.isFinite(value)) return '-- W';
   return `${Math.round(value)} W`;
 }
 

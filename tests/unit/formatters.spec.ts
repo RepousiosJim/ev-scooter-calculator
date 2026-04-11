@@ -32,6 +32,12 @@ describe('Formatters', () => {
     it('handles negative numbers', () => {
       expect(formatNumber(-42.5)).toBe('-42.5');
     });
+
+    it('returns dash for non-finite values', () => {
+      expect(formatNumber(NaN)).toBe('-');
+      expect(formatNumber(Infinity)).toBe('-');
+      expect(formatNumber(-Infinity)).toBe('-');
+    });
   });
 
   describe('formatCurrency', () => {
@@ -45,6 +51,11 @@ describe('Formatters', () => {
 
     it('rounds to 2 decimals', () => {
       expect(formatCurrency(42.567)).toBe('$42.57');
+    });
+
+    it('returns dash for non-finite values', () => {
+      expect(formatCurrency(NaN)).toBe('$--');
+      expect(formatCurrency(Infinity)).toBe('$--');
     });
   });
 
@@ -64,6 +75,11 @@ describe('Formatters', () => {
     it('handles values > 1', () => {
       expect(formatPercentage(1.5)).toBe('150%');
     });
+
+    it('returns dash for non-finite values', () => {
+      expect(formatPercentage(NaN)).toBe('--%');
+      expect(formatPercentage(Infinity)).toBe('--%');
+    });
   });
 
   describe('formatEnergy', () => {
@@ -77,6 +93,11 @@ describe('Formatters', () => {
 
     it('handles large values', () => {
       expect(formatEnergy(3600)).toBe('3600 Wh');
+    });
+
+    it('returns dash for non-finite values', () => {
+      expect(formatEnergy(NaN)).toBe('-- Wh');
+      expect(formatEnergy(Infinity)).toBe('-- Wh');
     });
   });
 
@@ -121,6 +142,11 @@ describe('Formatters', () => {
 
     it('handles large values', () => {
       expect(formatPower(10000)).toBe('10000 W');
+    });
+
+    it('returns dash for non-finite values', () => {
+      expect(formatPower(NaN)).toBe('-- W');
+      expect(formatPower(Infinity)).toBe('-- W');
     });
   });
 

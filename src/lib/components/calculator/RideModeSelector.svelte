@@ -5,7 +5,7 @@
   } from "$lib/stores/calculator.svelte";
   import type { RideMode } from "$lib/types";
   import { rideModePresets, rideModeIds } from "$lib/data/ride-modes";
-  import { calculateRideModeImpact } from "$lib/utils/physics";
+  import { calculateRideModeImpact } from "$lib/physics";
   import Icon from "$lib/components/ui/atoms/Icon.svelte";
 
   const modeButtons = [
@@ -42,28 +42,25 @@
   }
 </script>
 
-<div class="bg-bg-secondary border border-white/5 rounded-2xl p-6 shadow-sm">
-  <div class="flex items-center justify-between mb-6">
-    <div class="space-y-1">
-      <h4 class="text-sm font-bold text-text-primary uppercase tracking-widest">
-        Ride Dynamics
-      </h4>
-      <p class="text-xs text-text-secondary">
-        Adjust power output and battery efficiency balance.
-      </p>
-    </div>
-    <div class="flex-shrink-0">
-      <Icon
-        name={modeButtons.find((b) => b.id === currentMode)?.icon ||
-          "ride-mode-normal"}
-        size="md"
-        class="text-primary/40"
-      />
-    </div>
+<div class="bg-white/[0.02] border border-white/[0.06] p-4">
+  <div class="flex items-center justify-between mb-3">
+    <h4 class="text-xs font-bold text-text-secondary uppercase tracking-widest">
+      Ride Mode
+    </h4>
+    {#if impactValue}
+      <div class="flex gap-4 text-[10px]">
+        <span class={impactValue.rangePercent >= 0 ? "text-success" : "text-danger"}>
+          Range {impactValue.rangePercent >= 0 ? "+" : ""}{impactValue.rangePercent.toFixed(0)}%
+        </span>
+        <span class={impactValue.speedPercent >= 0 ? "text-success" : "text-danger"}>
+          Speed {impactValue.speedPercent >= 0 ? "+" : ""}{impactValue.speedPercent.toFixed(0)}%
+        </span>
+      </div>
+    {/if}
   </div>
 
   <div
-    class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6"
+    class="grid grid-cols-2 sm:grid-cols-4 gap-2"
     role="radiogroup"
     aria-label="Ride mode selection"
   >
@@ -73,64 +70,21 @@
         role="radio"
         aria-checked={currentMode === mode.id}
         onclick={() => selectMode(mode.id)}
-        class={`flex flex-col items-center gap-3 p-4 rounded-xl border transition-all duration-300 ${
+        class={`flex items-center justify-center gap-1.5 py-2 border transition-all duration-200 ${
           currentMode === mode.id
-            ? "border-primary/50 bg-primary/10 text-text-primary shadow-glow-sm scale-[1.02]"
-            : "border-white/5 bg-white/2 text-text-secondary hover:border-white/10 hover:bg-white/5"
+            ? "border-primary/30 bg-primary/10 text-text-primary"
+            : "border-white/[0.06] bg-white/[0.02] text-text-tertiary hover:border-white/10 hover:text-text-secondary"
         }`}
       >
         <Icon
           name={mode.icon}
-          size="sm"
+          size="xs"
           class={currentMode === mode.id ? mode.color : "opacity-40"}
         />
-        <span class="text-[10px] font-bold uppercase tracking-widest"
+        <span class="text-[10px] font-bold uppercase tracking-wider"
           >{rideModePresets[mode.id].name}</span
         >
       </button>
     {/each}
   </div>
-
-  {#if impactValue}
-    <div
-      class="p-4 rounded-xl bg-white/2 border border-white/5 flex items-center justify-between gap-4"
-    >
-      <div class="flex items-center gap-2">
-        <Icon name="efficiency" size="xs" class="text-text-tertiary" />
-        <span
-          class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest leading-none"
-          >Dynamics Impact</span
-        >
-      </div>
-
-      <div class="flex gap-6">
-        <div class="flex flex-col items-end">
-          <span
-            class="text-[9px] font-bold text-text-tertiary uppercase tracking-tighter"
-            >Range</span
-          >
-          <span
-            class={`text-sm font-bold ${impactValue.rangePercent >= 0 ? "text-success" : "text-danger"}`}
-          >
-            {impactValue.rangePercent >= 0
-              ? "+"
-              : ""}{impactValue.rangePercent.toFixed(0)}%
-          </span>
-        </div>
-        <div class="flex flex-col items-end">
-          <span
-            class="text-[9px] font-bold text-text-tertiary uppercase tracking-tighter"
-            >Speed</span
-          >
-          <span
-            class={`text-sm font-bold ${impactValue.speedPercent >= 0 ? "text-success" : "text-danger"}`}
-          >
-            {impactValue.speedPercent >= 0
-              ? "+"
-              : ""}{impactValue.speedPercent.toFixed(0)}%
-          </span>
-        </div>
-      </div>
-    </div>
-  {/if}
 </div>

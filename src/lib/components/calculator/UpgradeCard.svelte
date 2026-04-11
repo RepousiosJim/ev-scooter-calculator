@@ -18,17 +18,13 @@
     calculatorState.activeUpgrade === upgrade.upgradeType,
   );
 
-  let isExpanded = $state(false);
-
-  $effect(() => {
-    if (isSelected) {
-      isExpanded = true;
-    }
-  });
+  // Track manual user toggle separately; auto-expand when this upgrade is active
+  let _userExpanded = $state(false);
+  const isExpanded = $derived(isSelected || _userExpanded);
 </script>
 
 <div
-  class="group relative bg-bg-secondary rounded-2xl border transition-all duration-300 overflow-hidden flex flex-col h-full
+  class="group relative bg-white/[0.02] border transition-all duration-300 overflow-hidden flex flex-col h-full
     {isSelected
     ? 'border-primary ring-1 ring-primary/20 shadow-lg'
     : 'border-white/5 hover:border-white/20'}
@@ -37,7 +33,7 @@
     : ''}"
 >
   <!-- Card Header -->
-  <div class="p-6 space-y-4 flex-grow">
+  <div class="p-4 space-y-3 flex-grow">
     <div class="flex items-start justify-between gap-4">
       <div class="space-y-1">
         <div class="flex items-center gap-2">
@@ -72,7 +68,7 @@
     <!-- Expandable Content -->
     <div class="pt-2">
       <button
-        onclick={() => (isExpanded = !isExpanded)}
+        onclick={() => (_userExpanded = !_userExpanded)}
         class="w-full flex items-center justify-between py-2 text-xs font-bold text-text-tertiary hover:text-text-primary transition-colors"
       >
         DETAILS
@@ -120,21 +116,21 @@
   </div>
 
   <!-- Action Footer -->
-  <div class="p-6 bg-white/2 border-t border-white/5 mt-auto">
-    <div class="flex items-center justify-between mb-4">
+  <div class="p-4 bg-white/2 border-t border-white/5 mt-auto">
+    <div class="flex items-center justify-between mb-3">
       <div
         class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest"
       >
         Est. Cost
       </div>
       <div class="text-sm font-bold text-text-primary">
-        $ {upgrade.estimatedCost}
+        {upgrade.estimatedCost}
       </div>
     </div>
 
     <button
       onclick={() => simulateUpgrade(upgrade.upgradeType)}
-      class="w-full py-3 rounded-xl font-bold text-sm transition-all shadow-sm
+      class="w-full py-2.5 font-bold text-sm transition-all shadow-sm
         {isSelected
         ? 'bg-primary text-bg-primary shadow-primary/20'
         : 'bg-white/5 text-text-primary hover:bg-white/10 border border-white/10'}"

@@ -76,7 +76,7 @@
   <div
     transition:scale={{ duration: 400, easing: (t) => Math.pow(t, 0.5) }}
     class="inline-flex items-center justify-center {config()
-      .padding} rounded-xl shadow-lg {gradeColor()
+      .padding} shadow-lg {gradeColor()
       .split(' ')
       .slice(0, 3)
       .join(' ')} font-black font-display {config()
@@ -93,7 +93,7 @@
   {#if showTrend && trend}
     <div
       transition:scale
-      class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 border border-white/10 {trendColor()}"
+      class="flex items-center gap-1 px-2 py-1 bg-white/[0.03] border border-white/[0.06] {trendColor()}"
       aria-label={`Trend: ${trend}`}
     >
       <span class="text-sm" aria-hidden="true">{trendIcon()}</span>

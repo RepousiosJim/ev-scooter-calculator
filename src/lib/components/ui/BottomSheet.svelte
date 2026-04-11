@@ -125,7 +125,7 @@
 		<!-- Inline style used for dynamic transform value during drag interaction -->
 		<div
 			bind:this={sheetElement}
-			class="w-full {heightMap[height]} bg-bgCard rounded-t-3xl shadow-2xl border-t border-x border-white/10 overflow-hidden flex flex-col"
+			class="w-full {heightMap[height]} bg-bg-primary shadow-2xl border-t border-x border-white/[0.06] overflow-hidden flex flex-col"
 			style="transform: translateY({translateY}px); transition: {isDragging ? 'none' : 'transform 0.2s ease-out'};"
 			ontouchstart={handleTouchStart}
 			ontouchmove={handleTouchMove}
@@ -140,11 +140,11 @@
 					class="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
 					data-bottom-sheet-handle
 				>
-					<div class="w-12 h-1.5 bg-white/20 rounded-full"></div>
+					<div class="w-12 h-1.5 bg-white/15 rounded-full"></div>
 				</div>
 			{/if}
 			{#if title}
-				<div class="px-6 py-4 border-b border-white/10">
+				<div class="px-6 py-4 border-b border-white/[0.06]">
 					<h2 id={titleId} class="text-xl font-bold text-white">
 						{title}
 					</h2>

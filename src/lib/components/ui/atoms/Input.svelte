@@ -52,7 +52,7 @@
   {#if label}
     <label
       for={inputId}
-      class="text-sm font-medium text-textSecondary uppercase tracking-wider"
+      class="text-sm font-medium text-text-primary uppercase tracking-wider"
       class:text-danger={error}
     >
       {label}
@@ -70,7 +70,7 @@
     disabled={disabled}
     required={required}
   autocomplete={autoComplete as AutoFill | undefined}
-  class={`w-full px-4 py-3 bg-bgInput border rounded-radius-input text-textMain
+  class={`w-full px-4 py-3 bg-bg-secondary border rounded-radius-input text-text-primary
       focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
       disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-normal
       ${error ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-gray-600 hover:border-gray-500'}
@@ -91,7 +91,7 @@
   {/if}
 
   {#if help}
-    <p id={`${inputId}-help`} class="text-xs text-textMuted mt-1">
+    <p id={`${inputId}-help`} class="text-xs text-text-secondary mt-1">
       {help}
     </p>
   {/if}

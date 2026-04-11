@@ -1,14 +1,45 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
+  import Icon from './atoms/Icon.svelte';
 
-  let { message, onClose }: { message: string; onClose: () => void } = $props();
+  export let message: string;
+  export let type: 'success' | 'info' | 'warning' | 'error' = 'info';
+  let id: string = '';
 
-  onMount(() => {
-    const timer = setTimeout(onClose, 3000);
-    return () => clearTimeout(timer);
-  });
+  const iconMap = {
+    success: 'check-circle',
+    info: 'info',
+    warning: 'alert-triangle',
+    error: 'x-circle'
+  };
+
+  const colorMap = {
+    success: 'bg-success/10 border-success/30 text-success',
+    info: 'bg-primary/10 border-primary/30 text-primary',
+    warning: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500',
+    error: 'bg-red-500/10 border-red-500/30 text-red-500'
+  };
 </script>
 
-<div class="fixed bottom-4 right-4 bg-success text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in z-[60]" role="alert" aria-live="polite">
-  {message}
+<div
+  role="alert"
+  aria-live="polite"
+  class="flex items-center gap-3 px-4 py-3
+    rounded-lg border shadow-xl backdrop-blur-sm
+    transition-all duration-300
+    {colorMap[type]}"
+  transition:fly={{ y: -20, duration: 300 }}
+  on:mouseenter={() => {}}
+  on:mouseleave={() => {}}
+>
+  <Icon name={iconMap[type]} size="sm" class="flex-shrink-0" />
+  <span class="text-sm font-medium text-text-primary">{message}</span>
 </div>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    div {
+      transition: none !important;
+    }
+  }
+</style>

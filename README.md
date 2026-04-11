@@ -1,64 +1,54 @@
 # EV Scooter Pro Calculator
 
-A sleek, physics-based EV scooter calculator for performance insight, upgrade planning, and quick comparisons.
+A physics-based performance calculator for electric scooters. Get real-time estimates for range, top speed, and acceleration — then simulate upgrades before you buy.
 
-Use it to sanity-check range and speed, then validate upgrades before spending on hardware.
-
-![Version](https://img.shields.io/badge/version-1.3.1-blue)
+![Version](https://img.shields.io/badge/version-1.4.0-blue)
+![Status](https://img.shields.io/badge/status-early%20access-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Highlights
+> **Early Access** — This app is under active development. Features may change, and some values are estimates based on physics modeling rather than manufacturer claims. Feedback is welcome via [Issues](../../issues).
 
-- Range, speed, and acceleration in real time
-- Drag, hill climb, and efficiency modeling with advanced physics (Cd, Cr, Area)
-- Upgrade simulator with side-by-side deltas
-- Bottleneck alerts for battery, controller, and gearing
-- Unified Ride Dynamics control for Eco/Sport/Turbo modes
-- High-fidelity "Deep Dive" configuration for power users
-- Preset library spanning entry to flagship scooters
-- PWA-ready, responsive UI built with SvelteKit
+## What It Does
 
-## Documentation
+**Performance Calculator** — Enter your scooter's voltage, battery capacity, motor wattage, and rider weight to get estimated range, top speed, hill climb ability, and acceleration. Toggle between manufacturer-spec and real-world prediction modes for optimistic vs. realistic numbers.
 
-- **[Contributing Guide](CONTRIBUTING.md)** - Development workflow and code standards
-- **[Deployment Guide](DEPLOYMENT.md)** - Production setup and environment variables
-- **[Configuration Guide](CONFIGURATION.md)** - Advanced settings and customization
-- **[Testing Guide](TESTING.md)** - Test coverage and writing tests
+**Upgrade Simulator** — Compare your current setup against common upgrades (parallel battery, higher voltage, controller swap, motor upgrade, tire change) with side-by-side deltas showing exactly what changes and by how much.
 
-## Quick Start
+**Bottleneck Detection** — The calculator flags limiting components in your build. If your controller caps motor output or your battery C-rate is a weak point, you'll see it called out with specific upgrade suggestions.
 
-```bash
-npm install
-npm run dev
-```
+**Scooter Rankings** — Browse 30+ scooters ranked by calculated performance across tiers (S through D). Search, filter, and compare models from budget commuters to flagship dual-motors.
 
-Visit http://localhost:5173
+**Ride Modes** — Switch between Eco, Normal, Sport, and Turbo profiles to see how riding style affects range and performance.
 
-## Usage
+**Preset Library** — Start from a known scooter model instead of entering specs manually. Presets cover popular models from Xiaomi, Segway, VSETT, Dualtron, Kaabo, Wolf, and more.
 
-- Pick a preset or enter your scooter specs
-- Adjust advanced inputs like weight, wheel size, and riding style
-- Review performance metrics and bottleneck warnings
-- Toggle the upgrade simulator to compare changes
-- Save configurations for quick reloads
+## Advanced Configuration
 
-## Scripts
+For power users, the Deep Dive panel exposes:
 
-```bash
-npm run build   # production build
-npm run preview # preview build
-npm run check   # type check
-npm run test    # all tests
-```
+- Motor KV rating and drivetrain efficiency
+- Battery sag percentage and state of health
+- Slope grade and ride position (standing/seated)
+- Ambient temperature effects on battery performance
+- Regenerative braking energy recovery
 
-## Tech Stack
+## How Calculations Work
 
-- SvelteKit 2.x + Svelte 5 runes
-- TypeScript (strict)
-- Tailwind CSS v4
-- Vite 7.x
-- Vitest + Playwright
+The calculator uses a physics model that accounts for aerodynamic drag, rolling resistance, gravitational forces on inclines, motor efficiency curves, and battery discharge characteristics. Results are estimates — real-world performance varies with terrain, wind, tire pressure, and rider behavior.
+
+Two prediction modes are available:
+
+- **Spec Mode** — Uses manufacturer-rated efficiency. Good for comparing scooters on paper.
+- **Real-World Mode** — Applies derating factors for battery sag, temperature, and typical riding patterns. Closer to what you'll actually experience.
+
+## Browser Support
+
+Works in all modern browsers (Chrome, Firefox, Safari, Edge). Installable as a PWA on mobile and desktop for offline use.
+
+## Feedback and Issues
+
+This is an early access release. If you find a bug or have a feature request, please [open an issue](../../issues).
 
 ## License
 
-MIT License - see [LICENSE](LICENSE).
+MIT License — see [LICENSE](LICENSE).
