@@ -29,7 +29,7 @@
   }
 </script>
 
-<nav
+<div
   class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/90 backdrop-blur-xl border-t border-white/[0.08]"
   role="tablist"
   aria-label="Mobile navigation"
@@ -68,7 +68,7 @@
       </button>
     {/each}
   </div>
-</nav>
+</div>
 
 <style>
   @media (hover: none) and (pointer: coarse) {

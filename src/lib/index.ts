@@ -105,6 +105,15 @@ export {
   type ConfigNumericKey,
 } from './utils/validators';
 
+// Scoring
+export {
+  computeScore,
+  getGrade,
+  getGradeInfo,
+  type Grade,
+  type GradeInfo,
+} from './utils/scoring';
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================

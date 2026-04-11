@@ -40,10 +40,22 @@
     debouncedUpdate(key, value);
   }
 
+  let confirmReset = $state(false);
+
   function handleReset() {
     const baseConfig = normalizeConfig(defaultConfig, defaultConfig);
     applyConfig(baseConfig);
     calculatorState.activePresetKey = 'custom';
+  }
+
+  function handleResetClick() {
+    if (confirmReset) {
+      handleReset();
+      confirmReset = false;
+    } else {
+      confirmReset = true;
+      setTimeout(() => confirmReset = false, 3000);
+    }
   }
 </script>
 
@@ -52,11 +64,10 @@
   <div class="flex justify-end">
     <button
       type="button"
-      onclick={handleReset}
-      class="flex items-center gap-2 px-4 py-2 bg-white/[0.03] border border-white/[0.06] hover:border-white/15 hover:-translate-y-0.5 transition-all duration-300 text-xs font-bold uppercase tracking-[0.1em] text-text-tertiary hover:text-text-primary"
+      onclick={handleResetClick}
+      class="text-[10px] uppercase tracking-wider transition-colors {confirmReset ? 'text-danger' : 'text-text-tertiary hover:text-danger'}"
     >
-      <Icon name="refresh" size="sm" />
-      Reset Configuration
+      {confirmReset ? 'Click again to confirm' : 'Reset to defaults'}
     </button>
   </div>
   <!-- Core Specs -->

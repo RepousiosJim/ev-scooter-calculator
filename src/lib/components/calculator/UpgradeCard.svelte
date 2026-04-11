@@ -129,7 +129,12 @@
     </div>
 
     <button
-      onclick={() => simulateUpgrade(upgrade.upgradeType)}
+      onclick={() => {
+        simulateUpgrade(upgrade.upgradeType);
+        setTimeout(() => {
+          document.getElementById('upgrade-comparison-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }}
       class="w-full py-2.5 font-bold text-sm transition-all shadow-sm
         {isSelected
         ? 'bg-primary text-bg-primary shadow-primary/20'

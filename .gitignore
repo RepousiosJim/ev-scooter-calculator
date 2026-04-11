@@ -63,3 +63,5 @@ check_output.txt
 
 # Windows reserved names
 nul
+
+.vercel

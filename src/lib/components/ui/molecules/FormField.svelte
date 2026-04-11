@@ -52,7 +52,7 @@
 
 <div class={`flex flex-col gap-1 ${className}`}>
   {#if label}
-    <label class="text-sm font-medium text-text-primary uppercase tracking-wider">
+    <label for={id} class="text-sm font-medium text-text-primary uppercase tracking-wider">
       {label}
       {#if required}
         <span class="text-danger ml-1" aria-hidden="true">*</span>

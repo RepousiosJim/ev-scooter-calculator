@@ -15,7 +15,7 @@
   } from "$lib/utils/analytics";
 
   // Components
-  import Hero from "$lib/components/ui/Hero.svelte";
+  import AppHeader from "$lib/components/ui/AppHeader.svelte";
   import PresetSelector from "$lib/components/calculator/PresetSelector.svelte";
   import BasicConfig from "$lib/components/calculator/BasicConfig.svelte";
   import AdvancedConfig from "$lib/components/calculator/AdvancedConfig.svelte";
@@ -68,6 +68,13 @@
 
   let showDetailedAnalysis = $state(false);
   let showAdvancedConfig = $state(false);
+  let hasInteracted = $state(false);
+
+  $effect(() => {
+    if (calculatorState.activePresetKey !== 'custom') {
+      hasInteracted = true;
+    }
+  });
 
 </script>
 
@@ -85,11 +92,11 @@
   <div class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
   <div class="relative">
-    <Hero />
+    <AppHeader />
 
     <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-6 lg:pt-8 pb-20 lg:pb-16">
       <!-- Calculator Tab -->
-      <section
+      <div
         aria-labelledby="configuration-heading"
         id="configuration-panel"
         role="tabpanel"
@@ -101,9 +108,20 @@
             Calculator
           </h2>
 
+          {#if calculatorState.activePresetKey === 'custom' && !hasInteracted}
+            <div class="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6 flex items-start gap-3 animate-fadeIn">
+              <span class="text-primary shrink-0 mt-0.5">💡</span>
+              <div class="flex-1">
+                <p class="text-sm font-bold text-text-primary">New here? Start with a preset</p>
+                <p class="text-xs text-text-tertiary mt-1">Select a scooter model above to auto-fill specs, then tweak to match your setup.</p>
+              </div>
+              <button type="button" onclick={() => hasInteracted = true} class="text-text-tertiary hover:text-text-primary shrink-0 text-lg leading-none" aria-label="Dismiss">✕</button>
+            </div>
+          {/if}
+
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 lg:gap-12">
             <!-- Left Column: Configuration -->
-            <div class="lg:col-span-5 space-y-6">
+            <div class="lg:col-span-5 space-y-6 min-w-0">
               <div class="space-y-5">
                 <div class="flex items-center gap-3 mb-2">
                   <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
@@ -157,7 +175,7 @@
             </div>
 
             <!-- Right Column: Results -->
-            <div class="lg:col-span-7 space-y-6">
+            <div class="lg:col-span-7 space-y-6 min-w-0">
               <div
                 class="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-5 lg:p-6 shadow-2xl shadow-black/10"
               >
@@ -235,10 +253,10 @@
             </div>
           </div>
         {/if}
-      </section>
+      </div>
 
       <!-- Upgrades Tab -->
-      <section aria-labelledby="upgrades-heading" id="upgrades-panel">
+      <div aria-labelledby="upgrades-heading" id="upgrades-panel" role="tabpanel">
         {#if uiState.activeTab === "upgrades"}
           <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
           <div class="space-y-6 md:space-y-8">
@@ -247,7 +265,7 @@
 
             <!-- Upgrade Comparison -->
             {#if simStats && calculatorState.upgradeDelta}
-              <div class="space-y-6">
+              <div id="upgrade-comparison-results" class="space-y-6">
                 <div class="flex items-center gap-3 mb-4">
                   <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
                   <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">
@@ -331,15 +349,15 @@
             {/if}
           </div>
         {/if}
-      </section>
+      </div>
 
       <!-- Compare Tab -->
-      <section aria-labelledby="compare-heading" id="compare-panel">
+      <div aria-labelledby="compare-heading" id="compare-panel" role="tabpanel">
         {#if uiState.activeTab === "compare"}
           <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
           <ScooterComparisonTable />
         {/if}
-      </section>
+      </div>
     </div>
   </div>
 </div>

@@ -115,7 +115,7 @@
 {#if isOpen}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm"
+		class="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm"
 		onclick={handleBackdropClick}
 		onkeydown={handleKeydown}
 		transition:fly={{ y: 0, duration: 200, easing: quintOut, opacity: 0 }}
@@ -125,7 +125,7 @@
 		<!-- Inline style used for dynamic transform value during drag interaction -->
 		<div
 			bind:this={sheetElement}
-			class="w-full {heightMap[height]} bg-bg-primary shadow-2xl border-t border-x border-white/[0.06] overflow-hidden flex flex-col"
+			class="w-full {heightMap[height]} bg-bg-primary shadow-2xl border-t border-x border-white/[0.06] overflow-hidden flex flex-col lg:max-w-2xl lg:rounded-xl lg:mx-4 relative"
 			style="transform: translateY({translateY}px); transition: {isDragging ? 'none' : 'transform 0.2s ease-out'};"
 			ontouchstart={handleTouchStart}
 			ontouchmove={handleTouchMove}
@@ -135,6 +135,9 @@
 			aria-modal="true"
 			aria-labelledby={title ? titleId : undefined}
 		>
+			<button type="button" onclick={onClose} class="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-text-tertiary hover:text-text-primary hover:bg-white/10 transition-colors z-10" aria-label="Close">
+				✕
+			</button>
 			{#if showHandle}
 				<div
 					class="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing"
@@ -150,7 +153,7 @@
 					</h2>
 				</div>
 			{/if}
-			<div class="flex-1 overflow-y-auto px-6 py-4">
+			<div class="flex-1 overflow-y-auto max-h-[70vh] px-6 py-4">
 				{#if children}
 					{@render children()}
 				{/if}

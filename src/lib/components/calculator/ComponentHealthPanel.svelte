@@ -67,6 +67,7 @@
   </div>
 
   <!-- Controller -->
+  {#if config.controller}
   <div class="border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
     <div class="p-2 bg-white/[0.04]" style:color={controllerHealth.color}>
       <Icon name="controller" size="sm" />
@@ -77,7 +78,7 @@
           <span class="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Controller</span>
           <HelpTooltip position="right" content="Current capacity margin. Higher health = cooler, safer operation." />
         </div>
-        <span class="text-[10px] font-mono text-text-tertiary">{config.controller ? `${Math.round(stats.amps)}/${config.controller}A` : 'N/A'}</span>
+        <span class="text-[10px] font-mono text-text-tertiary">{`${Math.round(stats.amps)}/${config.controller}A`}</span>
       </div>
       <div class="flex items-center gap-2 mt-1">
         <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
@@ -87,6 +88,7 @@
       </div>
     </div>
   </div>
+  {/if}
 
   <!-- Motor -->
   <div class="border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">

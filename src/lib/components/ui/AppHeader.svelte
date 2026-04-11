@@ -69,9 +69,6 @@
           <Icon name="acceleration" size="sm" class="text-primary" />
         </div>
         <div class="hidden sm:block">
-          <p class="text-[9px] font-bold text-primary/60 uppercase tracking-[0.3em] leading-none">
-            Scooter Performance Studio
-          </p>
           <h1 class="text-sm font-black text-text-primary tracking-tight leading-tight group-hover:text-primary/90 transition-colors">
             EV Scooter Pro Calculator
           </h1>

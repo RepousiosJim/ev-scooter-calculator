@@ -3,11 +3,10 @@
   import { calculatePerformance } from "$lib/physics";
   import { presets, presetMetadata } from "$lib/data/presets";
   import { calculatorState, loadPreset } from "$lib/stores/calculator.svelte";
+  import { computeScore, getGrade, type Grade } from "$lib/utils/scoring";
   import BottomSheet from "$lib/components/ui/BottomSheet.svelte";
   import Icon from "$lib/components/ui/atoms/Icon.svelte";
   import { speedVal, speedUnit, distanceVal, distanceUnit } from "$lib/utils/units";
-
-  type Grade = "S" | "A" | "B" | "C" | "D" | "F";
 
   interface PresetOption {
     value: string;
@@ -19,24 +18,6 @@
     score: number;
     grade: Grade;
     stats: PerformanceStats;
-  }
-
-  function computeScore(config: ScooterConfig, stats: PerformanceStats): number {
-    const accel = stats.accelScore;
-    const strainPenalty = Math.max(0, (stats.cRate - 2.5) * 15);
-    const efficiencyBonus = Math.max(0, (30 - config.style) * 0.5);
-    const rangeBonus = Math.min(15, (stats.totalRange / 150) * 15);
-    const speedBonus = Math.min(10, (stats.speed / 100) * 10);
-    return Math.max(0, Math.min(100, accel - strainPenalty + efficiencyBonus + rangeBonus + speedBonus));
-  }
-
-  function getGrade(score: number): Grade {
-    if (score >= 90) return "S";
-    if (score >= 75) return "A";
-    if (score >= 60) return "B";
-    if (score >= 45) return "C";
-    if (score >= 30) return "D";
-    return "F";
   }
 
   const gradeBadgeColors: Record<Grade, string> = {
@@ -350,7 +331,7 @@
               </div>
               <div class="text-right flex-shrink-0">
                 <span class="text-sm font-black text-primary font-data">
-                  {Math.round(preset.score)}
+                  {preset.score.toFixed(1)}
                 </span>
                 <span class="text-[10px] text-text-tertiary">/100</span>
               </div>

@@ -9,7 +9,8 @@
   const accelEfficiencyValue = $derived(stats.accelScore);
   const costEfficiencyValue = $derived(Math.min(100, (5 / stats.costPer100km) * 100));
 
-  const getColor = (value: number) => {
+  const getColor = (value: number, metricId?: string) => {
+    if (metricId === 'range-eff' && value < 50) return '#94a3b8';
     if (value >= 90) return '#10b981';
     if (value >= 75) return '#3b82f6';
     if (value >= 60) return '#60a5fa';
@@ -34,7 +35,7 @@
       id: 'range-eff',
       label: 'Range Efficiency',
       value: rangeEfficiencyValue,
-      context: `${distanceVal(stats.totalRange).toFixed(0)} ${distanceUnit()} out of ${distanceVal(150).toFixed(0)} ${distanceUnit()} benchmark. ${stats.totalRange < 50 ? 'Typical for high-power or small-battery setups.' : stats.totalRange < 80 ? 'Average for dual-motor scooters.' : 'Good range for this class.'}`
+      context: `${distanceVal(stats.totalRange).toFixed(0)} ${distanceUnit()} out of ${distanceVal(150).toFixed(0)} ${distanceUnit()} benchmark ${stats.totalRange < 30 ? '(typical for budget/ultralight)' : stats.totalRange < 60 ? '(normal for mid-range)' : stats.totalRange < 100 ? '(good range)' : '(excellent)'}. ${stats.totalRange < 50 ? 'Typical for high-power or small-battery setups.' : stats.totalRange < 80 ? 'Average for dual-motor scooters.' : 'Good range for this class.'}`
     },
     {
       id: 'accel-eff',
@@ -76,7 +77,7 @@
             {metric.label}
             <span class="text-[9px] text-text-tertiary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity" aria-hidden="true">?</span>
           </button>
-          <span class="text-[10px] font-bold" style:color={getColor(metric.value)}>{metric.value.toFixed(0)}%</span>
+          <span class="text-[10px] font-bold" style:color={getColor(metric.value, metric.id)}>{metric.value.toFixed(0)}%</span>
         </div>
         <div
           class="h-1.5 bg-white/5 rounded-full overflow-hidden"
@@ -90,7 +91,7 @@
           <div
             class="h-full rounded-full transition-all duration-500"
             style:width={`${metric.value}%`}
-            style:background-color={getColor(metric.value)}
+            style:background-color={getColor(metric.value, metric.id)}
             aria-hidden="true"
           ></div>
         </div>

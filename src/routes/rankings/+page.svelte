@@ -2,12 +2,13 @@
   import { calculatePerformance } from "$lib/physics";
   import { presets, presetMetadata, CATALOG_VERSION, CATALOG_LAST_UPDATED } from "$lib/data/presets";
   import type { ScooterConfig, PerformanceStats, PresetMetadata } from "$lib/types";
-  import Hero from "$lib/components/ui/Hero.svelte";
+  import { computeScore, getGrade, type Grade } from "$lib/utils/scoring";
+  import AppHeader from "$lib/components/ui/AppHeader.svelte";
   import Icon from "$lib/components/ui/atoms/Icon.svelte";
   import { distanceVal, speedVal, distanceUnit, speedUnit } from "$lib/utils/units";
   import { uiState } from "$lib/stores/ui.svelte";
-
-  type Grade = "S" | "A" | "B" | "C" | "D" | "F";
+  import { goto } from '$app/navigation';
+  import { loadPreset } from '$lib/stores/calculator.svelte';
 
   interface RankedScooter {
     key: string;
@@ -22,25 +23,6 @@
     status?: 'current' | 'discontinued' | 'upcoming' | 'unverified';
     hasPriceHistory?: boolean;
     priceChange?: number; // percentage change from first to current price
-  }
-
-  function computeScore(config: ScooterConfig, stats: PerformanceStats): number {
-    const accel = stats.accelScore;
-    const strainPenalty = Math.max(0, (stats.cRate - 2.5) * 15);
-    const efficiencyBonus = Math.max(0, (30 - config.style) * 0.5);
-    const rangeBonus = Math.min(15, (stats.totalRange / 150) * 15);
-    const speedBonus = Math.min(10, (stats.speed / 100) * 10);
-    let score = accel - strainPenalty + efficiencyBonus + rangeBonus + speedBonus;
-    return Math.max(0, Math.min(100, score));
-  }
-
-  function getGrade(score: number): Grade {
-    if (score >= 90) return "S";
-    if (score >= 75) return "A";
-    if (score >= 60) return "B";
-    if (score >= 45) return "C";
-    if (score >= 30) return "D";
-    return "F";
   }
 
   const tierMeta: Record<Grade, { label: string; color: string; bar: string; bg: string; border: string }> = {
@@ -207,6 +189,11 @@
     return Math.max(0, Math.min(100, 100 - (days / 365) * 100));
   }
 
+  function loadPresetAndNavigate(key: string) {
+    loadPreset(key);
+    goto('/');
+  }
+
   const catalogDaysAgo = $derived(daysSince(CATALOG_LAST_UPDATED));
 </script>
 
@@ -220,7 +207,7 @@
   <div class="absolute top-1/2 left-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
 
   <div class="relative">
-    <Hero />
+    <AppHeader />
 
     <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-6 lg:pt-8 pb-8">
       <!-- Page Header -->
@@ -292,11 +279,11 @@
       <div class="grid grid-cols-3 gap-3 mb-6">
         <div class="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4">
           <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Top Score</div>
-          <div class="text-xl sm:text-2xl font-black text-amber-300 mt-1">{Math.round(topScore)}</div>
+          <div class="text-xl sm:text-2xl font-black text-amber-300 mt-1">{topScore.toFixed(1)}</div>
         </div>
         <div class="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4">
           <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Average</div>
-          <div class="text-xl sm:text-2xl font-black text-text-primary mt-1">{Math.round(avgScore)}</div>
+          <div class="text-xl sm:text-2xl font-black text-text-primary mt-1">{avgScore.toFixed(1)}</div>
         </div>
         <div class="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4">
           <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">S-Tier</div>
@@ -356,6 +343,7 @@
                       <th class="py-2.5 px-4 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-24">Power</th>
                       <th class="py-2.5 px-4 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-24">Battery</th>
                       <th class="py-2.5 px-4 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-24">Price</th>
+                      <th class="py-2.5 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-20"></th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/[0.04]">
@@ -392,7 +380,7 @@
                         </td>
                         <td class="py-3 px-4">
                           <div class="flex flex-col items-center gap-1">
-                            <span class="text-sm font-black {tierMeta[grade].color}">{Math.round(scooter.score)}</span>
+                            <span class="text-sm font-black {tierMeta[grade].color}">{scooter.score.toFixed(1)}</span>
                             <div class="w-12 h-1 bg-white/5 overflow-hidden">
                               <div class="h-full {tierMeta[grade].bar}" style:width={`${scooter.score}%`}></div>
                             </div>
@@ -416,6 +404,15 @@
                         </td>
                         <td class="py-3 px-4 text-right">
                           <span class="text-sm font-bold text-text-primary">{formatPrice(scooter.price)}</span>
+                        </td>
+                        <td class="py-3 px-3 text-right">
+                          <button
+                            type="button"
+                            onclick={() => loadPresetAndNavigate(scooter.key)}
+                            class="text-[10px] font-bold text-primary hover:text-white hover:bg-primary/20 px-2.5 py-1 rounded transition-colors uppercase tracking-wider border border-primary/30"
+                          >
+                            Try it
+                          </button>
                         </td>
                       </tr>
                     {/each}
@@ -448,7 +445,7 @@
                         </div>
                       </div>
                       <div class="flex items-center gap-1.5 shrink-0">
-                        <span class="text-lg font-black {tierMeta[grade].color}">{Math.round(scooter.score)}</span>
+                        <span class="text-lg font-black {tierMeta[grade].color}">{scooter.score.toFixed(1)}</span>
                         <span class="text-[10px] text-text-tertiary">/100</span>
                       </div>
                     </div>
@@ -483,6 +480,13 @@
                         ⚠ Battery strain {scooter.stats.cRate.toFixed(1)}C
                       </div>
                     {/if}
+                    <button
+                      type="button"
+                      onclick={() => loadPresetAndNavigate(scooter.key)}
+                      class="w-full mt-3 py-2 text-[10px] font-bold text-primary hover:bg-primary/10 border border-primary/20 rounded transition-colors uppercase tracking-wider"
+                    >
+                      Load in Calculator
+                    </button>
                   </div>
                 {/each}
               </div>

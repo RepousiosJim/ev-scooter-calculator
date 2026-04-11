@@ -2,6 +2,7 @@
 	import "../app.css";
 	import favicon from "$lib/assets/favicon.svg";
 	import Toast from "$lib/components/ui/Toast.svelte";
+	import Footer from "$lib/components/ui/Footer.svelte";
 	import MobileNavigation from "$lib/components/ui/organisms/MobileNavigation.svelte";
 	import { toastState } from "$lib/stores/calculator.svelte";
 	import { page } from "$app/stores";
@@ -27,6 +28,8 @@
 <main id="main-content" tabindex="-1" class="outline-none">
 	{@render children()}
 </main>
+
+<Footer />
 
 <!-- Mobile Navigation - shown on calculator page only (not rankings or admin) -->
 {#if !isAdmin && !isRankings}
