@@ -45,9 +45,33 @@ Two prediction modes are available:
 
 Works in all modern browsers (Chrome, Firefox, Safari, Edge). Installable as a PWA on mobile and desktop for offline use.
 
-## Feedback and Issues
+## Contributing
 
-This is an early access release. If you find a bug or have a feature request, please [open an issue](../../issues).
+Contributions are welcome! Fork the repo and get running locally:
+
+```bash
+npm install
+npm run dev
+```
+
+Then visit `http://localhost:5173`.
+
+Useful commands:
+
+```bash
+npm run check    # type check
+npm run test     # unit + e2e tests
+npm run build    # production build
+```
+
+For more details, see:
+
+- **[Contributing Guide](CONTRIBUTING.md)** — Development workflow and code standards
+- **[Configuration Guide](CONFIGURATION.md)** — Advanced settings and customization
+- **[Testing Guide](TESTING.md)** — Test coverage and writing tests
+- **[Deployment Guide](DEPLOYMENT.md)** — Production setup and environment variables
+
+If you find a bug or have a feature request, please [open an issue](../../issues).
 
 ## License
 
