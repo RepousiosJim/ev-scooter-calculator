@@ -140,7 +140,7 @@
         ? 'bg-primary text-bg-primary shadow-primary/20'
         : 'bg-white/5 text-text-primary hover:bg-white/10 border border-white/10'}"
     >
-      {isSelected ? "Simulation Active" : "Initiate Simulation"}
+      {isSelected ? "Previewing" : "Preview Upgrade"}
     </button>
   </div>
 </div>

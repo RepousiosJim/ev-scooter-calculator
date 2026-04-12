@@ -8,6 +8,12 @@ declare global {
 		// interface PageState {}
 		// interface Platform {}
 	}
+
+	// Google Analytics gtag
+	function gtag(...args: unknown[]): void;
+	interface Window {
+		dataLayer: unknown[];
+	}
 }
 
 export {};

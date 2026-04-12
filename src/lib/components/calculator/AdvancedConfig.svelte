@@ -12,7 +12,7 @@
   }, 150);
 
   let localValues = $state({
-    dragCoefficient: config.dragCoefficient ?? config.ridePosition,
+    dragCoefficient: config.dragCoefficient ?? 0.7,
     frontalArea: config.frontalArea ?? 0.5,
     drivetrainEfficiency: config.drivetrainEfficiency ?? 0.9,
     regen: config.regen,
@@ -22,7 +22,7 @@
   $effect(() => {
     const c = config;
     untrack(() => {
-      localValues.dragCoefficient = c.dragCoefficient ?? c.ridePosition;
+      localValues.dragCoefficient = c.dragCoefficient ?? 0.7;
       localValues.frontalArea = c.frontalArea ?? 0.5;
       localValues.drivetrainEfficiency = c.drivetrainEfficiency ?? 0.9;
       localValues.regen = c.regen;
@@ -37,12 +37,32 @@
     debouncedUpdate(key, value);
   }
 
+  function handleNumberInput(key: ConfigNumericKey, event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    const value = target.valueAsNumber;
+    if (!Number.isFinite(value)) return;
+    (localValues as any)[key] = value;
+    debouncedUpdate(key, value);
+  }
+
   const tireOptions = [
     { value: 0.012, label: "Street Performance" },
     { value: 0.015, label: "Standard Commute" },
     { value: 0.02, label: "Mixed Terrain" },
     { value: 0.025, label: "Off-road" },
   ];
+
+  // Snap to nearest tire option, or show closest match
+  const currentTireValue = $derived(() => {
+    const rr = calculatorState.config.rollingResistance;
+    if (rr === undefined) return 0.015;
+    const closest = tireOptions.reduce((prev, curr) =>
+      Math.abs(curr.value - rr) < Math.abs(prev.value - rr) ? curr : prev
+    );
+    return closest.value;
+  });
+
+  const numberInputClass = "w-16 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none";
 </script>
 
 <div class="space-y-6 md:space-y-10">
@@ -63,9 +83,18 @@
           <label for="drag" class="text-xs font-semibold text-text-secondary"
             >Drag Coefficient (Cd)</label
           >
-          <span class="text-sm font-bold text-primary"
-            >{localValues.dragCoefficient}</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="0.3"
+              max="1.2"
+              step="0.1"
+              value={localValues.dragCoefficient}
+              onchange={(event) => handleNumberInput('dragCoefficient', event)}
+              class="{numberInputClass} text-primary"
+              aria-label="Drag coefficient value"
+            />
+          </div>
         </div>
         <input
           id="drag"
@@ -84,9 +113,19 @@
           <label for="area" class="text-xs font-semibold text-text-secondary"
             >Frontal Area (m²)</label
           >
-          <span class="text-sm font-bold text-primary"
-            >{localValues.frontalArea} m²</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="0.3"
+              max="1.0"
+              step="0.05"
+              value={localValues.frontalArea}
+              onchange={(event) => handleNumberInput('frontalArea', event)}
+              class="{numberInputClass} text-primary"
+              aria-label="Frontal area value"
+            />
+            <span class="text-xs text-text-tertiary">m²</span>
+          </div>
         </div>
         <input
           id="area"
@@ -120,9 +159,26 @@
             for="efficiency"
             class="text-xs font-semibold text-text-secondary">Efficiency</label
           >
-          <span class="text-sm font-bold text-secondary"
-            >{Math.round(localValues.drivetrainEfficiency * 100)}%</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="70"
+              max="98"
+              step="1"
+              value={Math.round(localValues.drivetrainEfficiency * 100)}
+              onchange={(event) => {
+                const target = event.currentTarget as HTMLInputElement;
+                const pct = target.valueAsNumber;
+                if (!Number.isFinite(pct)) return;
+                const clamped = Math.max(0.7, Math.min(0.98, pct / 100));
+                localValues.drivetrainEfficiency = clamped;
+                debouncedUpdate('drivetrainEfficiency', clamped);
+              }}
+              class="{numberInputClass} text-secondary"
+              aria-label="Drivetrain efficiency percentage"
+            />
+            <span class="text-xs text-text-tertiary">%</span>
+          </div>
         </div>
         <input
           id="efficiency"
@@ -139,7 +195,7 @@
       <div class="space-y-4">
         <Select
           label="Tire Profile"
-          value={calculatorState.config.rollingResistance}
+          value={currentTireValue()}
           options={tireOptions}
           onChange={(val) => updateConfig("rollingResistance", val as number)}
         />
@@ -164,9 +220,26 @@
           <label for="regen" class="text-xs font-semibold text-text-secondary"
             >Regen Strength</label
           >
-          <span class="text-sm font-bold text-success"
-            >{Math.round(localValues.regen * 100)}%</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="0"
+              max="25"
+              step="1"
+              value={Math.round(localValues.regen * 100)}
+              onchange={(event) => {
+                const target = event.currentTarget as HTMLInputElement;
+                const pct = target.valueAsNumber;
+                if (!Number.isFinite(pct)) return;
+                const clamped = Math.max(0, Math.min(0.25, pct / 100));
+                localValues.regen = clamped;
+                debouncedUpdate('regen', clamped);
+              }}
+              class="{numberInputClass} text-success"
+              aria-label="Regenerative braking strength percentage"
+            />
+            <span class="text-xs text-text-tertiary">%</span>
+          </div>
         </div>
         <input
           id="regen"
@@ -183,9 +256,21 @@
       <div class="space-y-4">
         <div class="flex justify-between items-center px-1">
           <label for="charger" class="text-xs font-semibold text-text-secondary"
-            >Charger (A)</label
+            >Charger</label
           >
-          <span class="text-sm font-bold text-success">{localValues.charger}A</span>
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="1"
+              max="15"
+              step="1"
+              value={localValues.charger}
+              onchange={(event) => handleNumberInput('charger', event)}
+              class="{numberInputClass} text-success"
+              aria-label="Charger amperage"
+            />
+            <span class="text-xs text-text-tertiary">A</span>
+          </div>
         </div>
         <input
           id="charger"

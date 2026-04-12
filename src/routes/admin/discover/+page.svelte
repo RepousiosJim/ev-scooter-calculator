@@ -112,6 +112,50 @@
 		}
 	}
 
+	// Create candidates from discovery results
+	let creatingCandidates = $state(false);
+	let candidateResult = $state<{ added: number; skipped: number } | null>(null);
+
+	async function createCandidatesFromResults() {
+		if (!discoveryResults?.results) return;
+		creatingCandidates = true;
+		candidateResult = null;
+
+		// Collect all new (non-known) scooters across all manufacturer results
+		const newScooters: any[] = [];
+		for (const mfrResult of discoveryResults.results) {
+			for (const scooter of mfrResult.scooters) {
+				if (!scooter.isKnown) {
+					newScooters.push(scooter);
+				}
+			}
+		}
+
+		if (newScooters.length === 0) {
+			candidateResult = { added: 0, skipped: 0 };
+			creatingCandidates = false;
+			return;
+		}
+
+		try {
+			const res = await fetch('/api/admin/candidates', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ action: 'create', scooters: newScooters }),
+			});
+			const result = await res.json();
+			if (result.success) {
+				candidateResult = { added: result.added, skipped: result.skipped };
+			} else {
+				candidateResult = { added: 0, skipped: 0 };
+			}
+		} catch {
+			candidateResult = { added: 0, skipped: 0 };
+		} finally {
+			creatingCandidates = false;
+		}
+	}
+
 	const tierColors: Record<string, string> = {
 		budget: 'bg-green-500/10 text-green-400',
 		mid: 'bg-blue-500/10 text-blue-400',
@@ -183,12 +227,38 @@
 		<div class="bg-[#12121a] border border-gray-800 rounded-xl p-4 space-y-4">
 			<div class="flex items-center justify-between">
 				<h2 class="text-sm font-semibold text-white">Discovery Results</h2>
-				<div class="flex gap-4 text-xs">
+				<div class="flex items-center gap-4 text-xs">
 					<span class="text-gray-400">Total: <span class="text-white font-mono">{discoveryResults.totalScootersFound}</span></span>
 					<span class="text-green-400">New: <span class="font-mono">{discoveryResults.totalNew}</span></span>
 					<span class="text-gray-400">Known: <span class="font-mono">{discoveryResults.totalKnown}</span></span>
+					{#if discoveryResults.totalNew > 0}
+						<button
+							onclick={createCandidatesFromResults}
+							disabled={creatingCandidates}
+							class="px-4 py-1.5 text-xs font-medium text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 rounded-lg
+								hover:bg-yellow-500/20 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+						>
+							{#if creatingCandidates}
+								<span class="inline-block w-3 h-3 border-2 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></span>
+								Creating...
+							{:else}
+								Create {discoveryResults.totalNew} Candidates
+							{/if}
+						</button>
+					{/if}
 				</div>
 			</div>
+
+			{#if candidateResult}
+				<div class="bg-yellow-500/10 text-yellow-400 px-4 py-2.5 rounded-lg text-sm flex items-center justify-between">
+					<span>
+						{candidateResult.added} candidates created{candidateResult.skipped > 0 ? `, ${candidateResult.skipped} duplicates skipped` : ''}.
+					</span>
+					<a href="/admin/candidates" class="text-xs text-cyan-400 hover:text-cyan-300 underline">
+						Review Candidates &rarr;
+					</a>
+				</div>
+			{/if}
 
 			{#each discoveryResults.results as mfrResult}
 				{#if mfrResult.scooters.length > 0}

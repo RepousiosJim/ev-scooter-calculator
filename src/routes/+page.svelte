@@ -79,7 +79,7 @@
 </script>
 
 <svelte:head>
-  <title>EV Scooter Pro Calculator v2.0</title>
+  <title>EV Scooter Pro Calculator</title>
   <meta
     name="description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
@@ -113,15 +113,15 @@
               <span class="text-primary shrink-0 mt-0.5">💡</span>
               <div class="flex-1">
                 <p class="text-sm font-bold text-text-primary">New here? Start with a preset</p>
-                <p class="text-xs text-text-tertiary mt-1">Select a scooter model above to auto-fill specs, then tweak to match your setup.</p>
+                <p class="text-xs text-text-tertiary mt-1">Use Quick Start below to pick a scooter model and auto-fill specs.</p>
               </div>
               <button type="button" onclick={() => hasInteracted = true} class="text-text-tertiary hover:text-text-primary shrink-0 text-lg leading-none" aria-label="Dismiss">✕</button>
             </div>
           {/if}
 
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 md:gap-8 lg:gap-12">
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-5 lg:gap-12">
             <!-- Left Column: Configuration -->
-            <div class="lg:col-span-5 space-y-6 min-w-0">
+            <div class="md:col-span-4 lg:col-span-5 space-y-6 min-w-0">
               <div class="space-y-5">
                 <div class="flex items-center gap-3 mb-2">
                   <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
@@ -175,7 +175,7 @@
             </div>
 
             <!-- Right Column: Results -->
-            <div class="lg:col-span-7 space-y-6 min-w-0">
+            <div class="md:col-span-8 lg:col-span-7 space-y-6 min-w-0">
               <div
                 class="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-5 lg:p-6 shadow-2xl shadow-black/10"
               >
@@ -191,7 +191,7 @@
                       class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
                       aria-label="Toggle units between metric and imperial"
                     >
-                      {uiState.unitSystem === 'metric' ? 'km/kg' : 'mi/lbs'}
+                      {uiState.unitSystem === 'metric' ? 'Metric' : 'Imperial'}
                     </button>
                     <ShareButton />
                   </div>

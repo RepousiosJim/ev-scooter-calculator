@@ -46,7 +46,7 @@
           ? 'bg-success/10 text-success border border-success/20'
           : 'bg-danger/10 text-danger border border-danger/20'}"
       >
-        {deltaPercent > 0 ? "+" : ""}{deltaPercent.toFixed(1)}%
+        {isBetter ? "+" : "-"}{Math.abs(deltaPercent).toFixed(1)}%
       </div>
     {/if}
   </div>
@@ -62,7 +62,7 @@
         {#if Math.abs(diff) < 0.05}
           No change
         {:else}
-          {isBetter ? "Gain" : "Loss"}: {Math.abs(diff).toFixed(1)}{unit}
+          {isBetter ? "+" : "-"}{Math.abs(diff).toFixed(1)}{unit}
         {/if}
       </span>
     </div>

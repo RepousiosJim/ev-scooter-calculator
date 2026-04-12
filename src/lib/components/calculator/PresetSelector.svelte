@@ -21,7 +21,7 @@
   }
 
   const gradeBadgeColors: Record<Grade, string> = {
-    S: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    S: "bg-yellow-400/20 text-yellow-300 border-yellow-400/40",
     A: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
     B: "bg-blue-500/20 text-blue-400 border-blue-500/40",
     C: "bg-amber-500/20 text-amber-400 border-amber-500/40",
@@ -30,7 +30,7 @@
   };
 
   const scoreBarColor: Record<Grade, string> = {
-    S: "bg-amber-400",
+    S: "bg-yellow-400",
     A: "bg-emerald-400",
     B: "bg-blue-400",
     C: "bg-amber-400",
@@ -278,33 +278,6 @@
     </div>
 
     <div class="space-y-3 pt-4 pb-6">
-      <!-- Manual Entry (pinned, hidden during search) -->
-      {#if !searchQuery.trim()}
-        <button
-          type="button"
-          onclick={() => applyPreset("custom")}
-          class="flex items-center gap-3 w-full border p-3 text-left transition-all duration-300
-            {calculatorState.activePresetKey === 'custom'
-            ? 'border-primary/30 bg-primary/10'
-            : 'border-white/[0.06] bg-white/[0.02] hover:border-white/15 hover:-translate-y-0.5'}"
-        >
-          <Icon
-            name="settings"
-            size="md"
-            class={calculatorState.activePresetKey === "custom"
-              ? "text-primary"
-              : "text-text-tertiary"}
-          />
-          <div class="flex-1">
-            <div class="text-sm font-semibold text-text-primary">Manual Entry</div>
-            <div class="text-[11px] text-text-tertiary">Start from scratch with custom values</div>
-          </div>
-          {#if calculatorState.activePresetKey === "custom"}
-            <span class="text-[10px] text-primary font-bold uppercase tracking-wider">Active</span>
-          {/if}
-        </button>
-      {/if}
-
       <!-- Preset Grid -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
         {#each filteredPresets as preset (preset.value)}
@@ -363,6 +336,33 @@
           </button>
         {/each}
       </div>
+
+      <!-- Manual Entry (pinned, hidden during search) -->
+      {#if !searchQuery.trim()}
+        <button
+          type="button"
+          onclick={() => applyPreset("custom")}
+          class="flex items-center gap-3 w-full border p-3 text-left transition-all duration-300
+            {calculatorState.activePresetKey === 'custom'
+            ? 'border-primary/30 bg-primary/10'
+            : 'border-white/[0.06] bg-white/[0.02] hover:border-white/15 hover:-translate-y-0.5'}"
+        >
+          <Icon
+            name="settings"
+            size="md"
+            class={calculatorState.activePresetKey === "custom"
+              ? "text-primary"
+              : "text-text-tertiary"}
+          />
+          <div class="flex-1">
+            <div class="text-sm font-semibold text-text-primary">Manual Entry</div>
+            <div class="text-[11px] text-text-tertiary">Start from scratch with custom values</div>
+          </div>
+          {#if calculatorState.activePresetKey === "custom"}
+            <span class="text-[10px] text-primary font-bold uppercase tracking-wider">Active</span>
+          {/if}
+        </button>
+      {/if}
 
       <!-- Empty state -->
       {#if filteredPresets.length === 0}

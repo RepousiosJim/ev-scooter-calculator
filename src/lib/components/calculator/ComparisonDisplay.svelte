@@ -2,6 +2,7 @@
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import { formatDelta, formatValue, hasSignificantChange } from '$lib/utils/comparison';
   import DeltaBadge from '$lib/components/ui/DeltaBadge.svelte';
+  import { speedVal, speedUnit, distanceVal, distanceUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -10,6 +11,8 @@
     label: string;
     value: number;
     simValue: number;
+    displayValue: number;
+    displaySimValue: number;
     unit: string;
     icon: string;
     isPrimary: boolean;
@@ -19,14 +22,14 @@
     if (!simStats) return [];
 
     return [
-      { label: 'Top Speed', value: stats.speed, simValue: simStats.speed, unit: 'km/h', icon: '⚡', isPrimary: true },
-      { label: 'Range', value: stats.totalRange, simValue: simStats.totalRange, unit: 'km', icon: '🔋', isPrimary: true },
-      { label: 'Acceleration', value: stats.accelScore, simValue: simStats.accelScore, unit: '/100', icon: '🚀', isPrimary: true },
-      { label: 'Running Cost', value: stats.costPer100km, simValue: simStats.costPer100km, unit: '$/100km', icon: '💰', isPrimary: true },
-      { label: 'Total Energy', value: stats.wh, simValue: simStats.wh, unit: 'Wh', icon: '⚡', isPrimary: false },
-      { label: 'Hill Speed', value: stats.hillSpeed, simValue: simStats.hillSpeed, unit: 'km/h', icon: '⛰️', isPrimary: false },
-      { label: 'Peak Power', value: stats.totalWatts, simValue: simStats.totalWatts, unit: 'W', icon: '🔌', isPrimary: false },
-      { label: 'Charge Time', value: stats.chargeTime, simValue: simStats.chargeTime, unit: 'hrs', icon: '🔋', isPrimary: false }
+      { label: 'Top Speed', value: stats.speed, simValue: simStats.speed, displayValue: speedVal(stats.speed), displaySimValue: speedVal(simStats.speed), unit: speedUnit(), icon: '⚡', isPrimary: true },
+      { label: 'Range', value: stats.totalRange, simValue: simStats.totalRange, displayValue: distanceVal(stats.totalRange), displaySimValue: distanceVal(simStats.totalRange), unit: distanceUnit(), icon: '🔋', isPrimary: true },
+      { label: 'Acceleration', value: stats.accelScore, simValue: simStats.accelScore, displayValue: stats.accelScore, displaySimValue: simStats.accelScore, unit: '/100', icon: '🚀', isPrimary: true },
+      { label: 'Running Cost', value: stats.costPer100km, simValue: simStats.costPer100km, displayValue: costPer100Val(stats.costPer100km), displaySimValue: costPer100Val(simStats.costPer100km), unit: `$/${costDistanceLabel().replace('per ', '')}`, icon: '💰', isPrimary: true },
+      { label: 'Total Energy', value: stats.wh, simValue: simStats.wh, displayValue: stats.wh, displaySimValue: simStats.wh, unit: 'Wh', icon: '⚡', isPrimary: false },
+      { label: 'Hill Speed', value: stats.hillSpeed, simValue: simStats.hillSpeed, displayValue: speedVal(stats.hillSpeed), displaySimValue: speedVal(simStats.hillSpeed), unit: speedUnit(), icon: '⛰️', isPrimary: false },
+      { label: 'Peak Power', value: stats.totalWatts, simValue: simStats.totalWatts, displayValue: stats.totalWatts, displaySimValue: simStats.totalWatts, unit: 'W', icon: '🔌', isPrimary: false },
+      { label: 'Charge Time', value: stats.chargeTime, simValue: simStats.chargeTime, displayValue: stats.chargeTime, displaySimValue: simStats.chargeTime, unit: 'h', icon: '🔋', isPrimary: false }
     ];
   }
 
@@ -41,7 +44,7 @@
   function getDeltaClass(current: number, upgraded: number, isPositiveGood: boolean = true) {
     const delta = getDeltaInfo(current, upgraded);
     if (!hasSignificantChange(current, upgraded)) return 'text-text-tertiary';
-    
+
     const isGood = delta.direction === 'up' ? isPositiveGood : !isPositiveGood;
     return isGood ? 'text-success' : 'text-danger';
   }
@@ -62,17 +65,17 @@
               <div class="text-xs text-text-tertiary uppercase tracking-wide">{stat.label}</div>
               <div class="flex items-baseline gap-2">
                 <span class={`text-xl font-bold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
-                  {formatValue(stat.simValue)}
+                  {formatValue(stat.displaySimValue)}
                 </span>
                 <span class="text-sm text-text-tertiary">{stat.unit}</span>
               </div>
             </div>
           </div>
-          
+
           <div class="flex flex-col items-end gap-1">
-            <span class="text-xs text-text-tertiary">{formatValue(stat.value)} {stat.unit}</span>
-            <DeltaBadge 
-              direction={getDeltaInfo(stat.value, stat.simValue).direction} 
+            <span class="text-xs text-text-tertiary">{formatValue(stat.displayValue)} {stat.unit}</span>
+            <DeltaBadge
+              direction={getDeltaInfo(stat.value, stat.simValue).direction}
               value={getDeltaInfo(stat.value, stat.simValue).percent}
               compact={true}
             />
@@ -87,21 +90,21 @@
       <span class="text-lg">📊</span>
       <h3 class="text-sm font-semibold text-text-primary">Secondary Stats</h3>
     </div>
-    
+
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       {#each secondaryStats as stat (stat.label)}
         <div class="bg-black/20 rounded-lg border border-white/5 p-3">
           <div class="text-xs text-text-tertiary mb-1">{stat.label}</div>
           <div class="flex items-baseline justify-between gap-2">
             <span class={`text-base font-semibold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
-              {formatValue(stat.simValue)}
+              {formatValue(stat.displaySimValue)}
             </span>
             <span class="text-xs text-text-tertiary">{stat.unit}</span>
           </div>
           <div class="flex items-center justify-between mt-1">
-            <span class="text-xs text-text-tertiary">{formatValue(stat.value)}</span>
-            <DeltaBadge 
-              direction={getDeltaInfo(stat.value, stat.simValue).direction} 
+            <span class="text-xs text-text-tertiary">{formatValue(stat.displayValue)}</span>
+            <DeltaBadge
+              direction={getDeltaInfo(stat.value, stat.simValue).direction}
               value={getDeltaInfo(stat.value, stat.simValue).percent}
               compact={true}
             />

@@ -167,7 +167,87 @@ export const presets: ScooterPreset = {
   m365_pro_2: {
     v: 36, ah: 12.8, motors: 1, watts: 300, style: 22, weight: 80, wheel: 8.5, motorKv: 45, scooterWeight: 14.2,
     drivetrainEfficiency: 0.88, batterySagPercent: 0.09, charger: 2, regen: 0.08, cost: 0.20, slope: 0, ridePosition: 0.6, soh: 1, ambientTemp: 20
-  }
+  },
+
+  // --- Auto-discovered Models ---
+  segway_ninebot_max_g2: {
+    v: 36, ah: 15.3, watts: 450, motors: 1, wheel: 10,
+    scooterWeight: 22.1,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  emove_roadster_electric_scooter: {
+    v: 48, ah: 16, watts: 500, motors: 1, wheel: 10,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  emove_cruiser_v2_52v_and_60v_quad_suspension_62_mile_lo: {
+    v: 48, ah: 16, watts: 500, motors: 1, wheel: 10,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  segway_zt3_pro: {
+    v: 52, ah: 11.7, watts: 600, motors: 1, wheel: 8.5,
+    scooterWeight: 20,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  segway_ninebot_p100s: {
+    v: 60, ah: 18, watts: 900, motors: 1, wheel: 10,
+    scooterWeight: 25,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  segway_ninebot_f3_plus: {
+    v: 36, ah: 10.2, watts: 400, motors: 1, wheel: 8.5,
+    scooterWeight: 17,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  emove_touring_xl: {
+    v: 52, ah: 14.4, watts: 600, motors: 1, wheel: 8.5,
+    scooterWeight: 22,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  emove_roadrunner_pro_v2: {
+    v: 60, ah: 16.8, watts: 1500, motors: 1, wheel: 10,
+    scooterWeight: 31,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  emove_cruiser_max: {
+    v: 72, ah: 21.7, watts: 1000, motors: 1, wheel: 10,
+    scooterWeight: 28,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
+  varla_eagle_one_v2: {
+    v: 72, ah: 21.7, watts: 1000, motors: 2, wheel: 11,
+    scooterWeight: 36,
+    drivetrainEfficiency: 0.9, batterySagPercent: 0.08,
+    charger: 3, regen: 0, cost: 0.12,
+    weight: 80, style: 15,
+    slope: 0, ridePosition: 0.5, soh: 1, ambientTemp: 20,
+  },
 };
 
 export const defaultConfig: ScooterConfig = {
@@ -177,7 +257,7 @@ export const defaultConfig: ScooterConfig = {
 };
 
 // Data catalog version — bump when presets change
-export const CATALOG_VERSION = "1.1.0";
+export const CATALOG_VERSION = "1.1.10";
 export const CATALOG_LAST_UPDATED = "2026-04-11";
 
 export const presetMetadata: Record<string, PresetMetadata> = {
@@ -393,5 +473,67 @@ export const presetMetadata: Record<string, PresetMetadata> = {
     addedDate: "2025-01-10", lastVerified: "2026-04-11", status: "discontinued",
     source: "Xiaomi Global", sourceUrl: "https://www.mi.com/global/", notes: "Succeeded by Xiaomi 4 series",
     priceHistory: [{ date: "2021-01-01", price: 599 }, { date: "2023-01-01", price: 500 }],
+  },
+
+  // --- Auto-discovered Models ---
+  segway_ninebot_max_g2: {
+    name: "Segway Ninebot Max G2", year: 2024,
+    manufacturer: { topSpeed: 32, range: 70, batteryWh: 551, price: 999 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Manual Entry", status: "current",
+  },
+  emove_roadster_electric_scooter: {
+    name: "EMOVE Roadster Electric Scooter", year: 2026,
+    manufacturer: { topSpeed: 0, range: 0, batteryWh: 0 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "EMOVE (Voro Motors)", status: "unverified",
+  },
+  emove_cruiser_v2_52v_and_60v_quad_suspension_62_mile_lo: {
+    name: "EMOVE Cruiser V2", year: 2026,
+    manufacturer: { topSpeed: 0, range: 0, batteryWh: 0 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "EMOVE (Voro Motors)", status: "unverified",
+  },
+  segway_zt3_pro: {
+    name: "Segway ZT3 Pro", year: 2025,
+    manufacturer: { topSpeed: 35, range: 56, batteryWh: 610, price: 799 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Segway", status: "current",
+  },
+  segway_ninebot_p100s: {
+    name: "Segway Ninebot P100S", year: 2025,
+    manufacturer: { topSpeed: 48, range: 100, batteryWh: 1080, price: 1899 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Segway", status: "current",
+  },
+  segway_ninebot_f3_plus: {
+    name: "Segway Ninebot F3 Plus", year: 2025,
+    manufacturer: { topSpeed: 32, range: 40, batteryWh: 367, price: 549 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Segway", status: "current",
+  },
+  emove_touring_xl: {
+    name: "EMOVE Touring XL", year: 2025,
+    manufacturer: { topSpeed: 40, range: 75, batteryWh: 748, price: 999 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "EMOVE", status: "current",
+  },
+  emove_roadrunner_pro_v2: {
+    name: "EMOVE RoadRunner Pro V2", year: 2025,
+    manufacturer: { topSpeed: 55, range: 60, batteryWh: 1008, price: 1499 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "EMOVE", status: "current",
+  },
+  emove_cruiser_max: {
+    name: "EMOVE Cruiser Max", year: 2025,
+    manufacturer: { topSpeed: 50, range: 90, batteryWh: 1560, price: 1599 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Voro Motors", status: "current",
+  },
+  varla_eagle_one_v2: {
+    name: "Varla Eagle One V2", year: 2025,
+    manufacturer: { topSpeed: 68, range: 65, batteryWh: 1560, price: 1699 },
+    addedDate: "2026-04-11", lastVerified: "2026-04-11",
+    source: "Varla", status: "current",
   },
 };

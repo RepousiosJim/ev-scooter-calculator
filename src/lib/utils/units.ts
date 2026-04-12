@@ -39,6 +39,26 @@ export function weightUnit(): string {
   return isImperial() ? 'lbs' : 'kg';
 }
 
+/** Convert °C to display value (°C or °F) */
+export function tempVal(celsius: number): number {
+  return isImperial() ? celsius * 9 / 5 + 32 : celsius;
+}
+
+/** Convert display temp back to °C for storage */
+export function tempToMetric(displayTemp: number): number {
+  return isImperial() ? (displayTemp - 32) * 5 / 9 : displayTemp;
+}
+
+/** Get temperature unit label */
+export function tempUnit(): string {
+  return isImperial() ? '°F' : '°C';
+}
+
+/** Convert display weight back to kg for storage */
+export function weightToMetric(displayWeight: number): number {
+  return isImperial() ? displayWeight / KG_TO_LBS : displayWeight;
+}
+
 /** Get cost-per-distance label */
 export function costDistanceLabel(): string {
   return isImperial() ? 'per 100mi' : 'per 100km';

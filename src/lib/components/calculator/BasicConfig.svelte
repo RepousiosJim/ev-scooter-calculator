@@ -5,6 +5,7 @@
   import { normalizeConfig, type ConfigNumericKey } from "$lib/utils/validators";
   import { debounce } from "$lib/utils/debounce";
   import Icon from "$lib/components/ui/atoms/Icon.svelte";
+  import { weightVal, weightUnit, weightToMetric, tempVal, tempUnit, tempToMetric } from "$lib/utils/units";
 
   const config = $derived(calculatorState.config);
 
@@ -33,11 +34,43 @@
     });
   });
 
+  // Display values for unit-converted fields
+  const displayWeight = $derived(Math.round(weightVal(localValues.weight)));
+  const displayTemp = $derived(Math.round(tempVal(localValues.ambientTemp)));
+
   function handleRangeInput(key: ConfigNumericKey, event: Event) {
     const target = event.currentTarget as HTMLInputElement;
     const value = target.valueAsNumber;
     if (!Number.isFinite(value)) return;
     debouncedUpdate(key, value);
+  }
+
+  function handleNumberInput(key: ConfigNumericKey, event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    const value = target.valueAsNumber;
+    if (!Number.isFinite(value)) return;
+    (localValues as any)[key] = value;
+    debouncedUpdate(key, value);
+  }
+
+  function handleWeightNumber(event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    const displayVal = target.valueAsNumber;
+    if (!Number.isFinite(displayVal)) return;
+    const metricVal = Math.round(weightToMetric(displayVal));
+    const clamped = Math.max(40, Math.min(150, metricVal));
+    localValues.weight = clamped;
+    debouncedUpdate('weight', clamped);
+  }
+
+  function handleTempNumber(event: Event) {
+    const target = event.currentTarget as HTMLInputElement;
+    const displayVal = target.valueAsNumber;
+    if (!Number.isFinite(displayVal)) return;
+    const metricVal = Math.round(tempToMetric(displayVal));
+    const clamped = Math.max(-20, Math.min(45, metricVal));
+    localValues.ambientTemp = clamped;
+    debouncedUpdate('ambientTemp', clamped);
   }
 
   let confirmReset = $state(false);
@@ -81,7 +114,19 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >System Voltage</label
           >
-          <span class="text-sm font-bold text-primary">{localValues.v}V</span>
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="24"
+              max="100"
+              step="1"
+              value={localValues.v}
+              onchange={(event) => handleNumberInput('v', event)}
+              class="w-16 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="System voltage value"
+            />
+            <span class="text-xs text-text-tertiary">V</span>
+          </div>
         </div>
         <input
           id="voltage"
@@ -110,7 +155,19 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >Battery Capacity</label
           >
-          <span class="text-sm font-bold text-primary">{localValues.ah}Ah</span>
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="5"
+              max="100"
+              step="0.5"
+              value={localValues.ah}
+              onchange={(event) => handleNumberInput('ah', event)}
+              class="w-16 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="Battery capacity value"
+            />
+            <span class="text-xs text-text-tertiary">Ah</span>
+          </div>
         </div>
         <input
           id="capacity"
@@ -139,7 +196,19 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >Motor Power</label
           >
-          <span class="text-sm font-bold text-primary">{localValues.watts}W</span>
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="250"
+              max="10000"
+              step="50"
+              value={localValues.watts}
+              onchange={(event) => handleNumberInput('watts', event)}
+              class="w-20 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="Motor power value"
+            />
+            <span class="text-xs text-text-tertiary">W</span>
+          </div>
         </div>
         <input
           id="power"
@@ -197,9 +266,19 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >Rider Weight</label
           >
-          <span class="text-sm font-bold text-text-primary"
-            >{localValues.weight}kg</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={Math.round(weightVal(40))}
+              max={Math.round(weightVal(150))}
+              step="1"
+              value={displayWeight}
+              onchange={handleWeightNumber}
+              class="w-16 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="Rider weight value"
+            />
+            <span class="text-xs text-text-tertiary">{weightUnit()}</span>
+          </div>
         </div>
         <input
           id="weight"
@@ -212,9 +291,13 @@
           aria-valuenow={localValues.weight}
           aria-valuemin={40}
           aria-valuemax={150}
-          aria-valuetext="{localValues.weight} kilograms"
+          aria-valuetext="{displayWeight} {weightUnit()}"
           class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary transition-all"
         />
+        <div class="flex justify-between text-xs text-text-tertiary px-1">
+          <span>{Math.round(weightVal(40))}{weightUnit()}</span>
+          <span>{Math.round(weightVal(150))}{weightUnit()}</span>
+        </div>
       </div>
 
       <div class="space-y-4">
@@ -224,9 +307,19 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >Ambient Temp</label
           >
-          <span class="text-sm font-bold text-text-primary"
-            >{localValues.ambientTemp}°C</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min={Math.round(tempVal(-20))}
+              max={Math.round(tempVal(45))}
+              step="1"
+              value={displayTemp}
+              onchange={handleTempNumber}
+              class="w-16 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="Ambient temperature value"
+            />
+            <span class="text-xs text-text-tertiary">{tempUnit()}</span>
+          </div>
         </div>
         <input
           id="temp"
@@ -239,9 +332,13 @@
           aria-valuenow={localValues.ambientTemp}
           aria-valuemin={-20}
           aria-valuemax={45}
-          aria-valuetext="{localValues.ambientTemp} degrees celsius"
+          aria-valuetext="{displayTemp} {tempUnit()}"
           class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-secondary transition-all"
         />
+        <div class="flex justify-between text-xs text-text-tertiary px-1">
+          <span>{Math.round(tempVal(-20))}{tempUnit()}</span>
+          <span>{Math.round(tempVal(45))}{tempUnit()}</span>
+        </div>
       </div>
 
       <div class="space-y-4">
@@ -251,9 +348,26 @@
             class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
             >Battery Health</label
           >
-          <span class="text-sm font-bold text-text-primary"
-            >{Math.round(localValues.soh * 100)}%</span
-          >
+          <div class="flex items-center gap-1.5">
+            <input
+              type="number"
+              min="50"
+              max="100"
+              step="1"
+              value={Math.round(localValues.soh * 100)}
+              onchange={(event) => {
+                const target = event.currentTarget as HTMLInputElement;
+                const pct = target.valueAsNumber;
+                if (!Number.isFinite(pct)) return;
+                const clamped = Math.max(0.5, Math.min(1, pct / 100));
+                localValues.soh = clamped;
+                debouncedUpdate('soh', clamped);
+              }}
+              class="w-14 bg-white/[0.04] border border-white/[0.08] text-sm font-bold text-text-primary text-right px-2 py-0.5 focus:border-primary/50 focus:outline-none transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              aria-label="Battery health percentage"
+            />
+            <span class="text-xs text-text-tertiary">%</span>
+          </div>
         </div>
         <input
           id="soh"

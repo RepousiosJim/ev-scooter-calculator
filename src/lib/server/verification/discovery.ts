@@ -2,6 +2,7 @@ import { parse } from 'node-html-parser';
 import { env } from '$env/dynamic/private';
 import type { Manufacturer } from './manufacturers';
 import { presetMetadata } from '$lib/data/presets';
+import { extractProductsFromHTML, fetchPage, type ExtractedProduct } from './html-extractor';
 
 export interface DiscoveredScooter {
 	name: string;
@@ -23,6 +24,8 @@ export interface DiscoveredScooter {
 	matchedKey?: string;
 	/** Year if detectable */
 	year?: number;
+	/** How this scooter was discovered */
+	extractionMethod?: string;
 }
 
 export interface DiscoveryResult {
@@ -31,6 +34,10 @@ export interface DiscoveryResult {
 	newScooters: DiscoveredScooter[];
 	scannedUrls: string[];
 	errors: string[];
+	/** URLs that returned errors (for stale URL detection) */
+	deadUrls: string[];
+	/** Methods used for extraction */
+	methods: string[];
 	scannedAt: string;
 }
 
@@ -38,8 +45,10 @@ const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 /**
- * Scan a manufacturer's product listing pages to discover scooter models.
- * Uses Gemini to extract product names and basic specs from listing pages.
+ * Discover scooters from a manufacturer using the smart extraction chain:
+ * 1. Fetch each URL + check health
+ * 2. Extract products with HTML parser (no API needed)
+ * 3. Optionally enhance with Gemini LLM for pages where HTML parsing found nothing
  */
 export async function discoverScooters(manufacturer: Manufacturer): Promise<DiscoveryResult> {
 	const result: DiscoveryResult = {
@@ -48,49 +57,57 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 		newScooters: [],
 		scannedUrls: [],
 		errors: [],
+		deadUrls: [],
+		methods: [],
 		scannedAt: new Date().toISOString(),
 	};
 
-	if (!env.GEMINI_API_KEY) {
-		result.errors.push('No Gemini API key configured');
-		return result;
-	}
-
-	// Fetch each product listing URL
 	for (const listingUrl of manufacturer.productListingUrls) {
-		try {
-			const response = await fetch(listingUrl, {
-				headers: {
-					'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-					Accept: 'text/html',
-				},
-				signal: AbortSignal.timeout(15000),
-			});
+		// Step 1: Fetch the page with health check
+		const page = await fetchPage(listingUrl);
 
-			if (!response.ok) {
-				result.errors.push(`${listingUrl}: HTTP ${response.status}`);
-				continue;
+		if (!page.ok) {
+			result.errors.push(`${listingUrl}: ${page.error}`);
+			if (page.status === 404 || page.status === 410 || page.status === 0) {
+				result.deadUrls.push(listingUrl);
 			}
+			continue;
+		}
 
-			const html = await response.text();
-			result.scannedUrls.push(listingUrl);
+		result.scannedUrls.push(listingUrl);
 
-			// Extract product listing text
-			const pageText = extractListingText(html, listingUrl);
+		if (page.html.length < 500) {
+			result.errors.push(`${listingUrl}: Page too small (${page.html.length} bytes) — likely JS-rendered`);
+			continue;
+		}
 
-			if (pageText.length < 50) {
-				result.errors.push(`${listingUrl}: Page has too little content (likely JS-rendered)`);
-				continue;
+		// Step 2: Smart HTML extraction (no API needed)
+		const extraction = extractProductsFromHTML(page.html, listingUrl);
+
+		if (extraction.products.length > 0) {
+			result.methods.push(...extraction.methods);
+			for (const product of extraction.products) {
+				result.scooters.push(productToScooter(product, manufacturer));
 			}
+		}
 
-			// Ask Gemini to extract scooter models from the listing
-			const llmResult = await extractScootersWithLLM(pageText, manufacturer.name, listingUrl);
+		// Step 3: If HTML extraction found nothing, try Gemini as fallback
+		if (extraction.products.length === 0 && env.GEMINI_API_KEY) {
+			const llmResult = await extractScootersWithLLM(page.html, manufacturer.name, listingUrl);
 			if (llmResult.error) {
-				result.errors.push(`${listingUrl}: ${llmResult.error}`);
+				result.errors.push(`${listingUrl}: LLM fallback: ${llmResult.error}`);
 			}
-			result.scooters.push(...llmResult.scooters);
-		} catch (e) {
-			result.errors.push(`${listingUrl}: ${e instanceof Error ? e.message : 'Unknown error'}`);
+			if (llmResult.scooters.length > 0) {
+				result.scooters.push(...llmResult.scooters);
+				result.methods.push('gemini-llm');
+			}
+		} else if (extraction.products.length === 0) {
+			result.errors.push(`${listingUrl}: No products found via HTML parsing (no API key for LLM fallback)`);
+		}
+
+		// Log extraction errors
+		for (const err of extraction.errors) {
+			result.errors.push(`${listingUrl}: ${err}`);
 		}
 	}
 
@@ -103,13 +120,16 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 		return true;
 	});
 
+	// Deduplicate methods
+	result.methods = [...new Set(result.methods)];
+
 	// Match against existing presets
-	const existingNames = Object.values(presetMetadata).map((p) => p.name.toLowerCase());
 	const existingKeys = Object.keys(presetMetadata);
 
 	for (const scooter of result.scooters) {
 		const nameLower = scooter.name.toLowerCase();
-		// Try exact match first
+
+		// Exact match on name
 		const exactMatch = existingKeys.find(
 			(key) => presetMetadata[key].name.toLowerCase() === nameLower
 		);
@@ -119,7 +139,8 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 			continue;
 		}
 
-		// Fuzzy match — check if names are very similar
+		// Fuzzy match
+		const existingNames = Object.values(presetMetadata).map((p) => p.name.toLowerCase());
 		const fuzzyMatch = existingNames.find((existing) => {
 			const similarity = computeSimilarity(nameLower, existing);
 			return similarity > 0.7;
@@ -137,80 +158,38 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 }
 
 /**
- * Scan all scrapable manufacturers for new scooters.
+ * Scan all scrapable manufacturers.
  */
 export async function discoverAll(
 	scrapableManufacturers: Manufacturer[],
 	onProgress?: (manufacturer: string, index: number, total: number) => void
 ): Promise<DiscoveryResult[]> {
 	const results: DiscoveryResult[] = [];
-
 	for (let i = 0; i < scrapableManufacturers.length; i++) {
 		const mfr = scrapableManufacturers[i];
 		onProgress?.(mfr.name, i, scrapableManufacturers.length);
 		const result = await discoverScooters(mfr);
 		results.push(result);
 	}
-
 	return results;
 }
 
-/**
- * Strip HTML to clean text focused on product listing content.
- */
-function extractListingText(html: string, url: string): string {
-	const root = parse(html);
-
-	// Remove noise
-	const removeSelectors = [
-		'script', 'style', 'noscript', 'iframe', 'svg',
-		'nav', 'footer', '.nav', '.footer', '.header', '.menu',
-		'.cookie', '.popup', '.modal', '.newsletter',
-		'[role="navigation"]',
-	];
-	for (const sel of removeSelectors) {
-		try {
-			root.querySelectorAll(sel).forEach((el) => el.remove());
-		} catch { /* ignore */ }
-	}
-
-	let text = root.textContent.replace(/\s+/g, ' ').trim();
-
-	// Also get product links
-	const productLinks: string[] = [];
-	try {
-		const links = root.querySelectorAll('a[href*="/products/"], a[href*="/product/"], a[href*="/collections/"]');
-		for (const link of links) {
-			const href = link.getAttribute('href') || '';
-			const linkText = link.textContent.trim();
-			if (linkText && href) {
-				const fullUrl = href.startsWith('http') ? href : new URL(href, url).href;
-				productLinks.push(`PRODUCT LINK: ${linkText} -> ${fullUrl}`);
-			}
-		}
-	} catch { /* ignore */ }
-
-	// Get meta tags for structured data
-	const metaInfo: string[] = [];
-	try {
-		const jsonLd = root.querySelectorAll('script[type="application/ld+json"]');
-		for (const script of jsonLd) {
-			try {
-				const data = JSON.parse(script.textContent);
-				if (data['@type'] === 'ItemList' || data['@type'] === 'CollectionPage' || Array.isArray(data)) {
-					metaInfo.push(`STRUCTURED DATA: ${JSON.stringify(data).slice(0, 3000)}`);
-				}
-			} catch { /* ignore */ }
-		}
-	} catch { /* ignore */ }
-
-	return [
-		`SOURCE: ${url}`,
-		...metaInfo,
-		productLinks.length > 0 ? `\nPRODUCT LINKS:\n${productLinks.join('\n')}` : '',
-		`\nPAGE CONTENT:\n${text.slice(0, 15000)}`,
-	].filter(Boolean).join('\n');
+/** Convert an ExtractedProduct to a DiscoveredScooter */
+function productToScooter(product: ExtractedProduct, manufacturer: Manufacturer): DiscoveredScooter {
+	return {
+		name: product.name,
+		url: product.url,
+		manufacturer: manufacturer.name,
+		manufacturerId: manufacturer.id,
+		specs: {
+			price: product.price,
+		},
+		isKnown: false,
+		extractionMethod: product.method,
+	};
 }
+
+// --- Gemini LLM fallback (used only when HTML parsing fails) ---
 
 interface LLMExtractionResult {
 	scooters: DiscoveredScooter[];
@@ -218,15 +197,22 @@ interface LLMExtractionResult {
 }
 
 /**
- * Use Gemini to extract scooter models from a product listing page.
- * Includes retry logic for rate limits.
+ * Use Gemini to extract scooter models from page content.
+ * This is the FALLBACK — only called when HTML parsing found 0 products.
  */
 async function extractScootersWithLLM(
-	pageText: string,
+	html: string,
 	manufacturerName: string,
 	sourceUrl: string,
 	retryCount = 0,
 ): Promise<LLMExtractionResult> {
+	// Strip HTML to text for the prompt
+	const pageText = stripHtmlForLLM(html, sourceUrl);
+
+	if (pageText.length < 50) {
+		return { scooters: [], error: 'Too little text content for LLM extraction' };
+	}
+
 	const prompt = `You are analyzing an electric scooter product listing page from "${manufacturerName}".
 
 Extract ALL electric scooter models listed on this page. For each scooter, provide:
@@ -262,17 +248,16 @@ ${pageText.slice(0, 15000)}`;
 		});
 
 		if (response.status === 429) {
-			if (retryCount < 2) {
-				const retryAfter = Math.min(60, (retryCount + 1) * 20);
-				// Rate limited — wait and retry
+			if (retryCount < 1) {
+				const retryAfter = (retryCount + 1) * 15;
 				await new Promise((r) => setTimeout(r, retryAfter * 1000));
-				return extractScootersWithLLM(pageText, manufacturerName, sourceUrl, retryCount + 1);
+				return extractScootersWithLLM(html, manufacturerName, sourceUrl, retryCount + 1);
 			}
-			return { scooters: [], error: 'Gemini API rate limit exceeded. Try again later.' };
+			return { scooters: [], error: 'Gemini rate limit — HTML extraction should be used instead' };
 		}
 
 		if (!response.ok) {
-			return { scooters: [], error: `Gemini API error: HTTP ${response.status}` };
+			return { scooters: [], error: `Gemini HTTP ${response.status}` };
 		}
 
 		const data = await response.json();
@@ -286,7 +271,7 @@ ${pageText.slice(0, 15000)}`;
 
 		const scooters = parsed
 			.filter((item: any) => item.name && typeof item.name === 'string')
-			.map((item: any) => ({
+			.map((item: any): DiscoveredScooter => ({
 				name: item.name,
 				url: item.url || sourceUrl,
 				manufacturer: manufacturerName,
@@ -301,6 +286,7 @@ ${pageText.slice(0, 15000)}`;
 				},
 				isKnown: false,
 				year: typeof item.year === 'number' ? item.year : undefined,
+				extractionMethod: 'gemini-llm',
 			}));
 
 		return { scooters };
@@ -310,9 +296,45 @@ ${pageText.slice(0, 15000)}`;
 	}
 }
 
-/**
- * Simple string similarity (Jaccard on character bigrams)
- */
+/** Strip HTML to clean text for LLM prompt */
+function stripHtmlForLLM(html: string, url: string): string {
+	const root = parse(html);
+
+	// Remove noise
+	const removeSelectors = [
+		'script', 'style', 'noscript', 'iframe', 'svg',
+		'nav', 'footer', '.nav', '.footer', '.header', '.menu',
+		'.cookie', '.popup', '.modal', '.newsletter',
+		'[role="navigation"]',
+	];
+	for (const sel of removeSelectors) {
+		try { root.querySelectorAll(sel).forEach((el: any) => el.remove()); } catch { /* ignore */ }
+	}
+
+	const text = root.textContent.replace(/\s+/g, ' ').trim();
+
+	// Get product links
+	const productLinks: string[] = [];
+	try {
+		const links = root.querySelectorAll('a[href*="/products/"], a[href*="/product/"]');
+		for (const link of links) {
+			const href = link.getAttribute('href') || '';
+			const linkText = link.textContent.trim();
+			if (linkText && href) {
+				const fullUrl = href.startsWith('http') ? href : new URL(href, url).href;
+				productLinks.push(`PRODUCT: ${linkText} -> ${fullUrl}`);
+			}
+		}
+	} catch { /* ignore */ }
+
+	return [
+		`SOURCE: ${url}`,
+		productLinks.length > 0 ? `\nPRODUCT LINKS:\n${productLinks.join('\n')}` : '',
+		`\nPAGE CONTENT:\n${text.slice(0, 15000)}`,
+	].filter(Boolean).join('\n');
+}
+
+/** Simple string similarity (Jaccard on character bigrams) */
 function computeSimilarity(a: string, b: string): number {
 	const bigramsA = new Set<string>();
 	const bigramsB = new Set<string>();

@@ -6,11 +6,23 @@
 	import MobileNavigation from "$lib/components/ui/organisms/MobileNavigation.svelte";
 	import { toastState } from "$lib/stores/calculator.svelte";
 	import { page } from "$app/stores";
+	import { afterNavigate } from "$app/navigation";
+	import { browser } from "$app/environment";
 
 	let { children } = $props();
 
 	const isAdmin = $derived($page.url.pathname.startsWith('/admin'));
 	const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
+
+	// Track page views on client-side navigation
+	afterNavigate(() => {
+		if (browser && typeof gtag === 'function') {
+			gtag('event', 'page_view', {
+				page_path: $page.url.pathname,
+				page_title: document.title,
+			});
+		}
+	});
 </script>
 
 <svelte:head>

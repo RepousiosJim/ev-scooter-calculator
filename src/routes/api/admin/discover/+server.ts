@@ -63,6 +63,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 					scooters: result.scooters,
 					newScooters: result.newScooters,
 					errors: result.errors,
+					deadUrls: result.deadUrls,
+					methods: result.methods,
 				};
 
 				totalNew += result.newScooters.length;

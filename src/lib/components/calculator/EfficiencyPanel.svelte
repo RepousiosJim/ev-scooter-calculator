@@ -4,13 +4,16 @@
 
   const stats = $derived(calculatorState.stats);
 
-  const speedEfficiencyValue = $derived(Math.min(100, (speedVal(stats.speed) / speedVal(100)) * 100));
-  const rangeEfficiencyValue = $derived(Math.min(100, (distanceVal(stats.totalRange) / distanceVal(150)) * 100));
-  const accelEfficiencyValue = $derived(stats.accelScore);
-  const costEfficiencyValue = $derived(Math.min(100, (5 / stats.costPer100km) * 100));
+  const SPEED_BENCHMARK_KMH = 100;
+  const RANGE_BENCHMARK_KM = 150;
+  const COST_BENCHMARK_PER100KM = 5;
 
-  const getColor = (value: number, metricId?: string) => {
-    if (metricId === 'range-eff' && value < 50) return '#94a3b8';
+  const speedEfficiencyValue = $derived(Math.min(100, (speedVal(stats.speed) / speedVal(SPEED_BENCHMARK_KMH)) * 100));
+  const rangeEfficiencyValue = $derived(Math.min(100, (distanceVal(stats.totalRange) / distanceVal(RANGE_BENCHMARK_KM)) * 100));
+  const accelEfficiencyValue = $derived(stats.accelScore);
+  const costEfficiencyValue = $derived(Math.min(100, (COST_BENCHMARK_PER100KM / stats.costPer100km) * 100));
+
+  const getColor = (value: number) => {
     if (value >= 90) return '#10b981';
     if (value >= 75) return '#3b82f6';
     if (value >= 60) return '#60a5fa';
@@ -27,27 +30,31 @@
   const metrics = $derived([
     {
       id: 'speed-eff',
-      label: 'Speed Efficiency',
+      label: 'Speed',
       value: speedEfficiencyValue,
-      context: `${speedVal(stats.speed).toFixed(0)} ${speedUnit()} out of ${speedVal(100).toFixed(0)} ${speedUnit()} benchmark. Higher voltage and motor KV increase top speed.`
+      actual: `${speedVal(stats.speed).toFixed(0)} ${speedUnit()}`,
+      benchmark: `${speedVal(SPEED_BENCHMARK_KMH).toFixed(0)} ${speedUnit()}`,
     },
     {
       id: 'range-eff',
-      label: 'Range Efficiency',
+      label: 'Range',
       value: rangeEfficiencyValue,
-      context: `${distanceVal(stats.totalRange).toFixed(0)} ${distanceUnit()} out of ${distanceVal(150).toFixed(0)} ${distanceUnit()} benchmark ${stats.totalRange < 30 ? '(typical for budget/ultralight)' : stats.totalRange < 60 ? '(normal for mid-range)' : stats.totalRange < 100 ? '(good range)' : '(excellent)'}. ${stats.totalRange < 50 ? 'Typical for high-power or small-battery setups.' : stats.totalRange < 80 ? 'Average for dual-motor scooters.' : 'Good range for this class.'}`
+      actual: `${distanceVal(stats.totalRange).toFixed(0)} ${distanceUnit()}`,
+      benchmark: `${distanceVal(RANGE_BENCHMARK_KM).toFixed(0)} ${distanceUnit()}`,
     },
     {
       id: 'accel-eff',
-      label: 'Acceleration Score',
+      label: 'Acceleration',
       value: accelEfficiencyValue,
-      context: `Power-to-weight ratio score. ${stats.accelScore < 40 ? 'Low — consider dual motors or higher wattage.' : stats.accelScore < 70 ? 'Adequate for commuting.' : 'Strong performance.'}`
+      actual: `${Math.round(stats.accelScore)}/100`,
+      benchmark: '100/100',
     },
     {
       id: 'cost-eff',
       label: 'Cost Efficiency',
       value: costEfficiencyValue,
-      context: `$${costPer100Val(stats.costPer100km).toFixed(2)} ${costDistanceLabel()}. Benchmark: $${costPer100Val(5).toFixed(2)} or less is excellent.`
+      actual: `$${costPer100Val(stats.costPer100km).toFixed(2)} ${costDistanceLabel()}`,
+      benchmark: `$${costPer100Val(COST_BENCHMARK_PER100KM).toFixed(2)} or less`,
     }
   ]);
 
@@ -69,15 +76,15 @@
         <div class="flex items-center justify-between mb-1">
           <button
             type="button"
-            class="text-xs text-text-tertiary hover:text-text-primary transition-colors flex items-center gap-1 group"
+            class="text-xs text-text-tertiary hover:text-text-primary transition-colors flex items-center gap-1.5 group"
             id="{metric.id}-label"
             onclick={() => expandedMetric = expandedMetric === metric.id ? null : metric.id}
             aria-expanded={expandedMetric === metric.id}
           >
             {metric.label}
-            <span class="text-[9px] text-text-tertiary opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity" aria-hidden="true">?</span>
+            <span class="text-[9px] text-text-tertiary" aria-hidden="true">ⓘ</span>
           </button>
-          <span class="text-[10px] font-bold" style:color={getColor(metric.value, metric.id)}>{metric.value.toFixed(0)}%</span>
+          <span class="text-[11px] font-bold text-text-secondary">{metric.actual}</span>
         </div>
         <div
           class="h-1.5 bg-white/5 rounded-full overflow-hidden"
@@ -86,21 +93,25 @@
           aria-valuenow={Math.round(metric.value)}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-valuetext="{metric.value.toFixed(0)}% - {getLabel(metric.value)}"
+          aria-valuetext="{metric.actual} — {getLabel(metric.value)}"
         >
           <div
             class="h-full rounded-full transition-all duration-500"
-            style:width={`${metric.value}%`}
-            style:background-color={getColor(metric.value, metric.id)}
+            style:width={`${Math.max(metric.value, 8)}%`}
+            style:background-color={getColor(metric.value)}
             aria-hidden="true"
           ></div>
         </div>
         {#if expandedMetric === metric.id}
           <p class="text-[11px] text-text-secondary mt-1 leading-relaxed bg-white/[0.02] rounded px-3 py-2 border border-white/[0.04]">
-            {metric.context}
+            Benchmark: {metric.benchmark}. Current: {metric.actual} ({getLabel(metric.value)}).
           </p>
         {/if}
       </div>
     {/each}
   </div>
+
+  <p class="text-[10px] text-text-tertiary mt-3 leading-relaxed">
+    Bars show progress toward benchmarks: {speedVal(SPEED_BENCHMARK_KMH).toFixed(0)} {speedUnit()} speed, {distanceVal(RANGE_BENCHMARK_KM).toFixed(0)} {distanceUnit()} range.
+  </p>
 </div>

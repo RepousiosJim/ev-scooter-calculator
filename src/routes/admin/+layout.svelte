@@ -65,6 +65,16 @@
 				Discover New
 			</a>
 			<a
+				href="/admin/candidates"
+				class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
+					   {$page.url.pathname === '/admin/candidates'
+					? 'bg-yellow-500/10 text-yellow-400'
+					: 'text-gray-400 hover:text-white hover:bg-white/5'}"
+			>
+				<span class="text-base">&#9733;</span>
+				Candidates
+			</a>
+			<a
 				href="/admin/alerts"
 				class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
 					   {$page.url.pathname === '/admin/alerts'

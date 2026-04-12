@@ -1,7 +1,10 @@
 <script lang="ts">
   import { tick } from 'svelte';
+  import { page } from '$app/stores';
   import { uiState } from '$lib/stores/ui.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
+
+  const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
 
   const tabs = [
     { label: "Calculator", value: "configuration", icon: "speed" },
@@ -67,19 +70,43 @@
         </span>
       </button>
     {/each}
+
+    <!-- Rankings link (separate page) -->
+    <a
+      href="/rankings"
+      class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+        {isRankings ? 'text-primary' : 'text-text-tertiary'}"
+    >
+      {#if isRankings}
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary" aria-hidden="true"></div>
+      {/if}
+      <Icon
+        name="trophy"
+        size="sm"
+        class="transition-all duration-200 {isRankings ? 'text-primary scale-110' : 'opacity-40'}"
+      />
+      <span class="text-[10px] font-bold uppercase tracking-wider {isRankings ? 'text-primary' : 'text-text-tertiary'}">
+        Rankings
+      </span>
+    </a>
   </div>
 </div>
 
 <style>
   @media (hover: none) and (pointer: coarse) {
-    button {
+    button, a {
       -webkit-tap-highlight-color: transparent;
       min-height: 44px;
       min-width: 44px;
     }
 
-    button:active {
+    button:active, a:active {
       opacity: 0.7;
     }
+  }
+
+  a {
+    text-decoration: none;
   }
 </style>

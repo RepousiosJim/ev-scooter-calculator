@@ -147,7 +147,7 @@
         class="flex items-center gap-2 px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
       >
         <Icon name={showIncompatible ? "eye" : "eye-off"} size="xs" />
-        {showIncompatible ? "Hide All" : "Show All Potential"}
+        {showIncompatible ? "Hide All" : `Show All (${incompatibleUpgrades.length})`}
       </button>
     </div>
 

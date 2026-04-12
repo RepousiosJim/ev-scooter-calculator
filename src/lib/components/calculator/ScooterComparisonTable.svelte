@@ -306,12 +306,16 @@
 
   <!-- Comparison Table (2+ selected) -->
   {#if selectedScooters.length >= 2}
+    <div class="sm:hidden text-[10px] text-text-tertiary text-right mb-1 flex items-center justify-end gap-1">
+      <span>Swipe to compare</span>
+      <span aria-hidden="true">→</span>
+    </div>
     <div class="overflow-x-auto -mx-3 sm:-mx-5 lg:-mx-6 px-3 sm:px-5 lg:px-6">
       <table class="w-full text-left border-collapse min-w-[480px]">
         <!-- Column Headers -->
         <thead>
           <tr class="border-b border-white/[0.08]">
-            <th class="p-3 text-[10px] font-bold uppercase tracking-widest text-text-tertiary w-36 sm:w-44"></th>
+            <th class="p-3 text-[10px] font-bold uppercase tracking-widest text-text-tertiary w-36 sm:w-44 sticky left-0 z-10 bg-bg-primary"></th>
             {#each selectedScooters as scooter, idx (scooter.id)}
               <th class="p-3 text-center min-w-[140px]">
                 <div class="space-y-1.5">
@@ -337,7 +341,7 @@
         <tbody>
           <!-- Specs Section Header -->
           <tr>
-            <td colspan={selectedScooters.length + 1} class="pt-4 pb-1 px-3">
+            <td colspan={selectedScooters.length + 1} class="pt-4 pb-1 px-3 sticky left-0 z-10">
               <div class="flex items-center gap-3">
                 <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Manufacturer Specs</span>
                 <div class="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent"></div>
@@ -348,7 +352,7 @@
           {#each comparisonRows.filter((r) => r.section === 'specs') as row}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">{row.label}</td>
+              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">{row.label}</td>
               {#each selectedScooters as scooter, idx (scooter.id)}
                 <td
                   class="p-3 text-center text-sm font-mono {idx === best ? 'text-primary font-bold bg-primary/10' : 'text-text-primary'}"
@@ -361,7 +365,7 @@
 
           <!-- Calculated Section Header -->
           <tr>
-            <td colspan={selectedScooters.length + 1} class="pt-5 pb-1 px-3">
+            <td colspan={selectedScooters.length + 1} class="pt-5 pb-1 px-3 sticky left-0 z-10">
               <div class="flex items-center gap-3">
                 <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Calculated Performance</span>
                 <div class="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent"></div>
@@ -372,7 +376,7 @@
           {#each comparisonRows.filter((r) => r.section === 'calculated') as row}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">{row.label}</td>
+              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">{row.label}</td>
               {#each selectedScooters as scooter, idx (scooter.id)}
                 <td
                   class="p-3 text-center text-sm font-mono {idx === best ? 'text-primary font-bold bg-primary/10' : 'text-text-primary'}"
@@ -385,7 +389,7 @@
 
           <!-- Overall Score Row -->
           <tr class="border-t border-white/[0.08]">
-            <td class="p-3 text-xs font-black text-text-primary uppercase tracking-wider">Overall Score</td>
+            <td class="p-3 text-xs font-black text-text-primary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">Overall Score</td>
             {#each selectedScooters as scooter, idx (scooter.id)}
               {@const isBest = selectedScooters.every((s) => s.score <= scooter.score)}
               {@const allSame = selectedScooters.every((s) => s.score === scooter.score)}
