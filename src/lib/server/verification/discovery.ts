@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/private';
 import type { Manufacturer } from './manufacturers';
 import { presetMetadata } from '$lib/data/presets';
 import { extractProductsFromHTML, fetchPage, type ExtractedProduct } from './html-extractor';
+import { throttleGemini, markRateLimited, isGeminiAvailable } from './gemini-limiter';
 
 export interface DiscoveredScooter {
 	name: string;
@@ -43,6 +44,11 @@ export interface DiscoveryResult {
 
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+// Pre-build a lookup Map: normalised lowercase name → preset key (avoids O(n²) per-scooter scan)
+const presetNameToKey: Map<string, string> = new Map(
+	Object.entries(presetMetadata).map(([key, meta]) => [meta.name.toLowerCase(), key])
+);
 
 /**
  * Discover scooters from a manufacturer using the smart extraction chain:
@@ -93,7 +99,7 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 
 		// Step 3: If HTML extraction found nothing, try Gemini as fallback
 		if (extraction.products.length === 0 && env.GEMINI_API_KEY) {
-			const llmResult = await extractScootersWithLLM(page.html, manufacturer.name, listingUrl);
+			const llmResult = await extractScootersWithLLM(page.html, manufacturer, listingUrl);
 			if (llmResult.error) {
 				result.errors.push(`${listingUrl}: LLM fallback: ${llmResult.error}`);
 			}
@@ -123,29 +129,24 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 	// Deduplicate methods
 	result.methods = [...new Set(result.methods)];
 
-	// Match against existing presets
-	const existingKeys = Object.keys(presetMetadata);
-
+	// Match against existing presets using the pre-built Map (O(n) not O(n²))
 	for (const scooter of result.scooters) {
 		const nameLower = scooter.name.toLowerCase();
 
-		// Exact match on name
-		const exactMatch = existingKeys.find((key) => presetMetadata[key].name.toLowerCase() === nameLower);
-		if (exactMatch) {
+		// Exact match first (O(1) Map lookup)
+		if (presetNameToKey.has(nameLower)) {
 			scooter.isKnown = true;
-			scooter.matchedKey = exactMatch;
+			scooter.matchedKey = presetNameToKey.get(nameLower);
 			continue;
 		}
 
-		// Fuzzy match
-		const existingNames = Object.values(presetMetadata).map((p) => p.name.toLowerCase());
-		const fuzzyMatch = existingNames.find((existing) => {
-			const similarity = computeSimilarity(nameLower, existing);
-			return similarity > 0.7;
-		});
-		if (fuzzyMatch) {
-			scooter.isKnown = true;
-			scooter.matchedKey = existingKeys.find((key) => presetMetadata[key].name.toLowerCase() === fuzzyMatch);
+		// Fuzzy match — iterate the Map once per scooter (still O(n) but no repeated array allocation)
+		for (const [existingName, key] of presetNameToKey) {
+			if (computeSimilarity(nameLower, existingName) > 0.7) {
+				scooter.isKnown = true;
+				scooter.matchedKey = key;
+				break;
+			}
 		}
 	}
 
@@ -195,13 +196,18 @@ interface LLMExtractionResult {
 /**
  * Use Gemini to extract scooter models from page content.
  * This is the FALLBACK — only called when HTML parsing found 0 products.
+ * Rate limiting is handled by the shared gemini-limiter (throttleGemini).
  */
 async function extractScootersWithLLM(
 	html: string,
-	manufacturerName: string,
-	sourceUrl: string,
-	retryCount = 0
+	manufacturer: Manufacturer,
+	sourceUrl: string
 ): Promise<LLMExtractionResult> {
+	// Pre-flight check: skip immediately if API key missing or backoff active
+	if (!isGeminiAvailable(env.GEMINI_API_KEY)) {
+		return { scooters: [], error: 'Gemini unavailable (no API key or rate-limit backoff active)' };
+	}
+
 	// Strip HTML to text for the prompt
 	const pageText = stripHtmlForLLM(html, sourceUrl);
 
@@ -209,7 +215,7 @@ async function extractScootersWithLLM(
 		return { scooters: [], error: 'Too little text content for LLM extraction' };
 	}
 
-	const prompt = `You are analyzing an electric scooter product listing page from "${manufacturerName}".
+	const prompt = `You are analyzing an electric scooter product listing page from "${manufacturer.name}".
 
 Extract ALL electric scooter models listed on this page. For each scooter, provide:
 - name: The full model name (e.g. "EMOVE Cruiser S", "Kaabo Wolf King GTR Pro")
@@ -229,6 +235,9 @@ PAGE CONTENT:
 ${pageText.slice(0, 15000)}`;
 
 	try {
+		// Serialise via shared rate limiter — guarantees ≥4s spacing across all callers
+		await throttleGemini();
+
 		const response = await fetch(GEMINI_URL, {
 			method: 'POST',
 			headers: {
@@ -247,12 +256,9 @@ ${pageText.slice(0, 15000)}`;
 		});
 
 		if (response.status === 429) {
-			if (retryCount < 1) {
-				const retryAfter = (retryCount + 1) * 15;
-				await new Promise((r) => setTimeout(r, retryAfter * 1000));
-				return extractScootersWithLLM(html, manufacturerName, sourceUrl, retryCount + 1);
-			}
-			return { scooters: [], error: 'Gemini rate limit — HTML extraction should be used instead' };
+			// Record backoff in shared limiter so all callers respect the cooldown
+			markRateLimited(response.headers.get('retry-after'));
+			return { scooters: [], error: 'Gemini rate limit — backing off per retry-after header' };
 		}
 
 		if (!response.ok) {
@@ -274,8 +280,8 @@ ${pageText.slice(0, 15000)}`;
 				(item): DiscoveredScooter => ({
 					name: item.name as string,
 					url: (item.url as string) || sourceUrl,
-					manufacturer: manufacturerName,
-					manufacturerId: '',
+					manufacturer: manufacturer.name,
+					manufacturerId: manufacturer.id,
 					specs: {
 						topSpeed: typeof item.topSpeed === 'number' ? item.topSpeed : undefined,
 						range: typeof item.range === 'number' ? item.range : undefined,
