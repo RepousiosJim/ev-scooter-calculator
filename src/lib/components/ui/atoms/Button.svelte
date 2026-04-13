@@ -29,7 +29,8 @@
   const getVariantClasses = () => {
     const variants = {
       primary: 'bg-primary hover:bg-primaryHover text-textOnPrimary focus:ring-2 focus:ring-primary/50',
-      secondary: 'bg-tertiary border border-gray-600 text-text-primary hover:bg-hover focus:ring-2 focus:ring-primary/50',
+      secondary:
+        'bg-tertiary border border-white/10 text-text-primary hover:bg-hover focus:ring-2 focus:ring-primary/50',
       ghost: 'bg-transparent text-text-primary hover:bg-hover/50 focus:ring-2 focus:ring-primary/50',
       danger: 'bg-danger hover:bg-dangerHover text-textOnPrimary focus:ring-2 focus:ring-danger/50',
       success: 'bg-success hover:bg-successHover text-textOnPrimary focus:ring-2 focus:ring-success/50',
@@ -69,19 +70,22 @@
   {...props}
 >
   {#if loading}
-    <span class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" aria-hidden="true"></span>
+    <span
+      class="inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2"
+      aria-hidden="true"
+    ></span>
   {/if}
-  
+
   {#if icon && iconPosition === 'left'}
     <span class="mr-2" aria-hidden="true">{icon}</span>
   {/if}
-  
+
   {#if children}
     {@render children()}
   {:else}
     <span>Button</span>
   {/if}
-  
+
   {#if icon && iconPosition === 'right'}
     <span class="ml-2" aria-hidden="true">{icon}</span>
   {/if}
@@ -91,16 +95,16 @@
   button {
     touch-action: manipulation;
   }
-  
+
   button:focus-visible {
-    outline: 2px solid var(--brand-primary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
-  
+
   button:focus:not(:focus-visible) {
     outline: none;
   }
-  
+
   /* Mobile: Ensure minimum touch target */
   @media (max-width: 640px) {
     button {

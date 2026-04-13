@@ -41,7 +41,7 @@ export function extractProductsFromHTML(html: string, sourceUrl: string): Extrac
 	let root: HTMLElement;
 	try {
 		root = parse(html);
-	} catch (e) {
+	} catch (_e) {
 		result.errors.push('Failed to parse HTML');
 		return result;
 	}
@@ -351,7 +351,8 @@ function extractCardName(card: HTMLElement): string | null {
 		'.grid-product__title',
 		'.product-title',
 		'.card__heading',
-		'h2', 'h3',
+		'h2',
+		'h3',
 		'[data-product-title]',
 		'.title',
 	];
@@ -404,14 +405,16 @@ function extractPrice(offers: any): number | undefined {
 }
 
 function cleanProductName(name: string): string {
-	return name
-		.replace(/\s+/g, ' ')
-		.replace(/[\n\r\t]/g, ' ')
-		.trim()
-		// Remove common suffixes
-		.replace(/\s*[-–]\s*(Buy|Shop|Order|Sale|New|Free Shipping).*$/i, '')
-		.replace(/\s*\|\s*.*$/, '') // Remove "| Brand Name" suffixes
-		.trim();
+	return (
+		name
+			.replace(/\s+/g, ' ')
+			.replace(/[\n\r\t]/g, ' ')
+			.trim()
+			// Remove common suffixes
+			.replace(/\s*[-–]\s*(Buy|Shop|Order|Sale|New|Free Shipping).*$/i, '')
+			.replace(/\s*\|\s*.*$/, '') // Remove "| Brand Name" suffixes
+			.trim()
+	);
 }
 
 /** Filter out products that are clearly not electric scooters */
@@ -420,24 +423,91 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
 
 	// Exclude non-scooter items (accessories, parts, other vehicles)
 	const excludeTerms = [
-		'helmet', 'glove', 'lock', 'bag', 'backpack', 'charger', 'tire', 'tyre',
-		'tube', 'brake pad', 'brake rotor', 'brake disc', 'brake caliper',
-		'fender', 'light', 'horn', 'bell', 'phone mount',
-		'mirror', 'seat', 'basket', 'chain', 'grip', 'handlebar grip',
-		'sticker', 'decal', 'cover', 'case', 'stand', 'rack', 'mount',
-		'gift card', 'warranty', 'insurance', 'subscription', 'service',
-		'bicycle', 'bike', 'motorcycle', 'moped', 'go-kart', 'gokart',
-		'hoverboard', 'unicycle', 'skateboard', 'onewheel',
-		'spare part', 'replacement', 'accessory', 'accessories',
-		'bundle deal', 'protection plan',
+		'helmet',
+		'glove',
+		'lock',
+		'bag',
+		'backpack',
+		'charger',
+		'tire',
+		'tyre',
+		'tube',
+		'brake pad',
+		'brake rotor',
+		'brake disc',
+		'brake caliper',
+		'fender',
+		'light',
+		'horn',
+		'bell',
+		'phone mount',
+		'mirror',
+		'seat',
+		'basket',
+		'chain',
+		'grip',
+		'handlebar grip',
+		'sticker',
+		'decal',
+		'cover',
+		'case',
+		'stand',
+		'rack',
+		'mount',
+		'gift card',
+		'warranty',
+		'insurance',
+		'subscription',
+		'service',
+		'bicycle',
+		'bike',
+		'motorcycle',
+		'moped',
+		'go-kart',
+		'gokart',
+		'hoverboard',
+		'unicycle',
+		'skateboard',
+		'onewheel',
+		'spare part',
+		'replacement',
+		'accessory',
+		'accessories',
+		'bundle deal',
+		'protection plan',
 		// Hardware & parts
-		'bolt', 'screw', 'nut', 'washer', 'spacer', 'bushing', 'bearing',
-		'valve', 'hook', 'clamp', 'bracket', 'plate', 'pad',
-		'rotor', 'caliper', 'lever', 'cable', 'wire', 'connector',
-		'controller', 'throttle', 'display', 'dashboard',
-		'mudguard', 'kickstand', 'footrest', 'deck', 'stem',
+		'bolt',
+		'screw',
+		'nut',
+		'washer',
+		'spacer',
+		'bushing',
+		'bearing',
+		'valve',
+		'hook',
+		'clamp',
+		'bracket',
+		'plate',
+		'pad',
+		'rotor',
+		'caliper',
+		'lever',
+		'cable',
+		'wire',
+		'connector',
+		'controller',
+		'throttle',
+		'display',
+		'dashboard',
+		'mudguard',
+		'kickstand',
+		'footrest',
+		'deck',
+		'stem',
 		// Pack/set items (usually parts)
-		'pack)', 'set)', 'pair)',
+		'pack)',
+		'set)',
+		'pair)',
 	];
 	if (excludeTerms.some((term) => name.includes(term))) return false;
 
@@ -455,7 +525,10 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
  * Fetch a URL with proper headers and timeout.
  * Returns { ok, status, html, error }
  */
-export async function fetchPage(url: string, timeoutMs = 15000): Promise<{
+export async function fetchPage(
+	url: string,
+	timeoutMs = 15000
+): Promise<{
 	ok: boolean;
 	status: number;
 	html: string;
@@ -464,7 +537,8 @@ export async function fetchPage(url: string, timeoutMs = 15000): Promise<{
 	try {
 		const response = await fetch(url, {
 			headers: {
-				'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+				'User-Agent':
+					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
 				Accept: 'text/html,application/xhtml+xml',
 				'Accept-Language': 'en-US,en;q=0.9',
 			},

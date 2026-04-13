@@ -130,9 +130,7 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 		const nameLower = scooter.name.toLowerCase();
 
 		// Exact match on name
-		const exactMatch = existingKeys.find(
-			(key) => presetMetadata[key].name.toLowerCase() === nameLower
-		);
+		const exactMatch = existingKeys.find((key) => presetMetadata[key].name.toLowerCase() === nameLower);
 		if (exactMatch) {
 			scooter.isKnown = true;
 			scooter.matchedKey = exactMatch;
@@ -147,9 +145,7 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 		});
 		if (fuzzyMatch) {
 			scooter.isKnown = true;
-			scooter.matchedKey = existingKeys.find(
-				(key) => presetMetadata[key].name.toLowerCase() === fuzzyMatch
-			);
+			scooter.matchedKey = existingKeys.find((key) => presetMetadata[key].name.toLowerCase() === fuzzyMatch);
 		}
 	}
 
@@ -204,7 +200,7 @@ async function extractScootersWithLLM(
 	html: string,
 	manufacturerName: string,
 	sourceUrl: string,
-	retryCount = 0,
+	retryCount = 0
 ): Promise<LLMExtractionResult> {
 	// Strip HTML to text for the prompt
 	const pageText = stripHtmlForLLM(html, sourceUrl);
@@ -233,9 +229,12 @@ PAGE CONTENT:
 ${pageText.slice(0, 15000)}`;
 
 	try {
-		const response = await fetch(`${GEMINI_URL}?key=${env.GEMINI_API_KEY}`, {
+		const response = await fetch(GEMINI_URL, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'x-goog-api-key': env.GEMINI_API_KEY!,
+			},
 			body: JSON.stringify({
 				contents: [{ parts: [{ text: prompt }] }],
 				generationConfig: {
@@ -271,23 +270,25 @@ ${pageText.slice(0, 15000)}`;
 
 		const scooters = parsed
 			.filter((item: any) => item.name && typeof item.name === 'string')
-			.map((item: any): DiscoveredScooter => ({
-				name: item.name,
-				url: item.url || sourceUrl,
-				manufacturer: manufacturerName,
-				manufacturerId: '',
-				specs: {
-					topSpeed: typeof item.topSpeed === 'number' ? item.topSpeed : undefined,
-					range: typeof item.range === 'number' ? item.range : undefined,
-					batteryWh: typeof item.batteryWh === 'number' ? item.batteryWh : undefined,
-					price: typeof item.price === 'number' ? item.price : undefined,
-					motorWatts: typeof item.motorWatts === 'number' ? item.motorWatts : undefined,
-					weight: typeof item.weight === 'number' ? item.weight : undefined,
-				},
-				isKnown: false,
-				year: typeof item.year === 'number' ? item.year : undefined,
-				extractionMethod: 'gemini-llm',
-			}));
+			.map(
+				(item: any): DiscoveredScooter => ({
+					name: item.name,
+					url: item.url || sourceUrl,
+					manufacturer: manufacturerName,
+					manufacturerId: '',
+					specs: {
+						topSpeed: typeof item.topSpeed === 'number' ? item.topSpeed : undefined,
+						range: typeof item.range === 'number' ? item.range : undefined,
+						batteryWh: typeof item.batteryWh === 'number' ? item.batteryWh : undefined,
+						price: typeof item.price === 'number' ? item.price : undefined,
+						motorWatts: typeof item.motorWatts === 'number' ? item.motorWatts : undefined,
+						weight: typeof item.weight === 'number' ? item.weight : undefined,
+					},
+					isKnown: false,
+					year: typeof item.year === 'number' ? item.year : undefined,
+					extractionMethod: 'gemini-llm',
+				})
+			);
 
 		return { scooters };
 	} catch (e) {
@@ -302,13 +303,29 @@ function stripHtmlForLLM(html: string, url: string): string {
 
 	// Remove noise
 	const removeSelectors = [
-		'script', 'style', 'noscript', 'iframe', 'svg',
-		'nav', 'footer', '.nav', '.footer', '.header', '.menu',
-		'.cookie', '.popup', '.modal', '.newsletter',
+		'script',
+		'style',
+		'noscript',
+		'iframe',
+		'svg',
+		'nav',
+		'footer',
+		'.nav',
+		'.footer',
+		'.header',
+		'.menu',
+		'.cookie',
+		'.popup',
+		'.modal',
+		'.newsletter',
 		'[role="navigation"]',
 	];
 	for (const sel of removeSelectors) {
-		try { root.querySelectorAll(sel).forEach((el: any) => el.remove()); } catch { /* ignore */ }
+		try {
+			root.querySelectorAll(sel).forEach((el: any) => el.remove());
+		} catch {
+			/* ignore */
+		}
 	}
 
 	const text = root.textContent.replace(/\s+/g, ' ').trim();
@@ -325,13 +342,17 @@ function stripHtmlForLLM(html: string, url: string): string {
 				productLinks.push(`PRODUCT: ${linkText} -> ${fullUrl}`);
 			}
 		}
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 
 	return [
 		`SOURCE: ${url}`,
 		productLinks.length > 0 ? `\nPRODUCT LINKS:\n${productLinks.join('\n')}` : '',
 		`\nPAGE CONTENT:\n${text.slice(0, 15000)}`,
-	].filter(Boolean).join('\n');
+	]
+		.filter(Boolean)
+		.join('\n');
 }
 
 /** Simple string similarity (Jaccard on character bigrams) */

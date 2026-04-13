@@ -1,9 +1,14 @@
-import { json, error } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin } from '$lib/server/admin-guard';
 import { getStore, addSource, addPriceObservation } from '$lib/server/verification/store';
 import { seedData, getSeedDataKeys } from '$lib/server/verification/seed-data';
-import { SPEC_FIELD_UNITS, type SpecField, type SourceEntry, type PriceObservation } from '$lib/server/verification/types';
+import {
+	SPEC_FIELD_UNITS,
+	type SpecField,
+	type SourceEntry,
+	type PriceObservation,
+} from '$lib/server/verification/types';
 import { randomBytes } from 'crypto';
 import { logActivity } from '$lib/server/verification/activity-log';
 
@@ -13,9 +18,7 @@ import { logActivity } from '$lib/server/verification/activity-log';
  * so the admin doesn't have to manually enter everything.
  */
 export const POST: RequestHandler = async ({ cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const store = await getStore();
 	const keys = getSeedDataKeys();
@@ -38,7 +41,7 @@ export const POST: RequestHandler = async ({ cookies }) => {
 					unit: SPEC_FIELD_UNITS[field as SpecField] || '',
 					fetchedAt: new Date().toISOString(),
 					addedBy: 'manual',
-					notes: 'Pre-seeded from curated database'
+					notes: 'Pre-seeded from curated database',
 				};
 
 				await addSource(store, scooterKey, field as SpecField, sourceEntry);
@@ -54,22 +57,28 @@ export const POST: RequestHandler = async ({ cookies }) => {
 				source: price.source,
 				url: price.url,
 				observedAt: new Date().toISOString(),
-				inStock: true
+				inStock: true,
 			};
 			await addPriceObservation(store, scooterKey, obs);
 			totalPrices++;
 		}
 	}
 
-	await logActivity('seed_completed', `Seeded ${keys.length} scooters with ${totalSources} sources and ${totalPrices} prices`, {
-		scootersSeeded: keys.length, totalSources, totalPrices,
-	});
+	await logActivity(
+		'seed_completed',
+		`Seeded ${keys.length} scooters with ${totalSources} sources and ${totalPrices} prices`,
+		{
+			scootersSeeded: keys.length,
+			totalSources,
+			totalPrices,
+		}
+	);
 
 	return json({
 		success: true,
 		scootersSeeded: keys.length,
 		totalSources,
 		totalPrices,
-		message: `Seeded ${keys.length} scooters with ${totalSources} source entries and ${totalPrices} price observations.`
+		message: `Seeded ${keys.length} scooters with ${totalSources} source entries and ${totalPrices} price observations.`,
 	});
 };

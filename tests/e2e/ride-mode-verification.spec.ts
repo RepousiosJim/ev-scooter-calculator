@@ -1,78 +1,70 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Ride Mode Presets Feature', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-  });
+	test.beforeEach(async ({ page }) => {
+		await page.goto('/');
+	});
 
-  test('should display ride mode buttons', async ({ page }) => {
-    const rideModeLabel = page.getByText('Ride Mode').first();
-    await expect(rideModeLabel).toBeVisible();
+	test('should display ride mode buttons', async ({ page }) => {
+		const rideModeLabel = page.getByText('Ride Mode').first();
+		await expect(rideModeLabel).toBeVisible();
 
-    const modeButtons = page.locator('[role="radiogroup"] button').or(
-      page.locator('.grid.grid-cols-2 button').filter({ hasText: /Eco|Normal|Sport|Turbo/ })
-    );
+		// Buttons are inside a radiogroup with role="radio"
+		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		await expect(modeButtons).toHaveCount(4);
 
-    await expect(modeButtons).toHaveCount(4);
+		// Each mode button should be visible
+		await expect(modeButtons.nth(0)).toBeVisible();
+		await expect(modeButtons.nth(1)).toBeVisible();
+		await expect(modeButtons.nth(2)).toBeVisible();
+		await expect(modeButtons.nth(3)).toBeVisible();
+	});
 
-    const ecoButton = page.getByText('Eco');
-    const normalButton = page.getByText('Normal');
-    const sportButton = page.getByText('Sport');
-    const turboButton = page.getByText('Turbo');
+	test('should select ride mode and show impact', async ({ page }) => {
+		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
 
-    await expect(ecoButton).toBeVisible();
-    await expect(normalButton).toBeVisible();
-    await expect(sportButton).toBeVisible();
-    await expect(turboButton).toBeVisible();
-  });
+		// Click Eco mode (first button)
+		await modeButtons.nth(0).click();
+		await expect(modeButtons.nth(0)).toHaveAttribute('aria-checked', 'true');
 
-  test('should select ride mode and show impact', async ({ page }) => {
-    const ecoButton = page.locator('button').filter({ hasText: 'Eco' }).first();
-    const sportButton = page.locator('button').filter({ hasText: 'Sport' }).first();
-    const turboButton = page.locator('button').filter({ hasText: 'Turbo' }).first();
+		// Click Sport mode (third button)
+		await modeButtons.nth(2).click();
+		await expect(modeButtons.nth(2)).toHaveAttribute('aria-checked', 'true');
 
-    await ecoButton.click();
+		// Impact percentage values should be visible alongside Ride Mode label
+		// The component shows "Range +X%" and "Speed +X%" when a mode is active
+		const rideModeSection = page
+			.locator('.rounded-2xl')
+			.filter({ has: page.locator('text=Ride Mode') })
+			.first();
+		await expect(rideModeSection).toBeVisible();
+		// Range and Speed impact are shown as small text spans
+		await expect(rideModeSection.locator('text=/Range/')).toBeVisible();
+		await expect(rideModeSection.locator('text=/Speed/')).toBeVisible();
+	});
 
-    const ecoSelected = page.locator('button').filter({ hasText: 'Eco' }).and(
-      page.locator('[aria-checked="true"]')
-    );
-    await expect(ecoSelected).toBeVisible();
+	test('should update performance stats when switching modes', async ({ page }) => {
+		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
 
-    await sportButton.click();
+		// Click Eco then Turbo — just verify no errors and buttons respond
+		await modeButtons.nth(0).click();
+		await expect(modeButtons.nth(0)).toHaveAttribute('aria-checked', 'true');
 
-    const sportSelected = page.locator('button').filter({ hasText: 'Sport' }).and(
-      page.locator('[aria-checked="true"]')
-    );
-    await expect(sportSelected).toBeVisible();
+		await modeButtons.nth(3).click();
+		await expect(modeButtons.nth(3)).toHaveAttribute('aria-checked', 'true');
+	});
 
-    const modeImpact = page.getByText('Mode Impact');
-    await expect(modeImpact).toBeVisible();
+	test('should show correct mode labels', async ({ page }) => {
+		// Ride Mode heading is visible
+		await expect(page.getByText('Ride Mode').first()).toBeVisible();
 
-    const rangeLabel = page.getByText('Range');
-    const speedLabel = page.getByText('Speed');
-    await expect(rangeLabel).toBeVisible();
-    await expect(speedLabel).toBeVisible();
-  });
-
-  test('should update performance stats when switching modes', async ({ page }) => {
-    const ecoButton = page.locator('button').filter({ hasText: 'Eco' }).first();
-    const turboButton = page.locator('button').filter({ hasText: 'Turbo' }).first();
-
-    const rangeValue = page.getByText(/Range/).locator('../..').locator('.font-number').or(
-      page.locator('div:has-text("Range")').locator('.font-semibold, .font-medium')
-    );
-
-    await ecoButton.click();
-
-    await turboButton.click();
-  });
-
-  test('should show correct mode labels and descriptions', async ({ page }) => {
-    await expect(page.getByText('Adjust power output and efficiency')).toBeVisible();
-
-    const ecoButton = page.locator('button').filter({ hasText: 'Eco' }).first();
-    await ecoButton.click();
-
-    await expect(page.getByText('Eco', { exact: true })).toBeVisible();
-  });
+		// Each mode button contains a text label (Eco / Normal / Sport / Turbo)
+		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		const texts = await Promise.all([0, 1, 2, 3].map((i) => modeButtons.nth(i).textContent()));
+		const joined = texts.join(' ').toLowerCase();
+		expect(joined).toContain('eco');
+		expect(joined).toContain('normal');
+		expect(joined).toContain('sport');
+		expect(joined).toContain('turbo');
+	});
 });

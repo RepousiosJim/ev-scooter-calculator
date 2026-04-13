@@ -1,23 +1,33 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { manufacturers, getScrapableManufacturers } from '$lib/server/verification/manufacturers';
 import { discoverScooters } from '$lib/server/verification/discovery';
 import { logActivity } from '$lib/server/verification/activity-log';
+import {
+	createRun,
+	completeRun,
+	failRun,
+	addEntries,
+	updateUrlHealth,
+	type DiscoveryEntry,
+} from '$lib/server/verification/discovery-store';
+import { onDiscoveryComplete } from '$lib/server/verification/pipeline-actions';
+import { randomBytes } from 'crypto';
 
 /** Discover new scooters from a single manufacturer or all (SSE streaming) */
-export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
+	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
-	const { manufacturerId } = body as { manufacturerId?: string };
+	const { manufacturerId, autoPromote = true } = body as {
+		manufacturerId?: string;
+		autoPromote?: boolean;
+	};
 
 	const encoder = new TextEncoder();
-	const targets = manufacturerId
-		? manufacturers.filter((m) => m.id === manufacturerId)
-		: getScrapableManufacturers();
+	const targets = manufacturerId ? manufacturers.filter((m) => m.id === manufacturerId) : getScrapableManufacturers();
 
 	if (targets.length === 0) {
 		throw error(400, 'No manufacturers to scan');
@@ -29,11 +39,16 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 				controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 			};
 
+			// Create a persistent discovery run
+			const run = await createRun(targets.map((m) => m.id));
+
 			await logActivity('discovery_started', `Discovery scan started: ${targets.length} manufacturer(s)`, {
 				manufacturers: targets.map((m) => m.name),
+				runId: run.id,
 			});
 
 			send('start', {
+				runId: run.id,
 				totalManufacturers: targets.length,
 				manufacturers: targets.map((m) => ({ id: m.id, name: m.name })),
 			});
@@ -41,18 +56,49 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			let totalNew = 0;
 			let totalKnown = 0;
 			const allResults: any[] = [];
+			const allNewScooters: any[] = [];
+			const allErrors: string[] = [];
 
-			for (let i = 0; i < targets.length; i++) {
-				const mfr = targets[i];
-
+			// Process one manufacturer: discover, persist, emit SSE event
+			const processManufacturer = async (mfr: (typeof targets)[number], index: number) => {
 				send('scanning', {
 					manufacturerId: mfr.id,
 					name: mfr.name,
-					index: i,
+					index,
 					total: targets.length,
 				});
 
 				const result = await discoverScooters(mfr);
+
+				// Track URL health for each URL attempted
+				for (const url of result.scannedUrls) {
+					await updateUrlHealth(url, 200, undefined, result.scooters.length);
+				}
+				for (const url of result.deadUrls) {
+					await updateUrlHealth(url, 404, 'Page not found or unreachable');
+				}
+
+				// Persist discovered entries
+				const entries: DiscoveryEntry[] = result.scooters.map((s) => ({
+					id: randomBytes(8).toString('hex'),
+					name: s.name,
+					url: s.url,
+					manufacturer: s.manufacturer,
+					manufacturerId: s.manufacturerId || mfr.id,
+					specs: s.specs,
+					isKnown: s.isKnown,
+					matchedKey: s.matchedKey,
+					year: s.year,
+					extractionMethod: s.extractionMethod,
+					discoveryRunId: run.id,
+					discoveredAt: new Date().toISOString(),
+					candidateKey: undefined,
+					disposition: null,
+				}));
+
+				if (entries.length > 0) {
+					await addEntries(entries);
+				}
 
 				const mfrResult = {
 					manufacturerId: mfr.id,
@@ -67,29 +113,87 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 					methods: result.methods,
 				};
 
-				totalNew += result.newScooters.length;
-				totalKnown += result.scooters.length - result.newScooters.length;
-				allResults.push(mfrResult);
-
 				send('manufacturer_done', mfrResult);
+				return mfrResult;
+			};
 
-				// Rate limit delay between manufacturers (Gemini free tier: 15 RPM)
-				if (i < targets.length - 1 && targets.length > 1) {
-					await new Promise((r) => setTimeout(r, 5000));
+			// Split targets into batches and run each batch in parallel
+			const BATCH_SIZE = 5;
+			const BATCH_DELAY_MS = 2000;
+
+			try {
+				for (let batchStart = 0; batchStart < targets.length; batchStart += BATCH_SIZE) {
+					const batch = targets.slice(batchStart, batchStart + BATCH_SIZE);
+
+					const batchPromises = batch.map((mfr, batchIndex) => processManufacturer(mfr, batchStart + batchIndex));
+
+					const batchOutcomes = await Promise.allSettled(batchPromises);
+
+					for (const outcome of batchOutcomes) {
+						if (outcome.status === 'fulfilled') {
+							const mfrResult = outcome.value;
+							totalNew += mfrResult.newCount;
+							totalKnown += mfrResult.knownCount;
+							allResults.push(mfrResult);
+							allNewScooters.push(...mfrResult.newScooters);
+							allErrors.push(...mfrResult.errors);
+						} else {
+							// Per-manufacturer failure: record error but continue
+							const msg = outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason);
+							allErrors.push(msg);
+						}
+					}
+
+					// Rate-limit delay between batches (be polite to target servers)
+					const isLastBatch = batchStart + BATCH_SIZE >= targets.length;
+					if (!isLastBatch) {
+						await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
+					}
 				}
+
+				// Auto-promote new scooters to candidates
+				let candidatesCreated = 0;
+				if (autoPromote && allNewScooters.length > 0) {
+					const promotionResult = await onDiscoveryComplete(run.id, allNewScooters);
+					candidatesCreated = promotionResult.candidatesCreated;
+				}
+
+				// Complete the run with stats
+				await completeRun(run.id, {
+					totalFound: totalNew + totalKnown,
+					totalNew,
+					totalKnown,
+					candidatesCreated,
+					errors: allErrors,
+				});
+
+				send('done', {
+					runId: run.id,
+					totalManufacturers: targets.length,
+					totalScootersFound: totalNew + totalKnown,
+					totalNew,
+					totalKnown,
+					candidatesCreated,
+					autoPromoted: autoPromote,
+					results: allResults,
+				});
+
+				await logActivity(
+					'discovery_completed',
+					`Discovery done: ${totalNew + totalKnown} found (${totalNew} new, ${candidatesCreated} candidates created) across ${targets.length} manufacturer(s)`,
+					{
+						runId: run.id,
+						totalNew,
+						totalKnown,
+						candidatesCreated,
+						totalManufacturers: targets.length,
+					}
+				);
+			} catch (e) {
+				const msg = e instanceof Error ? e.message : 'Unknown error';
+				await failRun(run.id, msg);
+				send('error', { error: msg, runId: run.id });
 			}
-
-			send('done', {
-				totalManufacturers: targets.length,
-				totalScootersFound: totalNew + totalKnown,
-				totalNew,
-				totalKnown,
-				results: allResults,
-			});
-
-			await logActivity('discovery_completed', `Discovery done: ${totalNew + totalKnown} scooters found (${totalNew} new) across ${targets.length} manufacturer(s)`, {
-				totalNew, totalKnown, totalManufacturers: targets.length,
-			});
 
 			controller.close();
 		},
@@ -106,23 +210,22 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
 /** GET: Return manufacturer registry */
 export const GET: RequestHandler = async ({ cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
-	return new Response(JSON.stringify({
-		manufacturers: manufacturers.map((m) => ({
-			id: m.id,
-			name: m.name,
-			website: m.website,
-			scrapable: m.scrapable,
-			knownScooterCount: m.knownScooterKeys.length,
-			productListingUrls: m.productListingUrls,
-			country: m.country,
-			tier: m.tier,
-		})),
-		scrapableCount: getScrapableManufacturers().length,
-	}), {
-		headers: { 'Content-Type': 'application/json' },
-	});
+	return new Response(
+		JSON.stringify({
+			manufacturers: manufacturers.map((m) => ({
+				id: m.id,
+				name: m.name,
+				website: m.website,
+				scrapable: m.scrapable,
+				knownScooterCount: m.knownScooterKeys.length,
+				productListingUrls: m.productListingUrls,
+				country: m.country,
+				tier: m.tier,
+			})),
+			scrapableCount: getScrapableManufacturers().length,
+		}),
+		{ headers: { 'Content-Type': 'application/json' } }
+	);
 };

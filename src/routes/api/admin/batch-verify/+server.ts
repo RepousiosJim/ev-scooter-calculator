@@ -1,16 +1,14 @@
-import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { autoVerifyScooter } from '$lib/server/verification/auto-verify';
 import { knownSources } from '$lib/server/verification/known-sources';
 import { presetMetadata } from '$lib/data/presets';
 import { logActivity } from '$lib/server/verification/activity-log';
 
 /** Batch verify ALL scooters with SSE streaming progress */
-export const POST: RequestHandler = async ({ cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+export const POST: RequestHandler = async ({ cookies, getClientAddress }) => {
+	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const scooterKeys = Object.keys(knownSources);
 	const totalUrls = scooterKeys.reduce((s, k) => s + knownSources[k].length, 0);
@@ -26,7 +24,7 @@ export const POST: RequestHandler = async ({ cookies }) => {
 
 			send('start', {
 				totalScooters: scooterKeys.length,
-				totalUrls
+				totalUrls,
 			});
 
 			let totalSucceeded = 0;
@@ -40,7 +38,7 @@ export const POST: RequestHandler = async ({ cookies }) => {
 					scooterKey: key,
 					name,
 					index: scootersCompleted,
-					totalScooters: scooterKeys.length
+					totalScooters: scooterKeys.length,
 				});
 
 				const result = await autoVerifyScooter(key, (sourceResult) => {
@@ -49,7 +47,7 @@ export const POST: RequestHandler = async ({ cookies }) => {
 						sourceName: sourceResult.sourceName,
 						success: sourceResult.success,
 						specsFound: sourceResult.specsFound,
-						error: sourceResult.error
+						error: sourceResult.error,
 					});
 				});
 
@@ -63,7 +61,7 @@ export const POST: RequestHandler = async ({ cookies }) => {
 					succeeded: result.succeeded,
 					failed: result.failed,
 					scootersCompleted,
-					totalScooters: scooterKeys.length
+					totalScooters: scooterKeys.length,
 				});
 			}
 
@@ -71,22 +69,28 @@ export const POST: RequestHandler = async ({ cookies }) => {
 				totalScooters: scootersCompleted,
 				totalSucceeded,
 				totalFailed,
-				totalSourcesScraped: totalSucceeded + totalFailed
+				totalSourcesScraped: totalSucceeded + totalFailed,
 			});
 
-			await logActivity('scan_completed', `Batch scrape done: ${totalSucceeded} succeeded, ${totalFailed} failed across ${scootersCompleted} scooters`, {
-				totalScooters: scootersCompleted, totalSucceeded, totalFailed
-			});
+			await logActivity(
+				'scan_completed',
+				`Batch scrape done: ${totalSucceeded} succeeded, ${totalFailed} failed across ${scootersCompleted} scooters`,
+				{
+					totalScooters: scootersCompleted,
+					totalSucceeded,
+					totalFailed,
+				}
+			);
 
 			controller.close();
-		}
+		},
 	});
 
 	return new Response(stream, {
 		headers: {
 			'Content-Type': 'text/event-stream',
 			'Cache-Control': 'no-cache',
-			Connection: 'keep-alive'
-		}
+			Connection: 'keep-alive',
+		},
 	});
 };

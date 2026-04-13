@@ -1,42 +1,36 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { fly, slide } from "svelte/transition";
-  import {
-    calculatorState,
-    loadConfigFromUrl,
-  } from "$lib/stores/calculator.svelte";
-  import { uiState } from "$lib/stores/ui.svelte";
-  import { analytics } from "$lib/utils/analytics";
-  import {
-    initBehaviorTracking,
-    trackWebVitals,
-    startSession,
-    initAllABTests,
-  } from "$lib/utils/analytics";
+  import { onMount } from 'svelte';
+  import { slide } from 'svelte/transition';
+  import { Lightbulb, ChevronDown } from 'lucide-svelte';
+  import { calculatorState, loadConfigFromUrl, loadPreset } from '$lib/stores/calculator.svelte';
+  import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
+  import { analytics } from '$lib/utils/analytics';
+  import { initBehaviorTracking, trackWebVitals, startSession, initAllABTests } from '$lib/utils/analytics';
 
   // Components
-  import AppHeader from "$lib/components/ui/AppHeader.svelte";
-  import PresetSelector from "$lib/components/calculator/PresetSelector.svelte";
-  import BasicConfig from "$lib/components/calculator/BasicConfig.svelte";
-  import AdvancedConfig from "$lib/components/calculator/AdvancedConfig.svelte";
-  import PowerGraph from "$lib/components/calculator/PowerGraph.svelte";
-  import UpgradeSimulator from "$lib/components/calculator/UpgradeSimulator.svelte";
-  import ComparisonDisplay from "$lib/components/calculator/ComparisonDisplay.svelte";
-  import ComparisonSummary from "$lib/components/calculator/ComparisonSummary.svelte";
-  import PerformanceSummary from "$lib/components/calculator/PerformanceSummary.svelte";
-  import EfficiencyPanel from "$lib/components/calculator/EfficiencyPanel.svelte";
-  import ComponentHealthPanel from "$lib/components/calculator/ComponentHealthPanel.svelte";
-  import BottleneckPanel from "$lib/components/calculator/BottleneckPanel.svelte";
-  import SectionDivider from "$lib/components/ui/SectionDivider.svelte";
-  import RideModeSelector from "$lib/components/calculator/RideModeSelector.svelte";
-  import ScooterComparisonTable from "$lib/components/calculator/ScooterComparisonTable.svelte";
-  import ShareButton from "$lib/components/ui/ShareButton.svelte";
+  import AppHeader from '$lib/components/ui/AppHeader.svelte';
+  import PresetSelector from '$lib/components/calculator/PresetSelector.svelte';
+  import ProfileManager from '$lib/components/calculator/ProfileManager.svelte';
+  import BasicConfig from '$lib/components/calculator/BasicConfig.svelte';
+  import AdvancedConfig from '$lib/components/calculator/AdvancedConfig.svelte';
+  import PowerGraph from '$lib/components/calculator/PowerGraph.svelte';
+  import UpgradeSimulator from '$lib/components/calculator/UpgradeSimulator.svelte';
+  import ComparisonDisplay from '$lib/components/calculator/ComparisonDisplay.svelte';
+  import ComparisonSummary from '$lib/components/calculator/ComparisonSummary.svelte';
+  import PerformanceSummary from '$lib/components/calculator/PerformanceSummary.svelte';
+  import EfficiencyPanel from '$lib/components/calculator/EfficiencyPanel.svelte';
+  import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
+  import BottleneckPanel from '$lib/components/calculator/BottleneckPanel.svelte';
+  import SectionDivider from '$lib/components/ui/SectionDivider.svelte';
+  import RideModeSelector from '$lib/components/calculator/RideModeSelector.svelte';
+  import ScooterComparisonTable from '$lib/components/calculator/ScooterComparisonTable.svelte';
+  import ShareButton from '$lib/components/ui/ShareButton.svelte';
 
-  // New UI Components
-  import VisualCRateIndicator from "$lib/components/ui/VisualCRateIndicator.svelte";
-  import ComparisonDeltaCard from "$lib/components/ui/ComparisonDeltaCard.svelte";
-  import Icon from "$lib/components/ui/atoms/Icon.svelte";
-  import { distanceVal, speedVal, distanceUnit, speedUnit, costPer100Val, costDistanceLabel } from "$lib/utils/units";
+  import VisualCRateIndicator from '$lib/components/ui/VisualCRateIndicator.svelte';
+  import ComparisonDeltaCard from '$lib/components/ui/ComparisonDeltaCard.svelte';
+  import Icon from '$lib/components/ui/atoms/Icon.svelte';
+  import { distanceVal, speedVal, distanceUnit, speedUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
+  import { exportJSON, buildCalculatorExport } from '$lib/utils/export';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -44,21 +38,32 @@
   onMount(() => {
     loadConfigFromUrl();
 
+    // Handle URL params from other pages
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab === 'compare' || tab === 'upgrades' || tab === 'configuration') {
+      uiState.activeTab = tab;
+    }
+    const presetParam = params.get('preset');
+    if (presetParam) {
+      loadPreset(presetParam);
+    }
+
     startSession();
     const cleanupBehaviorTracking = initBehaviorTracking();
     const cleanupWebVitals = trackWebVitals();
     initAllABTests();
 
-    analytics.startFunnel("configuration_flow", "page_load");
+    analytics.startFunnel('configuration_flow', 'page_load');
 
     const handleBeforeUnload = () => {
       analytics.endSession();
     };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
 
       // Clean up analytics listeners and intervals
       cleanupBehaviorTracking();
@@ -68,14 +73,92 @@
 
   let showDetailedAnalysis = $state(false);
   let showAdvancedConfig = $state(false);
+  let showEfficencyMobile = $state(false);
   let hasInteracted = $state(false);
+
+  const scriptOpen = '<script type="application/ld+json">';
+  const scriptClose = '<' + '/script>';
+  const webAppJsonLd =
+    scriptOpen +
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      name: 'EV Scooter Pro Calculator',
+      description:
+        'Free online calculator for electric scooter performance analysis, hardware compatibility checking, upgrade simulation, and scooter comparison. Calculates real-world range, top speed, power output, and efficiency.',
+      url: 'https://evscooterpro.com/',
+      applicationCategory: 'UtilitiesApplication',
+      operatingSystem: 'Any',
+      browserRequirements: 'Requires JavaScript',
+      offers: {
+        '@type': 'Offer',
+        price: '0',
+        priceCurrency: 'USD',
+      },
+      featureList: [
+        'Electric scooter range calculator',
+        'Top speed and power analysis',
+        'Hardware upgrade simulator',
+        'Side-by-side scooter comparison',
+        'Performance grading and scoring',
+      ],
+    }) +
+    scriptClose;
+  const faqJsonLd =
+    scriptOpen +
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: [
+        {
+          '@type': 'Question',
+          name: 'How is the range calculated?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Range is calculated using battery capacity (Wh), motor efficiency, rider weight, and riding conditions. The calculator models real-world power draw at a given speed to estimate how far you can travel on a full charge.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What determines the top speed?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "Top speed is primarily determined by motor power, voltage, and wheel size. The controller's current limit, gear ratio, and aerodynamic drag also cap the maximum achievable speed.",
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How accurate are these calculations?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'Calculated figures are physics-based estimates derived from manufacturer specs and real-world efficiency models. Actual results vary with terrain, temperature, rider weight, and riding style — typically within 10–20% of calculated values.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'What is the performance score?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: 'The performance score (0–100) is a composite rating that weighs range, top speed, power output, acceleration, and efficiency. Scooters are graded S through F based on their score relative to all models in the database.',
+          },
+        },
+        {
+          '@type': 'Question',
+          name: 'How does rider weight affect range?',
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: "Heavier riders require more motor power to maintain speed, which increases energy consumption and reduces range. As a rough rule, every additional 10 kg of rider weight reduces range by roughly 3–8%, depending on the scooter's power headroom.",
+          },
+        },
+      ],
+    }) +
+    scriptClose;
 
   $effect(() => {
     if (calculatorState.activePresetKey !== 'custom') {
       hasInteracted = true;
     }
   });
-
 </script>
 
 <svelte:head>
@@ -84,12 +167,22 @@
     name="description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
   />
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html webAppJsonLd}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html faqJsonLd}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
   <!-- Decorative background elements -->
-  <div class="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
-  <div class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none" aria-hidden="true"></div>
+  <div
+    class="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/3 blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
+  <div
+    class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none"
+    aria-hidden="true"
+  ></div>
 
   <div class="relative">
     <AppHeader />
@@ -100,39 +193,37 @@
         aria-labelledby="configuration-heading"
         id="configuration-panel"
         role="tabpanel"
-        aria-hidden={uiState.activeTab !== "configuration"}
-        tabindex={uiState.activeTab === "configuration" ? 0 : -1}
+        aria-hidden={uiState.activeTab !== 'configuration'}
+        tabindex={uiState.activeTab === 'configuration' ? 0 : -1}
       >
-        {#if uiState.activeTab === "configuration"}
-          <h2 id="configuration-heading" class="sr-only">
-            Calculator
-          </h2>
+        {#if uiState.activeTab === 'configuration'}
+          <h2 id="configuration-heading" class="sr-only">Calculator</h2>
 
           {#if calculatorState.activePresetKey === 'custom' && !hasInteracted}
-            <div class="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6 flex items-start gap-3 animate-fadeIn">
-              <span class="text-primary shrink-0 mt-0.5">💡</span>
+            <div
+              class="bg-primary/5 border border-primary/20 rounded-2xl p-4 mb-6 backdrop-blur-sm flex items-start gap-3 animate-fadeIn"
+            >
+              <span class="text-primary shrink-0 mt-0.5"><Lightbulb size={18} /></span>
               <div class="flex-1">
-                <p class="text-sm font-bold text-text-primary">New here? Start with a preset</p>
-                <p class="text-xs text-text-tertiary mt-1">Use Quick Start below to pick a scooter model and auto-fill specs.</p>
+                <p class="text-sm font-bold text-text-primary">Start with a preset</p>
+                <p class="text-xs text-text-tertiary mt-1">
+                  Pick a scooter model below to auto-fill specs, then customize from there.
+                </p>
               </div>
-              <button type="button" onclick={() => hasInteracted = true} class="text-text-tertiary hover:text-text-primary shrink-0 text-lg leading-none" aria-label="Dismiss">✕</button>
             </div>
           {/if}
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-5 md:gap-5 lg:gap-12">
             <!-- Left Column: Configuration -->
-            <div class="md:col-span-4 lg:col-span-5 space-y-6 min-w-0">
+            <section aria-label="Scooter Configuration" class="md:col-span-4 lg:col-span-5 space-y-6 min-w-0">
               <div class="space-y-5">
                 <div class="flex items-center gap-3 mb-2">
                   <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
-                  <h3
-                    class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]"
-                  >
-                    Configuration
-                  </h3>
+                  <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Configuration</h3>
                   <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
                 </div>
                 <PresetSelector />
+                <ProfileManager />
                 <RideModeSelector />
                 <BasicConfig />
               </div>
@@ -142,106 +233,153 @@
                 <button
                   type="button"
                   onclick={() => (showAdvancedConfig = !showAdvancedConfig)}
-                  class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
+                  aria-expanded={showAdvancedConfig}
+                  aria-controls="advanced-config-panel"
+                  class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] rounded-xl hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
                 >
                   <div class="flex items-center gap-3">
-                    <Icon
-                      name="settings"
-                      size="md"
-                      class="text-secondary group-hover:scale-110 transition-transform"
-                    />
-                    <span
-                      class="text-xs font-bold uppercase tracking-[0.16em] text-text-primary"
-                    >
+                    <Icon name="settings" size="md" class="text-secondary group-hover:scale-110 transition-transform" />
+                    <span class="text-xs font-bold uppercase tracking-[0.16em] text-text-primary">
                       Advanced Parameters
                     </span>
                   </div>
                   <span
                     class="text-text-tertiary transition-transform duration-300"
-                    style:transform={showAdvancedConfig
-                      ? "rotate(180deg)"
-                      : ""}
+                    style:transform={showAdvancedConfig ? 'rotate(180deg)' : ''}
                   >
-                    ▼
+                    <ChevronDown size={16} />
                   </span>
                 </button>
 
                 {#if showAdvancedConfig}
-                  <div transition:slide={{ duration: 300 }} class="mt-6 space-y-8">
+                  <div id="advanced-config-panel" transition:slide={{ duration: 300 }} class="mt-6 space-y-8">
                     <AdvancedConfig />
                   </div>
                 {/if}
               </div>
-            </div>
+            </section>
 
             <!-- Right Column: Results -->
-            <div class="md:col-span-8 lg:col-span-7 space-y-6 min-w-0">
+            <section aria-label="Performance Results" class="md:col-span-8 lg:col-span-7 space-y-6 min-w-0">
               <div
-                class="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-5 lg:p-6 shadow-2xl shadow-black/10"
+                class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-4 sm:p-5 lg:p-6 shadow-2xl shadow-black/10 backdrop-blur-sm"
               >
                 <div class="mb-6 flex items-center justify-between gap-4">
-                  <h3 class="text-xl font-black text-text-primary tracking-tight">
-                    Performance Analysis
-                  </h3>
+                  <h3 class="text-xl font-black text-text-primary tracking-tight">Performance Analysis</h3>
                   <div class="flex items-center gap-3 flex-shrink-0">
                     <!-- Unit Toggle -->
                     <button
                       type="button"
-                      onclick={() => uiState.unitSystem = uiState.unitSystem === 'metric' ? 'imperial' : 'metric'}
+                      onclick={toggleUnitSystem}
                       class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
                       aria-label="Toggle units between metric and imperial"
                     >
                       {uiState.unitSystem === 'metric' ? 'Metric' : 'Imperial'}
                     </button>
                     <ShareButton />
+                    <div class="relative group">
+                      <button
+                        type="button"
+                        class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
+                        aria-label="Export results"
+                        onclick={() => {
+                          const data = buildCalculatorExport(
+                            calculatorState.activePresetName,
+                            calculatorState.config,
+                            stats
+                          );
+                          exportJSON([data]);
+                        }}
+                      >
+                        Export
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
+                      aria-label="Print results"
+                      onclick={() => window.print()}
+                    >
+                      Print
+                    </button>
                   </div>
                 </div>
 
                 <div class="space-y-6">
                   <PerformanceSummary />
 
-                  <SectionDivider icon="efficiency" label="Efficiency & Health" />
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <EfficiencyPanel />
-                    <ComponentHealthPanel />
+                  <!-- Collapsible on mobile, always visible on desktop -->
+                  <div class="hidden md:block space-y-6">
+                    <SectionDivider icon="efficiency" label="Efficiency & Health" />
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <EfficiencyPanel />
+                      <ComponentHealthPanel />
+                    </div>
+                    <VisualCRateIndicator value={stats.cRate} />
                   </div>
 
-                  <VisualCRateIndicator value={stats.cRate} />
+                  <div class="md:hidden">
+                    <button
+                      type="button"
+                      onclick={() => (showEfficencyMobile = !showEfficencyMobile)}
+                      aria-expanded={showEfficencyMobile}
+                      aria-controls="efficiency-mobile-panel"
+                      class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] rounded-xl hover:bg-white/[0.05] transition-all flex items-center justify-between group"
+                    >
+                      <div class="flex items-center gap-2">
+                        <Icon name="efficiency" size="sm" class="text-secondary" />
+                        <span class="text-xs font-bold uppercase tracking-[0.12em] text-text-primary"
+                          >Efficiency & Health</span
+                        >
+                      </div>
+                      <span
+                        class="text-text-tertiary transition-transform duration-300"
+                        style:transform={showEfficencyMobile ? 'rotate(180deg)' : ''}
+                      >
+                        <ChevronDown size={16} />
+                      </span>
+                    </button>
+
+                    {#if showEfficencyMobile}
+                      <div id="efficiency-mobile-panel" transition:slide={{ duration: 300 }} class="mt-4 space-y-4">
+                        <div class="grid grid-cols-1 gap-4">
+                          <EfficiencyPanel />
+                          <ComponentHealthPanel />
+                        </div>
+                        <VisualCRateIndicator value={stats.cRate} />
+                      </div>
+                    {/if}
+                  </div>
 
                   <!-- Detailed Analysis Toggle -->
                   <div class="pt-2">
                     <button
                       type="button"
-                      onclick={() =>
-                        (showDetailedAnalysis = !showDetailedAnalysis)}
-                      class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
+                      onclick={() => (showDetailedAnalysis = !showDetailedAnalysis)}
+                      aria-expanded={showDetailedAnalysis}
+                      aria-controls="detailed-analysis-panel"
+                      class="w-full py-3 px-4 border border-white/[0.06] bg-white/[0.02] rounded-xl hover:bg-white/[0.05] hover:border-white/10 transition-all duration-300 flex items-center justify-between group"
                     >
                       <div class="flex items-center gap-2">
                         <Icon
-                          name={showDetailedAnalysis ? "chart" : "efficiency"}
+                          name={showDetailedAnalysis ? 'chart' : 'efficiency'}
                           size="sm"
                           class="group-hover:scale-110 transition-transform"
                         />
-                        <span
-                          class="text-xs font-bold uppercase tracking-[0.12em] text-text-primary"
-                        >
-                          {showDetailedAnalysis
-                            ? "Hide Detailed Analysis"
-                            : "Show Detailed Analysis"}
+                        <span class="text-xs font-bold uppercase tracking-[0.12em] text-text-primary">
+                          {showDetailedAnalysis ? 'Hide Detailed Analysis' : 'Show Detailed Analysis'}
                         </span>
                       </div>
                       <span
                         class="text-text-tertiary transition-transform duration-300"
-                        style:transform={showDetailedAnalysis
-                          ? "rotate(180deg)"
-                          : ""}
+                        style:transform={showDetailedAnalysis ? 'rotate(180deg)' : ''}
                       >
-                        ▼
+                        <ChevronDown size={16} />
                       </span>
                     </button>
 
                     {#if showDetailedAnalysis}
-                      <div class="mt-6 space-y-6 animate-fadeIn">
+                      <div id="detailed-analysis-panel" class="mt-6 space-y-6 animate-fadeIn">
                         <SectionDivider icon="chart" label="Power Analysis" />
                         <PowerGraph />
                         <BottleneckPanel />
@@ -250,14 +388,14 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
         {/if}
       </div>
 
       <!-- Upgrades Tab -->
       <div aria-labelledby="upgrades-heading" id="upgrades-panel" role="tabpanel">
-        {#if uiState.activeTab === "upgrades"}
+        {#if uiState.activeTab === 'upgrades'}
           <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
           <div class="space-y-6 md:space-y-8">
             <!-- Upgrade Simulator -->
@@ -268,9 +406,7 @@
               <div id="upgrade-comparison-results" class="space-y-6">
                 <div class="flex items-center gap-3 mb-4">
                   <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
-                  <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">
-                    Upgrade Comparison
-                  </h3>
+                  <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">Upgrade Comparison</h3>
                   <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
                 </div>
 
@@ -308,7 +444,7 @@
                   />
 
                   <ComparisonDeltaCard
-                    label={"Cost " + costDistanceLabel()}
+                    label={'Cost ' + costDistanceLabel()}
                     beforeValue={costPer100Val(stats.costPer100km)}
                     afterValue={costPer100Val(simStats.costPer100km)}
                     unit="$"
@@ -328,21 +464,12 @@
                 <ComparisonDisplay />
               </div>
             {:else}
-              <div
-                class="bg-white/[0.02] border border-white/[0.06] p-5 sm:p-6 md:p-10"
-              >
-                <div
-                  class="flex flex-col items-center justify-center text-center py-8 md:py-12"
-                >
-                  <div class="text-5xl mb-4 opacity-30" aria-hidden="true">
-                    +
-                  </div>
-                  <div class="text-lg font-bold text-text-primary mb-2">
-                    No upgrade selected
-                  </div>
+              <div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 sm:p-6 md:p-10">
+                <div class="flex flex-col items-center justify-center text-center py-8 md:py-12">
+                  <div class="text-5xl mb-4 opacity-30" aria-hidden="true">+</div>
+                  <div class="text-lg font-bold text-text-primary mb-2">No upgrade selected</div>
                   <div class="text-sm text-text-tertiary">
-                    Select an upgrade above to simulate its impact on your current
-                    setup
+                    Select an upgrade above to simulate its impact on your current setup
                   </div>
                 </div>
               </div>
@@ -353,7 +480,7 @@
 
       <!-- Compare Tab -->
       <div aria-labelledby="compare-heading" id="compare-panel" role="tabpanel">
-        {#if uiState.activeTab === "compare"}
+        {#if uiState.activeTab === 'compare'}
           <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
           <ScooterComparisonTable />
         {/if}

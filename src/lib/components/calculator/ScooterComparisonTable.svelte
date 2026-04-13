@@ -1,9 +1,20 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { presets, presetMetadata } from '$lib/data/presets';
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import { calculatePerformance } from '$lib/physics';
-  import { computeScore, getGrade, getGradeInfo } from '$lib/utils/scoring';
-  import { speedVal, speedUnit, distanceVal, distanceUnit, weightVal, weightUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
+  import { computeScore, getGradeInfo } from '$lib/utils/scoring';
+  import {
+    speedVal,
+    speedUnit,
+    distanceVal,
+    distanceUnit,
+    weightVal,
+    weightUnit,
+    costPer100Val,
+    costDistanceLabel,
+  } from '$lib/utils/units';
+  import { formatPrice } from '$lib/utils/formatters';
   import type { ScooterConfig, PerformanceStats } from '$lib/types';
 
   // --- Types ---
@@ -46,6 +57,27 @@
   // --- Auto-select the active preset if it's not custom ---
   const activeKey = $derived(calculatorState.activePresetKey);
 
+  // Load compare selection from rankings page if available
+  onMount(() => {
+    if (typeof sessionStorage !== 'undefined') {
+      const stored = sessionStorage.getItem('compareSelection');
+      if (stored) {
+        try {
+          const ids = JSON.parse(stored) as string[];
+          const valid = ids.filter((id) => catalog.some((s) => s.id === id)).slice(0, 3);
+          if (valid.length >= 2) {
+            selectedIds = valid;
+            sessionStorage.removeItem('compareSelection');
+            return; // Don't auto-add active preset
+          }
+        } catch {
+          /* ignore parse errors */
+        }
+        sessionStorage.removeItem('compareSelection');
+      }
+    }
+  });
+
   $effect(() => {
     if (activeKey && activeKey !== 'custom' && !selectedIds.includes(activeKey)) {
       if (selectedIds.length < 3) {
@@ -65,9 +97,7 @@
 
   // --- Selected scooter entries (preserve selection order) ---
   const selectedScooters = $derived(
-    selectedIds
-      .map((id) => catalog.find((s) => s.id === id))
-      .filter((s): s is ScooterEntry => !!s)
+    selectedIds.map((id) => catalog.find((s) => s.id === id)).filter((s): s is ScooterEntry => !!s)
   );
 
   // --- Add / Remove ---
@@ -130,10 +160,7 @@
       section: 'specs',
       getValue: (e) => e.meta?.manufacturer?.price ?? 0,
       getNumeric: (e) => e.meta?.manufacturer?.price ?? 0,
-      format: (e) => {
-        const price = e.meta?.manufacturer?.price;
-        return price ? `$${price.toLocaleString()}` : '--';
-      },
+      format: (e) => formatPrice(e.meta?.manufacturer?.price),
       higherIsBetter: false,
     },
     // Calculated section
@@ -194,7 +221,7 @@
     let bestVal = row.getNumeric(entries[0]);
     for (let i = 1; i < entries.length; i++) {
       const v = row.getNumeric(entries[i]);
-      if (row.higherIsBetter ? v > bestVal : (v < bestVal && v > 0)) {
+      if (row.higherIsBetter ? v > bestVal : v < bestVal && v > 0) {
         bestVal = v;
         bestIdx = i;
       }
@@ -207,14 +234,67 @@
     return bestIdx;
   }
 
-  // Grade badge color helper
-  function gradeColorClass(color: string): string {
-    // Map hex colors from getGradeInfo to tailwind-ish inline styles
-    return color;
+  // --- Delta percentage vs best ---
+  function getDelta(
+    row: ComparisonRow,
+    entry: ScooterEntry,
+    entries: ScooterEntry[]
+  ): { text: string; class: string } | null {
+    const best = bestIndex(row, entries);
+    const idx = entries.indexOf(entry);
+    if (best === -1 || idx === best) return null;
+    const bestVal = row.getNumeric(entries[best]);
+    const val = row.getNumeric(entry);
+    if (bestVal === 0) return null;
+    const pct = Math.round(((val - bestVal) / bestVal) * 100);
+    if (pct === 0) return null;
+    return {
+      text: `${pct > 0 ? '+' : ''}${pct}%`,
+      class: (row.higherIsBetter ? pct < 0 : pct > 0) ? 'text-rose-400' : 'text-emerald-400',
+    };
   }
+
+  // --- Bar width (20–100%) for progress bars ---
+  function getBarWidth(row: ComparisonRow, entry: ScooterEntry, entries: ScooterEntry[]): number {
+    const values = entries.map((e) => row.getNumeric(e)).filter((v) => v > 0);
+    if (values.length < 2) return 100;
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    if (max === min) return 100;
+    const val = row.getNumeric(entry);
+    if (val <= 0) return 0;
+    const normalized = ((val - min) / (max - min)) * 80 + 20;
+    return row.higherIsBetter ? normalized : 100 - normalized + 20;
+  }
+
+  // Featured matchups for empty state
+  const featuredMatchups = [
+    {
+      ids: ['segway_gt2', 'nami_burn_e_2_max', 'wolf_king_gtr'],
+      label: 'Flagship Showdown',
+      description: 'Segway GT2 vs Nami Burn-E vs Wolf King',
+    },
+    {
+      ids: ['m365_2025', 'segway_e2_pro', 'xiaomi_4_lite_2'],
+      label: 'Budget Commuters',
+      description: 'Best affordable daily riders',
+    },
+    {
+      ids: ['emove_roadster', 'teverun_fighter_supreme', 'inmotion_rs'],
+      label: 'Performance Kings',
+      description: 'Top-tier speed & range',
+    },
+    {
+      ids: ['apollo_city_2024_pro', 'nami_klima', 'kaabo_mantis_king_gt'],
+      label: 'Mid-Range Battle',
+      description: 'Best value for power',
+    },
+  ];
 </script>
 
-<div class="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-5 lg:p-6 shadow-2xl shadow-black/10 space-y-5 sm:space-y-6">
+<div
+  class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-3 sm:p-5 lg:p-6 shadow-2xl shadow-black/10 space-y-5 sm:space-y-6"
+>
   <!-- Header -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
     <h2 class="text-xl font-black text-text-primary tracking-tight">Compare Scooters</h2>
@@ -229,7 +309,7 @@
         type="text"
         bind:value={searchQuery}
         placeholder="Search models..."
-        class="bg-white/[0.03] border border-white/[0.06] py-2 pl-3 pr-8 text-sm text-text-primary placeholder:text-text-tertiary focus:border-primary/50 focus:outline-none w-full transition-colors"
+        class="bg-white/[0.03] border border-white/[0.06] rounded-xl py-2 pl-3 pr-8 text-sm text-text-primary placeholder:text-text-tertiary focus:border-primary/50 focus:outline-none w-full transition-colors"
         aria-label="Search scooters to compare"
       />
       {#if searchQuery}
@@ -248,12 +328,12 @@
       <div class="flex flex-wrap gap-2">
         {#each selectedScooters as scooter (scooter.id)}
           <button
-            class="inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 text-primary text-xs font-semibold px-3 py-1.5 hover:bg-primary/25 transition-colors group"
+            class="inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 rounded-lg text-primary text-xs font-semibold px-3 py-1.5 hover:bg-primary/25 transition-colors group"
             onclick={() => removeScooter(scooter.id)}
             aria-label="Remove {scooter.name} from comparison"
           >
             <span
-              class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-black rounded-sm"
+              class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-black rounded-lg"
               style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
             >
               {scooter.grade.grade}
@@ -266,7 +346,7 @@
     {/if}
 
     <!-- Available Scooters Grid -->
-    <div class="max-h-52 overflow-y-auto border border-white/[0.06] bg-white/[0.01]">
+    <div class="max-h-52 overflow-y-auto border border-white/[0.06] rounded-xl bg-white/[0.01]">
       {#if filteredCatalog.length === 0}
         <div class="p-6 text-center text-text-tertiary text-sm">
           {#if selectedIds.length >= 3}
@@ -285,18 +365,22 @@
               aria-label="Add {scooter.name} to comparison"
             >
               <span
-                class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-black rounded-sm shrink-0"
+                class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-black rounded-lg shrink-0"
                 style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
               >
                 {scooter.grade.grade}
               </span>
               <span class="flex-1 min-w-0">
-                <span class="text-sm text-text-primary font-medium truncate block group-hover:text-primary transition-colors">
+                <span
+                  class="text-sm text-text-primary font-medium truncate block group-hover:text-primary transition-colors"
+                >
                   {scooter.name}
                 </span>
               </span>
               <span class="text-[10px] text-text-tertiary font-mono shrink-0">{scooter.year}</span>
-              <span class="text-[10px] text-text-tertiary font-mono shrink-0 w-10 text-right">{scooter.score.toFixed(0)}pt</span>
+              <span class="text-[10px] text-text-tertiary font-mono shrink-0 w-10 text-right"
+                >{scooter.score.toFixed(0)}pt</span
+              >
             </button>
           {/each}
         </div>
@@ -306,23 +390,21 @@
 
   <!-- Comparison Table (2+ selected) -->
   {#if selectedScooters.length >= 2}
-    <div class="sm:hidden text-[10px] text-text-tertiary text-right mb-1 flex items-center justify-end gap-1">
-      <span>Swipe to compare</span>
-      <span aria-hidden="true">→</span>
-    </div>
-    <div class="overflow-x-auto -mx-3 sm:-mx-5 lg:-mx-6 px-3 sm:px-5 lg:px-6">
+    <!-- Desktop: Table layout -->
+    <div class="hidden sm:block overflow-x-auto -mx-3 sm:-mx-5 lg:-mx-6 px-3 sm:px-5 lg:px-6 rounded-xl">
       <table class="w-full text-left border-collapse min-w-[480px]">
-        <!-- Column Headers -->
         <thead>
           <tr class="border-b border-white/[0.08]">
-            <th class="p-3 text-[10px] font-bold uppercase tracking-widest text-text-tertiary w-36 sm:w-44 sticky left-0 z-10 bg-bg-primary"></th>
-            {#each selectedScooters as scooter, idx (scooter.id)}
+            <th
+              class="p-3 text-[10px] font-bold uppercase tracking-widest text-text-tertiary w-36 sm:w-44 sticky left-0 z-10 bg-bg-primary"
+            ></th>
+            {#each selectedScooters as scooter, _idx (scooter.id)}
               <th class="p-3 text-center min-w-[140px]">
                 <div class="space-y-1.5">
                   <div class="text-sm font-bold text-text-primary leading-snug">{scooter.name}</div>
                   <div class="flex items-center justify-center gap-2">
                     <span
-                      class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-black rounded-sm"
+                      class="inline-flex items-center justify-center px-2 py-0.5 text-[10px] font-black rounded-lg"
                       style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
                     >
                       {scooter.grade.grade}
@@ -339,7 +421,6 @@
         </thead>
 
         <tbody>
-          <!-- Specs Section Header -->
           <tr>
             <td colspan={selectedScooters.length + 1} class="pt-4 pb-1 px-3 sticky left-0 z-10">
               <div class="flex items-center gap-3">
@@ -352,22 +433,39 @@
           {#each comparisonRows.filter((r) => r.section === 'specs') as row}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">{row.label}</td>
+              <td
+                class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary"
+                >{row.label}</td
+              >
               {#each selectedScooters as scooter, idx (scooter.id)}
-                <td
-                  class="p-3 text-center text-sm font-mono {idx === best ? 'text-primary font-bold bg-primary/10' : 'text-text-primary'}"
-                >
-                  {row.format(scooter)}
+                {@const delta = getDelta(row, scooter, selectedScooters)}
+                {@const barWidth = getBarWidth(row, scooter, selectedScooters)}
+                <td class="p-3 text-center {idx === best ? 'bg-primary/10' : ''}">
+                  <div class="text-sm font-mono {idx === best ? 'text-primary font-bold' : 'text-text-primary'}">
+                    {row.format(scooter)}
+                  </div>
+                  {#if delta}
+                    <div class="text-[10px] font-semibold {delta.class} mt-0.5 leading-none">{delta.text}</div>
+                  {/if}
+                  <div class="mt-1 h-1 rounded-full bg-white/[0.06] overflow-hidden mx-2">
+                    <div
+                      class="h-full rounded-full transition-all duration-500 {idx === best
+                        ? 'bg-primary'
+                        : 'bg-white/20'}"
+                      style="width: {barWidth}%"
+                    ></div>
+                  </div>
                 </td>
               {/each}
             </tr>
           {/each}
 
-          <!-- Calculated Section Header -->
           <tr>
             <td colspan={selectedScooters.length + 1} class="pt-5 pb-1 px-3 sticky left-0 z-10">
               <div class="flex items-center gap-3">
-                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Calculated Performance</span>
+                <span class="text-[10px] font-black uppercase tracking-[0.2em] text-primary"
+                  >Calculated Performance</span
+                >
                 <div class="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent"></div>
               </div>
             </td>
@@ -376,32 +474,48 @@
           {#each comparisonRows.filter((r) => r.section === 'calculated') as row}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-              <td class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">{row.label}</td>
+              <td
+                class="p-3 text-xs font-semibold text-text-secondary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary"
+                >{row.label}</td
+              >
               {#each selectedScooters as scooter, idx (scooter.id)}
-                <td
-                  class="p-3 text-center text-sm font-mono {idx === best ? 'text-primary font-bold bg-primary/10' : 'text-text-primary'}"
-                >
-                  {row.format(scooter)}
+                {@const delta = getDelta(row, scooter, selectedScooters)}
+                {@const barWidth = getBarWidth(row, scooter, selectedScooters)}
+                <td class="p-3 text-center {idx === best ? 'bg-primary/10' : ''}">
+                  <div class="text-sm font-mono {idx === best ? 'text-primary font-bold' : 'text-text-primary'}">
+                    {row.format(scooter)}
+                  </div>
+                  {#if delta}
+                    <div class="text-[10px] font-semibold {delta.class} mt-0.5 leading-none">{delta.text}</div>
+                  {/if}
+                  <div class="mt-1 h-1 rounded-full bg-white/[0.06] overflow-hidden mx-2">
+                    <div
+                      class="h-full rounded-full transition-all duration-500 {idx === best
+                        ? 'bg-primary'
+                        : 'bg-white/20'}"
+                      style="width: {barWidth}%"
+                    ></div>
+                  </div>
                 </td>
               {/each}
             </tr>
           {/each}
 
-          <!-- Overall Score Row -->
           <tr class="border-t border-white/[0.08]">
-            <td class="p-3 text-xs font-black text-text-primary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary">Overall Score</td>
-            {#each selectedScooters as scooter, idx (scooter.id)}
+            <td
+              class="p-3 text-xs font-black text-text-primary uppercase tracking-wider sticky left-0 z-10 bg-bg-primary"
+              >Overall Score</td
+            >
+            {#each selectedScooters as scooter, _idx (scooter.id)}
               {@const isBest = selectedScooters.every((s) => s.score <= scooter.score)}
               {@const allSame = selectedScooters.every((s) => s.score === scooter.score)}
               <td class="p-3 text-center">
                 <div class="flex flex-col items-center gap-1">
-                  <span
-                    class="text-lg font-black font-mono {isBest && !allSame ? 'text-primary' : 'text-text-primary'}"
+                  <span class="text-lg font-black font-mono {isBest && !allSame ? 'text-primary' : 'text-text-primary'}"
+                    >{scooter.score.toFixed(1)}</span
                   >
-                    {scooter.score.toFixed(1)}
-                  </span>
                   <span
-                    class="inline-flex items-center justify-center px-2.5 py-0.5 text-[10px] font-black rounded-sm"
+                    class="inline-flex items-center justify-center px-2.5 py-0.5 text-[10px] font-black rounded-lg"
                     style="background-color: {scooter.grade.color}25; color: {scooter.grade.color}"
                   >
                     {scooter.grade.grade} &mdash; {scooter.grade.label}
@@ -414,19 +528,127 @@
       </table>
     </div>
 
-    <p class="text-[10px] text-text-tertiary">
-      Calculated values use each scooter's default config with spec mode physics. Best value per row highlighted in cyan.
+    <!-- Mobile: Card-based comparison -->
+    <div class="sm:hidden space-y-4">
+      {#each selectedScooters as scooter, idx (scooter.id)}
+        {@const isBest = selectedScooters.every((s) => s.score <= scooter.score)}
+        {@const allSame = selectedScooters.every((s) => s.score === scooter.score)}
+        <div
+          class="border rounded-xl overflow-hidden {isBest && !allSame
+            ? 'border-primary/40 bg-primary/[0.03]'
+            : 'border-white/[0.08] bg-white/[0.02]'}"
+        >
+          <!-- Card Header -->
+          <div class="p-3.5 border-b border-white/[0.06] flex items-center justify-between">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span
+                class="inline-flex items-center justify-center w-7 h-7 text-[10px] font-black rounded-lg shrink-0"
+                style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
+              >
+                {scooter.grade.grade}
+              </span>
+              <div class="min-w-0">
+                <div class="text-sm font-bold text-text-primary truncate">{scooter.name}</div>
+                {#if scooter.id === activeKey}
+                  <span class="text-[9px] font-bold text-primary uppercase tracking-widest">Active</span>
+                {/if}
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="text-lg font-black font-mono {isBest && !allSame ? 'text-primary' : 'text-text-primary'}">
+                {scooter.score.toFixed(1)}
+              </div>
+              <div class="text-[9px] text-text-tertiary">/100</div>
+            </div>
+          </div>
+
+          <!-- Specs Grid -->
+          <div class="p-3.5 space-y-3">
+            <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Specs</div>
+            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+              {#each comparisonRows.filter((r) => r.section === 'specs') as row}
+                {@const best = bestIndex(row, selectedScooters)}
+                {@const delta = getDelta(row, scooter, selectedScooters)}
+                <div class="flex items-baseline justify-between gap-1">
+                  <span class="text-[10px] text-text-tertiary shrink-0">{row.label}</span>
+                  <span class="flex items-baseline gap-1 min-w-0">
+                    <span class="text-xs font-mono {idx === best ? 'text-primary font-bold' : 'text-text-primary'}"
+                      >{row.format(scooter)}</span
+                    >
+                    {#if delta}
+                      <span class="text-[9px] font-semibold {delta.class} shrink-0">{delta.text}</span>
+                    {/if}
+                  </span>
+                </div>
+              {/each}
+            </div>
+
+            <div class="border-t border-white/[0.06] pt-3">
+              <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary mb-2">Calculated</div>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-2">
+                {#each comparisonRows.filter((r) => r.section === 'calculated') as row}
+                  {@const best = bestIndex(row, selectedScooters)}
+                  {@const delta = getDelta(row, scooter, selectedScooters)}
+                  <div class="flex items-baseline justify-between gap-1">
+                    <span class="text-[10px] text-text-tertiary shrink-0">{row.label}</span>
+                    <span class="flex items-baseline gap-1 min-w-0">
+                      <span class="text-xs font-mono {idx === best ? 'text-primary font-bold' : 'text-text-primary'}"
+                        >{row.format(scooter)}</span
+                      >
+                      {#if delta}
+                        <span class="text-[9px] font-semibold {delta.class} shrink-0">{delta.text}</span>
+                      {/if}
+                    </span>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          </div>
+
+          <!-- Winner badge -->
+          {#if isBest && !allSame}
+            <div class="px-3.5 py-2 bg-primary/10 border-t border-primary/20 text-center">
+              <span class="text-[10px] font-black text-primary uppercase tracking-widest">Best Overall</span>
+            </div>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
+    <p class="text-[10px] text-text-tertiary mt-3">
+      Calculated values use each scooter's default config with spec mode physics. Best value per row highlighted in
+      cyan.
     </p>
   {:else}
-    <!-- Empty state -->
-    <div class="py-12 text-center space-y-3 border border-dashed border-white/[0.08]">
-      <div class="text-text-tertiary text-sm">Select at least 2 scooters to compare</div>
-      <div class="text-text-tertiary text-xs">
-        {#if selectedIds.length === 0}
-          Click any scooter above to start
-        {:else}
-          Pick one more scooter to see the comparison
-        {/if}
+    <!-- Empty state with featured picks -->
+    <div class="py-8 text-center space-y-5 border border-dashed border-white/[0.08] rounded-xl px-4">
+      <div class="space-y-2">
+        <div class="text-text-tertiary text-sm font-semibold">
+          {#if selectedIds.length === 0}
+            Select scooters to compare
+          {:else}
+            Pick one more to start comparing
+          {/if}
+        </div>
+        <div class="text-text-tertiary text-xs">Choose from the list above, or try one of these popular matchups:</div>
+      </div>
+
+      <!-- Featured matchups -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
+        {#each featuredMatchups as matchup}
+          <button
+            type="button"
+            class="text-left px-3 py-2.5 border border-white/[0.08] rounded-lg bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all group"
+            onclick={() => {
+              selectedIds = matchup.ids.filter((id) => catalog.some((s) => s.id === id)).slice(0, 3);
+            }}
+          >
+            <div class="text-xs font-bold text-text-primary group-hover:text-primary transition-colors">
+              {matchup.label}
+            </div>
+            <div class="text-[10px] text-text-tertiary mt-0.5">{matchup.description}</div>
+          </button>
+        {/each}
       </div>
     </div>
   {/if}

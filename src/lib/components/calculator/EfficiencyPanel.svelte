@@ -1,6 +1,7 @@
 <script lang="ts">
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
+  import { Info } from 'lucide-svelte';
 
   const stats = $derived(calculatorState.stats);
 
@@ -9,7 +10,9 @@
   const COST_BENCHMARK_PER100KM = 5;
 
   const speedEfficiencyValue = $derived(Math.min(100, (speedVal(stats.speed) / speedVal(SPEED_BENCHMARK_KMH)) * 100));
-  const rangeEfficiencyValue = $derived(Math.min(100, (distanceVal(stats.totalRange) / distanceVal(RANGE_BENCHMARK_KM)) * 100));
+  const rangeEfficiencyValue = $derived(
+    Math.min(100, (distanceVal(stats.totalRange) / distanceVal(RANGE_BENCHMARK_KM)) * 100)
+  );
   const accelEfficiencyValue = $derived(stats.accelScore);
   const costEfficiencyValue = $derived(Math.min(100, (COST_BENCHMARK_PER100KM / stats.costPer100km) * 100));
 
@@ -55,20 +58,22 @@
       value: costEfficiencyValue,
       actual: `$${costPer100Val(stats.costPer100km).toFixed(2)} ${costDistanceLabel()}`,
       benchmark: `$${costPer100Val(COST_BENCHMARK_PER100KM).toFixed(2)} or less`,
-    }
+    },
   ]);
 
   let expandedMetric = $state<string | null>(null);
 </script>
 
 <div
-  class="bg-white/[0.02] p-4 border border-white/[0.06]"
+  class="bg-white/[0.02] rounded-xl p-4 border border-white/[0.06]"
   role="region"
   aria-label="Efficiency metrics"
   aria-live="polite"
   aria-atomic="false"
 >
-  <h3 class="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3" id="efficiency-heading">Efficiency Metrics</h3>
+  <h3 class="text-xs font-bold text-text-secondary uppercase tracking-widest mb-3" id="efficiency-heading">
+    Efficiency Metrics
+  </h3>
 
   <div class="space-y-2.5" role="list" aria-labelledby="efficiency-heading">
     {#each metrics as metric (metric.id)}
@@ -78,11 +83,11 @@
             type="button"
             class="text-xs text-text-tertiary hover:text-text-primary transition-colors flex items-center gap-1.5 group"
             id="{metric.id}-label"
-            onclick={() => expandedMetric = expandedMetric === metric.id ? null : metric.id}
+            onclick={() => (expandedMetric = expandedMetric === metric.id ? null : metric.id)}
             aria-expanded={expandedMetric === metric.id}
           >
             {metric.label}
-            <span class="text-[9px] text-text-tertiary" aria-hidden="true">ⓘ</span>
+            <span class="text-text-tertiary" aria-hidden="true"><Info size={14} class="inline" /></span>
           </button>
           <span class="text-[11px] font-bold text-text-secondary">{metric.actual}</span>
         </div>
@@ -103,7 +108,9 @@
           ></div>
         </div>
         {#if expandedMetric === metric.id}
-          <p class="text-[11px] text-text-secondary mt-1 leading-relaxed bg-white/[0.02] rounded px-3 py-2 border border-white/[0.04]">
+          <p
+            class="text-[11px] text-text-secondary mt-1 leading-relaxed bg-white/[0.02] rounded px-3 py-2 border border-white/[0.04]"
+          >
             Benchmark: {metric.benchmark}. Current: {metric.actual} ({getLabel(metric.value)}).
           </p>
         {/if}
@@ -112,6 +119,8 @@
   </div>
 
   <p class="text-[10px] text-text-tertiary mt-3 leading-relaxed">
-    Bars show progress toward benchmarks: {speedVal(SPEED_BENCHMARK_KMH).toFixed(0)} {speedUnit()} speed, {distanceVal(RANGE_BENCHMARK_KM).toFixed(0)} {distanceUnit()} range.
+    Bars show progress toward benchmarks: {speedVal(SPEED_BENCHMARK_KMH).toFixed(0)}
+    {speedUnit()} speed, {distanceVal(RANGE_BENCHMARK_KM).toFixed(0)}
+    {distanceUnit()} range.
   </p>
 </div>

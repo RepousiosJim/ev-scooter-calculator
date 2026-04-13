@@ -1,25 +1,41 @@
-import { error, json } from '@sveltejs/kit';
+import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
-import { getActivityLog, clearActivityLog } from '$lib/server/verification/activity-log';
+import { requireAdmin } from '$lib/server/admin-guard';
+import { getActivityLog, clearActivityLog, type ActivityType } from '$lib/server/verification/activity-log';
+
+const VALID_ACTIVITY_TYPES: readonly ActivityType[] = [
+	'scan_started',
+	'scan_completed',
+	'scan_failed',
+	'discovery_started',
+	'discovery_completed',
+	'discovery_failed',
+	'source_added',
+	'source_removed',
+	'status_changed',
+	'price_added',
+	'seed_completed',
+	'auto_fix_completed',
+	'settings_changed',
+	'login',
+	'export',
+];
 
 export const GET: RequestHandler = async ({ cookies, url }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
-	const limit = parseInt(url.searchParams.get('limit') || '50');
-	const offset = parseInt(url.searchParams.get('offset') || '0');
-	const type = url.searchParams.get('type') || undefined;
+	const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '50') || 50, 1), 500);
+	const offset = Math.max(parseInt(url.searchParams.get('offset') || '0') || 0, 0);
+	const rawType = url.searchParams.get('type');
+	const filterType =
+		rawType && VALID_ACTIVITY_TYPES.includes(rawType as ActivityType) ? (rawType as ActivityType) : undefined;
 
-	const result = await getActivityLog(limit, offset, type as any);
+	const result = await getActivityLog(limit, offset, filterType);
 	return json(result);
 };
 
 export const DELETE: RequestHandler = async ({ cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	await clearActivityLog();
 	return json({ success: true });

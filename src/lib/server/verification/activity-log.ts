@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { isSupabaseAvailable, db, toJson } from '$lib/server/db';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const LOG_FILE = join(DATA_DIR, 'activity-log.json');
@@ -18,6 +19,7 @@ export type ActivityType =
 	| 'status_changed'
 	| 'price_added'
 	| 'seed_completed'
+	| 'auto_fix_completed'
 	| 'settings_changed'
 	| 'login'
 	| 'export';
@@ -30,6 +32,8 @@ export interface ActivityEntry {
 	details?: Record<string, unknown>;
 }
 
+// --- File-based fallback ---
+
 let cache: ActivityEntry[] | null = null;
 
 async function loadLog(): Promise<ActivityEntry[]> {
@@ -40,7 +44,9 @@ async function loadLog(): Promise<ActivityEntry[]> {
 			cache = JSON.parse(raw);
 			return cache!;
 		}
-	} catch { /* start fresh */ }
+	} catch (e) {
+		console.warn('[activity-log] Failed to load log file:', e);
+	}
 	cache = [];
 	return cache;
 }
@@ -52,12 +58,15 @@ async function saveLog(): Promise<void> {
 	await writeFile(LOG_FILE, JSON.stringify(cache, null, 2), 'utf-8');
 }
 
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
 export async function logActivity(
 	type: ActivityType,
 	summary: string,
 	details?: Record<string, unknown>
 ): Promise<ActivityEntry> {
-	const entries = await loadLog();
 	const entry: ActivityEntry = {
 		id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
 		type,
@@ -65,11 +74,24 @@ export async function logActivity(
 		summary,
 		details,
 	};
-	entries.unshift(entry);
-	// Trim to max entries
-	if (entries.length > MAX_ENTRIES) {
-		entries.length = MAX_ENTRIES;
+
+	if (isSupabaseAvailable()) {
+		const { error } = await db()
+			.from('activity_log')
+			.insert({
+				id: entry.id,
+				type: entry.type,
+				timestamp: entry.timestamp,
+				summary: entry.summary,
+				details: entry.details ? toJson(entry.details) : null,
+			});
+		if (error) throw new Error(`Supabase logActivity error: ${error.message}`);
+		return entry;
 	}
+
+	const entries = await loadLog();
+	entries.unshift(entry);
+	if (entries.length > MAX_ENTRIES) entries.length = MAX_ENTRIES;
 	cache = entries;
 	await saveLog();
 	return entry;
@@ -80,6 +102,23 @@ export async function getActivityLog(
 	offset = 0,
 	filterType?: ActivityType
 ): Promise<{ entries: ActivityEntry[]; total: number }> {
+	if (isSupabaseAvailable()) {
+		let query = db()
+			.from('activity_log')
+			.select('*', { count: 'exact' })
+			.order('timestamp', { ascending: false })
+			.range(offset, offset + limit - 1);
+
+		if (filterType) query = query.eq('type', filterType);
+
+		const { data, count, error } = await query;
+		if (error) throw new Error(`Supabase getActivityLog error: ${error.message}`);
+		return {
+			entries: (data ?? []).map(rowToEntry),
+			total: count ?? 0,
+		};
+	}
+
 	const entries = await loadLog();
 	const filtered = filterType ? entries.filter((e) => e.type === filterType) : entries;
 	return {
@@ -89,6 +128,22 @@ export async function getActivityLog(
 }
 
 export async function clearActivityLog(): Promise<void> {
+	if (isSupabaseAvailable()) {
+		const { error } = await db().from('activity_log').delete().neq('id', '');
+		if (error) throw new Error(`Supabase clearActivityLog error: ${error.message}`);
+		return;
+	}
+
 	cache = [];
 	await saveLog();
+}
+
+function rowToEntry(row: Record<string, unknown>): ActivityEntry {
+	return {
+		id: row.id as string,
+		type: row.type as ActivityType,
+		timestamp: row.timestamp as string,
+		summary: row.summary as string,
+		details: row.details as Record<string, unknown> | undefined,
+	};
 }

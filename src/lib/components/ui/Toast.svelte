@@ -1,23 +1,22 @@
 <script lang="ts">
-  import { fade, fly } from 'svelte/transition';
+  import { fly } from 'svelte/transition';
   import Icon from './atoms/Icon.svelte';
 
   export let message: string;
   export let type: 'success' | 'info' | 'warning' | 'error' = 'info';
-  let id: string = '';
 
   const iconMap = {
     success: 'check-circle',
     info: 'info',
     warning: 'alert-triangle',
-    error: 'x-circle'
+    error: 'x-circle',
   };
 
   const colorMap = {
     success: 'bg-success/10 border-success/30 text-success',
     info: 'bg-primary/10 border-primary/30 text-primary',
     warning: 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500',
-    error: 'bg-red-500/10 border-red-500/30 text-red-500'
+    error: 'bg-red-500/10 border-red-500/30 text-red-500',
   };
 </script>
 
@@ -25,7 +24,7 @@
   role="alert"
   aria-live="polite"
   class="flex items-center gap-3 px-4 py-3
-    rounded-lg border shadow-xl backdrop-blur-sm
+    rounded-xl border shadow-xl backdrop-blur-sm
     transition-all duration-300
     {colorMap[type]}"
   transition:fly={{ y: -20, duration: 300 }}

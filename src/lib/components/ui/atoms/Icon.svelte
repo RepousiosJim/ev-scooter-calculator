@@ -1,26 +1,25 @@
 <script lang="ts">
   let {
     name,
-    size = "md",
-    class: className = "",
+    size = 'md',
+    class: className = '',
     ariaLabel,
-    ...props
   }: {
     name: string;
-    size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl";
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
     class?: string;
     ariaLabel?: string;
   } = $props();
 
   const iconMap: Record<string, string> = {
     // Core UI icons
-    "chevron-left":
+    'chevron-left':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
-    "chevron-right":
+    'chevron-right':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
-    "chevron-up":
+    'chevron-up':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
-    "chevron-down":
+    'chevron-down':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
     close:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
@@ -62,13 +61,13 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 2.6-2 3.5 0 1 1 2 2 2 1.5 0 3-1 4.5-2.5"/><path d="m15 7 1 1"/><path d="m7 15 1 1"/><path d="M22 2c-3 0-10 1-13 13l2 2C21 14 22 7 22 2Z"/><path d="m9 15 3 3"/><path d="m15 7 3 3"/></svg>',
     scooter:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 15v-5a2 2 0 0 1 2-2h8"/><path d="M18 15V8a2 2 0 0 0-2-2H9"/></svg>',
-    "ride-mode-eco":
+    'ride-mode-eco':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.02 9A7 7 0 0 1 7 1a9.98 9.98 0 0 1 7 3"/><path d="M2.02 9.02c1.53 1.54 3.06 4.02 3.06 6.5s-1.53 4.96-3.06 6.5"/><path d="M6 13a3.5 3.5 0 1 0 7 0 3.5 3.5 0 1 0-7 0"/><path d="M17 14h5"/><path d="M17 18h5"/><path d="M17 10h5"/></svg>',
-    "ride-mode-normal":
+    'ride-mode-normal':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8 8 3.58 8 8Z"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.93 4.93l2.83 2.83"/><path d="M16.24 16.24l2.83 2.83"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.93 19.07l2.83-2.83"/><path d="M16.24 7.76l2.83-2.83"/></svg>',
-    "ride-mode-sport":
+    'ride-mode-sport':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/><path d="m13 14-2 2 2 2"/><path d="M17 16h-6"/></svg>',
-    "ride-mode-turbo":
+    'ride-mode-turbo':
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
     config:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 0 1 1.73l.43.25a2 2 0 0 1 1 1.73V12a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 0-1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 0-1-1.73l-.43-.25a2 2 0 0 1-1-1.73V12a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 0 1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
@@ -76,21 +75,22 @@
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>',
     trophy:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>',
   };
 
   const getSizeClasses = () => {
     const sizes = {
-      xs: "w-3 h-3",
-      sm: "w-4 h-4",
-      md: "w-5 h-5",
-      lg: "w-6 h-6",
-      xl: "w-8 h-8",
-      "2xl": "w-10 h-10",
+      xs: 'w-3 h-3',
+      sm: 'w-4 h-4',
+      md: 'w-5 h-5',
+      lg: 'w-6 h-6',
+      xl: 'w-8 h-8',
+      '2xl': 'w-10 h-10',
     };
     return sizes[size];
   };
 
-  const iconSvg = $derived(iconMap[name] || "");
+  const iconSvg = $derived(iconMap[name] || '');
 </script>
 
 <span
@@ -98,5 +98,6 @@
   aria-label={ariaLabel}
   aria-hidden={!ariaLabel}
 >
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html iconSvg}
 </span>

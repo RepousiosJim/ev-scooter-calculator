@@ -5,35 +5,43 @@
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
   const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
+  const isGuides = $derived($page.url.pathname.startsWith('/guides'));
 
   const tabs = [
-    { label: "Calculator", value: "configuration", icon: "speed" },
-    { label: "Upgrades", value: "upgrades", icon: "upgrades" },
-    { label: "Compare", value: "compare", icon: "scooter" },
+    { label: 'Calculator', value: 'configuration', icon: 'speed' },
+    { label: 'Upgrades', value: 'upgrades', icon: 'upgrades' },
+    { label: 'Compare', value: 'compare', icon: 'scooter' },
   ] as const;
 
   let tabButtons = $state<HTMLElement[]>([]);
 
   async function handleKeydown(event: KeyboardEvent, index: number) {
-    let targetIndex = -1;
+    let targetIndex: number;
     switch (event.key) {
-      case 'ArrowRight': targetIndex = (index + 1) % tabs.length; break;
-      case 'ArrowLeft': targetIndex = (index - 1 + tabs.length) % tabs.length; break;
-      case 'Home': targetIndex = 0; break;
-      case 'End': targetIndex = tabs.length - 1; break;
-      default: return;
+      case 'ArrowRight':
+        targetIndex = (index + 1) % tabs.length;
+        break;
+      case 'ArrowLeft':
+        targetIndex = (index - 1 + tabs.length) % tabs.length;
+        break;
+      case 'Home':
+        targetIndex = 0;
+        break;
+      case 'End':
+        targetIndex = tabs.length - 1;
+        break;
+      default:
+        return;
     }
-    if (targetIndex !== -1) {
-      uiState.activeTab = tabs[targetIndex].value as typeof uiState.activeTab;
-      event.preventDefault();
-      await tick();
-      tabButtons[targetIndex]?.focus();
-    }
+    uiState.activeTab = tabs[targetIndex].value as typeof uiState.activeTab;
+    event.preventDefault();
+    await tick();
+    tabButtons[targetIndex]?.focus();
   }
 </script>
 
 <div
-  class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/90 backdrop-blur-xl border-t border-white/[0.08]"
+  class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/90 backdrop-blur-xl border-t border-white/[0.08] rounded-t-2xl"
   role="tablist"
   aria-label="Mobile navigation"
   style="padding-bottom: env(safe-area-inset-bottom, 0px)"
@@ -52,7 +60,7 @@
         class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
           {isActive ? 'text-primary' : 'text-text-tertiary'}"
-        onclick={() => uiState.activeTab = tab.value as typeof uiState.activeTab}
+        onclick={() => (uiState.activeTab = tab.value as typeof uiState.activeTab)}
         onkeydown={(e) => handleKeydown(e, index)}
       >
         <!-- Active indicator line -->
@@ -72,6 +80,7 @@
     {/each}
 
     <!-- Rankings link (separate page) -->
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a
       href="/rankings"
       class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
@@ -90,18 +99,41 @@
         Rankings
       </span>
     </a>
+
+    <!-- Guides link -->
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+    <a
+      href="/guides"
+      class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
+        {isGuides ? 'text-primary' : 'text-text-tertiary'}"
+    >
+      {#if isGuides}
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary" aria-hidden="true"></div>
+      {/if}
+      <Icon
+        name="book"
+        size="sm"
+        class="transition-all duration-200 {isGuides ? 'text-primary scale-110' : 'opacity-40'}"
+      />
+      <span class="text-[10px] font-bold uppercase tracking-wider {isGuides ? 'text-primary' : 'text-text-tertiary'}">
+        Guides
+      </span>
+    </a>
   </div>
 </div>
 
 <style>
   @media (hover: none) and (pointer: coarse) {
-    button, a {
+    button,
+    a {
       -webkit-tap-highlight-color: transparent;
       min-height: 44px;
       min-width: 44px;
     }
 
-    button:active, a:active {
+    button:active,
+    a:active {
       opacity: 0.7;
     }
   }

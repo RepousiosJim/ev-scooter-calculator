@@ -5,6 +5,7 @@ A physics-based performance calculator for electric scooters. Get real-time esti
 ![Version](https://img.shields.io/badge/version-1.4.0-blue)
 ![Status](https://img.shields.io/badge/status-early%20access-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
+![Coverage](https://img.shields.io/badge/coverage-70%25+-brightgreen)
 
 > **Early Access** — This app is under active development. Features may change, and some values are estimates based on physics modeling rather than manufacturer claims. Feedback is welcome via [Issues](../../issues).
 

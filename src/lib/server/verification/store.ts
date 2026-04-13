@@ -1,10 +1,4 @@
-import type {
-	ScooterVerification,
-	SpecField,
-	SourceEntry,
-	VerificationStatus,
-	PriceObservation
-} from './types';
+import type { ScooterVerification, SpecField, SourceEntry, VerificationStatus, PriceObservation } from './types';
 import { computeConfidence, computeOverallConfidence } from './confidence';
 
 export interface VerificationStore {
@@ -19,7 +13,7 @@ function createEmptyVerification(scooterKey: string): ScooterVerification {
 		fields: {},
 		priceHistory: [],
 		lastUpdated: new Date().toISOString(),
-		overallConfidence: 0
+		overallConfidence: 0,
 	};
 }
 
@@ -30,20 +24,18 @@ export async function addSource(
 	field: SpecField,
 	source: SourceEntry
 ): Promise<ScooterVerification> {
-	let data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
+	const data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
 
 	if (!data.fields[field]) {
 		data.fields[field] = {
 			status: 'unverified',
 			sources: [],
-			confidence: 0
+			confidence: 0,
 		};
 	}
 
 	// Deduplicate: if a source from the same URL already exists, replace it rather than append
-	const existingIdx = data.fields[field]!.sources.findIndex(
-		(s) => s.url && s.url === source.url
-	);
+	const existingIdx = data.fields[field]!.sources.findIndex((s) => s.url && s.url === source.url);
 	if (existingIdx !== -1) {
 		data.fields[field]!.sources[existingIdx] = source;
 	} else {
@@ -99,7 +91,7 @@ export async function updateFieldStatus(
 		data.fields[field] = {
 			status,
 			sources: [],
-			confidence: 0
+			confidence: 0,
 		};
 	}
 
@@ -121,11 +113,9 @@ export async function addPriceObservation(
 	scooterKey: string,
 	observation: PriceObservation
 ): Promise<ScooterVerification> {
-	let data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
+	const data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
 	data.priceHistory.push(observation);
-	data.priceHistory.sort(
-		(a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime()
-	);
+	data.priceHistory.sort((a, b) => new Date(b.observedAt).getTime() - new Date(a.observedAt).getTime());
 	data.lastUpdated = new Date().toISOString();
 	await store.set(scooterKey, data);
 	return data;
@@ -136,8 +126,13 @@ let storeInstance: VerificationStore | null = null;
 export async function getStore(): Promise<VerificationStore> {
 	if (storeInstance) return storeInstance;
 
-	// Always use local store for now; KV can be added later for production
-	const { LocalVerificationStore } = await import('./store-local');
-	storeInstance = new LocalVerificationStore();
+	const { isSupabaseAvailable } = await import('$lib/server/db');
+	if (isSupabaseAvailable()) {
+		const { SupabaseVerificationStore } = await import('./store-supabase');
+		storeInstance = new SupabaseVerificationStore();
+	} else {
+		const { LocalVerificationStore } = await import('./store-local');
+		storeInstance = new LocalVerificationStore();
+	}
 	return storeInstance;
 }

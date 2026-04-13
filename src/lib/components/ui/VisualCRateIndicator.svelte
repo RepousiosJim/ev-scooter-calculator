@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { scale } from 'svelte/transition';
-
   let {
     value,
     max = 5,
-    size = 'md'
+    size = 'md',
   }: {
     value: number;
     max?: number;
@@ -29,15 +27,10 @@
     return { color: 'bg-success', label: 'Efficient', textColor: 'text-success' };
   });
 
-  const config = $derived(() => sizeConfig[size]);
+  const _config = $derived(() => sizeConfig[size]);
 </script>
 
-<div
-  class="space-y-1.5"
-  role="region"
-  aria-label="Battery discharge rate indicator"
-  aria-live="polite"
->
+<div class="space-y-1.5" role="region" aria-label="Battery discharge rate indicator" aria-live="polite">
   <div class="flex items-center justify-between">
     <span class="text-xs font-bold text-text-secondary uppercase tracking-wider" id="crate-label">
       Discharge Rate

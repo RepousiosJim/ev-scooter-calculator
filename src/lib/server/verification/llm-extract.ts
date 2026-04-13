@@ -1,6 +1,7 @@
 import { parse } from 'node-html-parser';
 import type { SpecField } from './types';
 import { env } from '$env/dynamic/private';
+import { logger } from '$lib/server/logger';
 
 /**
  * Use Google Gemini Flash to extract scooter specs from raw HTML.
@@ -30,11 +31,7 @@ export function isLLMAvailable(): boolean {
  * Extract specs from HTML using Gemini.
  * Strips HTML to clean text, then asks the LLM to find specs.
  */
-export async function extractWithLLM(
-	html: string,
-	scooterName: string,
-	url: string
-): Promise<LLMExtractionResult> {
+export async function extractWithLLM(html: string, scooterName: string, url: string): Promise<LLMExtractionResult> {
 	if (!env.GEMINI_API_KEY) {
 		return { specs: {}, confidence: 'low', notes: 'No Gemini API key configured' };
 	}
@@ -49,23 +46,27 @@ export async function extractWithLLM(
 	const prompt = buildPrompt(scooterName, text);
 
 	try {
-		const response = await fetch(`${GEMINI_URL}?key=${env.GEMINI_API_KEY}`, {
+		const response = await fetch(GEMINI_URL, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
+			headers: {
+				'Content-Type': 'application/json',
+				'x-goog-api-key': env.GEMINI_API_KEY!,
+			},
 			body: JSON.stringify({
 				contents: [{ parts: [{ text: prompt }] }],
 				generationConfig: {
 					temperature: 0.1,
 					maxOutputTokens: 512,
-					responseMimeType: 'application/json'
-				}
+					responseMimeType: 'application/json',
+				},
 			}),
-			signal: AbortSignal.timeout(15000)
+			signal: AbortSignal.timeout(15000),
 		});
 
 		if (!response.ok) {
 			const errText = await response.text();
-			return { specs: {}, confidence: 'low', notes: `Gemini API error: ${response.status} ${errText.slice(0, 100)}` };
+			logger.error({ status: response.status, body: errText.slice(0, 200) }, 'Gemini API error');
+			return { specs: {}, confidence: 'low', notes: 'Extraction service error' };
 		}
 
 		const data = await response.json();
@@ -80,7 +81,7 @@ export async function extractWithLLM(
 		return {
 			specs: {},
 			confidence: 'low',
-			notes: `LLM extraction failed: ${e instanceof Error ? e.message : 'Unknown error'}`
+			notes: `LLM extraction failed: ${e instanceof Error ? e.message : 'Unknown error'}`,
 		};
 	}
 }
@@ -122,17 +123,34 @@ function htmlToText(html: string, url: string): string {
 
 	// Remove noisy elements
 	const removeSelectors = [
-		'script', 'style', 'noscript', 'iframe', 'svg', 'path',
-		'nav', 'footer', 'header:not(.product-header)',
-		'.nav', '.footer', '.header', '.menu', '.sidebar',
-		'.cookie', '.popup', '.modal', '.newsletter',
-		'[role="navigation"]', '[role="banner"]',
+		'script',
+		'style',
+		'noscript',
+		'iframe',
+		'svg',
+		'path',
+		'nav',
+		'footer',
+		'header:not(.product-header)',
+		'.nav',
+		'.footer',
+		'.header',
+		'.menu',
+		'.sidebar',
+		'.cookie',
+		'.popup',
+		'.modal',
+		'.newsletter',
+		'[role="navigation"]',
+		'[role="banner"]',
 	];
 
 	for (const sel of removeSelectors) {
 		try {
 			root.querySelectorAll(sel).forEach((el) => el.remove());
-		} catch { /* selector may not match */ }
+		} catch {
+			/* selector may not match */
+		}
 	}
 
 	// Get text content
@@ -152,7 +170,9 @@ function htmlToText(html: string, url: string): string {
 				metaTags.push(`${prop}: ${content}`);
 			}
 		}
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 
 	// Extract JSON-LD structured data
 	const jsonLd: string[] = [];
@@ -164,7 +184,9 @@ function htmlToText(html: string, url: string): string {
 				jsonLd.push(`STRUCTURED DATA: ${JSON.stringify(data).slice(0, 2000)}`);
 			}
 		}
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 
 	const extra = [...metaTags, ...jsonLd].join('\n');
 	if (extra) {
@@ -189,8 +211,14 @@ function parseGeminiResponse(content: string): LLMExtractionResult {
 		const specs: Partial<Record<SpecField, number>> = {};
 
 		const validFields: SpecField[] = [
-			'topSpeed', 'range', 'batteryWh', 'price',
-			'voltage', 'motorWatts', 'weight', 'wheelSize'
+			'topSpeed',
+			'range',
+			'batteryWh',
+			'price',
+			'voltage',
+			'motorWatts',
+			'weight',
+			'wheelSize',
 		];
 
 		// Sanity ranges for each field
@@ -217,7 +245,7 @@ function parseGeminiResponse(content: string): LLMExtractionResult {
 		return {
 			specs,
 			confidence: parsed.confidence || 'medium',
-			notes: parsed.notes
+			notes: parsed.notes,
 		};
 	} catch {
 		return { specs: {}, confidence: 'low', notes: 'Failed to parse LLM response' };

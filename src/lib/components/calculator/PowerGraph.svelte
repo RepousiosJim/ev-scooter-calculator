@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { calculatorState } from "$lib/stores/calculator.svelte";
-  import { onMount } from "svelte";
-  import { speedVal, speedUnit } from "$lib/utils/units";
+  import { calculatorState } from '$lib/stores/calculator.svelte';
+  import { onMount } from 'svelte';
+  import { speedVal, speedUnit } from '$lib/utils/units';
 
   const config = $derived(calculatorState.config);
   const stats = $derived(calculatorState.stats);
@@ -19,7 +19,7 @@
   function generatePowerCurve(): { speed: number; power: number }[] {
     const topSpeed = stats.speed; // km/h
     const peakWatts = stats.totalWatts;
-    const controllerAmps = config.controller ?? (peakWatts / config.v);
+    const controllerAmps = config.controller ?? peakWatts / config.v;
     const maxControllerPower = controllerAmps * config.v;
     const effectivePeak = Math.min(peakWatts, maxControllerPower);
 
@@ -33,17 +33,10 @@
       // Back-EMF fraction (0 at standstill, 1 at top speed)
       const bemfFraction = topSpeed > 0 ? currentSpeed / topSpeed : 0;
 
-      // Available torque decreases linearly with back-EMF
-      const torqueFactor = Math.max(0, 1 - bemfFraction);
-
-      // Power = torque * speed, capped at effective peak
-      let power = torqueFactor * effectivePeak * (bemfFraction > 0 ? bemfFraction / (1 - bemfFraction + bemfFraction) : 0);
-
-      // Simplified: power rises, peaks around 60-70% of top speed, then drops
-      // P = V * I * (1 - bemf_ratio) * speed_ratio, normalized
-      // More intuitive: power = peak * 4 * s * (1 - s) where s = speed/topSpeed
+      // Power curve: rises, peaks around 60-70% of top speed, then drops
+      // Model: power = peak * 4 * s * (1 - s) where s = speed/topSpeed
       const s = Math.min(bemfFraction, 1);
-      power = effectivePeak * 4 * s * (1 - s);
+      let power = effectivePeak * 4 * s * (1 - s);
 
       // Clamp
       power = Math.max(0, Math.min(power, effectivePeak));
@@ -56,7 +49,7 @@
 
   function drawGraph() {
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     const width = canvas.width;
@@ -66,11 +59,11 @@
     ctx.clearRect(0, 0, width, height);
 
     const curve = generatePowerCurve();
-    const maxSpeed = Math.max(...curve.map(p => p.speed), 1);
-    const maxPower = Math.max(...curve.map(p => p.power), 1);
+    const maxSpeed = Math.max(...curve.map((p) => p.speed), 1);
+    const maxPower = Math.max(...curve.map((p) => p.power), 1);
 
     // Grid
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.03)";
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
     ctx.lineWidth = 1;
     for (let i = 0; i <= 5; i++) {
       const x = padding + (i / 5) * (width - 2 * padding);
@@ -87,7 +80,7 @@
     }
 
     // Axes
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(padding, padding);
@@ -97,11 +90,11 @@
 
     // Axis tick labels
     const fontSize = isMobile ? 11 : 10;
-    ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.font = `${fontSize}px Inter, sans-serif`;
 
     // X-axis ticks (speed)
-    ctx.textAlign = "center";
+    ctx.textAlign = 'center';
     for (let i = 0; i <= 5; i++) {
       const speedKmh = (i / 5) * maxSpeed;
       const displaySpeed = Math.round(speedVal(speedKmh));
@@ -110,7 +103,7 @@
     }
 
     // Y-axis ticks (power)
-    ctx.textAlign = "right";
+    ctx.textAlign = 'right';
     for (let i = 0; i <= 4; i++) {
       const power = (i / 4) * maxPower;
       const y = height - padding - (i / 4) * (height - 2 * padding);
@@ -118,9 +111,9 @@
     }
 
     // Power curve
-    ctx.strokeStyle = "var(--color-primary)";
+    ctx.strokeStyle = 'var(--color-primary)';
     ctx.lineWidth = isMobile ? 3 : 2.5;
-    ctx.lineJoin = "round";
+    ctx.lineJoin = 'round';
     ctx.beginPath();
     let started = false;
     for (const point of curve) {
@@ -139,34 +132,38 @@
     ctx.lineTo(padding + (curve[curve.length - 1].speed / maxSpeed) * (width - 2 * padding), height - padding);
     ctx.lineTo(padding, height - padding);
     ctx.closePath();
-    ctx.fillStyle = "rgba(56, 189, 248, 0.06)";
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.06)';
     ctx.fill();
 
     // Peak power marker
-    const peakPoint = curve.reduce((a, b) => b.power > a.power ? b : a, curve[0]);
+    const peakPoint = curve.reduce((a, b) => (b.power > a.power ? b : a), curve[0]);
     const peakX = padding + (peakPoint.speed / maxSpeed) * (width - 2 * padding);
     const peakY = height - padding - (peakPoint.power / maxPower) * (height - 2 * padding);
 
     ctx.beginPath();
     ctx.arc(peakX, peakY, 4, 0, Math.PI * 2);
-    ctx.fillStyle = "var(--color-primary)";
+    ctx.fillStyle = 'var(--color-primary)';
     ctx.fill();
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
     ctx.font = `bold ${fontSize}px Inter, sans-serif`;
-    ctx.textAlign = "left";
-    ctx.fillText(`${Math.round(peakPoint.power)}W @ ${Math.round(speedVal(peakPoint.speed))} ${speedUnit()}`, peakX + 8, peakY - 6);
+    ctx.textAlign = 'left';
+    ctx.fillText(
+      `${Math.round(peakPoint.power)}W @ ${Math.round(speedVal(peakPoint.speed))} ${speedUnit()}`,
+      peakX + 8,
+      peakY - 6
+    );
 
     // Axis labels
-    ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
     ctx.font = `${fontSize}px Inter, sans-serif`;
-    ctx.textAlign = "center";
+    ctx.textAlign = 'center';
     ctx.fillText(`Speed (${speedUnit()})`, width / 2, height - (isMobile ? 4 : 6));
 
     ctx.save();
     ctx.translate(isMobile ? 14 : 12, height / 2);
     ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Power (W)", 0, 0);
+    ctx.fillText('Power (W)', 0, 0);
     ctx.restore();
   }
 
@@ -200,7 +197,7 @@
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     const resizeObserver = new ResizeObserver(() => {
       if (canvas) {
@@ -212,20 +209,18 @@
     resizeObserver.observe(canvas.parentElement!);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
       resizeObserver.disconnect();
     };
   });
 </script>
 
-<div
-  class="bg-bg-secondary rounded-2xl border border-white/5 p-6 shadow-sm overflow-hidden space-y-4"
->
+<div class="bg-bg-secondary rounded-2xl border border-white/5 p-6 shadow-sm overflow-hidden space-y-4">
   <div class="flex items-center justify-between px-1">
-    <h3 class="text-xs font-bold text-text-secondary uppercase tracking-widest">
-      Power vs Speed Curve
-    </h3>
-    <span class="text-[10px] text-text-tertiary">Peak: {stats.totalWatts}W @ {Math.round(speedVal(stats.speed * 0.65))} {speedUnit()}</span>
+    <h3 class="text-xs font-bold text-text-secondary uppercase tracking-widest">Power vs Speed Curve</h3>
+    <span class="text-[10px] text-text-tertiary"
+      >Peak: {stats.totalWatts}W @ {Math.round(speedVal(stats.speed * 0.65))} {speedUnit()}</span
+    >
   </div>
 
   <div class="relative min-h-[400px] md:min-h-[300px]">

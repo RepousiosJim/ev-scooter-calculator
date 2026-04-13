@@ -25,7 +25,7 @@ export const GET: RequestHandler = async () => {
 				fields[field] = {
 					value: fieldData.verifiedValue ?? fieldData.sources[0].value,
 					confidence: fieldData.confidence,
-					status: fieldData.status
+					status: fieldData.status,
 				};
 			}
 		}
@@ -33,7 +33,7 @@ export const GET: RequestHandler = async () => {
 		if (Object.keys(fields).length > 0 || verification.priceHistory.length > 0) {
 			verifiedSpecs[key] = {
 				overallConfidence: verification.overallConfidence,
-				fields
+				fields,
 			};
 
 			if (verification.priceHistory.length > 0) {
@@ -41,7 +41,7 @@ export const GET: RequestHandler = async () => {
 				verifiedSpecs[key].latestPrice = {
 					price: latest.price,
 					source: latest.source,
-					observedAt: latest.observedAt
+					observedAt: latest.observedAt,
 				};
 			}
 		}
@@ -49,7 +49,8 @@ export const GET: RequestHandler = async () => {
 
 	return json(verifiedSpecs, {
 		headers: {
-			'Cache-Control': 'public, max-age=300' // Cache for 5 minutes
-		}
+			// Browser: 5 min | CDN: 10 min, then serve stale while revalidating in background (5 min window)
+			'Cache-Control': 'public, max-age=300, s-maxage=600, stale-while-revalidate=300',
+		},
 	});
 };

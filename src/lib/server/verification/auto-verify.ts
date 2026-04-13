@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto';
-import type { SpecField, SourceEntry, ScrapeResult } from './types';
+import type { SpecField, SourceEntry } from './types';
 import { SPEC_FIELD_UNITS } from './types';
 import { scrapeUrl } from './scraper';
 import { getKnownSources } from './known-sources';
@@ -32,14 +32,14 @@ export async function autoVerifyScooter(
 	scooterKey: string,
 	onSourceDone?: (result: AutoVerifySourceResult, progress: AutoVerifyProgress) => void
 ): Promise<AutoVerifyProgress> {
-	const sources = getKnownSources(scooterKey);
+	const sources = await getKnownSources(scooterKey);
 	const progress: AutoVerifyProgress = {
 		scooterKey,
 		totalSources: sources.length,
 		completed: 0,
 		succeeded: 0,
 		failed: 0,
-		results: []
+		results: [],
 	};
 
 	if (sources.length === 0) {
@@ -69,7 +69,7 @@ export async function autoVerifyScooter(
 			url: source.url,
 			success: false,
 			specsFound: 0,
-			extractedSpecs: {}
+			extractedSpecs: {},
 		};
 
 		// Skip URLs already scraped within the last 24 hours
@@ -102,7 +102,7 @@ export async function autoVerifyScooter(
 						unit: SPEC_FIELD_UNITS[specField] || '',
 						fetchedAt: new Date().toISOString(),
 						addedBy: 'scraper',
-						notes: `Auto-scraped from ${source.name}`
+						notes: `Auto-scraped from ${source.name}`,
 					};
 
 					await addSource(store, scooterKey, specField, sourceEntry);

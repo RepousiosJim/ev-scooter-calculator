@@ -3,7 +3,6 @@ import { error } from '@sveltejs/kit';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { getStore } from '$lib/server/verification/store';
 import type { SpecField } from '$lib/server/verification/types';
-import { SPEC_FIELD_UNITS } from '$lib/server/verification/types';
 
 export const load: PageServerLoad = async ({ params }) => {
 	const { scooterKey } = params;
@@ -30,64 +29,64 @@ export const load: PageServerLoad = async ({ params }) => {
 			label: 'Top Speed',
 			unit: 'km/h',
 			currentValue: meta.manufacturer.topSpeed,
-			source: 'manufacturer'
+			source: 'manufacturer',
 		},
 		{
 			field: 'range',
 			label: 'Range',
 			unit: 'km',
 			currentValue: meta.manufacturer.range,
-			source: 'manufacturer'
+			source: 'manufacturer',
 		},
 		{
 			field: 'batteryWh',
 			label: 'Battery',
 			unit: 'Wh',
 			currentValue: meta.manufacturer.batteryWh,
-			source: 'manufacturer'
+			source: 'manufacturer',
 		},
 		{
 			field: 'price',
 			label: 'Price',
 			unit: 'USD',
 			currentValue: meta.manufacturer.price,
-			source: 'manufacturer'
+			source: 'manufacturer',
 		},
 		{
 			field: 'voltage',
 			label: 'Voltage',
 			unit: 'V',
 			currentValue: config.v,
-			source: 'config'
+			source: 'config',
 		},
 		{
 			field: 'motorWatts',
 			label: 'Motor Power',
 			unit: 'W',
 			currentValue: config.watts * config.motors,
-			source: 'config'
+			source: 'config',
 		},
 		{
 			field: 'weight',
 			label: 'Scooter Weight',
 			unit: 'kg',
 			currentValue: config.scooterWeight,
-			source: 'config'
+			source: 'config',
 		},
 		{
 			field: 'wheelSize',
 			label: 'Wheel Size',
 			unit: 'in',
 			currentValue: config.wheel,
-			source: 'config'
+			source: 'config',
 		},
 		{
 			field: 'powerToWeight',
 			label: 'Power-to-Weight',
 			unit: 'W/kg',
 			currentValue: meta.manufacturer.powerToWeight,
-			source: 'manufacturer'
-		}
+			source: 'manufacturer',
+		},
 	];
 
 	return {
@@ -100,7 +99,7 @@ export const load: PageServerLoad = async ({ params }) => {
 			fields: {},
 			priceHistory: [],
 			lastUpdated: null,
-			overallConfidence: 0
-		}
+			overallConfidence: 0,
+		},
 	};
 };

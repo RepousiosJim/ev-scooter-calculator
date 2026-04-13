@@ -10,11 +10,7 @@
  * - Low confidence scooters needing attention
  */
 
-import type {
-	ScooterVerification,
-	SpecField,
-	FieldVerification,
-} from './types';
+import type { ScooterVerification, SpecField } from './types';
 import { presetMetadata } from '$lib/data/presets';
 import { knownSources } from './known-sources';
 
@@ -65,24 +61,13 @@ const CRITICAL_FIELDS: SpecField[] = ['topSpeed', 'range', 'batteryWh', 'price',
 const CONFLICT_THRESHOLD_PERCENT = 15; // sources disagree by more than 15%
 
 /** Sane ranges for spec fields — values outside these are anomalies */
-const SPEC_RANGES: Partial<Record<SpecField, { min: number; max: number; unit: string }>> = {
-	topSpeed: { min: 15, max: 160, unit: 'km/h' },
-	range: { min: 10, max: 250, unit: 'km' },
-	batteryWh: { min: 150, max: 10000, unit: 'Wh' },
-	price: { min: 100, max: 15000, unit: 'USD' },
-	voltage: { min: 24, max: 120, unit: 'V' },
-	motorWatts: { min: 200, max: 20000, unit: 'W' },
-	weight: { min: 5, max: 80, unit: 'kg' },
-	wheelSize: { min: 5, max: 16, unit: 'in' },
-};
+import { SPEC_RANGES } from './auto-fix';
 
 // ---------------------------------------------------------------------------
 // Alert generation
 // ---------------------------------------------------------------------------
 
-export function generateAlerts(
-	allVerifications: Record<string, ScooterVerification>
-): AlertSummary {
+export function generateAlerts(allVerifications: Record<string, ScooterVerification>): AlertSummary {
 	const alerts: SmartAlert[] = [];
 	let alertId = 0;
 
@@ -125,7 +110,8 @@ export function generateAlerts(
 			}
 
 			// Data conflict — sources disagree significantly
-			if (fv.sources.length >= 2) {
+			// Skip if conflict was already resolved (verifiedValue set by auto-fix or manual review)
+			if (fv.sources.length >= 2 && fv.verifiedValue === undefined) {
 				const values = fv.sources.map((s) => s.value);
 				const min = Math.min(...values);
 				const max = Math.max(...values);
@@ -153,9 +139,7 @@ export function generateAlerts(
 			// Anomaly — value outside sane range (deduplicated: one alert per field)
 			const range = SPEC_RANGES[field];
 			if (range && fv.sources.length > 0) {
-				const badSources = fv.sources.filter(
-					(s) => s.value < range.min || s.value > range.max
-				);
+				const badSources = fv.sources.filter((s) => s.value < range.min || s.value > range.max);
 				if (badSources.length > 0) {
 					const badValues = badSources.map((s) => `${s.value}`).join(', ');
 					const badNames = badSources.map((s) => s.name).join(', ');
@@ -259,9 +243,10 @@ export function generateAlerts(
 				if (!presetValue) continue;
 				const fv = verification.fields[field as SpecField];
 				if (!fv || fv.sources.length === 0) continue;
+				// Skip if already resolved
+				if (fv.verifiedValue !== undefined) continue;
 
-				const avgScraped =
-					fv.sources.reduce((s, src) => s + src.value, 0) / fv.sources.length;
+				const avgScraped = fv.sources.reduce((s, src) => s + src.value, 0) / fv.sources.length;
 
 				if (presetValue > 0 && avgScraped > 0) {
 					const diffPercent = ((avgScraped - presetValue) / presetValue) * 100;

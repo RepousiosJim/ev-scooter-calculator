@@ -3,6 +3,7 @@
   import { formatDelta, formatValue, hasSignificantChange } from '$lib/utils/comparison';
   import DeltaBadge from '$lib/components/ui/DeltaBadge.svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
+  import { Gauge, Battery, Rocket, Coins, Zap, Mountain, PlugZap, BatteryCharging, BarChart3 } from 'lucide-svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -14,7 +15,7 @@
     displayValue: number;
     displaySimValue: number;
     unit: string;
-    icon: string;
+    icon: any;
     isPrimary: boolean;
   };
 
@@ -22,20 +23,92 @@
     if (!simStats) return [];
 
     return [
-      { label: 'Top Speed', value: stats.speed, simValue: simStats.speed, displayValue: speedVal(stats.speed), displaySimValue: speedVal(simStats.speed), unit: speedUnit(), icon: '⚡', isPrimary: true },
-      { label: 'Range', value: stats.totalRange, simValue: simStats.totalRange, displayValue: distanceVal(stats.totalRange), displaySimValue: distanceVal(simStats.totalRange), unit: distanceUnit(), icon: '🔋', isPrimary: true },
-      { label: 'Acceleration', value: stats.accelScore, simValue: simStats.accelScore, displayValue: stats.accelScore, displaySimValue: simStats.accelScore, unit: '/100', icon: '🚀', isPrimary: true },
-      { label: 'Running Cost', value: stats.costPer100km, simValue: simStats.costPer100km, displayValue: costPer100Val(stats.costPer100km), displaySimValue: costPer100Val(simStats.costPer100km), unit: `$/${costDistanceLabel().replace('per ', '')}`, icon: '💰', isPrimary: true },
-      { label: 'Total Energy', value: stats.wh, simValue: simStats.wh, displayValue: stats.wh, displaySimValue: simStats.wh, unit: 'Wh', icon: '⚡', isPrimary: false },
-      { label: 'Hill Speed', value: stats.hillSpeed, simValue: simStats.hillSpeed, displayValue: speedVal(stats.hillSpeed), displaySimValue: speedVal(simStats.hillSpeed), unit: speedUnit(), icon: '⛰️', isPrimary: false },
-      { label: 'Peak Power', value: stats.totalWatts, simValue: simStats.totalWatts, displayValue: stats.totalWatts, displaySimValue: simStats.totalWatts, unit: 'W', icon: '🔌', isPrimary: false },
-      { label: 'Charge Time', value: stats.chargeTime, simValue: simStats.chargeTime, displayValue: stats.chargeTime, displaySimValue: simStats.chargeTime, unit: 'h', icon: '🔋', isPrimary: false }
+      {
+        label: 'Top Speed',
+        value: stats.speed,
+        simValue: simStats.speed,
+        displayValue: speedVal(stats.speed),
+        displaySimValue: speedVal(simStats.speed),
+        unit: speedUnit(),
+        icon: Gauge,
+        isPrimary: true,
+      },
+      {
+        label: 'Range',
+        value: stats.totalRange,
+        simValue: simStats.totalRange,
+        displayValue: distanceVal(stats.totalRange),
+        displaySimValue: distanceVal(simStats.totalRange),
+        unit: distanceUnit(),
+        icon: Battery,
+        isPrimary: true,
+      },
+      {
+        label: 'Acceleration',
+        value: stats.accelScore,
+        simValue: simStats.accelScore,
+        displayValue: stats.accelScore,
+        displaySimValue: simStats.accelScore,
+        unit: '/100',
+        icon: Rocket,
+        isPrimary: true,
+      },
+      {
+        label: 'Running Cost',
+        value: stats.costPer100km,
+        simValue: simStats.costPer100km,
+        displayValue: costPer100Val(stats.costPer100km),
+        displaySimValue: costPer100Val(simStats.costPer100km),
+        unit: `$/${costDistanceLabel().replace('per ', '')}`,
+        icon: Coins,
+        isPrimary: true,
+      },
+      {
+        label: 'Total Energy',
+        value: stats.wh,
+        simValue: simStats.wh,
+        displayValue: stats.wh,
+        displaySimValue: simStats.wh,
+        unit: 'Wh',
+        icon: Zap,
+        isPrimary: false,
+      },
+      {
+        label: 'Hill Speed',
+        value: stats.hillSpeed,
+        simValue: simStats.hillSpeed,
+        displayValue: speedVal(stats.hillSpeed),
+        displaySimValue: speedVal(simStats.hillSpeed),
+        unit: speedUnit(),
+        icon: Mountain,
+        isPrimary: false,
+      },
+      {
+        label: 'Peak Power',
+        value: stats.totalWatts,
+        simValue: simStats.totalWatts,
+        displayValue: stats.totalWatts,
+        displaySimValue: simStats.totalWatts,
+        unit: 'W',
+        icon: PlugZap,
+        isPrimary: false,
+      },
+      {
+        label: 'Charge Time',
+        value: stats.chargeTime,
+        simValue: simStats.chargeTime,
+        displayValue: stats.chargeTime,
+        displaySimValue: simStats.chargeTime,
+        unit: 'h',
+        icon: BatteryCharging,
+        isPrimary: false,
+      },
     ];
   }
 
   const statRows = $derived<StatRow[]>(getStatRows());
-  const primaryStats = $derived<StatRow[]>(statRows.filter(s => s.isPrimary));
-  const secondaryStats = $derived<StatRow[]>(statRows.filter(s => !s.isPrimary));
+  const primaryStats = $derived<StatRow[]>(statRows.filter((s) => s.isPrimary));
+  const secondaryStats = $derived<StatRow[]>(statRows.filter((s) => !s.isPrimary));
 
   function getDeltaInfo(current: number, upgraded: number) {
     return formatDelta(current, upgraded);
@@ -57,14 +130,17 @@
 <div class="space-y-4">
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     {#each primaryStats as stat (stat.label)}
-      <div class="bg-white/3 rounded-lg border border-white/5 p-4">
+      {@const StatIcon = stat.icon}
+      <div class="bg-white/3 rounded-xl border border-white/5 p-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
-            <span class="text-2xl">{stat.icon}</span>
+            <StatIcon size={24} class="text-text-secondary" />
             <div>
               <div class="text-xs text-text-tertiary uppercase tracking-wide">{stat.label}</div>
               <div class="flex items-baseline gap-2">
-                <span class={`text-xl font-bold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
+                <span
+                  class={`text-xl font-bold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}
+                >
                   {formatValue(stat.displaySimValue)}
                 </span>
                 <span class="text-sm text-text-tertiary">{stat.unit}</span>
@@ -87,16 +163,18 @@
 
   <div class="border-t border-white/10 pt-4">
     <div class="flex items-center gap-2 mb-3">
-      <span class="text-lg">📊</span>
+      <BarChart3 size={18} class="text-text-secondary" />
       <h3 class="text-sm font-semibold text-text-primary">Secondary Stats</h3>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
       {#each secondaryStats as stat (stat.label)}
-        <div class="bg-black/20 rounded-lg border border-white/5 p-3">
+        <div class="bg-black/20 rounded-xl border border-white/5 p-3">
           <div class="text-xs text-text-tertiary mb-1">{stat.label}</div>
           <div class="flex items-baseline justify-between gap-2">
-            <span class={`text-base font-semibold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}>
+            <span
+              class={`text-base font-semibold ${getDeltaClass(stat.value, stat.simValue, isPositiveGood(stat.label))}`}
+            >
               {formatValue(stat.displaySimValue)}
             </span>
             <span class="text-xs text-text-tertiary">{stat.unit}</span>

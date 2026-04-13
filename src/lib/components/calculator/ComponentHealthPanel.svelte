@@ -10,7 +10,7 @@
     // Inverse: 100% is 0 C-Rate. 0% is 4 C-Rate.
     const stressPercent = Math.min(100, (stats.cRate / 4) * 100);
     const healthPercent = Math.max(0, 100 - stressPercent);
-    
+
     if (stats.cRate < 2) return { percent: healthPercent, status: 'Excellent', color: 'var(--color-success)' };
     if (stats.cRate < 3) return { percent: healthPercent, status: 'Good', color: 'var(--color-primary)' };
     if (stats.cRate < 4) return { percent: healthPercent, status: 'Moderate', color: 'var(--color-warning)' };
@@ -27,9 +27,12 @@
     const loadPercent = Math.min(100, (requiredAmps / config.controller) * 100);
     const healthPercent = Math.max(0, 100 - loadPercent);
 
-    if (requiredAmps < config.controller * 0.8) return { percent: healthPercent, status: 'Excellent', color: 'var(--color-success)' };
-    if (requiredAmps < config.controller) return { percent: healthPercent, status: 'Good', color: 'var(--color-primary)' };
-    if (requiredAmps === config.controller) return { percent: healthPercent, status: 'Near Limit', color: 'var(--color-warning)' };
+    if (requiredAmps < config.controller * 0.8)
+      return { percent: healthPercent, status: 'Excellent', color: 'var(--color-success)' };
+    if (requiredAmps < config.controller)
+      return { percent: healthPercent, status: 'Good', color: 'var(--color-primary)' };
+    if (requiredAmps === config.controller)
+      return { percent: healthPercent, status: 'Near Limit', color: 'var(--color-warning)' };
     return { percent: healthPercent, status: 'Over Limit', color: 'var(--color-danger)' };
   });
 
@@ -45,7 +48,7 @@
 
 <div class="space-y-2">
   <!-- Battery -->
-  <div class="border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
+  <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
     <div class="p-2 bg-white/[0.04]" style:color={batteryHealth.color}>
       <Icon name="battery" size="sm" />
     </div>
@@ -59,39 +62,52 @@
       </div>
       <div class="flex items-center gap-2 mt-1">
         <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
-          <div class="h-full rounded-full transition-all duration-500" style:width={`${batteryHealth.percent}%`} style:background-color={batteryHealth.color}></div>
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            style:width={`${batteryHealth.percent}%`}
+            style:background-color={batteryHealth.color}
+          ></div>
         </div>
-        <span class="text-[10px] font-bold flex-shrink-0" style:color={batteryHealth.color}>{batteryHealth.status}</span>
+        <span class="text-[10px] font-bold flex-shrink-0" style:color={batteryHealth.color}>{batteryHealth.status}</span
+        >
       </div>
     </div>
   </div>
 
   <!-- Controller -->
   {#if config.controller}
-  <div class="border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
-    <div class="p-2 bg-white/[0.04]" style:color={controllerHealth.color}>
-      <Icon name="controller" size="sm" />
-    </div>
-    <div class="flex-1 min-w-0">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-1">
-          <span class="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Controller</span>
-          <HelpTooltip position="right" content="Current capacity margin. Higher health = cooler, safer operation." />
-        </div>
-        <span class="text-[10px] font-mono text-text-tertiary">{`${Math.round(stats.amps)}/${config.controller}A`}</span>
+    <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
+      <div class="p-2 bg-white/[0.04]" style:color={controllerHealth.color}>
+        <Icon name="controller" size="sm" />
       </div>
-      <div class="flex items-center gap-2 mt-1">
-        <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
-          <div class="h-full rounded-full transition-all duration-500" style:width={`${controllerHealth.percent}%`} style:background-color={controllerHealth.color}></div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-1">
+            <span class="text-[10px] font-bold text-text-secondary uppercase tracking-wider">Controller</span>
+            <HelpTooltip position="right" content="Current capacity margin. Higher health = cooler, safer operation." />
+          </div>
+          <span class="text-[10px] font-mono text-text-tertiary"
+            >{`${Math.round(stats.amps)}/${config.controller}A`}</span
+          >
         </div>
-        <span class="text-[10px] font-bold flex-shrink-0" style:color={controllerHealth.color}>{controllerHealth.status}</span>
+        <div class="flex items-center gap-2 mt-1">
+          <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
+            <div
+              class="h-full rounded-full transition-all duration-500"
+              style:width={`${controllerHealth.percent}%`}
+              style:background-color={controllerHealth.color}
+            ></div>
+          </div>
+          <span class="text-[10px] font-bold flex-shrink-0" style:color={controllerHealth.color}
+            >{controllerHealth.status}</span
+          >
+        </div>
       </div>
     </div>
-  </div>
   {/if}
 
   <!-- Motor -->
-  <div class="border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
+  <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
     <div class="p-2 bg-white/[0.04]" style:color={motorHealth.color}>
       <Icon name="motor" size="sm" />
     </div>
@@ -105,7 +121,11 @@
       </div>
       <div class="flex items-center gap-2 mt-1">
         <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
-          <div class="h-full rounded-full transition-all duration-500" style:width={`${motorHealth.percent}%`} style:background-color={motorHealth.color}></div>
+          <div
+            class="h-full rounded-full transition-all duration-500"
+            style:width={`${motorHealth.percent}%`}
+            style:background-color={motorHealth.color}
+          ></div>
         </div>
         <span class="text-[10px] font-bold flex-shrink-0" style:color={motorHealth.color}>{motorHealth.status}</span>
       </div>

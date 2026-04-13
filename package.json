@@ -7,34 +7,71 @@
 		"dev": "vite dev",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "husky",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"test": "npm run test:unit && npm run test:e2e",
 		"test:unit": "vitest run",
 		"test:unit:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
-		"test:e2e:debug": "playwright test --debug"
+		"test:e2e:debug": "playwright test --debug",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check ."
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
 		"@playwright/test": "^1.57.0",
 		"@sveltejs/adapter-vercel": "^5.10.2",
 		"@sveltejs/kit": "^2.49.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@tailwindcss/postcss": "^4.1.18",
 		"@types/node": "^25.6.0",
+		"@typescript-eslint/eslint-plugin": "^8.58.1",
+		"@typescript-eslint/parser": "^8.58.1",
+		"@vitest/coverage-v8": "^4.1.4",
 		"autoprefixer": "^10.4.23",
+		"eslint": "^10.2.0",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.17.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^16.4.0",
 		"postcss": "^8.5.6",
+		"prettier": "^3.8.2",
+		"prettier-plugin-svelte": "^3.5.1",
 		"svelte": "^5.45.6",
 		"svelte-check": "^4.3.4",
+		"svelte-eslint-parser": "^1.6.0",
 		"tailwindcss": "^4.1.18",
 		"typescript": "^5.9.3",
+		"typescript-eslint": "^8.58.1",
 		"vite": "^7.2.6",
 		"vite-plugin-pwa": "^1.2.0",
 		"vitest": "^4.0.17"
 	},
 	"dependencies": {
-		"node-html-parser": "^7.1.0"
+		"@resvg/resvg-wasm": "^2.6.2",
+		"@sentry/sveltekit": "^10.48.0",
+		"@supabase/supabase-js": "^2.103.0",
+		"lucide-svelte": "^0.469.0",
+		"node-html-parser": "^7.1.0",
+		"pino": "^10.3.1",
+		"satori": "^0.26.0"
+	},
+	"lint-staged": {
+		"*.{ts,tsx,js,mjs}": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.svelte": [
+			"eslint --fix",
+			"prettier --write"
+		],
+		"*.{json,css,html,md}": [
+			"prettier --write"
+		]
 	}
 }

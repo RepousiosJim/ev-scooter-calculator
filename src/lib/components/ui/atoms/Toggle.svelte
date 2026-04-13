@@ -6,7 +6,6 @@
     size = 'md',
     id,
     onChange,
-    ...props
   }: {
     label?: string;
     checked?: boolean;
@@ -48,13 +47,13 @@
     aria-checked={checked}
     aria-disabled={disabled}
     aria-label={label || 'Toggle'}
-    disabled={disabled}
+    {disabled}
     onclick={handleClick}
     onkeydown={handleKeydown}
     class={`relative inline-flex items-center transition-all duration-normal
       ${size === 'sm' ? 'w-10 h-5' : size === 'lg' ? 'w-14 h-8' : 'w-12 h-6'}
       ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-[1.02]'}
-      ${checked ? 'bg-primary' : 'bg-gray-600'}
+      ${checked ? 'bg-primary' : 'bg-white/10'}
       rounded-full
     `}
   >
@@ -79,7 +78,7 @@
   }
 
   button:focus-visible {
-    outline: 2px solid var(--brand-primary);
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 

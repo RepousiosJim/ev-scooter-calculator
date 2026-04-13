@@ -45,9 +45,7 @@
     }
   }
 
-  const percentage = $derived(
-    value ? Math.round(((value - min) / (max - min)) * 100) : 0
-  );
+  const percentage = $derived(value ? Math.round(((value - min) / (max - min)) * 100) : 0);
 </script>
 
 <div class="flex flex-col gap-2">
@@ -68,15 +66,15 @@
     id={sliderId}
     type="range"
     value={value || min}
-    min={min}
-    max={max}
-    step={step}
-    disabled={disabled}
+    {min}
+    {max}
+    {step}
+    {disabled}
     aria-valuenow={Math.round(value || 0)}
     aria-valuemin={min}
     aria-valuemax={max}
     aria-describedby={helpId}
-    class={`w-full h-2 bg-gray-600 rounded-full appearance-none cursor-pointer
+    class={`w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer
       disabled:opacity-50 disabled:cursor-not-allowed
       ${disabled ? '' : 'hover:accent-primary'}
       ${className}`}
@@ -87,7 +85,7 @@
 
   <!-- Progress indicator (visual only) -->
   <div
-    class="relative w-full h-2 bg-gray-600 rounded-full overflow-hidden -mt-2 pointer-events-none"
+    class="relative w-full h-2 bg-white/10 rounded-full overflow-hidden -mt-2 pointer-events-none"
     aria-hidden="true"
   >
     <div
@@ -105,81 +103,89 @@
 
 <style>
   /* Custom range slider styling */
-  input[type="range"] {
+  input[type='range'] {
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
   }
 
   /* Webkit slider thumb */
-  input[type="range"]::-webkit-slider-thumb {
+  input[type='range']::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: var(--brand-primary);
+    background: var(--color-primary);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(34, 211, 238, 0.4);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
     margin-top: -8px;
   }
 
   /* Webkit slider thumb hover/focus */
-  input[type="range"]::-webkit-slider-thumb:hover,
-  input[type="range"]::-webkit-slider-thumb:focus-visible {
+  input[type='range']::-webkit-slider-thumb:hover,
+  input[type='range']::-webkit-slider-thumb:focus-visible {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.6);
   }
 
   /* Firefox slider thumb */
-  input[type="range"]::-moz-range-thumb {
+  input[type='range']::-moz-range-thumb {
     width: 20px;
     height: 20px;
     border: none;
     border-radius: 50%;
-    background: var(--brand-primary);
+    background: var(--color-primary);
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(34, 211, 238, 0.4);
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
   }
 
   /* Firefox slider thumb hover/focus */
-  input[type="range"]::-moz-range-thumb:hover,
-  input[type="range"]::-moz-range-thumb:focus-visible {
+  input[type='range']::-moz-range-thumb:hover,
+  input[type='range']::-moz-range-thumb:focus-visible {
     transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 4px 12px rgba(34, 211, 238, 0.6);
   }
 
   /* Mobile: Larger touch target */
   @media (max-width: 640px) {
-    input[type="range"]::-webkit-slider-thumb {
+    input[type='range']::-webkit-slider-thumb {
       width: 32px;
       height: 32px;
       margin-top: -15px;
     }
 
-    input[type="range"]::-moz-range-thumb {
+    input[type='range']::-moz-range-thumb {
       width: 32px;
       height: 32px;
     }
   }
 
   /* Focus styles */
-  input[type="range"]:focus-visible {
-    outline: 2px solid var(--brand-primary);
+  input[type='range']:focus-visible {
+    outline: 2px solid var(--color-primary);
     outline-offset: 2px;
   }
 
-  input[type="range"]:focus:not(:focus-visible) {
+  input[type='range']:focus:not(:focus-visible) {
     outline: none;
   }
 
-  input[type="range"]:focus-visible::-webkit-slider-thumb {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.6);
+  input[type='range']:focus-visible::-webkit-slider-thumb {
+    box-shadow:
+      0 0 0 4px rgba(34, 211, 238, 0.2),
+      0 4px 12px rgba(34, 211, 238, 0.6);
   }
 
-  input[type="range"]:focus-visible::-moz-range-thumb {
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2), 0 4px 12px rgba(59, 130, 246, 0.6);
+  input[type='range']:focus-visible::-moz-range-thumb {
+    box-shadow:
+      0 0 0 4px rgba(34, 211, 238, 0.2),
+      0 4px 12px rgba(34, 211, 238, 0.6);
   }
 </style>

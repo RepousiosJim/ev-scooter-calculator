@@ -1,15 +1,13 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin } from '$lib/server/admin-guard';
 import { getStore, addSource, removeSource } from '$lib/server/verification/store';
 import type { SpecField, SourceType } from '$lib/server/verification/types';
 import { randomBytes } from 'crypto';
 import { logActivity } from '$lib/server/verification/activity-log';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const body = await request.json();
 	const { scooterKey, field, source } = body as {
@@ -40,20 +38,25 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		unit: source.unit,
 		fetchedAt: new Date().toISOString(),
 		addedBy: (source.addedBy || 'manual') as 'manual' | 'scraper',
-		notes: source.notes
+		notes: source.notes,
 	};
 
 	const updated = await addSource(store, scooterKey, field, sourceEntry);
-	await logActivity('source_added', `Added ${source.type} source for ${scooterKey}.${field}: ${source.value} ${source.unit}`, {
-		scooterKey, field, sourceName: source.name, value: source.value,
-	});
+	await logActivity(
+		'source_added',
+		`Added ${source.type} source for ${scooterKey}.${field}: ${source.value} ${source.unit}`,
+		{
+			scooterKey,
+			field,
+			sourceName: source.name,
+			value: source.value,
+		}
+	);
 	return json({ success: true, verification: updated });
 };
 
 export const DELETE: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const body = await request.json();
 	const { scooterKey, field, sourceId } = body as {
@@ -69,7 +72,9 @@ export const DELETE: RequestHandler = async ({ request, cookies }) => {
 	const store = await getStore();
 	const updated = await removeSource(store, scooterKey, field, sourceId);
 	await logActivity('source_removed', `Removed source ${sourceId} from ${scooterKey}.${field}`, {
-		scooterKey, field, sourceId,
+		scooterKey,
+		field,
+		sourceId,
 	});
 	return json({ success: true, verification: updated });
 };

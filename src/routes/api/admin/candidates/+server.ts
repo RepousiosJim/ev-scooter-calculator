@@ -1,6 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin } from '$lib/server/admin-guard';
+import { logger } from '$lib/server/logger';
 import {
 	getCandidates,
 	getCandidate,
@@ -11,10 +12,17 @@ import {
 	removeCandidate,
 	getCandidateStats,
 } from '$lib/server/verification/candidate-store';
-import { createCandidate, generatePresetCode, generatePresetKey, specsToConfig, type PresetCandidate } from '$lib/server/verification/preset-generator';
+import {
+	createCandidate,
+	generatePresetCode,
+	generatePresetKey,
+	specsToConfig,
+	type PresetCandidate,
+} from '$lib/server/verification/preset-generator';
 import { validateConfig } from '$lib/server/verification/physics-validator';
 import { logActivity } from '$lib/server/verification/activity-log';
 import { addPresetToFile, removePresetFromFile, syncApprovedPresets } from '$lib/server/verification/preset-writer';
+import { onCandidateApproved, onCandidateRejected } from '$lib/server/verification/pipeline-actions';
 import type { DiscoveredScooter } from '$lib/server/verification/discovery';
 
 /**
@@ -22,9 +30,7 @@ import type { DiscoveredScooter } from '$lib/server/verification/discovery';
  * Query params: ?status=pending|approved|rejected&key=specific_key
  */
 export const GET: RequestHandler = async ({ url, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const key = url.searchParams.get('key');
 	if (key) {
@@ -48,9 +54,7 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
  * Body: { action: 'create' | 'approve' | 'reject' | 'reset' | 'edit' | 'delete' | 'generate', ... }
  */
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const body = await request.json();
 	const { action } = body as { action: string };
@@ -67,11 +71,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			const candidates = scooters.map((s: DiscoveredScooter) => createCandidate(s));
 			const result = await addCandidates(candidates);
 
-			await logActivity('discovery_completed', `Created ${result.added} preset candidates (${result.skipped} duplicates skipped)`, {
-				added: result.added,
-				skipped: result.skipped,
-				keys: candidates.map((c) => c.key),
-			});
+			await logActivity(
+				'discovery_completed',
+				`Created ${result.added} preset candidates (${result.skipped} duplicates skipped)`,
+				{
+					added: result.added,
+					skipped: result.skipped,
+					keys: candidates.map((c) => c.key),
+				}
+			);
 
 			return json({ success: true, ...result });
 		}
@@ -90,11 +98,22 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			// Auto-inject into presets.ts
 			const writeResult = addPresetToFile(candidate);
 
-			await logActivity('status_changed', `Approved preset candidate: ${candidate.name}${writeResult.success ? ' (auto-added to presets)' : ` (preset write failed: ${writeResult.error})`}`, {
-				key,
-				confidence: candidate.validation.confidence,
-				presetWritten: writeResult.success,
-			});
+			// Pipeline: seed verification store + add dynamic sources
+			try {
+				await onCandidateApproved(key, candidate);
+			} catch (e) {
+				logger.error({ err: e, key }, 'onCandidateApproved failed');
+			}
+
+			await logActivity(
+				'status_changed',
+				`Approved preset candidate: ${candidate.name}${writeResult.success ? ' (auto-added to presets + verification seeded)' : ` (preset write failed: ${writeResult.error})`}`,
+				{
+					key,
+					confidence: candidate.validation.confidence,
+					presetWritten: writeResult.success,
+				}
+			);
 
 			return json({
 				success: true,
@@ -119,10 +138,21 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			// Remove from presets.ts if it was previously added
 			const removeResult = removePresetFromFile(key);
 
-			await logActivity('status_changed', `Rejected preset candidate: ${candidate.name}${removeResult.success ? ' (removed from presets)' : ''}`, {
-				key,
-				reason: notes,
-			});
+			// Pipeline: cleanup dynamic sources
+			try {
+				await onCandidateRejected(key);
+			} catch (e) {
+				logger.error({ err: e, key }, 'onCandidateRejected failed');
+			}
+
+			await logActivity(
+				'status_changed',
+				`Rejected preset candidate: ${candidate.name}${removeResult.success ? ' (removed from presets + sources cleaned)' : ''}`,
+				{
+					key,
+					reason: notes,
+				}
+			);
 
 			return json({ success: true, candidate, presetRemoved: removeResult.success });
 		}
@@ -259,11 +289,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		case 'sync': {
 			const syncResult = await syncApprovedPresets();
 
-			await logActivity('source_added', `Synced presets: ${syncResult.added.length} added, ${syncResult.removed.length} removed`, {
-				added: syncResult.added,
-				removed: syncResult.removed,
-				errors: syncResult.errors,
-			});
+			await logActivity(
+				'source_added',
+				`Synced presets: ${syncResult.added.length} added, ${syncResult.removed.length} removed`,
+				{
+					added: syncResult.added,
+					removed: syncResult.removed,
+					errors: syncResult.errors,
+				}
+			);
 
 			return json({
 				success: true,

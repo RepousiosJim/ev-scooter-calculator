@@ -1,13 +1,11 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin } from '$lib/server/admin-guard';
 import { getStore, updateFieldStatus } from '$lib/server/verification/store';
 import type { SpecField, VerificationStatus } from '$lib/server/verification/types';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const body = await request.json();
 	const { scooterKey, field, status, verifiedValue } = body as {

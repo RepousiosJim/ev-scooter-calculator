@@ -1,5 +1,5 @@
 import type { PageServerLoad } from './$types';
-import { presets, presetMetadata } from '$lib/data/presets';
+import { presetMetadata } from '$lib/data/presets';
 import { getStore } from '$lib/server/verification/store';
 import { getActivityLog } from '$lib/server/verification/activity-log';
 import { getScrapableManufacturers } from '$lib/server/verification/manufacturers';
@@ -7,7 +7,16 @@ import { knownSources } from '$lib/server/verification/known-sources';
 import { generateAlerts } from '$lib/server/verification/smart-alerts';
 import { env } from '$env/dynamic/private';
 
-const SPEC_FIELDS = ['topSpeed', 'range', 'batteryWh', 'price', 'voltage', 'motorWatts', 'weight', 'wheelSize'] as const;
+const SPEC_FIELDS = [
+	'topSpeed',
+	'range',
+	'batteryWh',
+	'price',
+	'voltage',
+	'motorWatts',
+	'weight',
+	'wheelSize',
+] as const;
 
 export const load: PageServerLoad = async () => {
 	const store = await getStore();

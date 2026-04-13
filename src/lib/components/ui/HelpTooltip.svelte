@@ -3,7 +3,7 @@
 
   let {
     content,
-    position = 'top'
+    position = 'top',
   }: {
     content: string;
     position?: 'top' | 'right' | 'bottom' | 'left';
@@ -11,7 +11,6 @@
 
   let showTooltip = $state(false);
   let triggerElement: HTMLElement;
-  let tooltipElement: HTMLElement;
 
   const positionClasses = {
     top: 'bottom-full left-1/2 -translate-x-1/2 mb-2',
@@ -44,11 +43,11 @@
   <button
     bind:this={triggerElement}
     type="button"
-    onmouseenter={() => showTooltip = true}
-    onmouseleave={() => showTooltip = false}
+    onmouseenter={() => (showTooltip = true)}
+    onmouseleave={() => (showTooltip = false)}
     onclick={toggleTooltip}
-    onfocus={() => showTooltip = true}
-    onblur={() => showTooltip = false}
+    onfocus={() => (showTooltip = true)}
+    onblur={() => (showTooltip = false)}
     onkeydown={handleKeydown}
     aria-label="Show help information"
     aria-expanded={showTooltip}
@@ -70,6 +69,7 @@
     >
       <!-- Content -->
       <p class="text-sm text-text-secondary leading-relaxed">
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html content}
       </p>
 

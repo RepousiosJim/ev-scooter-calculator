@@ -150,10 +150,7 @@ export function specsToConfig(specs: {
 /**
  * Create a full preset candidate from a discovered scooter.
  */
-export function createCandidate(
-	discovered: DiscoveredScooter,
-	verification?: ScooterVerification
-): PresetCandidate {
+export function createCandidate(discovered: DiscoveredScooter, verification?: ScooterVerification): PresetCandidate {
 	// Merge discovery specs with verification data (verification takes priority)
 	const specs: Record<string, number | undefined> = { ...discovered.specs };
 
@@ -176,7 +173,7 @@ export function createCandidate(
 			} else if (field?.sources.length) {
 				// Use median of source values
 				const values = field.sources
-					.map(s => s.value)
+					.map((s) => s.value)
 					.filter((v): v is number => v !== undefined)
 					.sort((a, b) => a - b);
 				if (values.length > 0) {
@@ -186,7 +183,7 @@ export function createCandidate(
 		}
 	}
 
-	const config = specsToConfig(specs as any);
+	const config = specsToConfig(specs as Parameters<typeof specsToConfig>[0]);
 	const validation = validateConfig(config, { batteryWh: specs.batteryWh as number | undefined });
 	const key = discovered.matchedKey || generatePresetKey(discovered.name);
 
@@ -228,7 +225,9 @@ export function generatePresetCode(candidate: PresetCandidate): string {
 		`    dragCoefficient: ${c.dragCoefficient}, frontalArea: ${c.frontalArea}, rollingResistance: ${c.rollingResistance},`,
 		`    slope: 0, ridePosition: ${c.ridePosition}, soh: ${c.soh}, ambientTemp: ${c.ambientTemp},`,
 		`  },`,
-	].filter(Boolean).join('\n');
+	]
+		.filter(Boolean)
+		.join('\n');
 
 	const metaLines = [
 		`  ${candidate.key}: {`,
@@ -241,7 +240,9 @@ export function generatePresetCode(candidate: PresetCandidate): string {
 		`    },`,
 		`    status: 'current',`,
 		`  },`,
-	].filter(Boolean).join('\n');
+	]
+		.filter(Boolean)
+		.join('\n');
 
 	return `// Config:\n${configLines}\n\n// Metadata:\n${metaLines}`;
 }

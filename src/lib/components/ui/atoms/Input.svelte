@@ -64,16 +64,16 @@
 
   <input
     id={inputId}
-    type={type}
-    value={value}
-    placeholder={placeholder}
-    disabled={disabled}
-    required={required}
-  autocomplete={autoComplete as AutoFill | undefined}
-  class={`w-full px-4 py-3 bg-bg-secondary border rounded-radius-input text-text-primary
+    {type}
+    {value}
+    {placeholder}
+    {disabled}
+    {required}
+    autocomplete={autoComplete as AutoFill | undefined}
+    class={`w-full px-4 py-3 bg-bg-secondary border rounded-xl text-text-primary
       focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none
       disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-normal
-      ${error ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-gray-600 hover:border-gray-500'}
+      ${error ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-white/10 hover:border-white/20'}
       ${className}`}
     aria-invalid={error !== ''}
     aria-describedby={errorId || (help ? `${inputId}-help` : undefined)}

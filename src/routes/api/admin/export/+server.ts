@@ -1,13 +1,25 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { validateSession } from '$lib/server/auth';
+import { requireAdmin } from '$lib/server/admin-guard';
 import { getStore } from '$lib/server/verification/store';
+import type { ScooterVerification } from '$lib/server/verification/types';
 import { logActivity } from '$lib/server/verification/activity-log';
 
+function isValidScooterVerification(value: unknown): value is ScooterVerification {
+	if (!value || typeof value !== 'object') return false;
+	const v = value as Record<string, unknown>;
+	return (
+		typeof v.scooterKey === 'string' &&
+		typeof v.fields === 'object' &&
+		v.fields !== null &&
+		Array.isArray(v.priceHistory) &&
+		typeof v.lastUpdated === 'string' &&
+		typeof v.overallConfidence === 'number'
+	);
+}
+
 export const GET: RequestHandler = async ({ cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const store = await getStore();
 	const allData = await store.getAll();
@@ -17,15 +29,13 @@ export const GET: RequestHandler = async ({ cookies }) => {
 	return json({
 		exportedAt: new Date().toISOString(),
 		scooterCount: Object.keys(allData).length,
-		data: allData
+		data: allData,
 	});
 };
 
 /** Import verification data */
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	if (!validateSession(cookies.get('admin_session'))) {
-		throw error(401, 'Unauthorized');
-	}
+	await requireAdmin({ cookies });
 
 	const body = await request.json();
 	if (!body.data || typeof body.data !== 'object') {
@@ -36,10 +46,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	let imported = 0;
 
 	for (const [key, value] of Object.entries(body.data)) {
-		if (value && typeof value === 'object' && 'scooterKey' in (value as any)) {
-			await store.set(key, value as any);
-			imported++;
-		}
+		if (!isValidScooterVerification(value)) continue;
+		await store.set(key, value);
+		imported++;
 	}
 
 	await logActivity('seed_completed', `Imported ${imported} scooter verifications from file`);
