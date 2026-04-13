@@ -105,9 +105,6 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-	if (event.url.protocol === 'https:') {
-		response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
-	}
 
 	// Performance: HTTP Link preconnect hints for font + analytics origins.
 	// Sent as response headers so Vercel edge can forward them as Early Hints (103)
@@ -122,6 +119,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 		].join(', ');
 		const existing = response.headers.get('Link');
 		response.headers.set('Link', existing ? `${existing}, ${hints}` : hints);
+	}
+
+	// HSTS: Vercel always terminates TLS, so the server is always behind HTTPS in
+	// production. Setting HSTS unconditionally here avoids relying on the protocol
+	// sniff (which is always 'http:' behind Vercel's proxy on some versions).
+	if (process.env.NODE_ENV === 'production') {
+		response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
 	}
 
 	const durationMs = Date.now() - start;

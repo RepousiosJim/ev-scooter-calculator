@@ -2,6 +2,10 @@ import type { RequestHandler } from './$types';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { guides } from '$lib/data/guides';
 
+// Prerender the sitemap at build time — it is fully static (derived from presets + guides).
+// Vercel will serve this from the CDN edge with zero cold starts.
+export const prerender = true;
+
 export const GET: RequestHandler = async ({ url }) => {
 	const baseUrl = url.origin;
 	const lastmod = new Date().toISOString().split('T')[0];

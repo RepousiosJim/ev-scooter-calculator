@@ -16,6 +16,10 @@ export default defineConfig({
 	build: {
 		// Target modern browsers — smaller output, faster parse
 		target: 'es2020',
+		// Emit source maps when SENTRY_AUTH_TOKEN is present so Sentry can
+		// symbolicate production stack traces. Hidden maps keep the files off the
+		// CDN while still uploading them to Sentry.
+		sourcemap: !!sentryAuthToken ? 'hidden' : false,
 		rollupOptions: {
 			output: {
 				// Manual chunk splitting to keep the initial JS payload small.
@@ -30,6 +34,10 @@ export default defineConfig({
 					if (id.includes('lucide-svelte')) return 'icons';
 					// Physics engine + presets data — large but shared across all tabs
 					if (id.includes('/lib/physics') || id.includes('/lib/data/presets')) return 'engine';
+					// satori + resvg are server-only OG image deps — keep them out of
+					// any client chunk. Rollup only touches them server-side, but this
+					// guard prevents accidental client inclusion if imports shift.
+					if (id.includes('satori') || id.includes('resvg')) return 'og-server';
 				},
 			},
 		},

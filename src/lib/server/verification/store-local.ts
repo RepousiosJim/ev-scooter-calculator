@@ -71,6 +71,14 @@ export class LocalVerificationStore implements VerificationStore {
 	}
 
 	private async save(): Promise<void> {
+		// Guard: Vercel's deployed filesystem is read-only. If Supabase is configured
+		// this store should never be selected, but add a clear error in case it is.
+		if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+			throw new Error(
+				'LocalVerificationStore.save() called on Vercel — ' +
+					'configure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY so the Supabase store is used instead.'
+			);
+		}
 		if (!existsSync(DATA_DIR)) {
 			await mkdir(DATA_DIR, { recursive: true });
 		}

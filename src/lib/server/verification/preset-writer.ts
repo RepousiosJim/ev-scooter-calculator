@@ -2,6 +2,14 @@
  * Programmatically writes approved candidates into presets.ts.
  * When a candidate is approved, its config + metadata are auto-injected.
  * When rejected/deleted, the entry is removed if it was previously added.
+ *
+ * VERCEL NOTE: Vercel's production filesystem is read-only after deployment.
+ * These write operations will fail silently (EROFS) on a live Vercel instance.
+ * The intended workflow is:
+ *   1. Approve candidates via the admin panel (stored in Supabase / local JSON).
+ *   2. Run `syncApprovedPresets()` locally in development to write presets.ts.
+ *   3. Commit and push — Vercel redeploys with the new preset baked into the bundle.
+ * The admin UI's "Sync to presets" button is therefore a local-dev-only action.
  */
 import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
@@ -14,6 +22,14 @@ async function readPresetsFile(): Promise<string> {
 }
 
 async function writePresetsFile(content: string): Promise<void> {
+	// Guard against Vercel's read-only production filesystem.
+	// VERCEL_ENV is set to "production" | "preview" | "development" by Vercel.
+	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+		throw new Error(
+			'Cannot write presets.ts on Vercel — the deployed filesystem is read-only. ' +
+				'Approve candidates in the admin panel, then run syncApprovedPresets() locally and redeploy.'
+		);
+	}
 	return writeFile(PRESETS_PATH, content, 'utf-8');
 }
 

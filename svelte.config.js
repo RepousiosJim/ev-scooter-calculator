@@ -9,9 +9,13 @@ const config = {
 
 	kit: {
 		adapter: adapter({
-			runtime: 'nodejs22.x'
-		})
-	}
+			runtime: 'nodejs22.x',
+			// Bundle each route into its own function file.
+			// Keeps cold-start payloads small — heavy admin/scraper code does not
+			// land in the same bundle as the lightweight public API routes.
+			split: true,
+		}),
+	},
 };
 
 export default config;

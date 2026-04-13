@@ -21,7 +21,7 @@ export interface ScooterPageData {
 	recommendations: Recommendation[];
 }
 
-export const load: PageServerLoad = ({ params }) => {
+export const load: PageServerLoad = ({ params, setHeaders }) => {
 	const { key } = params;
 
 	if (key === 'custom' || !presets[key] || !presetMetadata[key]) {
@@ -38,7 +38,12 @@ export const load: PageServerLoad = ({ params }) => {
 	const bottlenecks = detectBottlenecks(stats, config);
 	const recommendations = generateRecommendations(config, stats);
 
-	// Cache-Control is set by the parent +layout.server.ts
+	// Scooter data is purely derived from static presets — safe to cache at the CDN
+	// for a full day and serve stale indefinitely while revalidating in the background.
+	// This overrides the conservative 60 s s-maxage from the root layout.
+	setHeaders({
+		'Cache-Control': 'public, max-age=0, s-maxage=86400, stale-while-revalidate=604800',
+	});
 
 	return {
 		key,

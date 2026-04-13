@@ -1,5 +1,9 @@
 import type { RequestHandler } from './$types';
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
+
+// Vercel: allow up to 300 s for the full batch scrape (Hobby plan max is 60 s).
+// On Pro/Enterprise plans this can be raised to 800 s.
+export const config = { maxDuration: 300 };
 import { autoVerifyScooter } from '$lib/server/verification/auto-verify';
 import { knownSources } from '$lib/server/verification/known-sources';
 import { presetMetadata } from '$lib/data/presets';
