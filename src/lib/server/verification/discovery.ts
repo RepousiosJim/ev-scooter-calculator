@@ -268,12 +268,12 @@ ${pageText.slice(0, 15000)}`;
 		let parsed = JSON.parse(content.replace(/^```json?\s*/, '').replace(/\s*```$/, ''));
 		if (!Array.isArray(parsed)) parsed = [parsed];
 
-		const scooters = parsed
-			.filter((item: any) => item.name && typeof item.name === 'string')
+		const scooters = (parsed as Record<string, unknown>[])
+			.filter((item) => item.name && typeof item.name === 'string')
 			.map(
-				(item: any): DiscoveredScooter => ({
-					name: item.name,
-					url: item.url || sourceUrl,
+				(item): DiscoveredScooter => ({
+					name: item.name as string,
+					url: (item.url as string) || sourceUrl,
 					manufacturer: manufacturerName,
 					manufacturerId: '',
 					specs: {
@@ -322,7 +322,7 @@ function stripHtmlForLLM(html: string, url: string): string {
 	];
 	for (const sel of removeSelectors) {
 		try {
-			root.querySelectorAll(sel).forEach((el: any) => el.remove());
+			root.querySelectorAll(sel).forEach((el) => el.remove());
 		} catch {
 			/* ignore */
 		}

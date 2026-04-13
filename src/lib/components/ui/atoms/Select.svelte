@@ -5,11 +5,11 @@
     options,
     disabled = false,
     required = false,
-    error = "",
-    help = "",
+    error = '',
+    help = '',
     id,
-    placeholder = "Select...",
-    class: className = "",
+    placeholder = 'Select...',
+    class: className = '',
     onChange,
     onBlur,
     onFocus,
@@ -30,17 +30,15 @@
     onFocus?: (e: FocusEvent) => void;
   } = $props();
 
-  const selectId = $derived(
-    id || `select-${Math.random().toString(36).substring(2, 9)}`,
-  );
-  const errorId = $derived(error ? `${selectId}-error` : "");
-  const helpId = $derived(help ? `${selectId}-help` : "");
+  const selectId = $derived(id || `select-${Math.random().toString(36).substring(2, 9)}`);
+  const errorId = $derived(error ? `${selectId}-error` : '');
+  const helpId = $derived(help ? `${selectId}-help` : '');
 
   function handleChange(e: Event) {
     const newValue = (e.currentTarget as HTMLSelectElement).value;
     if (onChange) {
       // Try to convert to number if all options are numbers
-      const allNumbers = options.every((opt) => typeof opt.value === "number");
+      const allNumbers = options.every((opt) => typeof opt.value === 'number');
       onChange(allNumbers ? parseFloat(newValue) : newValue);
     }
   }
@@ -62,16 +60,16 @@
 
   <select
     id={selectId}
-    value={value ?? ""}
+    value={value ?? ''}
     {disabled}
     {required}
     {placeholder}
     class={`w-full px-4 py-3 bg-white/2 border border-white/5 rounded-xl text-text-primary
       focus:border-primary/50 focus:bg-white/5 focus:outline-none focus:ring-4 focus:ring-primary/10
       disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300
-      ${error ? "border-danger focus:border-danger focus:ring-danger/10" : "hover:border-white/10 hover:bg-white/4"}
+      ${error ? 'border-danger focus:border-danger focus:ring-danger/10' : 'hover:border-white/10 hover:bg-white/4'}
       ${className}`}
-    aria-invalid={error !== ""}
+    aria-invalid={error !== ''}
     aria-describedby={errorId || helpId}
     onchange={handleChange}
     onblur={onBlur}
@@ -84,23 +82,15 @@
       </option>
     {/if}
 
-    {#each options as option}
-      <option
-        value={option.value}
-        class="bg-bg-secondary text-text-primary py-2"
-      >
+    {#each options as option (option.value)}
+      <option value={option.value} class="bg-bg-secondary text-text-primary py-2">
         {option.label}
       </option>
     {/each}
   </select>
 
   {#if error}
-    <p
-      id={errorId}
-      class="text-sm text-danger mt-1"
-      role="alert"
-      aria-live="polite"
-    >
+    <p id={errorId} class="text-sm text-danger mt-1" role="alert" aria-live="polite">
       {error}
     </p>
   {/if}

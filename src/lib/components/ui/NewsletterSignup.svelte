@@ -195,7 +195,7 @@
 
             <!-- Preference checkboxes -->
             <div class="flex flex-wrap gap-x-4 gap-y-1">
-              {#each prefs as pref}
+              {#each prefs as pref (pref.id)}
                 <label class="flex items-center gap-1.5 cursor-pointer group">
                   <input
                     type="checkbox"

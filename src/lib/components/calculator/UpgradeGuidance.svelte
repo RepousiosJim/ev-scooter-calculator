@@ -46,7 +46,7 @@
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    {#each guidance as item}
+    {#each guidance as item (item.title)}
       <div class="space-y-6">
         <div class="flex items-center gap-3">
           <div
@@ -68,7 +68,7 @@
           <div class="space-y-2">
             <h4 class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest">Typical Benefits</h4>
             <ul class="space-y-1.5">
-              {#each item.benefits as benefit}
+              {#each item.benefits as benefit, i (i)}
                 <li class="text-xs text-text-secondary flex items-start gap-2">
                   <span class="text-success mt-1">•</span>
                   {benefit}
@@ -80,7 +80,7 @@
           <div class="space-y-2">
             <h4 class="text-[10px] font-bold text-text-tertiary uppercase tracking-widest">Main Tradeoffs</h4>
             <ul class="space-y-1.5 opacity-70">
-              {#each item.risks as risk}
+              {#each item.risks as risk, i (i)}
                 <li class="text-xs text-text-secondary flex items-start gap-2">
                   <span class="text-warning mt-1">•</span>
                   {risk}

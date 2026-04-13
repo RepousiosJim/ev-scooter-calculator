@@ -431,7 +431,7 @@
             </td>
           </tr>
 
-          {#each comparisonRows.filter((r) => r.section === 'specs') as row}
+          {#each comparisonRows.filter((r) => r.section === 'specs') as row (row.label)}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
               <td
@@ -472,7 +472,7 @@
             </td>
           </tr>
 
-          {#each comparisonRows.filter((r) => r.section === 'calculated') as row}
+          {#each comparisonRows.filter((r) => r.section === 'calculated') as row (row.label)}
             {@const best = bestIndex(row, selectedScooters)}
             <tr class="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
               <td
@@ -568,7 +568,7 @@
 
       <!-- Featured matchups -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-w-md mx-auto">
-        {#each featuredMatchups as matchup}
+        {#each featuredMatchups as matchup, i (i)}
           <button
             type="button"
             class="text-left px-3 py-2.5 border border-white/[0.08] rounded-lg bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/15 transition-all group"

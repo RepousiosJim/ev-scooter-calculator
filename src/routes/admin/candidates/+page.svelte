@@ -462,7 +462,7 @@
 
       <!-- Status chips -->
       <div class="flex gap-1.5">
-        {#each ['all', 'pending', 'approved', 'rejected'] as st}
+        {#each ['all', 'pending', 'approved', 'rejected'] as st (st)}
           <button
             type="button"
             onclick={() => (statusFilter = st as typeof statusFilter)}
@@ -486,7 +486,7 @@
     <!-- Sort options -->
     <div class="flex items-center gap-2 text-xs">
       <span class="text-gray-500">Sort:</span>
-      {#each [{ key: 'confidence', label: 'Confidence' }, { key: 'name', label: 'Name' }, { key: 'year', label: 'Year' }, { key: 'status', label: 'Status' }] as opt}
+      {#each [{ key: 'confidence', label: 'Confidence' }, { key: 'name', label: 'Name' }, { key: 'year', label: 'Year' }, { key: 'status', label: 'Status' }] as opt (opt.key)}
         <button
           type="button"
           onclick={() => toggleSort(opt.key as typeof sortBy)}

@@ -55,7 +55,7 @@
         <div class="preview-controls">
           <label class="input-label" for="scooter-select">Scooter preset</label>
           <select id="scooter-select" class="select-input" bind:value={selectedKey}>
-            {#each presetEntries as [key, meta]}
+            {#each presetEntries as [key, meta] (key)}
               <option value={key}>{meta.name} ({meta.year})</option>
             {/each}
           </select>
@@ -168,7 +168,7 @@
         Pass any of these as the <code>scooter</code> parameter.
       </p>
       <div class="preset-grid">
-        {#each presetEntries as [key, meta]}
+        {#each presetEntries as [key, meta] (key)}
           <div class="preset-chip">
             <span class="preset-chip-name">{meta.name}</span>
             <code class="preset-chip-key">{key}</code>

@@ -2,14 +2,25 @@
   import { X, Download } from 'lucide-svelte';
   import { exportJSON, exportCSV, buildRankingsExport } from '$lib/utils/export';
   import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
+  import type { ScooterConfig, PerformanceStats } from '$lib/types';
 
   type BestForFilter = 'all' | 'value' | 'speed' | 'range' | 'efficiency' | 'portable';
+
+  type RankedEntry = {
+    name: string;
+    year: number;
+    score: number;
+    grade: string;
+    price?: number;
+    stats: PerformanceStats;
+    config: ScooterConfig;
+  };
 
   interface Props {
     searchQuery: string;
     sortBy: 'score' | 'price' | 'speed' | 'range';
     bestForFilter: BestForFilter;
-    filteredRanked: any[];
+    filteredRanked: RankedEntry[];
     onsearchchange: (value: string) => void;
     onsortchange: (value: 'score' | 'price' | 'speed' | 'range') => void;
     onbestforchange: (value: BestForFilter) => void;
@@ -82,7 +93,7 @@
 
       <!-- Sort pills -->
       <div class="flex gap-1.5">
-        {#each [{ value: 'score', label: 'Score' }, { value: 'speed', label: 'Speed' }, { value: 'range', label: 'Range' }, { value: 'price', label: 'Price' }] as opt}
+        {#each [{ value: 'score', label: 'Score' }, { value: 'speed', label: 'Speed' }, { value: 'range', label: 'Range' }, { value: 'price', label: 'Price' }] as opt (opt.value)}
           <button
             type="button"
             class="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider border rounded-full transition-all
@@ -101,7 +112,7 @@
   <!-- Best For filters -->
   <div class="flex items-center gap-2 flex-wrap">
     <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider shrink-0">Best for:</span>
-    {#each bestForFilters as f}
+    {#each bestForFilters as f (f.value)}
       <button
         type="button"
         class="px-2.5 py-1 text-[10px] font-bold border rounded-full transition-all

@@ -119,7 +119,6 @@
 </script>
 
 {#if isOpen}
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="fixed inset-0 z-50 flex items-end lg:items-center justify-center bg-black/60 backdrop-blur-sm"
     onclick={handleBackdropClick}
@@ -127,7 +126,6 @@
     transition:fly={{ y: 0, duration: 200, easing: quintOut, opacity: 0 }}
     role="presentation"
   >
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- Inline style used for dynamic transform value during drag interaction -->
     <div
       bind:this={sheetElement}

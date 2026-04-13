@@ -51,7 +51,7 @@
 
   {#if recommendations.length > 1}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6">
-      {#each recommendations as upgrade, i}
+      {#each recommendations as upgrade, i (upgrade.upgradeType)}
         <div transition:fly={{ y: 20, delay: i * 100, duration: 400 }}>
           <UpgradeCard {upgrade} />
         </div>
@@ -76,7 +76,7 @@
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          {#each perfHighlights as h}
+          {#each perfHighlights as h (h.label)}
             <div class="bg-white/[0.03] rounded-xl border border-white/[0.06] p-3">
               <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">{h.label}</div>
               <div class="text-sm font-bold mt-0.5 {h.good ? 'text-success' : 'text-text-secondary'}">
@@ -110,7 +110,7 @@
 
       <!-- Performance proof grid -->
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3 pt-2">
-        {#each perfHighlights as h}
+        {#each perfHighlights as h (h.label)}
           <div class="bg-white/[0.03] border border-white/[0.06] p-3 text-center">
             <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">{h.label}</div>
             <div class="text-base font-black mt-1 {h.good ? 'text-success' : 'text-text-secondary'}">
@@ -143,7 +143,7 @@
 
     {#if showIncompatible}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 lg:gap-6 opacity-80">
-        {#each incompatibleUpgrades as upgrade, i}
+        {#each incompatibleUpgrades as upgrade, i (upgrade.upgradeType)}
           <div transition:fly={{ y: 20, delay: i * 50, duration: 400 }}>
             <UpgradeCard {upgrade} isExperimental={true} />
           </div>

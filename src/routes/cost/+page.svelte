@@ -187,7 +187,7 @@
             <p class={sectionLabel}>Monthly Breakdown</p>
           </div>
           <div class="space-y-2">
-            {#each [['Electricity', results.monthlyScooterElec], ['Maintenance', monthlyMaintenance], ['Depreciation', results.monthlyScooterDeprec]] as [name, val]}
+            {#each [['Electricity', results.monthlyScooterElec], ['Maintenance', monthlyMaintenance], ['Depreciation', results.monthlyScooterDeprec]] as [name, val] (name)}
               <div class="flex items-center justify-between text-sm">
                 <span class="text-text-secondary">{name}</span>
                 <span class="text-text-primary tabular-nums">${fmt(Number(val))}</span>
@@ -203,7 +203,7 @@
 
         <!-- 3-up comparison cards -->
         <div class="grid grid-cols-3 gap-3">
-          {#each [{ Icon: Car, label: 'Car', monthly: results.monthlyCarCost, savings: results.yearlySavingsVsCar }, { Icon: Train, label: 'Transit', monthly: transitMonthlyPass, savings: results.yearlySavingsVsTransit }, { Icon: Bike, label: 'Bike', monthly: bikeMaintenance, savings: results.yearlySavingsVsBike }] as alt}
+          {#each [{ Icon: Car, label: 'Car', monthly: results.monthlyCarCost, savings: results.yearlySavingsVsCar }, { Icon: Train, label: 'Transit', monthly: transitMonthlyPass, savings: results.yearlySavingsVsTransit }, { Icon: Bike, label: 'Bike', monthly: bikeMaintenance, savings: results.yearlySavingsVsBike }] as alt (alt.label)}
             <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 flex flex-col gap-2">
               <div class="flex items-center gap-1.5">
                 <alt.Icon size={13} class="text-text-tertiary shrink-0" />

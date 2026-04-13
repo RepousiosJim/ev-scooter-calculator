@@ -5,7 +5,7 @@
  */
 import { randomBytes } from 'crypto';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 import { addCandidates } from './candidate-store';
@@ -16,6 +16,7 @@ import type { KnownSource } from './known-sources';
 import { logActivity } from './activity-log';
 import { runAutoFix } from './auto-fix';
 import type { DiscoveredScooter } from './discovery';
+import type { ScooterConfig } from '$lib/types';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const DYNAMIC_SOURCES_FILE = join(DATA_DIR, 'dynamic-sources.json');
@@ -70,34 +71,6 @@ export async function onDiscoveryComplete(
 	// Add to candidate store (skips duplicates by key)
 	const { added, skipped } = await addCandidates(candidates);
 
-	// Update discovery entries: mark promoted ones with their candidate key
-	for (const scooter of newScooters) {
-		const candidate = candidates.find(
-			(c) => c.name === scooter.name || c.sources.discoveredFrom === scooter.manufacturer
-		);
-		if (candidate) {
-			// Find the matching discovery entry by name + runId
-			// We update disposition to 'promoted' for entries that became candidates
-			// The entryId is constructed the same way as in discovery-store addEntries
-			// We search by matching name since we may not have the exact ID here
-		}
-	}
-
-	// Update disposition for entries that were converted to candidates
-	// Match by candidate key to the discovery entry
-	for (const candidate of candidates) {
-		// Try to find a matching new scooter for this candidate
-		const matchedScooter = newScooters.find(
-			(s) => candidate.name === s.name || candidate.key === (s.matchedKey || candidate.key)
-		);
-		if (matchedScooter) {
-			// The discovery entry ID isn't directly available here, but we can
-			// search for entries that match this scooter in the store.
-			// For now, we rely on the caller providing entry IDs or a subsequent
-			// batch update. The entries have an `id` field we can use.
-		}
-	}
-
 	await logActivity('discovery_completed', `Pipeline: ${added} candidate(s) created from discovery run ${runId}`, {
 		runId,
 		candidatesCreated: added,
@@ -126,7 +99,7 @@ const MANUFACTURER_SPEC_MAP: Record<string, { field: SpecField; unit: string }> 
 /** Config field mapping from ScooterConfig keys to SpecField + unit. */
 const CONFIG_SPEC_MAP: Record<
 	string,
-	{ field: SpecField; unit: string; transform?: (config: any) => number | undefined }
+	{ field: SpecField; unit: string; transform?: (config: ScooterConfig) => number | undefined }
 > = {
 	v: {
 		field: 'voltage',
@@ -267,7 +240,6 @@ export function getDynamicSources(scooterKey: string): KnownSource[] {
 		if (!existsSync(DYNAMIC_SOURCES_FILE)) return [];
 		// We do a synchronous JSON parse here for simplicity in non-async contexts.
 		// In practice, the file is small and this is acceptable.
-		const { readFileSync } = require('fs');
 		const raw = readFileSync(DYNAMIC_SOURCES_FILE, 'utf-8');
 		const data: DynamicSourcesData = JSON.parse(raw);
 		return data[scooterKey] || [];

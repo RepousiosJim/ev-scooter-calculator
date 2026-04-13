@@ -1,6 +1,8 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  let { data } = $props();
+  import type { PageData } from './$types';
+
+  let { data }: { data: PageData } = $props();
 
   let alertSummary = $state(untrack(() => data.alertSummary));
 
@@ -91,10 +93,10 @@
     activeFilter === 'all'
       ? alertSummary.alerts
       : activeFilter === 'critical'
-        ? alertSummary.alerts.filter((a: any) => a.severity === 'critical')
+        ? alertSummary.alerts.filter((a) => a.severity === 'critical')
         : activeFilter === 'warning'
-          ? alertSummary.alerts.filter((a: any) => a.severity === 'warning')
-          : alertSummary.alerts.filter((a: any) => a.category === activeFilter)
+          ? alertSummary.alerts.filter((a) => a.severity === 'warning')
+          : alertSummary.alerts.filter((a) => a.category === activeFilter)
   );
 
   function healthColor(score: number): string {
@@ -284,7 +286,7 @@
     >
       All ({alertSummary.alerts.length})
     </button>
-    {#each Object.entries(alertSummary.byCategory) as [cat, count]}
+    {#each Object.entries(alertSummary.byCategory) as [cat, count] (cat)}
       {#if (count as number) > 0}
         <button
           onclick={() => (activeFilter = activeFilter === cat ? 'all' : cat)}
@@ -325,7 +327,7 @@
       </div>
     {:else}
       <div class="space-y-2">
-        {#each filteredAlerts as alert}
+        {#each filteredAlerts as alert, i (i)}
           <div class="bg-[#12121a] border {severityBg[alert.severity]} rounded-xl px-4 py-3 flex items-start gap-3">
             <div class="flex-shrink-0 mt-0.5">
               <span class="w-2.5 h-2.5 rounded-full block {severityDot[alert.severity]}"></span>
@@ -372,7 +374,7 @@
       </div>
     {:else}
       <div class="bg-[#12121a] border border-gray-800 rounded-xl overflow-hidden divide-y divide-gray-800/50">
-        {#each data.recentChanges as change}
+        {#each data.recentChanges as change, i (i)}
           <div class="px-4 py-3 flex items-start gap-3 hover:bg-white/[0.02] transition-colors">
             <span class="w-2 h-2 rounded-full flex-shrink-0 mt-1.5 {changeTypeDot[change.changeType] || 'bg-gray-500'}"
             ></span>

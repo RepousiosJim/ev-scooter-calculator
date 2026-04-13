@@ -282,7 +282,7 @@
       <div class="mb-8">
         <!-- Step dots -->
         <div class="flex items-center gap-1 mb-2">
-          {#each stepLabels as label, i}
+          {#each stepLabels as label, i (i)}
             {@const idx = i + 1}
             {@const done = idx < step}
             {@const active = idx === step}
@@ -301,7 +301,7 @@
         </div>
         <!-- Step labels (desktop only) -->
         <div class="hidden sm:flex items-center justify-between">
-          {#each stepLabels as label, i}
+          {#each stepLabels as label, i (i)}
             {@const idx = i + 1}
             <span
               class="text-[10px] font-bold uppercase tracking-[0.08em] {idx <= step
@@ -329,7 +329,7 @@
               <h2 class="text-xl font-black text-text-primary mb-1">What's your budget?</h2>
               <p class="text-text-tertiary text-sm mb-5">We'll only show scooters within your price range.</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {#each budgetOptions as opt}
+                {#each budgetOptions as opt (opt.value)}
                   <button
                     type="button"
                     onclick={() => {
@@ -360,7 +360,7 @@
               <h2 class="text-xl font-black text-text-primary mb-1">What will you use it for?</h2>
               <p class="text-text-tertiary text-sm mb-5">This shapes how we weight range, speed, and portability.</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {#each useCaseOptions as opt}
+                {#each useCaseOptions as opt (opt.value)}
                   <button
                     type="button"
                     onclick={() => {
@@ -426,7 +426,7 @@
               <h2 class="text-xl font-black text-text-primary mb-1">What's your typical terrain?</h2>
               <p class="text-text-tertiary text-sm mb-5">We'll factor in hill-climbing ability for your area.</p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {#each terrainOptions as opt}
+                {#each terrainOptions as opt (opt.value)}
                   <button
                     type="button"
                     onclick={() => {
@@ -465,7 +465,7 @@
                 Stairs, buses, and offices all benefit from a lighter scooter.
               </p>
               <div class="grid grid-cols-1 gap-3">
-                {#each portabilityOptions as opt}
+                {#each portabilityOptions as opt (opt.value)}
                   <button
                     type="button"
                     onclick={() => {
@@ -560,7 +560,7 @@
                 </div>
               {:else}
                 <div class="space-y-4">
-                  {#each recommendations as rec, i}
+                  {#each recommendations as rec, i (rec.scooter.key)}
                     {@const s = rec.scooter}
                     <div
                       class="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-5 hover:border-white/[0.14] transition-all duration-300"
@@ -608,7 +608,7 @@
 
                       <!-- Stats grid -->
                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-                        {#each [{ label: 'Range', value: `${Math.round(s.stats.totalRange)} km` }, { label: 'Speed', value: `${Math.round(s.stats.speed)} km/h` }, { label: 'Power', value: `${Math.round(s.stats.totalWatts)} W` }, { label: 'Weight', value: s.weight > 0 ? `${s.weight} kg` : '—' }] as stat}
+                        {#each [{ label: 'Range', value: `${Math.round(s.stats.totalRange)} km` }, { label: 'Speed', value: `${Math.round(s.stats.speed)} km/h` }, { label: 'Power', value: `${Math.round(s.stats.totalWatts)} W` }, { label: 'Weight', value: s.weight > 0 ? `${s.weight} kg` : '—' }] as stat (stat.label)}
                           <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] px-3 py-2">
                             <p class="text-[10px] font-bold uppercase tracking-[0.1em] text-text-tertiary">
                               {stat.label}
@@ -632,7 +632,7 @@
 
                         <!-- Reasons -->
                         <ul class="flex-1 space-y-1 min-w-0">
-                          {#each rec.reasons as reason}
+                          {#each rec.reasons as reason, ri (ri)}
                             <li class="flex items-start gap-1.5 text-xs text-text-secondary">
                               <svg
                                 class="w-3.5 h-3.5 text-primary shrink-0 mt-px"

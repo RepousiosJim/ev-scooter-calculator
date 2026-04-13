@@ -30,7 +30,7 @@
   {/if}
 
   <div class={`flex gap-0.5 ${barWidthClass}`}>
-    {#each Array(segments) as _, i}
+    {#each Array(segments) as _, i (i)}
       <div
         class={`flex-1 rounded-sm ${barHeightClass} transition-colors ${
           i < filledSegments ? fillColor : 'bg-white/10'

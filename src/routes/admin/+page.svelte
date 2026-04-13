@@ -2,8 +2,9 @@
   import { invalidateAll } from '$app/navigation';
   import { consumeSSE } from '$lib/utils/sse-client';
   import { ArrowDown, ArrowUp } from 'lucide-svelte';
+  import type { PageData } from './$types';
 
-  let { data } = $props();
+  let { data }: { data: PageData } = $props();
 
   interface BatchVerifyEvent {
     totalScooters: number;
@@ -32,7 +33,14 @@
   let batchScootersTotal = $state(0);
 
   let seeding = $state(false);
-  let seedResult = $state<any>(null);
+  let seedResult = $state<{
+    success?: boolean;
+    scootersSeeded?: number;
+    totalSources?: number;
+    totalPrices?: number;
+    message?: string;
+    error?: string;
+  } | null>(null);
   let importing = $state(false);
   let importResult = $state<string>('');
 
@@ -48,17 +56,17 @@
     // Search
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      result = result.filter((s: any) => s.name.toLowerCase().includes(q) || s.key.toLowerCase().includes(q));
+      result = result.filter((s) => s.name.toLowerCase().includes(q) || s.key.toLowerCase().includes(q));
     }
 
     // Status filter
-    if (statusFilter === 'verified') result = result.filter((s: any) => s.verifiedCount > 0);
-    else if (statusFilter === 'disputed') result = result.filter((s: any) => s.disputedCount > 0);
-    else if (statusFilter === 'no_data') result = result.filter((s: any) => s.sourceCount === 0);
-    else if (statusFilter === 'has_data') result = result.filter((s: any) => s.sourceCount > 0);
+    if (statusFilter === 'verified') result = result.filter((s) => s.verifiedCount > 0);
+    else if (statusFilter === 'disputed') result = result.filter((s) => s.disputedCount > 0);
+    else if (statusFilter === 'no_data') result = result.filter((s) => s.sourceCount === 0);
+    else if (statusFilter === 'has_data') result = result.filter((s) => s.sourceCount > 0);
 
     // Sort
-    result.sort((a: any, b: any) => {
+    result.sort((a, b) => {
       let cmp = 0;
       switch (sortBy) {
         case 'name':
@@ -281,7 +289,7 @@
         <p class="text-xs text-gray-500">No activity recorded yet.</p>
       {:else}
         <div class="space-y-1.5">
-          {#each data.recentActivity as entry}
+          {#each data.recentActivity as entry, i (i)}
             <div class="flex items-start gap-2 text-xs">
               <span
                 class="w-1.5 h-1.5 rounded-full flex-shrink-0 mt-1
@@ -330,7 +338,7 @@
         >
       </div>
       <div class="space-y-1.5">
-        {#each data.alerts.topPriority as alert}
+        {#each data.alerts.topPriority as alert, i (i)}
           <div
             class="flex items-center gap-2 text-xs px-2 py-1.5 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
           >
@@ -446,7 +454,7 @@
         <!-- Scrolling log -->
         {#if batchLiveLog.length > 0}
           <div class="max-h-48 overflow-y-auto bg-[#0a0a0f] border border-gray-800 rounded-lg p-2 space-y-0.5">
-            {#each batchLiveLog as entry}
+            {#each batchLiveLog as entry, i (i)}
               <div class="flex items-center gap-2 text-xs py-0.5 px-1">
                 <span
                   class="w-1.5 h-1.5 rounded-full flex-shrink-0 {entry.status === 'ok'
@@ -556,7 +564,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each filteredScooters as scooter}
+          {#each filteredScooters as scooter (scooter.key)}
             <tr class="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors">
               <td class="px-4 py-3">
                 <span class="text-white font-medium">{scooter.name}</span>

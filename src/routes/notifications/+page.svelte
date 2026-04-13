@@ -211,7 +211,7 @@
         <h2 class="text-xs font-bold uppercase tracking-wider text-text-secondary">What to send me</h2>
 
         <fieldset class="space-y-4" aria-label="Notification preferences">
-          {#each prefs as pref}
+          {#each prefs as pref (pref.id)}
             <label class="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"
@@ -303,7 +303,7 @@
 
         <fieldset class="space-y-4" aria-label="Notification preferences">
           <legend class="text-[11px] font-bold uppercase tracking-wider text-text-tertiary">What to send me</legend>
-          {#each prefs as pref}
+          {#each prefs as pref (pref.id)}
             <label class="flex items-start gap-3 cursor-pointer group">
               <input
                 type="checkbox"

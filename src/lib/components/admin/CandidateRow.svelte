@@ -1,4 +1,6 @@
 <script lang="ts">
+  import type { PresetCandidate } from '$lib/server/verification/preset-generator';
+
   let {
     candidate,
     expanded,
@@ -10,7 +12,7 @@
     ongeneratecode,
     oncopy,
   }: {
-    candidate: any;
+    candidate: PresetCandidate;
     expanded: boolean;
     loading?: boolean;
     generatedCode?: string | null;
@@ -105,12 +107,12 @@
     <div class="flex-shrink-0 flex items-center gap-2">
       {#if !candidate.validation.valid}
         <span class="text-red-400 text-xs">
-          {candidate.validation.issues.filter((i: any) => i.severity === 'error').length} errors
+          {candidate.validation.issues.filter((i) => i.severity === 'error').length} errors
         </span>
       {/if}
-      {#if candidate.validation.issues.filter((i: any) => i.severity === 'warning').length > 0}
+      {#if candidate.validation.issues.filter((i) => i.severity === 'warning').length > 0}
         <span class="text-yellow-400 text-xs">
-          {candidate.validation.issues.filter((i: any) => i.severity === 'warning').length} warnings
+          {candidate.validation.issues.filter((i) => i.severity === 'warning').length} warnings
         </span>
       {/if}
       {#if candidate.validation.valid && candidate.validation.issues.length === 0}
@@ -186,7 +188,7 @@
             </div>
           {:else}
             <div class="bg-[#0a0a0f] border border-gray-800 rounded-lg divide-y divide-gray-800">
-              {#each candidate.validation.issues as issue}
+              {#each candidate.validation.issues as issue, i (i)}
                 <div class="px-3 py-2 flex items-start gap-2 text-xs">
                   <span
                     class="flex-shrink-0 w-1.5 h-1.5 mt-1.5 rounded-full

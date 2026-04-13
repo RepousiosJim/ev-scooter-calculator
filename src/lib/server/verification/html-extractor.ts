@@ -392,14 +392,14 @@ function extractCardPrice(card: HTMLElement): number | undefined {
 	return undefined;
 }
 
-function extractPrice(offers: any): number | undefined {
+function extractPrice(offers: unknown): number | undefined {
 	if (!offers) return undefined;
 	// Can be single offer or array
-	const offer = Array.isArray(offers) ? offers[0] : offers;
+	const offer = Array.isArray(offers) ? (offers[0] as Record<string, unknown>) : (offers as Record<string, unknown>);
 	const price = offer?.price || offer?.lowPrice;
 	if (price) {
-		const val = typeof price === 'string' ? parseFloat(price) : price;
-		if (val > 50 && val < 20000) return val;
+		const val = typeof price === 'string' ? parseFloat(price) : (price as number);
+		if (typeof val === 'number' && val > 50 && val < 20000) return val;
 	}
 	return undefined;
 }

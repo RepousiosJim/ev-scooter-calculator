@@ -15,7 +15,7 @@
 </script>
 
 <div class="flex items-center justify-center gap-0 py-4">
-  {#each stages as stage, i}
+  {#each stages as stage, i (i)}
     {@const isActive = i === activeStage}
     {#if i > 0}
       <div class="w-8 h-0.5 {i <= activeStage ? 'bg-cyan-500' : 'bg-white/10'}"></div>

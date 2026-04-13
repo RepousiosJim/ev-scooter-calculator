@@ -758,7 +758,7 @@
         </div>
 
         <ul class="space-y-3" role="list">
-          {#each bottlenecks as bn}
+          {#each bottlenecks as bn, i (i)}
             {@const s = bottleneckStyle(bn.type)}
             <li class="border-2 rounded-xl p-4 bg-white/[0.02]" style:border-color={s.border} role="listitem">
               <div class="flex items-start gap-3">
@@ -791,7 +791,7 @@
         </div>
 
         <div class="space-y-4">
-          {#each topRecommendations as rec}
+          {#each topRecommendations as rec (rec.upgradeType)}
             <article class="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 space-y-3">
               <!-- Header row -->
               <div class="flex items-start justify-between gap-4 flex-wrap">
@@ -810,7 +810,7 @@
                   </span>
                   <!-- Difficulty segments -->
                   <div class="flex gap-0.5" aria-hidden="true">
-                    {#each Array(3) as _, i}
+                    {#each Array(3) as _, i (i)}
                       <div
                         class="w-4 h-1 rounded-sm {i < difficultySegments(rec.difficulty)
                           ? difficultyFill(rec.difficulty)
@@ -884,7 +884,7 @@
             <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-text-tertiary mb-3">Price History</div>
             <ol class="space-y-2 relative pl-4" aria-label="Price history timeline">
               <div class="absolute left-1.5 top-2 bottom-2 w-px bg-white/[0.06]" aria-hidden="true"></div>
-              {#each metadata.priceHistory! as entry, i}
+              {#each metadata.priceHistory! as entry, i (entry.date)}
                 <li class="flex items-baseline gap-3 relative">
                   <span
                     class="absolute -left-2.5 top-1 w-2 h-2 rounded-full {i === metadata.priceHistory!.length - 1

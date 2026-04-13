@@ -77,7 +77,7 @@
   <div class="p-3.5 space-y-3">
     <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Specs</div>
     <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-      {#each comparisonRows.filter((r) => r.section === 'specs') as row}
+      {#each comparisonRows.filter((r) => r.section === 'specs') as row (row.label)}
         {@const best = bestIndex(row, selectedScooters)}
         {@const delta = getDelta(row, scooter, selectedScooters)}
         <div class="flex items-baseline justify-between gap-1">
@@ -97,7 +97,7 @@
     <div class="border-t border-white/[0.06] pt-3">
       <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary mb-2">Calculated</div>
       <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-        {#each comparisonRows.filter((r) => r.section === 'calculated') as row}
+        {#each comparisonRows.filter((r) => r.section === 'calculated') as row (row.label)}
           {@const best = bestIndex(row, selectedScooters)}
           {@const delta = getDelta(row, scooter, selectedScooters)}
           <div class="flex items-baseline justify-between gap-1">

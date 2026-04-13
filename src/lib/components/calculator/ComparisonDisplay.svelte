@@ -4,6 +4,7 @@
   import DeltaBadge from '$lib/components/ui/DeltaBadge.svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
   import { Gauge, Battery, Rocket, Coins, Zap, Mountain, PlugZap, BatteryCharging, BarChart3 } from 'lucide-svelte';
+  import type { ComponentType } from 'svelte';
 
   const stats = $derived(calculatorState.stats);
   const simStats = $derived(calculatorState.simStats);
@@ -15,7 +16,7 @@
     displayValue: number;
     displaySimValue: number;
     unit: string;
-    icon: any;
+    icon: ComponentType;
     isPrimary: boolean;
   };
 

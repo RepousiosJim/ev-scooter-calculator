@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { manufacturers, getScrapableManufacturers } from '$lib/server/verification/manufacturers';
-import { discoverScooters } from '$lib/server/verification/discovery';
+import { discoverScooters, type DiscoveredScooter } from '$lib/server/verification/discovery';
 import { logActivity } from '$lib/server/verification/activity-log';
 import {
 	createRun,
@@ -53,10 +53,22 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 				manufacturers: targets.map((m) => ({ id: m.id, name: m.name })),
 			});
 
+			type MfrResult = {
+				manufacturerId: string;
+				name: string;
+				totalFound: number;
+				newCount: number;
+				knownCount: number;
+				scooters: DiscoveredScooter[];
+				newScooters: DiscoveredScooter[];
+				errors: string[];
+				deadUrls: string[];
+				methods: string[];
+			};
 			let totalNew = 0;
 			let totalKnown = 0;
-			const allResults: any[] = [];
-			const allNewScooters: any[] = [];
+			const allResults: MfrResult[] = [];
+			const allNewScooters: DiscoveredScooter[] = [];
 			const allErrors: string[] = [];
 
 			// Process one manufacturer: discover, persist, emit SSE event

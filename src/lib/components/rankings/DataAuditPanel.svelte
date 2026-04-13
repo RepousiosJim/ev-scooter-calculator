@@ -236,7 +236,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-white/[0.04]">
-              {#each auditData.sort((a, b) => b.daysSinceVerified - a.daysSinceVerified) as entry}
+              {#each auditData.sort((a, b) => b.daysSinceVerified - a.daysSinceVerified) as entry (entry.name)}
                 <tr class="hover:bg-white/[0.02] transition-colors">
                   <td class="py-2 px-3">
                     <span class="text-xs font-bold text-text-primary">{entry.name}</span>
@@ -303,7 +303,7 @@
 
         <!-- Mobile Cards -->
         <div class="sm:hidden space-y-2">
-          {#each auditData.sort((a, b) => b.daysSinceVerified - a.daysSinceVerified) as entry}
+          {#each auditData.sort((a, b) => b.daysSinceVerified - a.daysSinceVerified) as entry (entry.name)}
             <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div class="min-w-0">

@@ -249,7 +249,7 @@
           <span class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]">Motor Units</span>
         </div>
         <div class="grid grid-cols-2 gap-2">
-          {#each [1, 2] as count}
+          {#each [1, 2] as count (count)}
             <button
               onclick={() => updateConfig('motors', count)}
               class="py-2.5 border rounded-lg transition-all duration-300 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2

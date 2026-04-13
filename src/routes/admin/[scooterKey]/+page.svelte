@@ -321,7 +321,7 @@
         </div>
         {#if autoVerifyLog.length > 0}
           <div class="max-h-40 overflow-y-auto bg-[#0a0a0f] border border-gray-800 rounded-lg p-2 space-y-0.5">
-            {#each autoVerifyLog as entry}
+            {#each autoVerifyLog as entry, i (i)}
               <div class="flex items-center gap-2 text-xs py-0.5 px-1">
                 <span
                   class="w-1.5 h-1.5 rounded-full flex-shrink-0 {entry.status === 'ok' ? 'bg-green-500' : 'bg-red-500'}"
@@ -342,7 +342,7 @@
               Scraped {autoVerifyResult.totalSources} sources: {autoVerifyResult.succeeded} succeeded, {autoVerifyResult.failed}
               failed
             </p>
-            {#each autoVerifyResult.results as result}
+            {#each autoVerifyResult.results as result (result.sourceName)}
               <div class="flex items-center gap-2 py-1">
                 <span class="w-2 h-2 rounded-full {result.success ? 'bg-green-500' : 'bg-red-500'}"></span>
                 <span class="text-gray-300">{result.sourceName}</span>
@@ -367,12 +367,12 @@
         <p class="text-xs text-indigo-400 font-medium">
           Web search found specs from {searchResult.searchResults?.length || 0} pages:
         </p>
-        {#each Object.entries(searchResult.extractedSpecs) as [field, values]}
+        {#each Object.entries(searchResult.extractedSpecs) as [field, values] (field)}
           {@const specField = data.specFields.find((s) => s.field === field)}
           {@const entries = values as Array<{ value: number; source: string; url: string }>}
           <div class="text-xs">
             <span class="text-gray-300 font-medium">{specField?.label || field}:</span>
-            {#each entries as entry}
+            {#each entries as entry, ei (ei)}
               <div class="flex items-center justify-between ml-4 py-0.5">
                 <span class="text-white font-mono">{entry.value} {specField?.unit || ''}</span>
                 <span class="text-gray-500 mx-2">from {entry.source}</span>
@@ -397,7 +397,7 @@
     </div>
 
     <div class="divide-y divide-gray-800/50">
-      {#each data.specFields as spec}
+      {#each data.specFields as spec (spec.field)}
         {@const fieldVerification = getFieldVerification(spec.field)}
         <div class="px-4 py-4">
           <!-- Field Header -->
@@ -417,7 +417,7 @@
           <!-- Sources -->
           {#if fieldVerification.sources.length > 0}
             <div class="ml-4 space-y-1.5 mb-2">
-              {#each fieldVerification.sources as source}
+              {#each fieldVerification.sources as source, si (si)}
                 <div class="flex items-center justify-between text-xs bg-white/[0.02] rounded-lg px-3 py-2">
                   <div class="flex items-center gap-2">
                     <span
@@ -539,7 +539,7 @@
       {#if scrapeResult}
         <div class="bg-green-500/5 border border-green-500/20 rounded-lg p-3 space-y-2">
           <p class="text-xs text-green-400 font-medium">Extracted specs:</p>
-          {#each Object.entries(scrapeResult.extractedSpecs) as [field, value]}
+          {#each Object.entries(scrapeResult.extractedSpecs) as [field, value] (field)}
             {@const specField = data.specFields.find((s) => s.field === field)}
             <div class="flex items-center justify-between text-xs">
               <span class="text-gray-300">

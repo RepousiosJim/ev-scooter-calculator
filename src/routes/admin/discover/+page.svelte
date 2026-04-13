@@ -229,7 +229,7 @@
       </div>
       {#if scanLog.length > 0}
         <div class="max-h-48 overflow-y-auto bg-[#0a0a0f] border border-gray-800 rounded-lg p-2 space-y-0.5">
-          {#each scanLog as entry}
+          {#each scanLog as entry, i (i)}
             <div class="flex items-center gap-2 text-xs py-0.5 px-1">
               <span
                 class="w-1.5 h-1.5 rounded-full flex-shrink-0 {entry.status === 'ok'
@@ -302,7 +302,7 @@
         </div>
       {/if}
 
-      {#each discoveryResults.results as mfrResult}
+      {#each discoveryResults.results as mfrResult (mfrResult.name)}
         {#if mfrResult.scooters.length > 0}
           <div class="border border-gray-800 rounded-lg overflow-hidden">
             <div class="px-4 py-2 bg-white/[0.02] border-b border-gray-800 flex items-center justify-between">
@@ -310,7 +310,7 @@
               <span class="text-xs text-gray-400">{mfrResult.totalFound} models</span>
             </div>
             <div class="divide-y divide-gray-800/50">
-              {#each mfrResult.scooters as scooter}
+              {#each mfrResult.scooters as scooter (scooter.name)}
                 <div class="px-4 py-2.5 flex items-center justify-between">
                   <div class="flex items-center gap-3">
                     {#if scooter.isKnown}
@@ -372,7 +372,7 @@
   {#if !scanning && scanLog.length > 0 && !discoveryResults}
     <div class="bg-[#12121a] border border-gray-800 rounded-xl p-4">
       <div class="space-y-0.5">
-        {#each scanLog as entry}
+        {#each scanLog as entry, i (i)}
           <div class="flex items-center gap-2 text-xs py-0.5">
             <span
               class="w-1.5 h-1.5 rounded-full flex-shrink-0 {entry.status === 'ok'
@@ -417,7 +417,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each data.manufacturers as mfr}
+          {#each data.manufacturers as mfr (mfr.id)}
             <tr class="border-b border-gray-800/50 hover:bg-white/[0.02] transition-colors">
               <td class="px-4 py-3">
                 <a

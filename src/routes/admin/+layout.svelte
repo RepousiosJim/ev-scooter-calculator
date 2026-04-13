@@ -124,12 +124,12 @@
           Settings
         </a>
 
-        {#each scootersByYear as group}
+        {#each scootersByYear as group (group.year)}
           <div class="mt-4 first:mt-0">
             <h3 class="px-3 py-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               {group.year}
             </h3>
-            {#each group.scooters as scooter}
+            {#each group.scooters as scooter (scooter.key)}
               <a
                 href="/admin/{scooter.key}"
                 class="flex items-center px-3 py-1.5 rounded-lg text-xs transition-colors

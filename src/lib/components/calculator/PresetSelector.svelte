@@ -227,7 +227,7 @@
 
     <!-- Filter chips -->
     <div class="flex flex-wrap gap-1.5">
-      {#each filters as filter}
+      {#each filters as filter (filter.key)}
         <button
           type="button"
           onclick={() => (activeFilter = filter.key)}
@@ -247,7 +247,7 @@
         {filteredPresets.length} scooter{filteredPresets.length !== 1 ? 's' : ''}
       </span>
       <div class="flex gap-1">
-        {#each sortOptions as opt}
+        {#each sortOptions as opt (opt.key)}
           <button
             type="button"
             onclick={() => (sortBy = opt.key)}

@@ -26,7 +26,7 @@
   }
 
   // Structured data for SEO — used in template via {@html structuredData}
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- referenced in JSON-LD script block
   const structuredData = $derived(
     JSON.stringify({
       '@context': 'https://schema.org',
@@ -159,6 +159,7 @@
                 {section.heading}
               </h2>
               <div class="prose-guide text-sm text-text-secondary leading-relaxed">
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html section.content}
               </div>
             </section>

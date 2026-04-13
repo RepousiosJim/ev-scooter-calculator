@@ -93,7 +93,7 @@
   <!-- Selected Preset Info (when not custom) -->
   {#if canResetPreset && selectedOption}
     <div class="mt-3 flex gap-2 flex-wrap">
-      {#each cardSpecs as spec}
+      {#each cardSpecs as spec (spec.label)}
         <div class="flex items-center gap-1.5 bg-tertiary border border-white/10 rounded-lg px-3 py-1.5">
           <span class="text-xs text-text-secondary">{spec.label}:</span>
           <span class="text-sm font-medium text-text-primary font-number">
@@ -123,7 +123,7 @@
 
       <!-- Preset Grid -->
       <div class="grid grid-cols-1 gap-4">
-        {#each filteredPresets as preset}
+        {#each filteredPresets as preset (preset.value)}
           <button
             type="button"
             class={`relative flex flex-col gap-3 p-4 border rounded-xl transition-all
@@ -153,7 +153,7 @@
 
             <!-- Quick Specs -->
             <div class="flex gap-2 flex-wrap">
-              {#each cardSpecs as spec}
+              {#each cardSpecs as spec (spec.label)}
                 <div class="flex items-center gap-1">
                   <span class="text-xs text-text-secondary">{spec.label}:</span>
                   <span class="text-xs font-medium text-text-primary font-number">

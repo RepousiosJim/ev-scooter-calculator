@@ -66,7 +66,7 @@
     </div>
 
     <ul class="space-y-3" aria-labelledby="bottleneck-heading" role="list">
-      {#each bottlenecks as bn, _index}
+      {#each bottlenecks as bn, _index (_index)}
         {@const style = getSeverityStyle(bn.type)}
         <li class="border-2 rounded-lg p-4" style:border-color={style.border} role="listitem">
           <div class="flex items-start justify-between gap-4">

@@ -11,7 +11,8 @@
   import RankingRow from '$lib/components/rankings/RankingRow.svelte';
   import RankingMobileCard from '$lib/components/rankings/RankingMobileCard.svelte';
   import { goto, replaceState } from '$app/navigation';
-  // import { page } from '$app/stores'; // unused — URL sync handled via URLSearchParams directly
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- $page referenced in JSON-LD script block
+  import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { loadPreset } from '$lib/stores/calculator.svelte';
@@ -284,7 +285,6 @@
     <meta name="twitter:title" content="Power Rankings — EV Scooter Pro Calculator" />
     <meta name="twitter:image" content={ogImageUrl} />
   {/if}
-  <!-- svelte-ignore svelte_head_no_scripts -->
   <script type="application/ld+json">
 {@html JSON.stringify({
     '@context': 'https://schema.org',
@@ -364,7 +364,7 @@
             </button>
           </div>
         {/if}
-        {#each tierOrder as grade}
+        {#each tierOrder as grade (grade)}
           {@const scooters = sortedTier(filteredTiers[grade])}
           {#if scooters.length > 0}
             <section>
@@ -428,7 +428,7 @@
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/[0.04]">
-                    {#each scooters as scooter}
+                    {#each scooters as scooter (scooter.key)}
                       {@const rank = rankMap.get(scooter.key) ?? 0}
                       {@const isExpanded = expandedScoreKey === scooter.key}
                       <RankingRow
@@ -449,7 +449,7 @@
 
               <!-- Mobile Cards -->
               <div class="md:hidden space-y-2.5">
-                {#each scooters as scooter}
+                {#each scooters as scooter (scooter.key)}
                   {@const rank = rankMap.get(scooter.key) ?? 0}
                   {@const mobileExpanded = expandedScoreKey === scooter.key}
                   <RankingMobileCard

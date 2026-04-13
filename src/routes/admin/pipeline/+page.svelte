@@ -3,6 +3,27 @@
   import PipelineProgress from '$lib/components/admin/PipelineProgress.svelte';
   import DiscoveryResults from '$lib/components/admin/DiscoveryResults.svelte';
   import ManufacturerList from '$lib/components/admin/ManufacturerList.svelte';
+  import type { AutoFixResult } from '$lib/server/verification/auto-fix';
+
+  interface DiscoveryResult {
+    runId: string;
+    totalManufacturers: number;
+    totalScootersFound: number;
+    totalNew: number;
+    totalKnown: number;
+    candidatesCreated: number;
+    autoPromoted: boolean;
+    results: Array<{
+      manufacturerId: string;
+      name: string;
+      totalFound: number;
+      newCount: number;
+      knownCount: number;
+      scooters: Array<{ name: string; url: string; isKnown: boolean; [key: string]: unknown }>;
+      newScooters: Array<{ name: string; url: string; [key: string]: unknown }>;
+      errors: string[];
+    }>;
+  }
 
   let { data } = $props();
 
@@ -13,7 +34,7 @@
   let scanDone = $state(0);
   let scanTotal = $state(0);
   let scanLog = $state<{ text: string; status: 'ok' | 'fail' | 'info' }[]>([]);
-  let discoveryResults = $state<any>(null);
+  let discoveryResults = $state<DiscoveryResult | null>(null);
 
   let creatingCandidates = $state(false);
   let candidateCreateResult = $state<{ added: number; skipped: number } | null>(null);
@@ -21,7 +42,9 @@
   let actionInProgress = $state<string | null>(null);
 
   let autoFixRunning = $state(false);
-  let autoFixResult = $state<any>(null);
+  let autoFixResult = $state<
+    (AutoFixResult & { error?: string }) | { error: string; summary?: never; duration?: never } | null
+  >(null);
 
   let healthOpen = $state(true);
 
@@ -158,7 +181,7 @@
     creatingCandidates = true;
     candidateCreateResult = null;
 
-    const newScooters: any[] = [];
+    const newScooters: Array<{ name: string; url: string; isKnown: boolean; [key: string]: unknown }> = [];
     for (const mfrResult of discoveryResults.results) {
       for (const scooter of mfrResult.scooters) {
         if (!scooter.isKnown) {

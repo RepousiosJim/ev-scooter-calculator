@@ -117,7 +117,7 @@
           </div>
           {#if scanLog.length > 0}
             <div class="max-h-40 overflow-y-auto bg-[#0a0a0f] border border-white/5 rounded-lg p-2 space-y-0.5">
-              {#each scanLog as entry}
+              {#each scanLog as entry, i (i)}
                 <div class="flex items-center gap-2 text-xs py-0.5 px-1">
                   <span
                     class="w-1.5 h-1.5 rounded-full flex-shrink-0
@@ -176,7 +176,7 @@
             </div>
           {/if}
           <!-- Per-manufacturer results -->
-          {#each discoveryResults.results as mfrResult}
+          {#each discoveryResults.results as mfrResult (mfrResult.name)}
             {#if mfrResult.totalFound > 0}
               <div class="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-white/[0.02]">
                 <span class="text-white font-medium">{mfrResult.name}</span>
@@ -197,7 +197,7 @@
         <div>
           <h4 class="text-[10px] text-gray-500 uppercase tracking-wider mb-2">Recent Runs</h4>
           <div class="space-y-1">
-            {#each recentRuns.slice(0, 5) as run}
+            {#each recentRuns.slice(0, 5) as run, i (i)}
               <div
                 class="flex items-center justify-between text-xs px-3 py-2 bg-[#0a0a0f] border border-white/5 rounded-lg"
               >
