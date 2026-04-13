@@ -17,6 +17,19 @@ function createEmptyVerification(scooterKey: string): ScooterVerification {
 	};
 }
 
+type FieldVerification = NonNullable<ScooterVerification['fields'][string]>;
+
+/** Upsert a source into a field's source list and recompute its confidence. */
+function upsertSourceInField(field: FieldVerification, source: SourceEntry): void {
+	const idx = field.sources.findIndex((s) => s.url && s.url === source.url);
+	if (idx !== -1) {
+		field.sources[idx] = source;
+	} else {
+		field.sources.push(source);
+	}
+	field.confidence = computeConfidence(field.sources);
+}
+
 /** High-level operations built on top of any store implementation */
 export async function addSource(
 	store: VerificationStore,
@@ -27,21 +40,37 @@ export async function addSource(
 	const data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
 
 	if (!data.fields[field]) {
-		data.fields[field] = {
-			status: 'unverified',
-			sources: [],
-			confidence: 0,
-		};
+		data.fields[field] = { status: 'unverified', sources: [], confidence: 0 };
 	}
 
-	// Deduplicate: if a source from the same URL already exists, replace it rather than append
-	const existingIdx = data.fields[field]!.sources.findIndex((s) => s.url && s.url === source.url);
-	if (existingIdx !== -1) {
-		data.fields[field]!.sources[existingIdx] = source;
-	} else {
-		data.fields[field]!.sources.push(source);
+	upsertSourceInField(data.fields[field]!, source);
+	data.lastUpdated = new Date().toISOString();
+	data.overallConfidence = computeOverallConfidence(
+		data.fields as Record<string, { confidence: number; sources: SourceEntry[] }>
+	);
+
+	await store.set(scooterKey, data);
+	return data;
+}
+
+/**
+ * Apply multiple (field, source) pairs to a scooter record in a single get/set cycle.
+ * Use instead of calling addSource in a loop to reduce DB/file round-trips to one.
+ */
+export async function batchAddSources(
+	store: VerificationStore,
+	scooterKey: string,
+	entries: Array<{ field: SpecField; source: SourceEntry }>
+): Promise<ScooterVerification> {
+	const data = (await store.get(scooterKey)) || createEmptyVerification(scooterKey);
+
+	for (const { field, source } of entries) {
+		if (!data.fields[field]) {
+			data.fields[field] = { status: 'unverified', sources: [], confidence: 0 };
+		}
+		upsertSourceInField(data.fields[field]!, source);
 	}
-	data.fields[field]!.confidence = computeConfidence(data.fields[field]!.sources);
+
 	data.lastUpdated = new Date().toISOString();
 	data.overallConfidence = computeOverallConfidence(
 		data.fields as Record<string, { confidence: number; sources: SourceEntry[] }>

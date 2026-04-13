@@ -74,7 +74,7 @@ export class LocalVerificationStore implements VerificationStore {
 		if (!existsSync(DATA_DIR)) {
 			await mkdir(DATA_DIR, { recursive: true });
 		}
-		await writeFile(STORE_FILE, JSON.stringify(this.cache, null, 2), 'utf-8');
+		await writeFile(STORE_FILE, JSON.stringify(this.cache), 'utf-8');
 		// Update mod time so we don't trigger a re-read of our own write
 		const fileStat = await fsStat(STORE_FILE);
 		this.lastFileModTime = fileStat.mtimeMs;

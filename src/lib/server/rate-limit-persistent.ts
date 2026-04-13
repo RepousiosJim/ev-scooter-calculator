@@ -1,7 +1,7 @@
 /**
  * Persistent rate limiter backed by Supabase.
- * Same sliding-window algorithm as the in-memory version,
- * but state survives server restarts and works across instances.
+ * Uses a single atomic DB call (check_rate_limit_atomic) instead of the previous
+ * two-query SELECT + UPDATE pattern, halving round-trips per rate-limited request.
  */
 import { db } from './db';
 import type { RateLimitResult } from './rate-limit';
@@ -11,24 +11,21 @@ const WINDOW_MS = 60_000;
 export async function checkRateLimitPersistent(ip: string, max: number): Promise<RateLimitResult> {
 	const now = Date.now();
 	const key = `${ip}:${max}`;
-	const windowCutoff = now - WINDOW_MS;
 
-	// Read current state
-	const { data: existing } = await db().from('rate_limits').select('count, window_start').eq('key', key).single();
+	const { data, error } = await db().rpc('check_rate_limit_atomic', {
+		p_key: key,
+		p_max: max,
+		p_now: now,
+		p_window_ms: WINDOW_MS,
+	});
 
-	// No existing record or window expired — start fresh
-	if (!existing || existing.window_start < windowCutoff) {
-		await db().from('rate_limits').upsert({ key, count: 1, window_start: now }, { onConflict: 'key' });
+	// Fail open on DB error — don't block requests if the rate-limit table is unavailable
+	if (error || !data?.[0]) {
 		return { allowed: true, remaining: max - 1, resetAt: now + WINDOW_MS };
 	}
 
-	// Window is still active — increment
-	const newCount = existing.count + 1;
-	await db().from('rate_limits').update({ count: newCount }).eq('key', key);
-
-	const remaining = Math.max(0, max - newCount);
-	const resetAt = existing.window_start + WINDOW_MS;
-	return { allowed: newCount <= max, remaining, resetAt };
+	const row = data[0];
+	return { allowed: row.allowed, remaining: row.remaining, resetAt: row.reset_at };
 }
 
 /** Remove expired windows. Call periodically (e.g. from a cron or edge function). */

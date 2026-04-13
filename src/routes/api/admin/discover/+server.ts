@@ -33,9 +33,12 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 		throw error(400, 'No manufacturers to scan');
 	}
 
+	let cancelled = false;
+
 	const stream = new ReadableStream({
 		async start(controller) {
 			const send = (event: string, data: unknown) => {
+				if (cancelled) return;
 				controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 			};
 
@@ -161,6 +164,8 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 					if (!isLastBatch) {
 						await new Promise((r) => setTimeout(r, BATCH_DELAY_MS));
 					}
+
+					if (cancelled) break;
 				}
 
 				// Auto-promote new scooters to candidates
@@ -205,9 +210,12 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 				const msg = e instanceof Error ? e.message : 'Unknown error';
 				await failRun(run.id, msg);
 				send('error', { error: msg, runId: run.id });
+			} finally {
+				if (!cancelled) controller.close();
 			}
-
-			controller.close();
+		},
+		cancel() {
+			cancelled = true;
 		},
 	});
 

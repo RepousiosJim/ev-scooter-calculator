@@ -20,37 +20,45 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 	const sources = await getKnownSources(scooterKey);
 	const encoder = new TextEncoder();
 
+	let cancelled = false;
+
 	const stream = new ReadableStream({
 		async start(controller) {
 			const send = (event: string, data: unknown) => {
+				if (cancelled) return;
 				controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 			};
 
-			send('start', {
-				scooterKey,
-				name: presetMetadata[scooterKey].name,
-				totalSources: sources.length,
-			});
-
-			const result = await autoVerifyScooter(scooterKey, (sourceResult, progress) => {
-				send('source', {
-					sourceName: sourceResult.sourceName,
-					success: sourceResult.success,
-					specsFound: sourceResult.specsFound,
-					error: sourceResult.error,
-					completed: progress.completed,
-					total: progress.totalSources,
+			try {
+				send('start', {
+					scooterKey,
+					name: presetMetadata[scooterKey].name,
+					totalSources: sources.length,
 				});
-			});
 
-			send('done', {
-				totalSources: result.totalSources,
-				succeeded: result.succeeded,
-				failed: result.failed,
-				results: result.results,
-			});
+				const result = await autoVerifyScooter(scooterKey, (sourceResult, progress) => {
+					send('source', {
+						sourceName: sourceResult.sourceName,
+						success: sourceResult.success,
+						specsFound: sourceResult.specsFound,
+						error: sourceResult.error,
+						completed: progress.completed,
+						total: progress.totalSources,
+					});
+				});
 
-			controller.close();
+				send('done', {
+					totalSources: result.totalSources,
+					succeeded: result.succeeded,
+					failed: result.failed,
+					results: result.results,
+				});
+			} finally {
+				if (!cancelled) controller.close();
+			}
+		},
+		cancel() {
+			cancelled = true;
 		},
 	});
 

@@ -5,6 +5,7 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { randomBytes } from 'crypto';
 import { isSupabaseAvailable, db, toJson } from '$lib/server/db';
 
 const DATA_DIR = join(process.cwd(), 'data');
@@ -155,7 +156,7 @@ function rowToUrlHealth(row: Record<string, unknown>): UrlHealthEntry {
 
 export async function createRun(manufacturerIds: string[]): Promise<DiscoveryRun> {
 	const run: DiscoveryRun = {
-		id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+		id: randomBytes(8).toString('hex'),
 		startedAt: new Date().toISOString(),
 		status: 'running',
 		manufacturerIds,

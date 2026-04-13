@@ -18,11 +18,17 @@
 		<!-- Typography: Fira Code (data) + Inter (body) + Space Grotesk (display) -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<!--
+			Font loading strategy: display=swap prevents render-blocking.
+			Subset to weights actually used: Inter 400/500/600/700 (body),
+			Space Grotesk 500/600/700 (display headings), Fira Code 400/500 (data values).
+			Removed unused weights: Inter 300, Fira Code 600/700.
+		-->
 		<link
-			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
 			rel="stylesheet"
 		/>
-		<!-- Google Analytics -->
+		<!-- Google Analytics — loaded async so it never blocks rendering -->
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-5D9VS622GD"></script>
 		<script>
 			window.dataLayer = window.dataLayer || [];
@@ -34,7 +40,12 @@
 		</script>
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<!--
+		preload-data="hover" triggers data fetching on hover, which is good for TTFB perception.
+		preload-code="viewport" additionally preloads JS for links in the viewport, improving
+		navigation INP by ensuring route modules are ready before the user clicks.
+	-->
+	<body data-sveltekit-preload-data="hover" data-sveltekit-preload-code="viewport">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

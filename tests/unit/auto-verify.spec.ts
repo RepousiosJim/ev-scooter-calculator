@@ -11,12 +11,12 @@ import type { AutoVerifyProgress } from '$lib/server/verification/auto-verify';
 // Mock dependencies — use vi.hoisted so refs are defined before vi.mock runs
 // ---------------------------------------------------------------------------
 
-const { mockScrapeUrl, mockGetKnownSources, mockGetStore, mockAddSource } = vi.hoisted(() => {
+const { mockScrapeUrl, mockGetKnownSources, mockGetStore, mockBatchAddSources } = vi.hoisted(() => {
 	return {
 		mockScrapeUrl: vi.fn(),
 		mockGetKnownSources: vi.fn(),
 		mockGetStore: vi.fn(),
-		mockAddSource: vi.fn(),
+		mockBatchAddSources: vi.fn(),
 	};
 });
 
@@ -31,7 +31,7 @@ vi.mock('$lib/server/verification/known-sources', () => ({
 
 vi.mock('$lib/server/verification/store', () => ({
 	getStore: mockGetStore,
-	addSource: mockAddSource,
+	batchAddSources: mockBatchAddSources,
 }));
 
 import { autoVerifyScooter, autoVerifyAll } from '$lib/server/verification/auto-verify';
@@ -55,7 +55,7 @@ beforeEach(() => {
 	mockScrapeUrl.mockReset();
 	mockGetKnownSources.mockReset();
 	mockGetStore.mockReset();
-	mockAddSource.mockReset();
+	mockBatchAddSources.mockReset();
 });
 
 // ---------------------------------------------------------------------------
@@ -97,7 +97,7 @@ describe('autoVerifyScooter – successful scrape', () => {
 			success: true,
 			extractedSpecs: { topSpeed: 30, range: 40 },
 		});
-		mockAddSource.mockResolvedValue(undefined);
+		mockBatchAddSources.mockResolvedValue(undefined);
 	});
 
 	it('marks progress.succeeded=1 when scrape returns specs', async () => {
@@ -116,10 +116,12 @@ describe('autoVerifyScooter – successful scrape', () => {
 		expect(progress.results[0].success).toBe(true);
 	});
 
-	it('calls addSource for each extracted spec field', async () => {
+	it('calls batchAddSources once for the source with all spec fields', async () => {
 		await autoVerifyScooter('ninebot_max');
-		// topSpeed + range = 2 calls
-		expect(mockAddSource).toHaveBeenCalledTimes(2);
+		// One batchAddSources call per source URL (contains topSpeed + range)
+		expect(mockBatchAddSources).toHaveBeenCalledTimes(1);
+		const [, , entries] = mockBatchAddSources.mock.calls[0] as [unknown, unknown, Array<{ field: string }>];
+		expect(entries.map((e) => e.field).sort()).toEqual(['range', 'topSpeed'].sort());
 	});
 
 	it('calls the onSourceDone callback after each source', async () => {

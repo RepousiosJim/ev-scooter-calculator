@@ -27,11 +27,10 @@ export const actions: Actions = {
 
 		const token = createSession();
 
-		const isProduction = process.env.NODE_ENV === 'production';
 		cookies.set('admin_session', token, {
 			path: '/',
 			httpOnly: true,
-			secure: isProduction,
+			secure: new URL(request.url).protocol === 'https:',
 			sameSite: 'strict',
 			maxAge: 60 * 60 * 24, // 24 hours
 		});

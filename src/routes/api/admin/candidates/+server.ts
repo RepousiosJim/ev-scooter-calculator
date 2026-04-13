@@ -96,7 +96,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!candidate) throw error(404, 'Candidate not found');
 
 			// Auto-inject into presets.ts
-			const writeResult = addPresetToFile(candidate);
+			const writeResult = await addPresetToFile(candidate);
 
 			// Pipeline: seed verification store + add dynamic sources
 			try {
@@ -136,7 +136,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!candidate) throw error(404, 'Candidate not found');
 
 			// Remove from presets.ts if it was previously added
-			const removeResult = removePresetFromFile(key);
+			const removeResult = await removePresetFromFile(key);
 
 			// Pipeline: cleanup dynamic sources
 			try {
@@ -179,7 +179,14 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			const { key, updates } = body as { key: string; updates: Record<string, unknown> };
 			if (!key) throw error(400, 'Key is required');
 
-			const candidate = await updateCandidateConfig(key, updates);
+			// Whitelist allowed fields — prevents bypassing the status-change audit trail
+			// (e.g. sending { status: 'approved' } through the edit path)
+			const ALLOWED_EDIT_KEYS = ['config', 'name', 'year', 'manufacturerSpecs', 'notes'] as const;
+			const safeUpdates = Object.fromEntries(
+				Object.entries(updates).filter(([k]) => (ALLOWED_EDIT_KEYS as readonly string[]).includes(k))
+			);
+
+			const candidate = await updateCandidateConfig(key, safeUpdates);
 			if (!candidate) throw error(404, 'Candidate not found');
 
 			// Re-validate after edit
@@ -205,7 +212,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			if (!key) throw error(400, 'Key is required');
 
 			// Remove from presets.ts if it was there
-			removePresetFromFile(key);
+			await removePresetFromFile(key);
 
 			const removed = await removeCandidate(key);
 			if (!removed) throw error(404, 'Candidate not found');

@@ -283,7 +283,21 @@ export type Database = {
 			};
 		};
 		Views: { [_ in never]: never };
-		Functions: { [_ in never]: never };
+		Functions: {
+			check_rate_limit_atomic: {
+				Args: {
+					p_key: string;
+					p_max: number;
+					p_now: number;
+					p_window_ms: number;
+				};
+				Returns: Array<{
+					allowed: boolean;
+					remaining: number;
+					reset_at: number;
+				}>;
+			};
+		};
 		Enums: { [_ in never]: never };
 		CompositeTypes: { [_ in never]: never };
 	};

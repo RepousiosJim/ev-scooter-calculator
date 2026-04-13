@@ -8,6 +8,22 @@ declare global {
 	}
 }
 
+// Web Vitals API shapes — use local types to avoid conflicts with lib.dom
+// TypeScript's built-in definitions vary by version; cast via PerformanceEntry.
+interface LCPEntry extends PerformanceEntry {
+	element?: Element | null;
+}
+
+interface LayoutShiftEntry extends PerformanceEntry {
+	value: number;
+	hadRecentInput: boolean;
+}
+
+interface EventTimingEntry extends PerformanceEntry {
+	processingEnd: number;
+	name: string;
+}
+
 export type EventType =
 	| 'page_view'
 	| 'preset_selected'
@@ -151,7 +167,9 @@ export function initBehaviorTracking(): Cleanup {
 			trackEvent('scroll_depth', { max_depth: Math.round(maxDepth * 100), current_depth: Math.round(depth * 100) });
 		}, 1000);
 	};
-	document.addEventListener('scroll', onScroll);
+	// passive: true is critical — without it, the browser must wait for the handler
+	// to complete before compositing the next scroll frame, causing jank (INP/FID regression).
+	document.addEventListener('scroll', onScroll, { passive: true });
 	cleanups.push(() => {
 		document.removeEventListener('scroll', onScroll);
 		if (scrollTimer) clearTimeout(scrollTimer);
@@ -176,26 +194,112 @@ export function trackWebVitals(): Cleanup {
 	if (typeof window === 'undefined') return () => {};
 	const cleanups: Cleanup[] = [];
 
-	const observer = new PerformanceObserver((list) => {
+	// FCP + FP (First Paint) via paint entries
+	const paintObserver = new PerformanceObserver((list) => {
 		for (const entry of list.getEntries()) {
-			if (entry.entryType === 'paint')
-				trackEvent('web_vital', { metric: entry.name, value: Math.round(entry.startTime) });
+			trackEvent('web_vital', { metric: entry.name, value: Math.round(entry.startTime) });
 		}
 	});
-	observer.observe({ entryTypes: ['paint'] });
-	cleanups.push(() => observer.disconnect());
+	paintObserver.observe({ entryTypes: ['paint'] });
+	cleanups.push(() => paintObserver.disconnect());
 
+	// LCP — largest-contentful-paint entries (buffered: true captures entries already fired)
+	if (PerformanceObserver.supportedEntryTypes?.includes('largest-contentful-paint')) {
+		const lcpObserver = new PerformanceObserver((list) => {
+			// LCP can fire multiple times; the last entry is the final value
+			const entries = list.getEntries();
+			const last = entries[entries.length - 1] as LCPEntry | undefined;
+			if (last) {
+				trackEvent('web_vital', {
+					metric: 'LCP',
+					value: Math.round(last.startTime),
+					element: last.element?.tagName ?? 'unknown',
+				});
+			}
+		});
+		lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true });
+		cleanups.push(() => lcpObserver.disconnect());
+	}
+
+	// CLS — cumulative-layout-shift (sum of all unexpected shifts)
+	if (PerformanceObserver.supportedEntryTypes?.includes('layout-shift')) {
+		let clsScore = 0;
+		let sessionValue = 0;
+		let sessionEntries: LayoutShiftEntry[] = [];
+
+		const clsObserver = new PerformanceObserver((list) => {
+			for (const raw of list.getEntries()) {
+				const shift = raw as LayoutShiftEntry;
+				// Only count shifts without recent user input
+				if (!shift.hadRecentInput) {
+					const firstEntry = sessionEntries[0];
+					const lastEntry = sessionEntries[sessionEntries.length - 1];
+					// Group into sessions: < 1s gap, total < 5s window
+					if (
+						sessionEntries.length === 0 ||
+						shift.startTime - lastEntry.startTime < 1000 ||
+						shift.startTime - firstEntry.startTime < 5000
+					) {
+						sessionValue += shift.value;
+						sessionEntries.push(shift);
+					} else {
+						sessionValue = shift.value;
+						sessionEntries = [shift];
+					}
+					clsScore = Math.max(clsScore, sessionValue);
+				}
+			}
+		});
+		clsObserver.observe({ type: 'layout-shift', buffered: true });
+
+		// Report CLS when the page is hidden (most accurate moment)
+		const reportCls = () => trackEvent('web_vital', { metric: 'CLS', value: Math.round(clsScore * 1000) / 1000 });
+		document.addEventListener('visibilitychange', () => {
+			if (document.visibilityState === 'hidden') reportCls();
+		});
+		cleanups.push(() => clsObserver.disconnect());
+	}
+
+	// INP — interaction-to-next-paint (available in Chrome 96+)
+	// durationThreshold: only report meaningful interactions (not micro-clicks)
+	if (PerformanceObserver.supportedEntryTypes?.includes('event')) {
+		let maxInp = 0;
+		const inpObserver = new PerformanceObserver((list) => {
+			for (const raw of list.getEntries()) {
+				const evt = raw as EventTimingEntry;
+				const duration = evt.processingEnd - evt.startTime;
+				if (duration > maxInp) {
+					maxInp = duration;
+					trackEvent('web_vital', {
+						metric: 'INP',
+						value: Math.round(duration),
+						event_type: evt.name,
+					});
+				}
+			}
+		});
+		// Cast options to bypass strict PerformanceObserverInit — durationThreshold
+		// is a valid option per the Event Timing spec but not in all TS lib.dom versions.
+		inpObserver.observe({ type: 'event', buffered: true } as PerformanceObserverInit);
+		cleanups.push(() => inpObserver.disconnect());
+	}
+
+	// TTFB + navigation timing
 	const onLoad = () => {
 		setTimeout(() => {
 			const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
-			if (nav)
+			if (nav) {
+				const ttfb = Math.round(nav.responseStart - nav.requestStart);
+				trackEvent('web_vital', { metric: 'TTFB', value: ttfb });
 				trackEvent('page_performance', {
+					ttfb,
 					dom_content_loaded: Math.round(nav.domContentLoadedEventEnd - nav.domContentLoadedEventStart),
 					load_complete: Math.round(nav.loadEventEnd - nav.loadEventStart),
 					dns_lookup: Math.round(nav.domainLookupEnd - nav.domainLookupStart),
 					tcp_connection: Math.round(nav.connectEnd - nav.connectStart),
-					request_response: Math.round(nav.responseStart - nav.requestStart),
+					request_response: ttfb,
 				});
+			}
 		}, 0);
 	};
 	window.addEventListener('load', onLoad);

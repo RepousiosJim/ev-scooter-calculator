@@ -63,7 +63,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const { method } = event.request;
 	const { pathname } = event.url;
 
-	logger.info({ requestId, method, pathname }, 'Request started');
+	const isAdminOrApi = pathname.startsWith('/admin') || pathname.startsWith('/api');
+	if (isAdminOrApi) {
+		logger.info({ requestId, method, pathname }, 'Request started');
+	}
 
 	// Run startup fix once and await it so admin routes see consistent data.
 	// The promise is cached, so subsequent requests don't re-run or re-await.
@@ -76,7 +79,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		await startupFixPromise;
 	}
 
-	// Guard all /admin routes except /admin/login
+	// Guard all /admin page routes except /admin/login
 	if (event.url.pathname.startsWith('/admin') && !event.url.pathname.startsWith('/admin/login')) {
 		const sessionToken = event.cookies.get('admin_session');
 		if (!(await validateSession(sessionToken))) {
@@ -84,12 +87,47 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
+	// Guard all /api/admin/* routes — defense-in-depth so a new handler
+	// without requireAdmin() is never silently unprotected.
+	if (event.url.pathname.startsWith('/api/admin')) {
+		const sessionToken = event.cookies.get('admin_session');
+		if (!(await validateSession(sessionToken))) {
+			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+				status: 401,
+				headers: { 'Content-Type': 'application/json' },
+			});
+		}
+	}
+
 	const response = await resolve(event);
 
-	logger.info(
-		{ requestId, method, pathname, status: response.status, durationMs: Date.now() - start },
-		'Request completed'
-	);
+	// Security headers
+	response.headers.set('X-Content-Type-Options', 'nosniff');
+	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+	if (event.url.protocol === 'https:') {
+		response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
+	}
+
+	// Performance: HTTP Link preconnect hints for font + analytics origins.
+	// Sent as response headers so Vercel edge can forward them as Early Hints (103)
+	// before the full HTML response is ready, shaving ~100–200 ms off TTFB perception.
+	// Only apply to HTML page responses (not API routes or admin routes).
+	const contentType = response.headers.get('content-type') ?? '';
+	if (!isAdminOrApi && contentType.includes('text/html')) {
+		const hints = [
+			'<https://fonts.googleapis.com>; rel="preconnect"',
+			'<https://fonts.gstatic.com>; rel="preconnect"; crossorigin',
+			'<https://www.googletagmanager.com>; rel="dns-prefetch"',
+		].join(', ');
+		const existing = response.headers.get('Link');
+		response.headers.set('Link', existing ? `${existing}, ${hints}` : hints);
+	}
+
+	const durationMs = Date.now() - start;
+	if (isAdminOrApi || response.status >= 400 || durationMs > 500) {
+		logger.info({ requestId, method, pathname, status: response.status, durationMs }, 'Request completed');
+	}
 
 	return response;
 };

@@ -3,42 +3,41 @@
  * When a candidate is approved, its config + metadata are auto-injected.
  * When rejected/deleted, the entry is removed if it was previously added.
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import type { PresetCandidate } from './preset-generator';
 
 const PRESETS_PATH = resolve('src/lib/data/presets.ts');
 
-/** Read presets.ts content */
-function readPresetsFile(): string {
-	return readFileSync(PRESETS_PATH, 'utf-8');
+async function readPresetsFile(): Promise<string> {
+	return readFile(PRESETS_PATH, 'utf-8');
 }
 
-/** Write presets.ts content */
-function writePresetsFile(content: string): void {
-	writeFileSync(PRESETS_PATH, content, 'utf-8');
+async function writePresetsFile(content: string): Promise<void> {
+	return writeFile(PRESETS_PATH, content, 'utf-8');
 }
 
-/** Check if a preset key already exists in presets.ts */
-export function isPresetInFile(key: string): boolean {
-	const content = readPresetsFile();
-	// Check both the config and metadata sections
+function keyExistsInContent(key: string, content: string): boolean {
 	const configPattern = new RegExp(`^\\s*${key}:\\s*\\{`, 'm');
 	return configPattern.test(content);
+}
+
+export async function isPresetInFile(key: string): Promise<boolean> {
+	const content = await readPresetsFile();
+	return keyExistsInContent(key, content);
 }
 
 /**
  * Add an approved candidate to presets.ts.
  * Inserts config into the `presets` object and metadata into `presetMetadata`.
  */
-export function addPresetToFile(candidate: PresetCandidate): { success: boolean; error?: string } {
+export async function addPresetToFile(candidate: PresetCandidate): Promise<{ success: boolean; error?: string }> {
 	try {
-		let content = readPresetsFile();
+		let content = await readPresetsFile();
 		const key = candidate.key;
 
-		// Skip if already exists
-		if (isPresetInFile(key)) {
-			// Update existing entry instead
+		// Check existence in already-loaded content (avoids a second file read)
+		if (keyExistsInContent(key, content)) {
 			return updatePresetInFile(candidate);
 		}
 
@@ -124,7 +123,7 @@ export function addPresetToFile(candidate: PresetCandidate): { success: boolean;
 		// Bump catalog version
 		content = bumpCatalogVersion(content);
 
-		writePresetsFile(content);
+		await writePresetsFile(content);
 		return { success: true };
 	} catch (e) {
 		return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
@@ -134,14 +133,14 @@ export function addPresetToFile(candidate: PresetCandidate): { success: boolean;
 /**
  * Update an existing preset entry in presets.ts.
  */
-export function updatePresetInFile(candidate: PresetCandidate): { success: boolean; error?: string } {
+export async function updatePresetInFile(candidate: PresetCandidate): Promise<{ success: boolean; error?: string }> {
 	try {
-		let content = readPresetsFile();
+		let content = await readPresetsFile();
 		const key = candidate.key;
 
 		// Remove old entry first, then add new one
 		content = removeEntryFromContent(content, key);
-		writePresetsFile(content);
+		await writePresetsFile(content);
 
 		// Now add the updated entry
 		return addPresetToFile(candidate);
@@ -153,16 +152,17 @@ export function updatePresetInFile(candidate: PresetCandidate): { success: boole
 /**
  * Remove a preset from presets.ts.
  */
-export function removePresetFromFile(key: string): { success: boolean; error?: string } {
+export async function removePresetFromFile(key: string): Promise<{ success: boolean; error?: string }> {
 	try {
-		if (!isPresetInFile(key)) {
+		let content = await readPresetsFile();
+
+		if (!keyExistsInContent(key, content)) {
 			return { success: true }; // Nothing to remove
 		}
 
-		let content = readPresetsFile();
 		content = removeEntryFromContent(content, key);
 		content = bumpCatalogVersion(content);
-		writePresetsFile(content);
+		await writePresetsFile(content);
 		return { success: true };
 	} catch (e) {
 		return { success: false, error: e instanceof Error ? e.message : 'Unknown error' };
@@ -188,25 +188,33 @@ export async function syncApprovedPresets(): Promise<{
 	const removed: string[] = [];
 	const errors: string[] = [];
 
+	// Read once for all in-memory existence checks; addPresetToFile/removePresetFromFile
+	// do their own reads when they need to write, so this avoids N extra reads for skips.
+	let snapshot = await readPresetsFile();
+	const autoSectionStart = snapshot.indexOf('// --- Auto-discovered Models ---');
+
 	for (const candidate of allCandidates) {
 		if (candidate.status === 'approved') {
-			if (isPresetInFile(candidate.key)) {
-				// Already exists (either hand-tuned original or previously synced) — skip
+			if (keyExistsInContent(candidate.key, snapshot)) {
 				skipped.push(candidate.key);
 			} else {
-				const result = addPresetToFile(candidate);
+				const result = await addPresetToFile(candidate);
 				if (result.success) {
 					added.push(candidate.key);
+					// Refresh snapshot so subsequent iterations see the newly added key
+					snapshot = await readPresetsFile();
 				} else {
 					errors.push(`Failed to add ${candidate.key}: ${result.error}`);
 				}
 			}
 		} else if (candidate.status === 'rejected') {
 			// Only remove if it's in the auto-discovered section
-			if (isInAutoDiscoveredSection(candidate.key)) {
-				const result = removePresetFromFile(candidate.key);
+			const inAutoSection = autoSectionStart !== -1 && snapshot.slice(autoSectionStart).includes(`${candidate.key}: {`);
+			if (inAutoSection) {
+				const result = await removePresetFromFile(candidate.key);
 				if (result.success) {
 					removed.push(candidate.key);
+					snapshot = await readPresetsFile();
 				} else {
 					errors.push(`Failed to remove ${candidate.key}: ${result.error}`);
 				}
@@ -217,20 +225,35 @@ export async function syncApprovedPresets(): Promise<{
 	return { added, skipped, removed, errors };
 }
 
-/** Check if a key is in the auto-discovered section (not a hand-tuned original) */
-function isInAutoDiscoveredSection(key: string): boolean {
-	const content = readPresetsFile();
-	const autoIdx = content.indexOf('// --- Auto-discovered Models ---');
-	if (autoIdx === -1) return false;
+// --- Internal helpers ---
 
-	const afterAuto = content.slice(autoIdx);
-	return afterAuto.includes(`${key}: {`);
+/**
+ * Validate preset key — must be a safe identifier to prevent code injection
+ * when written as an unquoted property name into TypeScript source.
+ */
+function validatePresetKey(key: string): void {
+	if (!/^[a-z][a-z0-9_]{0,49}$/.test(key)) {
+		throw new Error(`Invalid preset key "${key}": must match /^[a-z][a-z0-9_]{0,49}$/`);
+	}
 }
 
-// --- Internal helpers ---
+/**
+ * Escape a string for safe interpolation inside a double-quoted TS string literal.
+ * Handles backslashes, quotes, newlines, carriage returns, tabs and NUL bytes.
+ */
+function escapeStringLiteral(s: string): string {
+	return s
+		.replace(/\\/g, '\\\\')
+		.replace(/"/g, '\\"')
+		.replace(/\n/g, '\\n')
+		.replace(/\r/g, '\\r')
+		.replace(/\t/g, '\\t')
+		.replace(/\0/g, '\\0');
+}
 
 /** Build the config entry string for a candidate */
 function buildConfigEntry(candidate: PresetCandidate): string {
+	validatePresetKey(candidate.key);
 	const c = candidate.config;
 	const lines = [
 		`  ${candidate.key}: {`,
@@ -258,9 +281,10 @@ function buildConfigEntry(candidate: PresetCandidate): string {
 
 /** Build the metadata entry string for a candidate */
 function buildMetadataEntry(candidate: PresetCandidate): string {
+	validatePresetKey(candidate.key);
 	const m = candidate.manufacturerSpecs;
 	const today = new Date().toISOString().slice(0, 10);
-	const source = candidate.sources.discoveredFrom || 'Auto-discovered';
+	const source = escapeStringLiteral(candidate.sources.discoveredFrom || 'Auto-discovered');
 
 	const mfrFields: string[] = [];
 	// topSpeed, range, batteryWh are required in PresetMetadata type — always include them
@@ -271,14 +295,14 @@ function buildMetadataEntry(candidate: PresetCandidate): string {
 
 	const lines = [
 		`  ${candidate.key}: {`,
-		`    name: "${candidate.name}", year: ${candidate.year},`,
+		`    name: "${escapeStringLiteral(candidate.name)}", year: ${candidate.year},`,
 		`    manufacturer: { ${mfrFields.join(', ')} },`,
 		`    addedDate: "${today}", lastVerified: "${today}",`,
 		`    source: "${source}", status: "current",`,
 	];
 
 	if (candidate.notes) {
-		lines.push(`    notes: "${candidate.notes.replace(/"/g, '\\"')}",`);
+		lines.push(`    notes: "${escapeStringLiteral(candidate.notes)}",`);
 	}
 
 	lines.push(`  },`);

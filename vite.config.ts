@@ -13,6 +13,27 @@ export default defineConfig({
 	ssr: {
 		noExternal: ['lucide-svelte'],
 	},
+	build: {
+		// Target modern browsers — smaller output, faster parse
+		target: 'es2020',
+		rollupOptions: {
+			output: {
+				// Manual chunk splitting to keep the initial JS payload small.
+				// Heavy libraries land in named async chunks, only fetched when needed.
+				manualChunks(id) {
+					// Sentry — large, only needed for error capture, not for rendering
+					if (id.includes('@sentry')) return 'sentry';
+					// Supabase — only used in server/admin paths
+					if (id.includes('@supabase')) return 'supabase';
+					// lucide-svelte icons — tree-shaken per component but grouping reduces
+					// duplicate module overhead across async chunks
+					if (id.includes('lucide-svelte')) return 'icons';
+					// Physics engine + presets data — large but shared across all tabs
+					if (id.includes('/lib/physics') || id.includes('/lib/data/presets')) return 'engine';
+				},
+			},
+		},
+	},
 	plugins: [
 		sentrySvelteKit({
 			autoUploadSourceMaps: !!sentryAuthToken,
@@ -45,14 +66,30 @@ export default defineConfig({
 			workbox: {
 				globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 				runtimeCaching: [
+					// Cache the Google Fonts CSS manifest (googleapis.com)
 					{
 						urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/,
+						handler: 'StaleWhileRevalidate',
+						options: {
+							cacheName: 'google-fonts-stylesheets',
+							expiration: {
+								maxEntries: 5,
+								maxAgeSeconds: 60 * 60 * 24 * 365,
+							},
+						},
+					},
+					// Cache the actual font files (gstatic.com) — immutable, safe to cache forever
+					{
+						urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/,
 						handler: 'CacheFirst',
 						options: {
-							cacheName: 'google-fonts-cache',
+							cacheName: 'google-fonts-webfonts',
 							expiration: {
-								maxEntries: 10,
+								maxEntries: 20,
 								maxAgeSeconds: 60 * 60 * 24 * 365,
+							},
+							cacheableResponse: {
+								statuses: [0, 200],
 							},
 						},
 					},

@@ -1,25 +1,24 @@
 /**
  * Unit tests for preset-writer.ts.
  *
- * fs is mocked so no actual filesystem access occurs.
+ * fs/promises is mocked so no actual filesystem access occurs.
  * All tests operate on fabricated string representations of presets.ts.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ---------------------------------------------------------------------------
-// Mock fs BEFORE importing the module under test
+// Mock fs/promises BEFORE importing the module under test
 // ---------------------------------------------------------------------------
 
-const { mockReadFileSync, mockWriteFileSync } = vi.hoisted(() => {
-	const mockReadFileSync = vi.fn();
-	const mockWriteFileSync = vi.fn();
-	return { mockReadFileSync, mockWriteFileSync };
+const { mockReadFile, mockWriteFile } = vi.hoisted(() => {
+	const mockReadFile = vi.fn();
+	const mockWriteFile = vi.fn().mockResolvedValue(undefined);
+	return { mockReadFile, mockWriteFile };
 });
 
-vi.mock('fs', () => ({
-	readFileSync: mockReadFileSync,
-	writeFileSync: mockWriteFileSync,
-	existsSync: vi.fn(() => true),
+vi.mock('fs/promises', () => ({
+	readFile: mockReadFile,
+	writeFile: mockWriteFile,
 }));
 
 // Mock candidate-store for syncApprovedPresets
@@ -141,25 +140,25 @@ function makeCandidate(key: string): PresetCandidate {
 // ---------------------------------------------------------------------------
 
 describe('isPresetInFile', () => {
-	it('returns true when the key exists in the config object', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
-		expect(isPresetInFile('varla_eagle')).toBe(true);
+	it('returns true when the key exists in the config object', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
+		expect(await isPresetInFile('varla_eagle')).toBe(true);
 	});
 
-	it('returns false when the key does not exist', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent({ keys: [] }));
-		expect(isPresetInFile('does_not_exist')).toBe(false);
+	it('returns false when the key does not exist', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent({ keys: [] }));
+		expect(await isPresetInFile('does_not_exist')).toBe(false);
 	});
 
-	it('returns true for the ninebot_max key that is always present', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		expect(isPresetInFile('ninebot_max')).toBe(true);
+	it('returns true for the ninebot_max key that is always present', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		expect(await isPresetInFile('ninebot_max')).toBe(true);
 	});
 
-	it('returns false for a partial key match (e.g. ninebot vs ninebot_max)', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
+	it('returns false for a partial key match (e.g. ninebot vs ninebot_max)', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
 		// 'ninebot' alone does not match a `  ninebot: {` pattern
-		expect(isPresetInFile('ninebot')).toBe(false);
+		expect(await isPresetInFile('ninebot')).toBe(false);
 	});
 });
 
@@ -170,52 +169,53 @@ describe('isPresetInFile', () => {
 describe('addPresetToFile – fresh file (no auto section)', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('returns success: true', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
+	it('returns success: true', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
 		const candidate = makeCandidate('varla_eagle_one');
-		const result = addPresetToFile(candidate);
+		const result = await addPresetToFile(candidate);
 		expect(result.success).toBe(true);
 	});
 
-	it('calls writeFileSync with content that includes the new key', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		addPresetToFile(makeCandidate('varla_eagle_one'));
+	it('calls writeFile with content that includes the new key', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		await addPresetToFile(makeCandidate('varla_eagle_one'));
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('varla_eagle_one:');
 	});
 
-	it('includes the candidate name in the metadata section', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		addPresetToFile(makeCandidate('varla_eagle_one'));
+	it('includes the candidate name in the metadata section', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		await addPresetToFile(makeCandidate('varla_eagle_one'));
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('"varla eagle one"');
 	});
 
-	it('bumps the CATALOG_VERSION patch number', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		addPresetToFile(makeCandidate('varla_eagle_one'));
+	it('bumps the CATALOG_VERSION patch number', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		await addPresetToFile(makeCandidate('varla_eagle_one'));
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		// Original was "1.2.3" → should become "1.2.4"
 		expect(written).toContain('CATALOG_VERSION = "1.2.4"');
 	});
 
-	it('updates CATALOG_LAST_UPDATED to today', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		addPresetToFile(makeCandidate('varla_eagle_one'));
+	it('updates CATALOG_LAST_UPDATED to today', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		await addPresetToFile(makeCandidate('varla_eagle_one'));
 
 		const today = new Date().toISOString().slice(0, 10);
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain(`CATALOG_LAST_UPDATED = "${today}"`);
 	});
 
-	it('returns error when defaultConfig marker is missing', () => {
-		mockReadFileSync.mockReturnValue('export const presets = {}; // no defaultConfig');
-		const result = addPresetToFile(makeCandidate('my_scooter'));
+	it('returns error when defaultConfig marker is missing', async () => {
+		mockReadFile.mockResolvedValue('export const presets = {}; // no defaultConfig');
+		const result = await addPresetToFile(makeCandidate('my_scooter'));
 		expect(result.success).toBe(false);
 		expect(result.error).toBeDefined();
 	});
@@ -228,17 +228,18 @@ describe('addPresetToFile – fresh file (no auto section)', () => {
 describe('addPresetToFile – file with existing auto section', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('inserts config when file has auto section already', () => {
+	it('inserts config when file has auto section already', async () => {
 		const contentWithBothMarkers = makePresetsFileContent({ includeAutoMarker: true }).replace(
 			'};', // replace first `};` in metadata section — adds second auto marker
 			'  // --- Auto-discovered Models ---\n};'
 		);
-		mockReadFileSync.mockReturnValue(contentWithBothMarkers);
+		mockReadFile.mockResolvedValue(contentWithBothMarkers);
 
-		addPresetToFile(makeCandidate('new_scooter'));
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		await addPresetToFile(makeCandidate('new_scooter'));
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('new_scooter:');
 	});
 });
@@ -250,32 +251,28 @@ describe('addPresetToFile – file with existing auto section', () => {
 describe('addPresetToFile – key already exists', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('calls writeFileSync (tries update path) when key exists', () => {
+	it('calls writeFile (tries update path) when key exists', async () => {
 		// The key 'ninebot_max' is always present in base content.
 		// updatePresetInFile: read → remove → write, then addPresetToFile: read (no key) → write
-		// We simulate this: 1st read=original, 2nd read=without key, 3rd read=without key
 		const base = makePresetsFileContent();
-		const _withoutKey = makePresetsFileContent({ keys: [] }); // no ninebot_max in extras, but original still has it
 
-		// After removeEntryFromContent the key should be gone.
-		// Let writeFileSync capture the content after removal, then readFileSync returns it.
 		let capturedAfterRemove: string | null = null;
-		mockWriteFileSync.mockImplementation((_path: string, content: string) => {
+		mockWriteFile.mockImplementation((_path: string, content: string) => {
 			capturedAfterRemove = content;
+			return Promise.resolve();
 		});
 
-		mockReadFileSync
-			.mockReturnValueOnce(base) // First isPresetInFile check (key found → goes to update)
-			.mockReturnValueOnce(base) // updatePresetInFile reads the file again
-			.mockImplementation(() => capturedAfterRemove ?? base); // subsequent reads return modified
+		mockReadFile
+			.mockResolvedValueOnce(base) // addPresetToFile reads file (key found → goes to update)
+			.mockResolvedValueOnce(base) // updatePresetInFile reads the file again
+			.mockImplementation(() => Promise.resolve(capturedAfterRemove ?? base)); // subsequent reads return modified
 
 		const candidate = makeCandidate('ninebot_max');
-		// Should not throw; may succeed or fail depending on content flow
-		const _result = addPresetToFile(candidate);
-		// The test just verifies it attempted to write (went through update path)
-		expect(mockWriteFileSync).toHaveBeenCalled();
+		await addPresetToFile(candidate);
+		expect(mockWriteFile).toHaveBeenCalled();
 	});
 });
 
@@ -286,50 +283,49 @@ describe('addPresetToFile – key already exists', () => {
 describe('removePresetFromFile', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('returns success: true when key does not exist (nothing to remove)', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		const result = removePresetFromFile('does_not_exist');
+	it('returns success: true when key does not exist (nothing to remove)', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		const result = await removePresetFromFile('does_not_exist');
 		expect(result.success).toBe(true);
-		// writeFileSync should NOT be called since key was not found
-		expect(mockWriteFileSync).not.toHaveBeenCalled();
+		// writeFile should NOT be called since key was not found
+		expect(mockWriteFile).not.toHaveBeenCalled();
 	});
 
-	it('removes the entry and writes the file when key exists', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
-		const result = removePresetFromFile('varla_eagle');
+	it('removes the entry and writes the file when key exists', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
+		const result = await removePresetFromFile('varla_eagle');
 		expect(result.success).toBe(true);
-		expect(mockWriteFileSync).toHaveBeenCalled();
+		expect(mockWriteFile).toHaveBeenCalled();
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		// The varla_eagle config block should be gone
 		expect(written).not.toContain('varla_eagle: {');
 	});
 
-	it('bumps the version after removal', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
-		removePresetFromFile('varla_eagle');
+	it('bumps the version after removal', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent({ keys: ['varla_eagle'] }));
+		await removePresetFromFile('varla_eagle');
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('CATALOG_VERSION = "1.2.4"');
 	});
 
-	it('leaves other keys intact after removal', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent({ keys: ['varla_eagle', 'xiaomi_pro2'] }));
-		removePresetFromFile('varla_eagle');
+	it('leaves other keys intact after removal', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent({ keys: ['varla_eagle', 'xiaomi_pro2'] }));
+		await removePresetFromFile('varla_eagle');
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('xiaomi_pro2');
 		expect(written).not.toContain('varla_eagle: {');
 	});
 
-	it('handles exceptions and returns error', () => {
-		mockReadFileSync.mockImplementation(() => {
-			throw new Error('File read failure');
-		});
+	it('handles exceptions and returns error', async () => {
+		mockReadFile.mockRejectedValue(new Error('File read failure'));
 
-		const result = removePresetFromFile('ninebot_max');
+		const result = await removePresetFromFile('ninebot_max');
 		expect(result.success).toBe(false);
 		expect(result.error).toContain('File read failure');
 	});
@@ -342,41 +338,43 @@ describe('removePresetFromFile', () => {
 describe('updatePresetInFile', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('calls writeFileSync at least once during update', () => {
-		// updatePresetInFile: read → remove → write intermediate → addPresetToFile → read → write final
+	it('calls writeFile at least once during update', async () => {
 		const withKey = makePresetsFileContent({ keys: ['varla_eagle'] });
 		let capturedContent: string | null = null;
 
-		mockWriteFileSync.mockImplementation((_path: string, content: string) => {
+		mockWriteFile.mockImplementation((_path: string, content: string) => {
 			capturedContent = content;
+			return Promise.resolve();
 		});
 
 		// 1st read: in updatePresetInFile (has key, will remove it)
-		// 2nd read: in addPresetToFile's isPresetInFile (should NOT have key any more)
+		// 2nd read: in addPresetToFile (should NOT have key any more)
 		// 3rd read onward: in addPresetToFile (proceeds to insert)
-		mockReadFileSync
-			.mockReturnValueOnce(withKey) // updatePresetInFile reads file
-			.mockImplementation(() => capturedContent ?? withKey); // after first write, returns modified
+		mockReadFile
+			.mockResolvedValueOnce(withKey) // updatePresetInFile reads file
+			.mockImplementation(() => Promise.resolve(capturedContent ?? withKey)); // after first write, returns modified
 
-		updatePresetInFile(makeCandidate('varla_eagle'));
-		expect(mockWriteFileSync).toHaveBeenCalled();
+		await updatePresetInFile(makeCandidate('varla_eagle'));
+		expect(mockWriteFile).toHaveBeenCalled();
 	});
 
-	it('final written content does not throw when accessed as string', () => {
+	it('final written content does not throw when accessed as string', async () => {
 		const withKey = makePresetsFileContent({ keys: ['varla_eagle'] });
 		let capturedContent: string | null = null;
 
-		mockWriteFileSync.mockImplementation((_path: string, content: string) => {
+		mockWriteFile.mockImplementation((_path: string, content: string) => {
 			capturedContent = content;
+			return Promise.resolve();
 		});
 
-		mockReadFileSync.mockReturnValueOnce(withKey).mockImplementation(() => capturedContent ?? withKey);
+		mockReadFile.mockResolvedValueOnce(withKey).mockImplementation(() => Promise.resolve(capturedContent ?? withKey));
 
-		updatePresetInFile(makeCandidate('varla_eagle'));
+		await updatePresetInFile(makeCandidate('varla_eagle'));
 
-		const allWritten = mockWriteFileSync.mock.calls.map((c) => c[1] as string);
+		const allWritten = mockWriteFile.mock.calls.map((c) => c[1] as string);
 		const finalWrite = allWritten[allWritten.length - 1];
 		expect(typeof finalWrite).toBe('string');
 		expect(finalWrite.length).toBeGreaterThan(0);
@@ -390,23 +388,24 @@ describe('updatePresetInFile', () => {
 describe('bumpCatalogVersion (via addPresetToFile)', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockWriteFile.mockResolvedValue(undefined);
 	});
 
-	it('handles version "2.10.9" → "2.10.10"', () => {
+	it('handles version "2.10.9" → "2.10.10"', async () => {
 		const content = makePresetsFileContent().replace('CATALOG_VERSION = "1.2.3"', 'CATALOG_VERSION = "2.10.9"');
-		mockReadFileSync.mockReturnValue(content);
+		mockReadFile.mockResolvedValue(content);
 
-		addPresetToFile(makeCandidate('new_scooter'));
+		await addPresetToFile(makeCandidate('new_scooter'));
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		expect(written).toContain('CATALOG_VERSION = "2.10.10"');
 	});
 
-	it('does not double-bump on re-reads', () => {
-		mockReadFileSync.mockReturnValue(makePresetsFileContent());
-		addPresetToFile(makeCandidate('another_scooter'));
+	it('does not double-bump on re-reads', async () => {
+		mockReadFile.mockResolvedValue(makePresetsFileContent());
+		await addPresetToFile(makeCandidate('another_scooter'));
 
-		const written = mockWriteFileSync.mock.calls[0][1] as string;
+		const written = mockWriteFile.mock.calls[0][1] as string;
 		// "1.2.3" → "1.2.4" (not "1.2.5" or higher)
 		expect(written).toContain('"1.2.4"');
 		expect(written).not.toContain('"1.2.5"');
