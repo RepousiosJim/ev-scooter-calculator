@@ -14,6 +14,10 @@ const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GE
 /** Maximum text characters to send to the LLM (keep tokens low for free tier) */
 const MAX_TEXT_LENGTH = 12000;
 
+/** Back off for 2 minutes after a rate limit hit to avoid wasting requests */
+const RATE_LIMIT_BACKOFF_MS = 2 * 60 * 1000;
+let rateLimitedUntil = 0;
+
 interface LLMExtractionResult {
 	specs: Partial<Record<SpecField, number>>;
 	confidence: 'high' | 'medium' | 'low';
@@ -21,10 +25,12 @@ interface LLMExtractionResult {
 }
 
 /**
- * Check if LLM extraction is available (API key configured)
+ * Check if LLM extraction is available (API key configured and not rate-limited)
  */
 export function isLLMAvailable(): boolean {
-	return !!env.GEMINI_API_KEY;
+	if (!env.GEMINI_API_KEY) return false;
+	if (Date.now() < rateLimitedUntil) return false;
+	return true;
 }
 
 /**
@@ -65,6 +71,11 @@ export async function extractWithLLM(html: string, scooterName: string, url: str
 
 		if (!response.ok) {
 			const errText = await response.text();
+			if (response.status === 429) {
+				rateLimitedUntil = Date.now() + RATE_LIMIT_BACKOFF_MS;
+				logger.warn({ url }, 'Gemini rate limited — LLM disabled for 2 minutes, using HTML fallback');
+				return { specs: {}, confidence: 'low', notes: 'Gemini rate limit — HTML extraction used' };
+			}
 			logger.error({ status: response.status, body: errText.slice(0, 200) }, 'Gemini API error');
 			return { specs: {}, confidence: 'low', notes: 'Extraction service error' };
 		}
