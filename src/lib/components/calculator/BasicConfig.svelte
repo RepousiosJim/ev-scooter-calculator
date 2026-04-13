@@ -113,7 +113,10 @@
     class="p-4 sm:p-5 md:p-6 border border-white/[0.08] bg-white/[0.03] rounded-2xl
     transition-all duration-300 hover:border-white/10"
   >
-    <legend class="sr-only">Core Specs</legend>
+    <legend class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.18em] mb-4 flex items-center gap-2">
+      <span class="w-1 h-1 rounded-full bg-primary/50 inline-block" aria-hidden="true"></span>
+      Core Specs
+    </legend>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
       <div class="space-y-4">
         <div class="flex justify-between items-center px-1">
@@ -147,7 +150,8 @@
           aria-valuemin={24}
           aria-valuemax={100}
           aria-valuetext="{localValues.v} volts"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary-hover transition-all"
+          class="slider-filled w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.v - 24) / (100 - 24)) * 100}%"
         />
         <div class="flex justify-between text-xs text-text-tertiary px-1">
           <span>24V</span>
@@ -190,7 +194,8 @@
           aria-valuemin={5}
           aria-valuemax={100}
           aria-valuetext="{localValues.ah} amp hours"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary-hover transition-all"
+          class="slider-filled w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.ah - 5) / (100 - 5)) * 100}%"
         />
         <div class="flex justify-between text-xs text-text-tertiary px-1">
           <span>5Ah</span>
@@ -233,7 +238,8 @@
           aria-valuemin={250}
           aria-valuemax={10000}
           aria-valuetext="{localValues.watts} watts"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary hover:accent-primary-hover transition-all"
+          class="slider-filled w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.watts - 250) / (10000 - 250)) * 100}%"
         />
         <div class="flex justify-between text-xs text-text-tertiary px-1">
           <span>250W</span>
@@ -271,7 +277,10 @@
     class="p-4 sm:p-5 md:p-6 border border-white/[0.08] bg-white/[0.03] rounded-2xl
     transition-all duration-300 hover:border-white/10"
   >
-    <legend class="sr-only">Environment & Usage</legend>
+    <legend class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.18em] mb-4 flex items-center gap-2">
+      <span class="w-1 h-1 rounded-full bg-secondary/50 inline-block" aria-hidden="true"></span>
+      Environment & Usage
+    </legend>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
       <div class="space-y-4">
         <div class="flex justify-between items-center px-1">
@@ -305,7 +314,8 @@
           aria-valuemin={40}
           aria-valuemax={150}
           aria-valuetext="{displayWeight} {weightUnit()}"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-primary transition-all"
+          class="slider-filled w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.weight - 40) / (150 - 40)) * 100}%"
         />
         <div class="flex justify-between text-xs text-text-tertiary px-1">
           <span>{Math.round(weightVal(40))}{weightUnit()}</span>
@@ -345,7 +355,8 @@
           aria-valuemin={-20}
           aria-valuemax={45}
           aria-valuetext="{displayTemp} {tempUnit()}"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-secondary transition-all"
+          class="slider-filled slider-secondary w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.ambientTemp - -20) / (45 - -20)) * 100}%"
         />
         <div class="flex justify-between text-xs text-text-tertiary px-1">
           <span>{Math.round(tempVal(-20))}{tempUnit()}</span>
@@ -395,7 +406,8 @@
           aria-valuemin={0.5}
           aria-valuemax={1}
           aria-valuetext="{Math.round(localValues.soh * 100)} percent health"
-          class="w-full h-1.5 bg-white/5 rounded-lg appearance-none cursor-pointer accent-success transition-all"
+          class="slider-filled slider-success w-full h-1.5 rounded-lg appearance-none cursor-pointer transition-all"
+          style="--fill-pct: {((localValues.soh - 0.5) / (1 - 0.5)) * 100}%"
         />
         {#if warnings.soh}
           <div class="text-[10px] text-amber-400 font-medium px-1">{warnings.soh}</div>

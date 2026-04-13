@@ -51,8 +51,9 @@
   data-testid="stat-{label.toLowerCase().replace(/\s+/g, '-')}"
   role={onClick ? 'button' : 'group'}
   aria-label="{label}: {formattedValue()} {unit || ''}"
-  class="relative w-full bg-white/[0.03] p-3 sm:p-4 border border-white/[0.08] rounded-xl
+  class="relative w-full bg-white/[0.03] p-3.5 sm:p-4 border rounded-xl
     transition-all duration-300
+    {highlight ? 'border-primary/20 bg-primary/[0.04]' : 'border-white/[0.08]'}
     {onClick
     ? 'cursor-pointer hover:bg-white/[0.04] hover:border-white/10 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-black/10'
     : ''}"
@@ -67,22 +68,29 @@
     : undefined}
   tabindex={onClick ? 0 : undefined}
 >
-  <div class="space-y-2">
+  <div class="space-y-1.5">
     <!-- Header -->
     <div class="flex items-center gap-2">
-      <span class="text-xs font-bold text-text-secondary uppercase tracking-widest">{label}</span>
+      <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.14em]">{label}</span>
       {#if highlight}
-        <div class="ml-auto w-1 h-1 rounded-full bg-primary" aria-hidden="true"></div>
+        <div class="ml-auto w-1.5 h-1.5 rounded-full bg-primary animate-pulse-glow" aria-hidden="true"></div>
       {/if}
     </div>
 
     <!-- Value -->
-    <div class="flex items-baseline gap-1.5" aria-live="polite" aria-atomic="true">
-      <span class="text-2xl font-bold text-text-primary font-data">
+    <!-- tabular-nums prevents CLS: digit widths are fixed so animated numbers
+         never cause surrounding content to reflow as values change. -->
+    <div class="flex items-baseline gap-1" aria-live="polite" aria-atomic="true">
+      <span
+        class="text-[1.6rem] leading-none font-black tracking-tight font-data {highlight
+          ? 'text-primary'
+          : 'text-text-primary'}"
+        style="font-variant-numeric: tabular-nums;"
+      >
         {formattedValue()}
       </span>
       {#if unit}
-        <span class="text-xs font-bold text-text-tertiary uppercase tracking-wider" aria-hidden="true">{unit}</span>
+        <span class="text-[11px] font-semibold text-text-tertiary" aria-hidden="true">{unit}</span>
       {/if}
     </div>
   </div>

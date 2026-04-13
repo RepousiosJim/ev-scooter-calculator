@@ -51,18 +51,19 @@
 
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="radiogroup" aria-label="Ride mode selection">
     {#each modeButtons as mode (mode.id)}
+      {@const isActive = currentMode === mode.id}
       <button
         type="button"
         role="radio"
-        aria-checked={currentMode === mode.id}
+        aria-checked={isActive}
         onclick={() => selectMode(mode.id)}
-        class={`flex items-center justify-center gap-1.5 py-2 border transition-all duration-200 ${
-          currentMode === mode.id
-            ? 'border-primary/30 bg-primary/10 text-text-primary'
-            : 'border-white/[0.06] bg-white/[0.02] text-text-tertiary hover:border-white/10 hover:text-text-secondary'
+        class={`flex flex-col items-center justify-center gap-1 py-2.5 px-2 border rounded-xl transition-all duration-200 ${
+          isActive
+            ? 'border-primary/30 bg-primary/10 text-text-primary shadow-sm shadow-primary/10'
+            : 'border-white/[0.06] bg-white/[0.02] text-text-tertiary hover:border-white/10 hover:bg-white/[0.04] hover:text-text-secondary'
         }`}
       >
-        <Icon name={mode.icon} size="xs" class={currentMode === mode.id ? mode.color : 'opacity-40'} />
+        <Icon name={mode.icon} size="sm" class={isActive ? mode.color : 'opacity-40'} />
         <span class="text-[10px] font-bold uppercase tracking-wider">{rideModePresets[mode.id].name}</span>
       </button>
     {/each}

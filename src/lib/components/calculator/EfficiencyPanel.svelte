@@ -78,21 +78,26 @@
   <div class="space-y-2.5" role="list" aria-labelledby="efficiency-heading">
     {#each metrics as metric (metric.id)}
       <div role="listitem">
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-1.5">
           <button
             type="button"
-            class="text-xs text-text-tertiary hover:text-text-primary transition-colors flex items-center gap-1.5 group"
+            class="text-xs text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1.5 group font-medium"
             id="{metric.id}-label"
             onclick={() => (expandedMetric = expandedMetric === metric.id ? null : metric.id)}
             aria-expanded={expandedMetric === metric.id}
           >
             {metric.label}
-            <span class="text-text-tertiary" aria-hidden="true"><Info size={14} class="inline" /></span>
+            <span class="text-text-tertiary group-hover:text-text-secondary transition-colors" aria-hidden="true"
+              ><Info size={12} class="inline" /></span
+            >
           </button>
-          <span class="text-[11px] font-bold text-text-secondary">{metric.actual}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] font-bold" style:color={getColor(metric.value)}>{Math.round(metric.value)}%</span>
+            <span class="text-[10px] text-text-tertiary">{metric.actual}</span>
+          </div>
         </div>
         <div
-          class="h-1.5 bg-white/5 rounded-full overflow-hidden"
+          class="h-2 bg-white/5 rounded-full overflow-hidden"
           role="progressbar"
           aria-labelledby="{metric.id}-label"
           aria-valuenow={Math.round(metric.value)}
@@ -102,16 +107,17 @@
         >
           <div
             class="h-full rounded-full transition-all duration-500"
-            style:width={`${Math.max(metric.value, 8)}%`}
+            style:width={`${Math.max(metric.value, 4)}%`}
             style:background-color={getColor(metric.value)}
             aria-hidden="true"
           ></div>
         </div>
         {#if expandedMetric === metric.id}
           <p
-            class="text-[11px] text-text-secondary mt-1 leading-relaxed bg-white/[0.02] rounded px-3 py-2 border border-white/[0.04]"
+            class="text-[11px] text-text-secondary mt-1.5 leading-relaxed bg-white/[0.02] rounded-lg px-3 py-2 border border-white/[0.04]"
           >
-            Benchmark: {metric.benchmark}. Current: {metric.actual} ({getLabel(metric.value)}).
+            Benchmark: {metric.benchmark}. Current: {metric.actual} —
+            <span style:color={getColor(metric.value)}>{getLabel(metric.value)}</span>.
           </p>
         {/if}
       </div>

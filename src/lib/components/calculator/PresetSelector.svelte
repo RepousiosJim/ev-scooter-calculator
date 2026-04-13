@@ -173,7 +173,8 @@
     onclick={() => (showPresetModal = true)}
     aria-expanded={showPresetModal}
     aria-haspopup="dialog"
-    class="w-full bg-white/[0.02] border border-white/[0.06] rounded-xl p-3 text-left hover:border-white/15 focus:border-primary focus:outline-none transition-all duration-300"
+    class="group w-full bg-white/[0.02] border border-white/[0.06] rounded-xl p-3 text-left
+      hover:bg-white/[0.04] hover:border-white/[0.14] focus:border-primary focus:outline-none transition-all duration-200"
   >
     {#if selectedPreset}
       <div class="flex items-center gap-3">
@@ -189,25 +190,33 @@
             {selectedPreset.label}
           </div>
           <div class="text-xs text-text-tertiary mt-0.5">
-            {Math.round(speedVal(selectedPreset.stats.speed))}
-            {speedUnit()}
-            &middot; {Math.round(distanceVal(selectedPreset.stats.totalRange))}
-            {distanceUnit()}
+            {Math.round(speedVal(selectedPreset.stats.speed))}{speedUnit()}
+            &middot; {Math.round(distanceVal(selectedPreset.stats.totalRange))}{distanceUnit()}
             &middot; {formatPrice(selectedPreset.price)}
           </div>
         </div>
-        <span class="text-text-tertiary text-lg leading-none">&#9662;</span>
+        <Icon
+          name="chevron-down"
+          size="sm"
+          class="text-text-tertiary group-hover:text-text-secondary flex-shrink-0 transition-colors"
+        />
       </div>
     {:else}
       <div class="flex items-center gap-3">
-        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-white/[0.06]">
+        <span
+          class="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-white/[0.06] bg-white/[0.02]"
+        >
           <Icon name="settings" size="sm" class="text-text-tertiary" />
         </span>
         <div class="flex-1">
           <div class="text-sm font-semibold text-text-primary">Manual Entry</div>
           <div class="text-xs text-text-tertiary mt-0.5">Custom configuration</div>
         </div>
-        <span class="text-text-tertiary text-lg leading-none">&#9662;</span>
+        <Icon
+          name="chevron-down"
+          size="sm"
+          class="text-text-tertiary group-hover:text-text-secondary flex-shrink-0 transition-colors"
+        />
       </div>
     {/if}
   </button>

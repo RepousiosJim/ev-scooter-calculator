@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { Lightbulb, ChevronDown } from 'lucide-svelte';
+  // lucide-svelte removed from this file — replaced with the inline SVG Icon component
+  // to keep lucide out of the critical-path bundle (LCP/INP improvement).
   import { calculatorState, loadConfigFromUrl, loadPreset } from '$lib/stores/calculator.svelte';
   import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
   import { analytics } from '$lib/utils/analytics';
@@ -168,14 +169,20 @@
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
-  <!-- Decorative background elements -->
+  <!-- Decorative background elements.
+       contain-intrinsic-size + content-visibility prevent these large painted
+       elements from contributing to layout recalculation cost (INP improvement).
+       will-change:transform promotes them to a GPU layer so blur doesn't repaint
+       on scroll. Explicit width/height prevent CLS during initial paint. -->
   <div
     class="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/3 blur-3xl pointer-events-none"
     aria-hidden="true"
+    style="will-change: transform; contain: strict;"
   ></div>
   <div
     class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none"
     aria-hidden="true"
+    style="will-change: transform; contain: strict;"
   ></div>
 
   <div class="relative">
@@ -197,7 +204,7 @@
             <div
               class="bg-primary/5 border border-primary/20 rounded-2xl p-4 mb-6 backdrop-blur-sm flex items-start gap-3 animate-fadeIn"
             >
-              <span class="text-primary shrink-0 mt-0.5"><Lightbulb size={18} /></span>
+              <span class="text-primary shrink-0 mt-0.5"><Icon name="acceleration" size="sm" ariaLabel="Tip" /></span>
               <div class="flex-1">
                 <p class="text-sm font-bold text-text-primary">Start with a preset</p>
                 <p class="text-xs text-text-tertiary mt-1">
@@ -212,9 +219,9 @@
             <section aria-label="Scooter Configuration" class="md:col-span-4 lg:col-span-5 space-y-6 min-w-0">
               <div class="space-y-5">
                 <div class="flex items-center gap-3 mb-2">
-                  <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
-                  <h3 class="text-xs font-bold text-text-secondary uppercase tracking-[0.2em]">Configuration</h3>
-                  <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                  <div class="w-1.5 h-1.5 rounded-full bg-primary/60" aria-hidden="true"></div>
+                  <h3 class="text-[10px] font-black text-text-secondary uppercase tracking-[0.22em]">Configuration</h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-white/[0.12] to-transparent"></div>
                 </div>
                 <PresetSelector />
                 <ProfileManager />
@@ -241,7 +248,7 @@
                     class="text-text-tertiary transition-transform duration-300"
                     style:transform={showAdvancedConfig ? 'rotate(180deg)' : ''}
                   >
-                    <ChevronDown size={16} />
+                    <Icon name="chevron-down" size="sm" />
                   </span>
                 </button>
 
@@ -265,32 +272,30 @@
                     <button
                       type="button"
                       onclick={toggleUnitSystem}
-                      class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
+                      class="px-2.5 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary hover:border-white/20 transition-all uppercase tracking-wider"
                       aria-label="Toggle units between metric and imperial"
                     >
                       {uiState.unitSystem === 'metric' ? 'Metric' : 'Imperial'}
                     </button>
                     <ShareButton />
-                    <div class="relative group">
-                      <button
-                        type="button"
-                        class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
-                        aria-label="Export results"
-                        onclick={() => {
-                          const data = buildCalculatorExport(
-                            calculatorState.activePresetName,
-                            calculatorState.config,
-                            stats
-                          );
-                          exportJSON([data]);
-                        }}
-                      >
-                        Export
-                      </button>
-                    </div>
                     <button
                       type="button"
-                      class="px-3 py-1.5 border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
+                      class="px-2.5 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary hover:border-white/20 transition-all uppercase tracking-wider"
+                      aria-label="Export results as JSON"
+                      onclick={() => {
+                        const data = buildCalculatorExport(
+                          calculatorState.activePresetName,
+                          calculatorState.config,
+                          stats
+                        );
+                        exportJSON([data]);
+                      }}
+                    >
+                      Export
+                    </button>
+                    <button
+                      type="button"
+                      class="hidden sm:block px-2.5 py-1.5 rounded-lg border border-white/10 text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary hover:border-white/20 transition-all uppercase tracking-wider"
                       aria-label="Print results"
                       onclick={() => window.print()}
                     >
@@ -330,7 +335,7 @@
                         class="text-text-tertiary transition-transform duration-300"
                         style:transform={showEfficencyMobile ? 'rotate(180deg)' : ''}
                       >
-                        <ChevronDown size={16} />
+                        <Icon name="chevron-down" size="sm" />
                       </span>
                     </button>
 
@@ -368,7 +373,7 @@
                         class="text-text-tertiary transition-transform duration-300"
                         style:transform={showDetailedAnalysis ? 'rotate(180deg)' : ''}
                       >
-                        <ChevronDown size={16} />
+                        <Icon name="chevron-down" size="sm" />
                       </span>
                     </button>
 
@@ -391,8 +396,13 @@
         {/if}
       </div>
 
-      <!-- Upgrades Tab -->
-      <div aria-labelledby="upgrades-heading" id="upgrades-panel" role="tabpanel">
+      <!-- Upgrades Tab — content-visibility:auto skips layout/paint when tab is inactive -->
+      <div
+        aria-labelledby="upgrades-heading"
+        id="upgrades-panel"
+        role="tabpanel"
+        style={uiState.activeTab !== 'upgrades' ? 'content-visibility: auto; contain-intrinsic-size: 0 600px;' : ''}
+      >
         {#if uiState.activeTab === 'upgrades'}
           <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
           <div class="space-y-6 md:space-y-8">
@@ -405,9 +415,9 @@
             {#if simStats && calculatorState.upgradeDelta}
               <div id="upgrade-comparison-results" class="space-y-6">
                 <div class="flex items-center gap-3 mb-4">
-                  <div class="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true"></div>
-                  <h3 class="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">Upgrade Comparison</h3>
-                  <div class="h-px flex-1 bg-gradient-to-r from-white/10 to-transparent"></div>
+                  <div class="w-1.5 h-1.5 rounded-full bg-success/60" aria-hidden="true"></div>
+                  <h3 class="text-[10px] font-black uppercase tracking-[0.22em] text-text-secondary">Upgrade Impact</h3>
+                  <div class="h-px flex-1 bg-gradient-to-r from-white/[0.12] to-transparent"></div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
@@ -468,12 +478,19 @@
                 {/await}
               </div>
             {:else}
-              <div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 sm:p-6 md:p-10">
-                <div class="flex flex-col items-center justify-center text-center py-8 md:py-12">
-                  <div class="text-5xl mb-4 opacity-30" aria-hidden="true">+</div>
-                  <div class="text-lg font-bold text-text-primary mb-2">No upgrade selected</div>
-                  <div class="text-sm text-text-tertiary">
-                    Select an upgrade above to simulate its impact on your current setup
+              <div class="bg-white/[0.02] border border-white/[0.06] border-dashed rounded-2xl p-5 sm:p-6 md:p-10">
+                <div class="flex flex-col items-center justify-center text-center py-8 md:py-12 gap-3">
+                  <div
+                    class="w-14 h-14 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center"
+                    aria-hidden="true"
+                  >
+                    <Icon name="upgrades" size="md" class="text-text-tertiary opacity-40" />
+                  </div>
+                  <div class="space-y-1">
+                    <div class="text-base font-bold text-text-secondary">No upgrade selected</div>
+                    <div class="text-sm text-text-tertiary max-w-xs">
+                      Choose an upgrade from the simulator above to see how it affects your performance
+                    </div>
                   </div>
                 </div>
               </div>
@@ -482,8 +499,13 @@
         {/if}
       </div>
 
-      <!-- Compare Tab -->
-      <div aria-labelledby="compare-heading" id="compare-panel" role="tabpanel">
+      <!-- Compare Tab — content-visibility:auto skips layout/paint when tab is inactive -->
+      <div
+        aria-labelledby="compare-heading"
+        id="compare-panel"
+        role="tabpanel"
+        style={uiState.activeTab !== 'compare' ? 'content-visibility: auto; contain-intrinsic-size: 0 800px;' : ''}
+      >
         {#if uiState.activeTab === 'compare'}
           <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
           {#await import('$lib/components/calculator/ScooterComparisonTable.svelte') then { default: ScooterComparisonTable }}

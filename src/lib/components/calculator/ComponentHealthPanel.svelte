@@ -49,7 +49,7 @@
 <div class="space-y-2">
   <!-- Battery -->
   <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
-    <div class="p-2 bg-white/[0.04]" style:color={batteryHealth.color}>
+    <div class="p-2 bg-white/[0.04] rounded-lg" style:color={batteryHealth.color}>
       <Icon name="battery" size="sm" />
     </div>
     <div class="flex-1 min-w-0">
@@ -61,7 +61,7 @@
         <span class="text-[10px] font-mono text-text-tertiary">{stats.cRate.toFixed(1)}C</span>
       </div>
       <div class="flex items-center gap-2 mt-1">
-        <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
+        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden flex-1">
           <div
             class="h-full rounded-full transition-all duration-500"
             style:width={`${batteryHealth.percent}%`}
@@ -77,7 +77,7 @@
   <!-- Controller -->
   {#if config.controller}
     <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
-      <div class="p-2 bg-white/[0.04]" style:color={controllerHealth.color}>
+      <div class="p-2 bg-white/[0.04] rounded-lg" style:color={controllerHealth.color}>
         <Icon name="controller" size="sm" />
       </div>
       <div class="flex-1 min-w-0">
@@ -91,7 +91,7 @@
           >
         </div>
         <div class="flex items-center gap-2 mt-1">
-          <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
+          <div class="h-1.5 bg-white/5 rounded-full overflow-hidden flex-1">
             <div
               class="h-full rounded-full transition-all duration-500"
               style:width={`${controllerHealth.percent}%`}
@@ -108,7 +108,7 @@
 
   <!-- Motor -->
   <div class="rounded-xl border border-white/[0.06] px-3 py-2.5 bg-white/[0.02] flex items-center gap-3">
-    <div class="p-2 bg-white/[0.04]" style:color={motorHealth.color}>
+    <div class="p-2 bg-white/[0.04] rounded-lg" style:color={motorHealth.color}>
       <Icon name="motor" size="sm" />
     </div>
     <div class="flex-1 min-w-0">
@@ -120,7 +120,7 @@
         <span class="text-[10px] font-mono text-text-tertiary">{Math.round(stats.accelScore)}/100</span>
       </div>
       <div class="flex items-center gap-2 mt-1">
-        <div class="h-1 bg-white/5 rounded-full overflow-hidden flex-1">
+        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden flex-1">
           <div
             class="h-full rounded-full transition-all duration-500"
             style:width={`${motorHealth.percent}%`}

@@ -81,16 +81,22 @@
   <div class="max-w-7xl mx-auto px-3 sm:px-4">
     <div class="h-14 lg:h-16 flex items-center justify-between gap-4">
       <!-- Brand -->
-      <a href="/" class="flex items-center gap-3 group shrink-0">
-        <div class="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+      <a href="/" class="flex items-center gap-2.5 group shrink-0">
+        <div
+          class="w-8 h-8 rounded-xl bg-primary/10 border border-primary/25 flex items-center justify-center shadow-sm shadow-primary/10 group-hover:border-primary/40 group-hover:bg-primary/15 transition-all duration-200"
+        >
           <Icon name="acceleration" size="sm" class="text-primary" />
         </div>
         <div class="hidden sm:block">
           <h1
-            class="text-sm font-black text-text-primary tracking-tight leading-tight group-hover:text-primary/90 transition-colors"
+            class="text-sm font-black tracking-tight leading-tight transition-colors"
+            style="background: linear-gradient(90deg, #f0f4f8 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
           >
-            EV Scooter Pro Calculator
+            EV Scooter Pro
           </h1>
+          <p class="text-[9px] font-semibold text-text-tertiary uppercase tracking-[0.18em] leading-none mt-0.5">
+            Calculator
+          </p>
         </div>
         <h1 class="sm:hidden text-sm font-black text-text-primary tracking-tight">EV Scooter Pro</h1>
       </a>

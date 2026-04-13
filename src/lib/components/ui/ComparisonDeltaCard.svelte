@@ -33,12 +33,12 @@
 
     {#if Math.abs(deltaPercent) > 0.05}
       <div
-        class="px-2 py-1 text-[10px] font-bold uppercase tracking-wider
+        class="px-2 py-1 text-[10px] font-bold rounded-lg
           {isBetter
           ? 'bg-success/10 text-success border border-success/20'
           : 'bg-danger/10 text-danger border border-danger/20'}"
       >
-        {isBetter ? '+' : '-'}{Math.abs(deltaPercent).toFixed(1)}%
+        {isBetter ? '+' : ''}{deltaPercent.toFixed(1)}%
       </div>
     {/if}
   </div>

@@ -136,6 +136,9 @@ body::before {
 		radial-gradient(ellipse 60% 40% at 80% 100%, rgba(129, 140, 248, 0.03), transparent);
 	pointer-events: none;
 	z-index: 0;
+	/* Compositor hint: this layer never changes, promote it to its own GPU layer
+	   so the browser doesn't repaint it during scroll/animation (INP improvement). */
+	will-change: transform;
 }
 
 /* ════════════════════════════════════════════
@@ -268,6 +271,41 @@ input[type='range']::-moz-range-thumb:hover {
 }
 
 /* ════════════════════════════════════════════
+   Range Sliders — Filled track variant
+   Uses CSS custom property --fill-pct (set via inline style in component)
+   to render a filled portion on the track left of the thumb.
+   ════════════════════════════════════════════ */
+input[type='range'].slider-filled {
+	background: linear-gradient(
+		90deg,
+		var(--color-primary) 0%,
+		var(--color-primary) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) 100%
+	);
+}
+
+input[type='range'].slider-filled.slider-secondary {
+	background: linear-gradient(
+		90deg,
+		var(--color-secondary) 0%,
+		var(--color-secondary) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) 100%
+	);
+}
+
+input[type='range'].slider-filled.slider-success {
+	background: linear-gradient(
+		90deg,
+		var(--color-success) 0%,
+		var(--color-success) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) var(--fill-pct, 0%),
+		rgba(255, 255, 255, 0.06) 100%
+	);
+}
+
+/* ════════════════════════════════════════════
    Number Inputs — Refined dark inputs
    ════════════════════════════════════════════ */
 input[type='number'] {
@@ -338,6 +376,15 @@ button {
 }
 
 .animate-fade-in {
+	animation: fade-in 0.3s var(--ease-out) both;
+}
+
+/*
+ * Alias used in +page.svelte — keeps both class names working.
+ * CLS fix: the animation uses transform+opacity only (compositor-safe),
+ * so it never causes layout shifts.
+ */
+.animate-fadeIn {
 	animation: fade-in 0.3s var(--ease-out) both;
 }
 

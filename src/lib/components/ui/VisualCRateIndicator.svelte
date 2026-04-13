@@ -45,7 +45,7 @@
 
   <div class="relative">
     <div
-      class="w-full h-2 bg-bg-tertiary rounded-full overflow-hidden"
+      class="w-full h-3 bg-bg-tertiary rounded-full overflow-hidden"
       role="meter"
       aria-labelledby="crate-label"
       aria-valuenow={value}
@@ -54,14 +54,18 @@
       aria-valuetext="{value.toFixed(1)}C - {threshold().label}"
     >
       <div
-        class="h-full transition-all duration-normal ease-out {threshold().color}"
-        style="width: {percentage()}%"
+        class="h-full transition-all duration-300 ease-out rounded-full {threshold().color}"
+        style="width: {percentage()}%; opacity: 0.85;"
         aria-hidden="true"
       ></div>
     </div>
-    <div class="absolute top-0 left-0 w-full h-full pointer-events-none flex" aria-hidden="true">
-      <div class="w-1/3 border-r border-white/10 h-full"></div>
-      <div class="w-1/3 border-r border-white/10 h-full"></div>
+    <!-- Zone tick marks -->
+    <div
+      class="absolute top-0 left-0 w-full h-full pointer-events-none flex rounded-full overflow-hidden"
+      aria-hidden="true"
+    >
+      <div class="w-1/3 border-r border-white/[0.12] h-full"></div>
+      <div class="w-1/3 border-r border-white/[0.12] h-full"></div>
       <div class="w-1/3 h-full"></div>
     </div>
   </div>

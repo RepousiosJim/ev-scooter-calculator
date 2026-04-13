@@ -41,14 +41,14 @@
 </script>
 
 <div
-  class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/90 backdrop-blur-xl border-t border-white/[0.08] rounded-t-2xl"
+  class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/95 backdrop-blur-xl border-t border-white/[0.08]"
   role="tablist"
   aria-label="Mobile navigation"
   style="padding-bottom: env(safe-area-inset-bottom, 0px)"
 >
-  <div class="flex items-stretch h-14">
+  <div class="flex items-stretch h-[3.75rem]">
     {#each tabs as tab, index (tab.value)}
-      {@const isActive = uiState.activeTab === tab.value}
+      {@const isActive = uiState.activeTab === tab.value && !isRankings && !isGuides}
       <button
         bind:this={tabButtons[index]}
         type="button"
@@ -57,23 +57,22 @@
         aria-controls={`${tab.value}-panel`}
         id={`mobile-${tab.value}-tab`}
         tabindex={isActive ? 0 : -1}
-        class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-          {isActive ? 'text-primary' : 'text-text-tertiary'}"
+        class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
+          focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
         onclick={() => (uiState.activeTab = tab.value as typeof uiState.activeTab)}
         onkeydown={(e) => handleKeydown(e, index)}
       >
-        <!-- Active indicator line -->
+        <!-- Active indicator -->
         {#if isActive}
-          <div class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary" aria-hidden="true"></div>
+          <div class="absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full" aria-hidden="true"></div>
         {/if}
 
         <Icon
           name={tab.icon}
           size="sm"
-          class="transition-all duration-200 {isActive ? 'text-primary scale-110' : 'opacity-40'}"
+          class="transition-all duration-200 {isActive ? 'text-primary' : 'text-text-tertiary opacity-50'}"
         />
-        <span class="text-[10px] font-bold uppercase tracking-wider {isActive ? 'text-primary' : 'text-text-tertiary'}">
+        <span class="text-[9px] font-bold uppercase tracking-wider {isActive ? 'text-primary' : 'text-text-tertiary'}">
           {tab.label}
         </span>
       </button>
@@ -83,19 +82,18 @@
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a
       href="/rankings"
-      class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-        {isRankings ? 'text-primary' : 'text-text-tertiary'}"
+      class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
     >
       {#if isRankings}
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary" aria-hidden="true"></div>
+        <div class="absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full" aria-hidden="true"></div>
       {/if}
       <Icon
         name="trophy"
         size="sm"
-        class="transition-all duration-200 {isRankings ? 'text-primary scale-110' : 'opacity-40'}"
+        class="transition-all duration-200 {isRankings ? 'text-primary' : 'text-text-tertiary opacity-50'}"
       />
-      <span class="text-[10px] font-bold uppercase tracking-wider {isRankings ? 'text-primary' : 'text-text-tertiary'}">
+      <span class="text-[9px] font-bold uppercase tracking-wider {isRankings ? 'text-primary' : 'text-text-tertiary'}">
         Rankings
       </span>
     </a>
@@ -104,19 +102,18 @@
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a
       href="/guides"
-      class="flex-1 flex flex-col items-center justify-center gap-0.5 relative transition-colors duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset
-        {isGuides ? 'text-primary' : 'text-text-tertiary'}"
+      class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
     >
       {#if isGuides}
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-0.5 bg-primary" aria-hidden="true"></div>
+        <div class="absolute top-0 inset-x-3 h-0.5 bg-primary rounded-b-full" aria-hidden="true"></div>
       {/if}
       <Icon
         name="book"
         size="sm"
-        class="transition-all duration-200 {isGuides ? 'text-primary scale-110' : 'opacity-40'}"
+        class="transition-all duration-200 {isGuides ? 'text-primary' : 'text-text-tertiary opacity-50'}"
       />
-      <span class="text-[10px] font-bold uppercase tracking-wider {isGuides ? 'text-primary' : 'text-text-tertiary'}">
+      <span class="text-[9px] font-bold uppercase tracking-wider {isGuides ? 'text-primary' : 'text-text-tertiary'}">
         Guides
       </span>
     </a>
