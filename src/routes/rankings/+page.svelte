@@ -7,16 +7,14 @@
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
   import NewsletterSignup from '$lib/components/ui/NewsletterSignup.svelte';
-  import { distanceVal, speedVal, distanceUnit, speedUnit } from '$lib/utils/units';
-  import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
+  import RankingsFilters from '$lib/components/rankings/RankingsFilters.svelte';
+  import RankingRow from '$lib/components/rankings/RankingRow.svelte';
+  import RankingMobileCard from '$lib/components/rankings/RankingMobileCard.svelte';
   import { goto, replaceState } from '$app/navigation';
   // import { page } from '$app/stores'; // unused — URL sync handled via URLSearchParams directly
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { loadPreset } from '$lib/stores/calculator.svelte';
-  import { X, TrendingDown, TrendingUp, AlertTriangle, Download } from 'lucide-svelte';
-  import { exportJSON, exportCSV, buildRankingsExport } from '$lib/utils/export';
-  import { formatPrice } from '$lib/utils/formatters';
 
   let { data }: { data: PageData } = $props();
 
@@ -38,15 +36,6 @@
   }
 
   type BestForFilter = 'all' | 'value' | 'speed' | 'range' | 'efficiency' | 'portable';
-
-  const bestForFilters: { value: BestForFilter; label: string }[] = [
-    { value: 'all', label: 'All' },
-    { value: 'value', label: 'Best Value' },
-    { value: 'speed', label: 'Fastest' },
-    { value: 'range', label: 'Longest Range' },
-    { value: 'efficiency', label: 'Most Efficient' },
-    { value: 'portable', label: 'Most Portable' },
-  ];
 
   const tierMeta: Record<Grade, { label: string; color: string; bar: string; bg: string; border: string }> = {
     S: {
@@ -331,95 +320,15 @@
       </div>
 
       <!-- Controls Bar -->
-      <div class="bg-white/[0.02] border border-white/[0.06] rounded-2xl p-3 sm:p-4 mb-6 space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <!-- Search -->
-          <div class="relative">
-            <input
-              type="text"
-              bind:value={searchQuery}
-              placeholder="Search models..."
-              class="bg-white/[0.03] border border-white/[0.06] rounded-xl py-2 pl-3 pr-8 text-sm text-text-primary placeholder:text-text-tertiary focus:border-primary/50 focus:outline-none w-full sm:w-56 transition-colors"
-              aria-label="Filter scooters by name"
-            />
-            {#if searchQuery}
-              <button
-                class="absolute right-2 top-1/2 -translate-y-1/2 text-text-tertiary hover:text-text-primary"
-                onclick={() => (searchQuery = '')}
-                aria-label="Clear search"><X size={14} /></button
-              >
-            {/if}
-          </div>
-
-          <div class="flex items-center gap-3">
-            <!-- Export -->
-            <div class="flex gap-1">
-              <button
-                type="button"
-                onclick={() => exportCSV(buildRankingsExport(filteredRanked), 'ev-scooter-rankings.csv')}
-                class="px-2 py-1.5 border border-white/10 rounded-full text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider flex items-center gap-1"
-                aria-label="Export rankings as CSV"
-              >
-                <Download size={10} /> CSV
-              </button>
-              <button
-                type="button"
-                onclick={() => exportJSON(buildRankingsExport(filteredRanked), 'ev-scooter-rankings.json')}
-                class="px-2 py-1.5 border border-white/10 rounded-full text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider flex items-center gap-1"
-                aria-label="Export rankings as JSON"
-              >
-                <Download size={10} /> JSON
-              </button>
-            </div>
-
-            <!-- Unit toggle -->
-            <button
-              type="button"
-              onclick={toggleUnitSystem}
-              class="px-3 py-1.5 border border-white/10 rounded-full text-[10px] font-bold text-text-tertiary hover:bg-white/5 hover:text-text-secondary transition-all uppercase tracking-wider"
-              aria-label="Toggle units"
-            >
-              {uiState.unitSystem === 'metric' ? 'km' : 'mi'}
-            </button>
-
-            <!-- Sort pills -->
-            <div class="flex gap-1.5">
-              {#each [{ value: 'score', label: 'Score' }, { value: 'speed', label: 'Speed' }, { value: 'range', label: 'Range' }, { value: 'price', label: 'Price' }] as opt}
-                <button
-                  type="button"
-                  class="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider border rounded-full transition-all
-                    {sortBy === opt.value
-                    ? 'bg-primary/15 text-primary border-primary/25'
-                    : 'bg-white/[0.02] text-text-tertiary border-white/[0.06] hover:border-white/10 hover:text-text-secondary'}"
-                  onclick={() => (sortBy = opt.value as typeof sortBy)}
-                >
-                  {opt.label}
-                </button>
-              {/each}
-            </div>
-          </div>
-        </div>
-
-        <!-- Best For filters -->
-        <div class="flex items-center gap-2 flex-wrap">
-          <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider shrink-0">Best for:</span>
-          {#each bestForFilters as f}
-            <button
-              type="button"
-              class="px-2.5 py-1 text-[10px] font-bold border rounded-full transition-all
-                {bestForFilter === f.value
-                ? 'bg-secondary/15 text-secondary border-secondary/25'
-                : 'bg-white/[0.02] text-text-tertiary border-white/[0.06] hover:border-white/10 hover:text-text-secondary'}"
-              onclick={() => (bestForFilter = f.value)}
-            >
-              {f.label}
-            </button>
-          {/each}
-          {#if bestForFilter !== 'all'}
-            <span class="text-[10px] text-text-tertiary ml-1">Top 10 shown</span>
-          {/if}
-        </div>
-      </div>
+      <RankingsFilters
+        {searchQuery}
+        {sortBy}
+        {bestForFilter}
+        {filteredRanked}
+        onsearchchange={(v) => (searchQuery = v)}
+        onsortchange={(v) => (sortBy = v)}
+        onbestforchange={(v) => (bestForFilter = v)}
+      />
 
       <!-- Quick Stats -->
       <div class="grid grid-cols-3 gap-3 mb-6">
@@ -522,178 +431,17 @@
                     {#each scooters as scooter}
                       {@const rank = rankMap.get(scooter.key) ?? 0}
                       {@const isExpanded = expandedScoreKey === scooter.key}
-                      <tr
-                        class="hover:bg-white/[0.02] transition-colors {tierMeta[grade].bg} cursor-pointer"
-                        onclick={() => (expandedScoreKey = isExpanded ? null : scooter.key)}
-                      >
-                        <td class="py-3 px-4">
-                          <span class="text-xs font-bold text-text-tertiary">
-                            {rank}
-                          </span>
-                        </td>
-                        <td class="py-3 px-4">
-                          <div class="flex items-center gap-3">
-                            <div>
-                              <a
-                                href="/scooter/{scooter.key}"
-                                class="text-sm font-bold text-text-primary hover:text-primary transition-colors"
-                                >{scooter.name}</a
-                              >
-                              <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-[10px] text-text-tertiary">{scooter.year}</span>
-                                {#if scooter.status === 'discontinued'}
-                                  <span
-                                    class="text-[9px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1.5 py-0.5 border border-rose-500/20"
-                                    >End of Life</span
-                                  >
-                                {/if}
-                                {#if scooter.hasPriceHistory && scooter.priceChange !== undefined}
-                                  <span
-                                    class="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider {scooter.priceChange <
-                                    0
-                                      ? 'text-emerald-400'
-                                      : 'text-rose-400'}"
-                                  >
-                                    {#if scooter.priceChange < 0}<TrendingDown size={10} />{:else}<TrendingUp
-                                        size={10}
-                                      />{/if}{Math.abs(Math.round(scooter.priceChange))}%
-                                  </span>
-                                {/if}
-                                {#if scooter.stats.cRate > 2.5}
-                                  <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider">
-                                    {scooter.stats.cRate.toFixed(1)}C strain
-                                  </span>
-                                {/if}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td class="py-3 px-4">
-                          <div class="flex flex-col items-center gap-1">
-                            <span class="text-sm font-black {tierMeta[grade].color}">{scooter.score.toFixed(1)}</span>
-                            <div class="w-12 h-1 bg-white/5 overflow-hidden">
-                              <div class="h-full {tierMeta[grade].bar}" style:width={`${scooter.score}%`}></div>
-                            </div>
-                          </div>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                          <span class="text-sm font-bold text-text-primary"
-                            >{Math.round(speedVal(scooter.stats.speed))}</span
-                          >
-                          <span class="text-[10px] text-text-tertiary ml-1">{speedUnit()}</span>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                          <span class="text-sm font-bold text-text-primary"
-                            >{Math.round(distanceVal(scooter.stats.totalRange))}</span
-                          >
-                          <span class="text-[10px] text-text-tertiary ml-1">{distanceUnit()}</span>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                          <span class="text-sm font-bold text-text-primary">{Math.round(scooter.stats.totalWatts)}</span
-                          >
-                          <span class="text-[10px] text-text-tertiary ml-1">W</span>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                          <span class="text-sm font-bold text-text-primary"
-                            >{scooter.batteryWh ? scooter.batteryWh : Math.round(scooter.stats.wh)}</span
-                          >
-                          <span class="text-[10px] text-text-tertiary ml-1">Wh</span>
-                        </td>
-                        <td class="py-3 px-4 text-right">
-                          <span class="text-sm font-bold text-text-primary">{formatPrice(scooter.price)}</span>
-                        </td>
-                        <td class="py-3 px-3 text-right">
-                          <div class="flex items-center gap-1.5 justify-end">
-                            <button
-                              type="button"
-                              onclick={(e) => {
-                                e.stopPropagation();
-                                toggleCompare(scooter.key);
-                              }}
-                              class="w-5 h-5 rounded border flex items-center justify-center transition-all shrink-0
-                                {compareSelection.includes(scooter.key)
-                                ? 'bg-primary border-primary text-bg-primary'
-                                : 'border-white/20 hover:border-white/40'}"
-                              aria-label="{compareSelection.includes(scooter.key)
-                                ? 'Remove from'
-                                : 'Add to'} comparison"
-                              disabled={!compareSelection.includes(scooter.key) && compareSelection.length >= 3}
-                            >
-                              {#if compareSelection.includes(scooter.key)}
-                                <span class="text-[10px] font-bold">&#10003;</span>
-                              {/if}
-                            </button>
-                            <button
-                              type="button"
-                              onclick={(e) => {
-                                e.stopPropagation();
-                                loadPresetAndNavigate(scooter.key);
-                              }}
-                              class="text-[10px] font-bold text-primary hover:text-white hover:bg-primary/20 px-2.5 py-1 rounded transition-colors uppercase tracking-wider border border-primary/30"
-                            >
-                              Try it
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <!-- Score Breakdown Row -->
-                      {#if isExpanded}
-                        {@const b = scooter.breakdown}
-                        <tr class="bg-white/[0.02]">
-                          <td colspan="9" class="px-4 py-3">
-                            <div class="flex items-center gap-6 flex-wrap">
-                              <span class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider"
-                                >Score Breakdown:</span
-                              >
-                              <div class="flex items-center gap-1">
-                                <div class="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"></div>
-                                <span class="text-[10px] text-text-secondary">Accel</span>
-                                <span class="text-xs font-bold text-emerald-400">+{b.accel}</span>
-                                <span class="text-[9px] text-text-tertiary">/30</span>
-                              </div>
-                              <div class="flex items-center gap-1">
-                                <div class="w-2 h-2 rounded-full bg-blue-400" aria-hidden="true"></div>
-                                <span class="text-[10px] text-text-secondary">Range</span>
-                                <span class="text-xs font-bold text-blue-400">+{b.range}</span>
-                                <span class="text-[9px] text-text-tertiary">/25</span>
-                              </div>
-                              <div class="flex items-center gap-1">
-                                <div class="w-2 h-2 rounded-full bg-cyan-400" aria-hidden="true"></div>
-                                <span class="text-[10px] text-text-secondary">Speed</span>
-                                <span class="text-xs font-bold text-cyan-400">+{b.speed}</span>
-                                <span class="text-[9px] text-text-tertiary">/20</span>
-                              </div>
-                              <div class="flex items-center gap-1">
-                                <div class="w-2 h-2 rounded-full bg-violet-400" aria-hidden="true"></div>
-                                <span class="text-[10px] text-text-secondary">Efficiency</span>
-                                <span class="text-xs font-bold text-violet-400">+{b.efficiency}</span>
-                                <span class="text-[9px] text-text-tertiary">/15</span>
-                              </div>
-                              {#if b.strainPenalty > 0}
-                                <div class="flex items-center gap-1">
-                                  <div class="w-2 h-2 rounded-full bg-rose-400" aria-hidden="true"></div>
-                                  <span class="text-[10px] text-text-secondary">Strain</span>
-                                  <span class="text-xs font-bold text-rose-400">-{b.strainPenalty}</span>
-                                </div>
-                              {/if}
-                              {#if b.weightPenalty > 0}
-                                <div class="flex items-center gap-1">
-                                  <div class="w-2 h-2 rounded-full bg-orange-400" aria-hidden="true"></div>
-                                  <span class="text-[10px] text-text-secondary">Weight</span>
-                                  <span class="text-xs font-bold text-orange-400">-{b.weightPenalty}</span>
-                                </div>
-                              {/if}
-                              {#if scooter.valueScore}
-                                <div class="flex items-center gap-1 ml-auto border-l border-white/[0.08] pl-4">
-                                  <span class="text-[10px] text-text-secondary">Value</span>
-                                  <span class="text-xs font-bold text-amber-400">{scooter.valueScore}</span>
-                                  <span class="text-[9px] text-text-tertiary">pts/$k</span>
-                                </div>
-                              {/if}
-                            </div>
-                          </td>
-                        </tr>
-                      {/if}
+                      <RankingRow
+                        {scooter}
+                        {rank}
+                        tierMeta={tierMeta[grade]}
+                        {isExpanded}
+                        inCompareSelection={compareSelection.includes(scooter.key)}
+                        compareDisabled={!compareSelection.includes(scooter.key) && compareSelection.length >= 3}
+                        ontoggleexpand={() => (expandedScoreKey = isExpanded ? null : scooter.key)}
+                        ontogglecompare={() => toggleCompare(scooter.key)}
+                        onloadpreset={() => loadPresetAndNavigate(scooter.key)}
+                      />
                     {/each}
                   </tbody>
                 </table>
@@ -703,171 +451,18 @@
               <div class="md:hidden space-y-2.5">
                 {#each scooters as scooter}
                   {@const rank = rankMap.get(scooter.key) ?? 0}
-                  {@const b = scooter.breakdown}
                   {@const mobileExpanded = expandedScoreKey === scooter.key}
-                  <div class="border {tierMeta[grade].bg} {tierMeta[grade].border}">
-                    <!-- Top row: rank + name + score -->
-                    <button
-                      type="button"
-                      class="w-full text-left p-3.5"
-                      onclick={() => (expandedScoreKey = mobileExpanded ? null : scooter.key)}
-                    >
-                      <div class="flex items-start justify-between gap-2 mb-2.5">
-                        <div class="flex items-center gap-2.5 min-w-0">
-                          <span class="text-xs font-bold text-text-tertiary w-6 shrink-0">#{rank}</span>
-                          <div class="min-w-0">
-                            <a
-                              href="/scooter/{scooter.key}"
-                              class="text-sm font-bold text-text-primary hover:text-primary transition-colors truncate block"
-                              >{scooter.name}</a
-                            >
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                              <span class="text-[10px] text-text-tertiary">{scooter.year}</span>
-                              {#if scooter.status === 'discontinued'}
-                                <span
-                                  class="text-[8px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1 py-0.5 border border-rose-500/20"
-                                  >EOL</span
-                                >
-                              {/if}
-                              {#if scooter.hasPriceHistory && scooter.priceChange !== undefined}
-                                <span
-                                  class="inline-flex items-center gap-0.5 text-[8px] font-bold uppercase tracking-wider {scooter.priceChange <
-                                  0
-                                    ? 'text-emerald-400'
-                                    : 'text-rose-400'}"
-                                >
-                                  {#if scooter.priceChange < 0}<TrendingDown size={9} />{:else}<TrendingUp
-                                      size={9}
-                                    />{/if}{Math.abs(Math.round(scooter.priceChange))}%
-                                </span>
-                              {/if}
-                            </div>
-                          </div>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                          <span class="text-lg font-black {tierMeta[grade].color}">{scooter.score.toFixed(1)}</span>
-                          <span class="text-[10px] text-text-tertiary">/100</span>
-                        </div>
-                      </div>
-
-                      <!-- Score bar -->
-                      <div class="h-1 w-full bg-white/5 overflow-hidden mb-3">
-                        <div class="h-full {tierMeta[grade].bar}" style:width={`${scooter.score}%`}></div>
-                      </div>
-
-                      <!-- Stats row -->
-                      <div class="grid grid-cols-4 gap-2 text-center">
-                        <div>
-                          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Speed</div>
-                          <div class="text-xs font-bold text-text-primary mt-0.5">
-                            {Math.round(speedVal(scooter.stats.speed))}
-                          </div>
-                        </div>
-                        <div>
-                          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Range</div>
-                          <div class="text-xs font-bold text-text-primary mt-0.5">
-                            {Math.round(distanceVal(scooter.stats.totalRange))}
-                          </div>
-                        </div>
-                        <div>
-                          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Power</div>
-                          <div class="text-xs font-bold text-text-primary mt-0.5">
-                            {Math.round(scooter.stats.totalWatts)}W
-                          </div>
-                        </div>
-                        <div>
-                          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Price</div>
-                          <div class="text-xs font-bold text-text-primary mt-0.5">{formatPrice(scooter.price)}</div>
-                        </div>
-                      </div>
-                    </button>
-
-                    <!-- Expandable score breakdown -->
-                    {#if mobileExpanded}
-                      <div class="px-3.5 pb-3 space-y-2.5">
-                        <div class="bg-white/[0.03] rounded-lg p-2.5 border border-white/[0.06]">
-                          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider mb-2">
-                            Score Breakdown
-                          </div>
-                          <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
-                            <div class="flex items-center justify-between">
-                              <span class="text-[10px] text-text-secondary">Accel</span>
-                              <span class="text-[11px] font-bold text-emerald-400"
-                                >+{b.accel}<span class="text-text-tertiary font-normal">/30</span></span
-                              >
-                            </div>
-                            <div class="flex items-center justify-between">
-                              <span class="text-[10px] text-text-secondary">Range</span>
-                              <span class="text-[11px] font-bold text-blue-400"
-                                >+{b.range}<span class="text-text-tertiary font-normal">/25</span></span
-                              >
-                            </div>
-                            <div class="flex items-center justify-between">
-                              <span class="text-[10px] text-text-secondary">Speed</span>
-                              <span class="text-[11px] font-bold text-cyan-400"
-                                >+{b.speed}<span class="text-text-tertiary font-normal">/20</span></span
-                              >
-                            </div>
-                            <div class="flex items-center justify-between">
-                              <span class="text-[10px] text-text-secondary">Efficiency</span>
-                              <span class="text-[11px] font-bold text-violet-400"
-                                >+{b.efficiency}<span class="text-text-tertiary font-normal">/15</span></span
-                              >
-                            </div>
-                            {#if b.strainPenalty > 0}
-                              <div class="flex items-center justify-between">
-                                <span class="text-[10px] text-text-secondary">Strain</span>
-                                <span class="text-[11px] font-bold text-rose-400">-{b.strainPenalty}</span>
-                              </div>
-                            {/if}
-                            {#if b.weightPenalty > 0}
-                              <div class="flex items-center justify-between">
-                                <span class="text-[10px] text-text-secondary">Weight</span>
-                                <span class="text-[11px] font-bold text-orange-400">-{b.weightPenalty}</span>
-                              </div>
-                            {/if}
-                          </div>
-                          {#if scooter.valueScore}
-                            <div class="mt-2 pt-2 border-t border-white/[0.06] flex items-center justify-between">
-                              <span class="text-[10px] text-text-secondary">Value Score</span>
-                              <span class="text-[11px] font-bold text-amber-400"
-                                >{scooter.valueScore} <span class="text-text-tertiary font-normal">pts/$k</span></span
-                              >
-                            </div>
-                          {/if}
-                        </div>
-
-                        {#if scooter.stats.cRate > 2.5}
-                          <div
-                            class="inline-flex items-center gap-1 text-[9px] text-rose-400 font-bold uppercase tracking-wider"
-                          >
-                            <AlertTriangle size={10} /> Battery strain {scooter.stats.cRate.toFixed(1)}C
-                          </div>
-                        {/if}
-
-                        <div class="flex gap-2">
-                          <button
-                            type="button"
-                            onclick={() => toggleCompare(scooter.key)}
-                            class="flex-1 py-2 text-[10px] font-bold border rounded transition-colors uppercase tracking-wider
-                              {compareSelection.includes(scooter.key)
-                              ? 'text-primary bg-primary/10 border-primary/30'
-                              : 'text-text-tertiary hover:text-text-secondary border-white/10 hover:border-white/20'}"
-                            disabled={!compareSelection.includes(scooter.key) && compareSelection.length >= 3}
-                          >
-                            {compareSelection.includes(scooter.key) ? 'Selected' : 'Compare'}
-                          </button>
-                          <button
-                            type="button"
-                            onclick={() => loadPresetAndNavigate(scooter.key)}
-                            class="flex-1 py-2 text-[10px] font-bold text-primary hover:bg-primary/10 border border-primary/20 rounded transition-colors uppercase tracking-wider"
-                          >
-                            Calculator
-                          </button>
-                        </div>
-                      </div>
-                    {/if}
-                  </div>
+                  <RankingMobileCard
+                    {scooter}
+                    {rank}
+                    tierMeta={tierMeta[grade]}
+                    isExpanded={mobileExpanded}
+                    inCompareSelection={compareSelection.includes(scooter.key)}
+                    compareDisabled={!compareSelection.includes(scooter.key) && compareSelection.length >= 3}
+                    ontoggleexpand={() => (expandedScoreKey = mobileExpanded ? null : scooter.key)}
+                    ontogglecompare={() => toggleCompare(scooter.key)}
+                    onloadpreset={() => loadPresetAndNavigate(scooter.key)}
+                  />
                 {/each}
               </div>
             </section>

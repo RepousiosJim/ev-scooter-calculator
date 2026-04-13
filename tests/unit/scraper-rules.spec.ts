@@ -134,6 +134,42 @@ describe('getScraperRules – rule structure', () => {
 		expect(Array.isArray(rules!.urlPatterns)).toBe(true);
 		expect(rules!.urlPatterns.length).toBeGreaterThan(0);
 	});
+
+	it('Segway-Ninebot price transform parses a dollar amount string', () => {
+		const rules = getScraperRules('https://store.segway.com/ninebot-max');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('799.99')).toBe(799.99);
+	});
+
+	it('Segway-Ninebot price transform returns NaN for non-numeric input', () => {
+		const rules = getScraperRules('https://store.segway.com/ninebot-max');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('sold out')).toBeNaN();
+	});
+
+	it('Gotrax price transform parses a dollar amount string', () => {
+		const rules = getScraperRules('https://www.gotrax.com/products/xr-ultra');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('$249.00')).toBe(249);
+	});
+
+	it('Gotrax price transform returns NaN for non-numeric input', () => {
+		const rules = getScraperRules('https://www.gotrax.com/products/xr-ultra');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('out of stock')).toBeNaN();
+	});
+
+	it('Hiboy price transform parses a dollar amount string', () => {
+		const rules = getScraperRules('https://hiboy.com/products/hiboy-s2');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('$349.99')).toBe(349.99);
+	});
+
+	it('Hiboy price transform returns NaN for non-numeric input', () => {
+		const rules = getScraperRules('https://hiboy.com/products/hiboy-s2');
+		const transform = rules!.selectors.price!.transform!;
+		expect(transform('call for price')).toBeNaN();
+	});
 });
 
 // ---------------------------------------------------------------------------
