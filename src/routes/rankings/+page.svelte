@@ -6,7 +6,6 @@
   import { computeScoreBreakdown, getGrade, type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
-  import DataAuditPanel from '$lib/components/rankings/DataAuditPanel.svelte';
   import NewsletterSignup from '$lib/components/ui/NewsletterSignup.svelte';
   import { distanceVal, speedVal, distanceUnit, speedUnit } from '$lib/utils/units';
   import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
@@ -904,7 +903,9 @@
         <NewsletterSignup variant="inline" context="rankings" />
       </div>
 
-      <DataAuditPanel />
+      {#await import('$lib/components/rankings/DataAuditPanel.svelte') then { default: DataAuditPanel }}
+        <DataAuditPanel />
+      {/await}
 
       <!-- Footer -->
       <footer class="border-t border-white/5 mt-8 pt-6 pb-4">

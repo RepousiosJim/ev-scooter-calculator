@@ -13,17 +13,11 @@
   import ProfileManager from '$lib/components/calculator/ProfileManager.svelte';
   import BasicConfig from '$lib/components/calculator/BasicConfig.svelte';
   import AdvancedConfig from '$lib/components/calculator/AdvancedConfig.svelte';
-  import PowerGraph from '$lib/components/calculator/PowerGraph.svelte';
-  import UpgradeSimulator from '$lib/components/calculator/UpgradeSimulator.svelte';
-  import ComparisonDisplay from '$lib/components/calculator/ComparisonDisplay.svelte';
-  import ComparisonSummary from '$lib/components/calculator/ComparisonSummary.svelte';
   import PerformanceSummary from '$lib/components/calculator/PerformanceSummary.svelte';
   import EfficiencyPanel from '$lib/components/calculator/EfficiencyPanel.svelte';
   import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
-  import BottleneckPanel from '$lib/components/calculator/BottleneckPanel.svelte';
   import SectionDivider from '$lib/components/ui/SectionDivider.svelte';
   import RideModeSelector from '$lib/components/calculator/RideModeSelector.svelte';
-  import ScooterComparisonTable from '$lib/components/calculator/ScooterComparisonTable.svelte';
   import ShareButton from '$lib/components/ui/ShareButton.svelte';
 
   import VisualCRateIndicator from '$lib/components/ui/VisualCRateIndicator.svelte';
@@ -381,8 +375,12 @@
                     {#if showDetailedAnalysis}
                       <div id="detailed-analysis-panel" class="mt-6 space-y-6 animate-fadeIn">
                         <SectionDivider icon="chart" label="Power Analysis" />
-                        <PowerGraph />
-                        <BottleneckPanel />
+                        {#await import('$lib/components/calculator/PowerGraph.svelte') then { default: PowerGraph }}
+                          <PowerGraph />
+                        {/await}
+                        {#await import('$lib/components/calculator/BottleneckPanel.svelte') then { default: BottleneckPanel }}
+                          <BottleneckPanel />
+                        {/await}
                       </div>
                     {/if}
                   </div>
@@ -399,7 +397,9 @@
           <h2 id="upgrades-heading" class="sr-only">Upgrades</h2>
           <div class="space-y-6 md:space-y-8">
             <!-- Upgrade Simulator -->
-            <UpgradeSimulator />
+            {#await import('$lib/components/calculator/UpgradeSimulator.svelte') then { default: UpgradeSimulator }}
+              <UpgradeSimulator />
+            {/await}
 
             <!-- Upgrade Comparison -->
             {#if simStats && calculatorState.upgradeDelta}
@@ -460,8 +460,12 @@
                   />
                 </div>
 
-                <ComparisonSummary />
-                <ComparisonDisplay />
+                {#await import('$lib/components/calculator/ComparisonSummary.svelte') then { default: ComparisonSummary }}
+                  <ComparisonSummary />
+                {/await}
+                {#await import('$lib/components/calculator/ComparisonDisplay.svelte') then { default: ComparisonDisplay }}
+                  <ComparisonDisplay />
+                {/await}
               </div>
             {:else}
               <div class="bg-white/[0.03] border border-white/[0.08] rounded-2xl p-5 sm:p-6 md:p-10">
@@ -482,7 +486,9 @@
       <div aria-labelledby="compare-heading" id="compare-panel" role="tabpanel">
         {#if uiState.activeTab === 'compare'}
           <h2 id="compare-heading" class="sr-only">Scooter Comparison</h2>
-          <ScooterComparisonTable />
+          {#await import('$lib/components/calculator/ScooterComparisonTable.svelte') then { default: ScooterComparisonTable }}
+            <ScooterComparisonTable />
+          {/await}
         {/if}
       </div>
     </div>
