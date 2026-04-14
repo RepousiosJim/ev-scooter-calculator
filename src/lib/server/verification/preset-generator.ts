@@ -7,6 +7,9 @@ import type { DiscoveredScooter } from './discovery';
 import type { ScooterVerification, SpecField } from './types';
 import { validateConfig, type ValidationResult } from './physics-validator';
 
+/** Quality tier indicating how much real data we have for this candidate */
+export type SpecsQuality = 'complete' | 'partial' | 'stub';
+
 export interface PresetCandidate {
 	/** Unique key for the preset (e.g., "varla_eagle_one") */
 	key: string;
@@ -25,9 +28,23 @@ export interface PresetCandidate {
 		motorWatts?: number;
 		weight?: number;
 		wheelSize?: number;
+		/** Extended identity fields */
+		ampHours?: number;
+		chargerAmps?: number;
+		chargeTime?: number;
+		motorCount?: number;
+		motorType?: 'hub' | 'belt' | 'chain';
+		tireType?: 'pneumatic' | 'solid' | 'honeycomb';
+		suspensionType?: 'none' | 'spring' | 'hydraulic' | 'air';
+		ipRating?: string;
+		brakeType?: 'disc' | 'drum' | 'electronic' | 'regenerative';
+		maxRiderWeight?: number;
+		hillGrade?: number;
 	};
 	/** Physics validation result */
 	validation: ValidationResult;
+	/** How much real data we have ('complete' = 3+ specs, 'partial' = 1-2, 'stub' = defaults only) */
+	specsQuality: SpecsQuality;
 	/** Data source info */
 	sources: {
 		discoveredFrom?: string;
@@ -41,16 +58,206 @@ export interface PresetCandidate {
 }
 
 /**
- * Generate a preset key from a scooter name.
- * e.g., "Varla Eagle One" → "varla_eagle_one"
+ * Marketing suffixes stripped from product names before key generation.
+ * Ordered longest-first to avoid partial matches.
  */
-export function generatePresetKey(name: string): string {
-	return name
-		.toLowerCase()
-		.replace(/[()]/g, '')
+const MARKETING_SUFFIXES = [
+	// Long phrases first (longest-first order to avoid partial matches)
+	'with app control adult',
+	'built for daily commutes',
+	'strong yet comfortable ride',
+	'full suspension comfort up to',
+	'greater market range',
+	'front suspension teens adults',
+	'for kids and adults',
+	'teens and adults',
+	'teens adults',
+	'foldable handlebar',
+	'upgraded version',
+	'2026 upgraded',
+	'2025 upgraded',
+	'2024 upgraded',
+	'best budget',
+	'maximum power',
+	"world's first bike",
+	"world's first",
+	'worlds first',
+	'electric scooter',
+	'eco friendly',
+	'eco-friendly',
+	'dgt certified',
+	'abe certified',
+	'all terrain',
+	'all-terrain',
+	'new release',
+	'new arrival',
+	'single motor',
+	'dual motor',
+	'long range',
+	'commuting',
+	'off road',
+	'off-road',
+	'big wheel',
+	'big-wheel',
+	'for adults',
+	'for kids',
+	'e-scooter',
+	'escooter',
+	'foldable',
+	'powerful',
+	'high end',
+	'high-end',
+	'premium',
+	'urban',
+	'smart',
+	'ekfv',
+];
+
+/**
+ * Generate a preset key from a scooter name.
+ * Strips marketing text, normalizes to a clean identifier.
+ *
+ * e.g., "isinwheel S10MAX 1000W High-End Commuting Electric Scooter 2026 Upgraded Version"
+ *       → "isinwheel_s10max_1000w"
+ *
+ * e.g., "Varla Eagle One V3.0 Off-Road Explorer" → "varla_eagle_one_v3_0"
+ */
+/** Known manufacturer IDs for cross-prefix detection */
+const KNOWN_MANUFACTURER_IDS = new Set([
+	'apollo',
+	'segway',
+	'kaabo',
+	'emove',
+	'nami',
+	'vsett',
+	'xiaomi',
+	'niu',
+	'gotrax',
+	'hiboy',
+	'dualtron',
+	'inmotion',
+	'teverun',
+	'unagi',
+	'inokim',
+	'navee',
+	'varla',
+	'zero',
+	'blade',
+	'mercane',
+	'turboant',
+	'levy',
+	'pure',
+	'uscooters',
+	'mukuta',
+	'roadrunner',
+	'evercross',
+	'nanrobot',
+	'joyor',
+	'yume',
+	'weped',
+	'currus',
+	'speedway',
+	'razor',
+	'hover1',
+	'kugoo',
+	'yadea',
+	'sxt',
+	'oxboards',
+	'fluid',
+	'techlife',
+	'fluidfreeride',
+	'voromotors',
+	'revrides',
+	'isinwheel',
+	'ninebot',
+	'minimotors',
+]);
+
+export function generatePresetKey(name: string, manufacturerId?: string): string {
+	let clean = name.toLowerCase().trim();
+
+	// Strip "Product Name :" prefix (raw data artifact from some sites)
+	clean = clean.replace(/^product\s+name\s*:\s*/i, '');
+
+	// Strip price strings embedded in the name: €862,95  $599  £1,299.00
+	clean = clean.replace(/[€$£]\s*[\d,]+\.?\d*/g, '');
+	clean = clean.replace(/\d+[.,]\d{2,}\s*[€$£]/g, '');
+
+	// Strip "E-Scooter", "Electric Scooter", "Escooter", "e-scooter" labels
+	clean = clean.replace(/\belectric\s+scooter\b/gi, '');
+	clean = clean.replace(/\be-scooter\b/gi, '');
+	clean = clean.replace(/\bescooter\b/gi, '');
+
+	// Strip wattage patterns: "800W", "1200W", "2x1600W", "500w"
+	clean = clean.replace(/\b\d+x?\d*\s*w\b/gi, '');
+
+	// Strip "model YYYY" certification labels
+	clean = clean.replace(/\bmodel\s+\d{4}\b/gi, '');
+
+	// Strip marketing suffixes (longest first to avoid partial matches)
+	for (const suffix of MARKETING_SUFFIXES) {
+		// Replace suffix anywhere, case-insensitive, with optional surrounding dashes/spaces
+		clean = clean.replace(
+			new RegExp(`[\\s\\-–]*${suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\-–]*`, 'gi'),
+			' '
+		);
+	}
+
+	// Strip speed/range marketing: "20 MPH Speed", "42-Mile Range", "25 MPH"
+	clean = clean.replace(/\d+[\s-]*(mph|km\/h)\s*(speed)?/gi, '');
+	clean = clean.replace(/\d+[\s-]*(mile|km)\s*(range)?/gi, '');
+
+	// Strip spec-in-name marketing when redundant: "72V 25Ah" but keep "1000W" as it's often part of model name
+	// Only strip "NNV NNAh" if there's other identifying text
+	const modelWords = clean.replace(/\d+v\s*\d+ah/gi, '').trim();
+	if (modelWords.length > 5) {
+		clean = modelWords;
+	}
+
+	// Strip common filler words at the end: "Ce...", "Samsung Ce..."
+	clean = clean.replace(/\bsamsung\b.*$/i, '').trim();
+	clean = clean.replace(/\bce\.{2,}.*$/i, '').trim();
+
+	// Normalize separators
+	clean = clean
+		.replace(/[()[\]{}]/g, '')
 		.replace(/[^a-z0-9]+/g, '_')
 		.replace(/^_|_$/g, '')
 		.replace(/_+/g, '_');
+
+	// If manufacturer ID is provided but already at start, don't duplicate
+	if (manufacturerId) {
+		const mfr = manufacturerId.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+		if (!clean.startsWith(mfr)) {
+			// Detect cross-manufacturer prefix: if the first segment of the cleaned name
+			// is actually a DIFFERENT known manufacturer, remove it before prefixing
+			const firstSegment = clean.split('_')[0];
+			if (KNOWN_MANUFACTURER_IDS.has(firstSegment) && firstSegment !== mfr) {
+				clean = clean.slice(firstSegment.length).replace(/^_/, '');
+			}
+			clean = `${mfr}_${clean}`;
+		}
+	}
+
+	// Truncate to 45 chars (leaves headroom under 50-char limit)
+	if (clean.length > 45) {
+		clean = clean.slice(0, 45);
+		// Don't end on a partial word — trim to last underscore
+		const lastUnderscore = clean.lastIndexOf('_');
+		if (lastUnderscore > 10) {
+			clean = clean.slice(0, lastUnderscore);
+		}
+	}
+
+	// Final cleanup
+	clean = clean.replace(/^_|_$/g, '').replace(/_+/g, '_');
+
+	// Ensure it starts with a letter (prefix with 'x' if starts with number)
+	if (/^\d/.test(clean)) {
+		clean = `x${clean}`;
+	}
+
+	return clean || 'unknown_scooter';
 }
 
 /**
@@ -148,7 +355,30 @@ export function specsToConfig(specs: {
 }
 
 /**
+ * Assess the quality of discovered specs.
+ * - 'complete': has 3+ real specs (voltage/batteryWh + motorWatts + at least one of topSpeed/range/weight)
+ * - 'partial': has 1-2 real specs (e.g., just price, or just motorWatts)
+ * - 'stub': no real specs at all — defaults only
+ */
+export function assessSpecsQuality(specs: Record<string, number | undefined>): SpecsQuality {
+	const realSpecs = [
+		specs.voltage,
+		specs.batteryWh,
+		specs.motorWatts,
+		specs.topSpeed,
+		specs.range,
+		specs.weight,
+		specs.wheelSize,
+	].filter((v) => v !== undefined && v > 0);
+
+	if (realSpecs.length >= 3) return 'complete';
+	if (realSpecs.length >= 1) return 'partial';
+	return 'stub';
+}
+
+/**
  * Create a full preset candidate from a discovered scooter.
+ * Uses smarter key generation and tracks specs quality.
  */
 export function createCandidate(discovered: DiscoveredScooter, verification?: ScooterVerification): PresetCandidate {
 	// Merge discovery specs with verification data (verification takes priority)
@@ -184,8 +414,28 @@ export function createCandidate(discovered: DiscoveredScooter, verification?: Sc
 	}
 
 	const config = specsToConfig(specs as Parameters<typeof specsToConfig>[0]);
+	const specsQuality = assessSpecsQuality(specs);
+
+	// Add a validation issue if specs quality is poor
 	const validation = validateConfig(config, { batteryWh: specs.batteryWh as number | undefined });
-	const key = discovered.matchedKey || generatePresetKey(discovered.name);
+	if (specsQuality === 'stub') {
+		validation.issues.push({
+			field: 'batteryWh',
+			severity: 'error',
+			message: 'Insufficient specs: no real data extracted — all values are defaults',
+		});
+		validation.confidence = Math.min(validation.confidence, 20);
+	} else if (specsQuality === 'partial') {
+		validation.issues.push({
+			field: 'batteryWh',
+			severity: 'warning',
+			message: 'Partial specs: some values are inferred defaults — needs enrichment',
+		});
+		validation.confidence = Math.min(validation.confidence, 60);
+	}
+
+	// Use smarter key generation with manufacturer context
+	const key = discovered.matchedKey || generatePresetKey(discovered.name, discovered.manufacturerId);
 
 	return {
 		key,
@@ -201,6 +451,7 @@ export function createCandidate(discovered: DiscoveredScooter, verification?: Sc
 			weight: specs.weight as number | undefined,
 			wheelSize: specs.wheelSize as number | undefined,
 		},
+		specsQuality,
 		validation,
 		sources: {
 			discoveredFrom: discovered.manufacturer,

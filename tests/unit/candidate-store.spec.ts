@@ -39,6 +39,7 @@ function makeCandidate(key: string, overrides: Partial<PresetCandidate> = {}): P
 		},
 		manufacturerSpecs: { topSpeed: 30, range: 40 },
 		validation: { valid: true, issues: [], confidence: 80 },
+		specsQuality: 'partial' as const,
 		sources: { discoveredFrom: 'Test', extractedAt: new Date().toISOString() },
 		status: 'pending',
 		...overrides,

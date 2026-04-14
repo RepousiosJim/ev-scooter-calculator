@@ -17,6 +17,7 @@ import {
 	generatePresetCode,
 	generatePresetKey,
 	specsToConfig,
+	assessSpecsQuality,
 	type PresetCandidate,
 } from '$lib/server/verification/preset-generator';
 import { validateConfig } from '$lib/server/verification/physics-validator';
@@ -267,6 +268,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 					weight: specs?.weight,
 					wheelSize: specs?.wheelSize,
 				},
+				specsQuality: assessSpecsQuality(specs || {}),
 				validation,
 				sources: {
 					discoveredFrom: 'Manual Entry',

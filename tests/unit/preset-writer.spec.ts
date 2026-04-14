@@ -130,6 +130,7 @@ function makeCandidate(key: string): PresetCandidate {
 			price: 1500,
 		},
 		validation: { isValid: true, warnings: [], errors: [], confidence: 80 } as any,
+		specsQuality: 'partial' as const,
 		sources: { discoveredFrom: 'https://test.com', extractedAt: new Date().toISOString() },
 		status: 'pending',
 	};

@@ -42,13 +42,19 @@ async function saveCandidates(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 function rowToCandidate(row: Record<string, unknown>): PresetCandidate {
+	const validation = row.validation as PresetCandidate['validation'] & { specsQuality?: string };
+	// specsQuality is embedded in validation JSON for Supabase compatibility
+	const specsQuality = (validation?.specsQuality ||
+		(row as Record<string, unknown>).specsQuality ||
+		'partial') as PresetCandidate['specsQuality'];
 	return {
 		key: row.key as string,
 		name: row.name as string,
 		year: row.year as number,
 		config: row.config as PresetCandidate['config'],
 		manufacturerSpecs: row.manufacturer_specs as PresetCandidate['manufacturerSpecs'],
-		validation: row.validation as PresetCandidate['validation'],
+		validation,
+		specsQuality,
 		sources: row.sources as PresetCandidate['sources'],
 		status: row.status as PresetCandidate['status'],
 		notes: row.notes as string | undefined,
@@ -56,13 +62,16 @@ function rowToCandidate(row: Record<string, unknown>): PresetCandidate {
 }
 
 function candidateToRow(c: PresetCandidate) {
+	// Note: specs_quality is stored in the validation JSON for Supabase compatibility
+	// (avoids needing a schema migration for the new column)
+	const validationWithQuality = { ...c.validation, specsQuality: c.specsQuality || 'partial' };
 	return {
 		key: c.key,
 		name: c.name,
 		year: c.year,
 		config: toJson(c.config),
 		manufacturer_specs: toJson(c.manufacturerSpecs),
-		validation: toJson(c.validation),
+		validation: toJson(validationWithQuality),
 		sources: toJson(c.sources),
 		status: c.status,
 		notes: c.notes ?? null,

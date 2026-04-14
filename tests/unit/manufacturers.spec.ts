@@ -129,9 +129,9 @@ describe('getScrapableManufacturers', () => {
 		expect(result.length).toBeGreaterThan(0);
 	});
 
-	it('segway appears in scrapable manufacturers (scrapable=true)', () => {
+	it('segway does not appear in scrapable manufacturers (scrapable=false, JS-rendered)', () => {
 		const result = getScrapableManufacturers();
-		expect(result.some((m) => m.id === 'segway')).toBe(true);
+		expect(result.some((m) => m.id === 'segway')).toBe(false);
 	});
 
 	it('apollo does not appear in scrapable manufacturers (scrapable=false)', () => {
@@ -142,5 +142,10 @@ describe('getScrapableManufacturers', () => {
 	it('xiaomi does not appear in scrapable manufacturers (scrapable=false)', () => {
 		const result = getScrapableManufacturers();
 		expect(result.some((m) => m.id === 'xiaomi')).toBe(false);
+	});
+
+	it('kaabo appears in scrapable manufacturers (scrapable=true)', () => {
+		const result = getScrapableManufacturers();
+		expect(result.some((m) => m.id === 'kaabo')).toBe(true);
 	});
 });

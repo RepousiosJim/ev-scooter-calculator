@@ -150,9 +150,31 @@ describe('createCandidate', () => {
 	});
 
 	it('generates key from name when matchedKey is absent', () => {
-		const discovered = makeDiscovered({ name: 'Apollo City 2024', matchedKey: undefined });
+		const discovered = makeDiscovered({ name: 'Apollo City 2024', matchedKey: undefined, manufacturerId: undefined });
 		const candidate = createCandidate(discovered);
 		expect(candidate.key).toBe('apollo_city_2024');
+	});
+
+	it('prefixes manufacturerId when it is not already in the name', () => {
+		const discovered = makeDiscovered({ name: 'Max G30 2024', matchedKey: undefined, manufacturerId: 'segway' });
+		const candidate = createCandidate(discovered);
+		expect(candidate.key).toBe('segway_max_g30_2024');
+	});
+
+	it('strips wrong manufacturer prefix when a different brand name leads the product name', () => {
+		const discovered = makeDiscovered({
+			name: 'isinwheel GT1 800W',
+			matchedKey: undefined,
+			manufacturerId: 'turboant',
+		});
+		const candidate = createCandidate(discovered);
+		expect(candidate.key).toBe('turboant_gt1');
+	});
+
+	it('does not duplicate manufacturerId when name already starts with it', () => {
+		const discovered = makeDiscovered({ name: 'Segway Max G2', matchedKey: undefined, manufacturerId: 'segway' });
+		const candidate = createCandidate(discovered);
+		expect(candidate.key).toBe('segway_max_g2');
 	});
 
 	it('defaults year to current year when not provided', () => {
@@ -302,6 +324,7 @@ describe('generatePresetCode', () => {
 				price: 899,
 			},
 			validation: { valid: true, issues: [], confidence: 90 },
+			specsQuality: 'partial' as const,
 			sources: { discoveredFrom: 'Segway', extractedAt: new Date().toISOString() },
 			status: 'pending',
 		};

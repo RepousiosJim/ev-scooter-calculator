@@ -133,8 +133,9 @@ export async function onCandidateApproved(candidateKey: string, candidate: Prese
 
 	// 1. Seed verification store from manufacturerSpecs
 	for (const [specKey, mapping] of Object.entries(MANUFACTURER_SPEC_MAP)) {
-		const value = candidate.manufacturerSpecs[specKey as keyof typeof candidate.manufacturerSpecs];
-		if (value === undefined || value === null) continue;
+		const rawValue = candidate.manufacturerSpecs[specKey as keyof typeof candidate.manufacturerSpecs];
+		if (rawValue === undefined || rawValue === null || typeof rawValue !== 'number') continue;
+		const value: number = rawValue;
 
 		const sourceEntry: SourceEntry = {
 			id: randomBytes(8).toString('hex'),

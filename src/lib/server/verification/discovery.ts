@@ -4,6 +4,7 @@ import type { Manufacturer } from './manufacturers';
 import { presetMetadata } from '$lib/data/presets';
 import { extractProductsFromHTML, fetchPage, type ExtractedProduct } from './html-extractor';
 import { throttleGemini, markRateLimited, isGeminiAvailable } from './gemini-limiter';
+import { areModelsEquivalent, extractCoreModel } from './model-normalizer';
 
 export interface DiscoveredScooter {
 	name: string;
@@ -117,19 +118,19 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 		}
 	}
 
-	// Deduplicate by name (case-insensitive)
+	// Deduplicate by core model identifier (catches "VSETT 8+ Dual Motor" = "VSETT 8+")
 	const seen = new Set<string>();
 	result.scooters = result.scooters.filter((s) => {
-		const key = s.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-		if (seen.has(key)) return false;
-		seen.add(key);
+		const coreKey = extractCoreModel(s.name, s.manufacturerId);
+		if (!coreKey || seen.has(coreKey)) return false;
+		seen.add(coreKey);
 		return true;
 	});
 
 	// Deduplicate methods
 	result.methods = [...new Set(result.methods)];
 
-	// Match against existing presets using the pre-built Map (O(n) not O(n²))
+	// Match against existing presets using semantic equivalence
 	for (const scooter of result.scooters) {
 		const nameLower = scooter.name.toLowerCase();
 
@@ -140,9 +141,9 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 			continue;
 		}
 
-		// Fuzzy match — iterate the Map once per scooter (still O(n) but no repeated array allocation)
+		// Semantic match using model normalizer (handles marketing text, manufacturer prefixes)
 		for (const [existingName, key] of presetNameToKey) {
-			if (computeSimilarity(nameLower, existingName) > 0.7) {
+			if (areModelsEquivalent(scooter.name, existingName, scooter.manufacturerId)) {
 				scooter.isKnown = true;
 				scooter.matchedKey = key;
 				break;
@@ -361,16 +362,5 @@ function stripHtmlForLLM(html: string, url: string): string {
 		.join('\n');
 }
 
-/** Simple string similarity (Jaccard on character bigrams) */
-function computeSimilarity(a: string, b: string): number {
-	const bigramsA = new Set<string>();
-	const bigramsB = new Set<string>();
-	for (let i = 0; i < a.length - 1; i++) bigramsA.add(a.slice(i, i + 2));
-	for (let i = 0; i < b.length - 1; i++) bigramsB.add(b.slice(i, i + 2));
-
-	let intersection = 0;
-	for (const bg of bigramsA) if (bigramsB.has(bg)) intersection++;
-
-	const union = bigramsA.size + bigramsB.size - intersection;
-	return union === 0 ? 0 : intersection / union;
-}
+// Note: computeSimilarity() was moved to model-normalizer.ts
+// Discovery now uses areModelsEquivalent() for smarter semantic matching.

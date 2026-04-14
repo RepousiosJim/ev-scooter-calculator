@@ -417,65 +417,179 @@ function cleanProductName(name: string): string {
 	);
 }
 
+/** Known electric scooter manufacturer names for positive signal matching */
+const KNOWN_SCOOTER_BRANDS = new Set([
+	'xiaomi',
+	'segway',
+	'ninebot',
+	'kaabo',
+	'dualtron',
+	'minimotors',
+	'nami',
+	'vsett',
+	'emove',
+	'apollo',
+	'gotrax',
+	'hiboy',
+	'niu',
+	'navee',
+	'isinwheel',
+	'nanrobot',
+	'varla',
+	'teverun',
+	'inmotion',
+	'inokim',
+	'fluid',
+	'hover-1',
+	'hover1',
+	'zero',
+	'mercane',
+	'levy',
+	'mukuta',
+	'evercross',
+	'joyor',
+	'speedway',
+	'weped',
+	'blade',
+	'pure electric',
+	'hooga',
+	'sxt',
+	'yadea',
+	'razor',
+	'turboant',
+	'urbanglide',
+	'kugoo',
+	'aovo',
+	'aovopro',
+	'mantis',
+	'wolf',
+	'thunder',
+	'eagle',
+	'falcon',
+	'cruiser',
+	'roadster',
+	'phantom',
+	'titan',
+	'storm',
+	'spider',
+	'viper',
+]);
+
 /** Filter out products that are clearly not electric scooters */
 function isLikelyScooter(product: ExtractedProduct): boolean {
 	const name = product.name.toLowerCase();
+	const nameTrimmed = name.trim();
 
-	// Exclude non-scooter items (accessories, parts, other vehicles)
+	// --- Hard exclusions: definitely NOT a scooter ---
+
+	// Too short or too long to be a real product name
+	if (nameTrimmed.length < 3 || nameTrimmed.length > 100) return false;
+
+	// Generic / navigation page text (exact match or near-exact for short junk strings)
+	const genericNames = [
+		'purchase',
+		'sold out',
+		'lookbook',
+		'contact',
+		'about',
+		'blog',
+		'news',
+		'support',
+		'faq',
+		'cart',
+		'checkout',
+		'account',
+		'login',
+		'register',
+		'sign up',
+		'lineup',
+		'collection',
+		'catalog',
+		'catalogue',
+		'menu',
+	];
+	if (genericNames.includes(nameTrimmed)) return false;
+
+	// Navigation / marketing text (starts with)
+	if (/^(view|shop|buy|see|browse|all|home|about|contact|learn|read|sign|log|create|subscribe)/i.test(nameTrimmed))
+		return false;
+
+	// Reject if price is embedded in the name (e.g., "ZERO 9 €862,95" or "$599")
+	if (/[€$£]\s*\d+/i.test(name) || /\d+[.,]\d{2}\s*[€$£]/i.test(name)) return false;
+
+	// Reject used / refurbished items: "97% New", "refurbished", "pre-owned", "open box"
+	if (/\d+%\s*new\b/i.test(name)) return false;
+	if (/\b(refurbished|pre-owned|pre owned|open box|used|certified used)\b/i.test(name)) return false;
+
+	// Reject kids items
+	if (/\bkids\b/i.test(name)) return false;
+	if (/\btoy\b/i.test(name)) return false;
+	if (/\bfor children\b/i.test(name)) return false;
+	if (/\baged\s+\d/i.test(name)) return false;
+
+	// Reject electric bikes (unless it also says "scooter")
+	if (!name.includes('scooter')) {
+		if (/\b(electric bike|e-bike|ebike)\b/i.test(name)) return false;
+	}
+
+	// Reject 3-wheel / tricycle items
+	if (/\b3\s*wheel/i.test(name) || /\bthree\s*wheel/i.test(name) || /\btricycle\b/i.test(name)) return false;
+
+	// Exclude accessories, parts, other vehicles
 	const excludeTerms = [
+		// Accessories — standalone items
 		'helmet',
 		'glove',
 		'lock',
 		'bag',
 		'backpack',
-		'charger',
+		'charger only',
+		'charging cable',
 		'tire',
 		'tyre',
-		'tube',
+		'inner tube',
+		'outer tube',
 		'brake pad',
 		'brake rotor',
 		'brake disc',
 		'brake caliper',
 		'fender',
-		'light',
 		'horn',
 		'bell',
 		'phone mount',
+		'phone holder',
 		'mirror',
-		'seat',
 		'basket',
-		'chain',
 		'grip',
 		'handlebar grip',
 		'sticker',
 		'decal',
 		'cover',
-		'case',
-		'stand',
+		'carrying case',
 		'rack',
-		'mount',
 		'gift card',
 		'warranty',
 		'insurance',
 		'subscription',
-		'service',
-		'bicycle',
-		'bike',
-		'motorcycle',
-		'moped',
-		'go-kart',
-		'gokart',
-		'hoverboard',
-		'unicycle',
-		'skateboard',
-		'onewheel',
+		'protection plan',
+		'service plan',
+		'extended warranty',
+		'steering damper',
+		'mudguard',
+		'seat cover',
+		'seat attachment',
+		'sim card',
+		'data plan',
+		'recharge plan',
+		'data recharge',
+		'light set',
+		'light kit',
+		// Parts & hardware
 		'spare part',
 		'replacement',
 		'accessory',
 		'accessories',
 		'bundle deal',
-		'protection plan',
-		// Hardware & parts
 		'bolt',
 		'screw',
 		'nut',
@@ -488,35 +602,121 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
 		'clamp',
 		'bracket',
 		'plate',
-		'pad',
 		'rotor',
 		'caliper',
 		'lever',
 		'cable',
 		'wire',
 		'connector',
-		'controller',
+		'controller board',
 		'throttle',
-		'display',
 		'dashboard',
-		'mudguard',
 		'kickstand',
 		'footrest',
-		'deck',
+		'deck plate',
 		'stem',
-		// Pack/set items (usually parts)
-		'pack)',
-		'set)',
-		'pair)',
+		'battery pack',
+		'battery replacement',
+		'battery upgrade',
+		// Other vehicles (non-scooter)
+		'bicycle',
+		'motorcycle',
+		'moped',
+		'motorbike',
+		'go-kart',
+		'gokart',
+		'go kart',
+		'hoverboard',
+		'unicycle',
+		'euc',
+		'skateboard',
+		'onewheel',
+		'segway ninebot s',
+		'balance scooter',
+		'dirt bike',
+		'pit bike',
+		'atv',
+		'quad',
+		// Kids / toys (additional patterns)
+		'for toddler',
+		'for kids under',
+		'toy scooter',
+		'toy car',
+		'ride-on toy',
+		'ride on toy',
+		// Clothing & apparel
+		't-shirt',
+		'tshirt',
+		'hoodie',
+		'hat',
+		'cap',
+		'jersey',
+		'jacket',
+		'pants',
+		'shorts',
+		'socks',
+		'shoe',
+		'boot',
+		'knee pad',
+		'elbow pad',
 	];
 	if (excludeTerms.some((term) => name.includes(term))) return false;
 
-	// Exclude items starting with quantity patterns like "(2 Pack)", "(4 Pack)"
-	if (/^\(\d+\s*(pack|set|pair|pc)/i.test(name)) return false;
+	// Reject standalone "charger" (but not model names like "Super Charger" that are scooters)
+	// Match: "KQi Super Charger", "KQi 100 Charger", "Charger 42V 2A"
+	// A charger is standalone if "charger" is the last word or followed by specs (voltage/amps)
+	if (/\bcharger\b/i.test(name) && !/\bscooter\b/i.test(name)) return false;
 
-	// Must be a product with some substance (not just "View All" or "Shop Now")
-	if (name.length < 5) return false;
-	if (/^(view|shop|buy|see|browse|all|home|about|contact)/i.test(name)) return false;
+	// Reject standalone "battery" (but keep model names containing "battery" if also scooter)
+	if (/\bbattery\b/i.test(name) && !/\bscooter\b/i.test(name)) return false;
+
+	// Reject names starting with accessory-like prefixes (e.g., "Steering Damper - RoadRunner RS5")
+	if (/^(steering damper|fender|mudguard|seat|light|mirror|bell|mount|stand|basket|rack)\b/i.test(nameTrimmed))
+		return false;
+
+	// Reject "Product Name :" prefix as raw data artifact
+	if (/^product name\s*:/i.test(nameTrimmed)) return false;
+
+	// Exclude items with quantity patterns like "(2 Pack)", "Set of 4", "2x"
+	if (/^\(\d+\s*(pack|set|pair|pc|pcs)\)/i.test(name)) return false;
+	if (/\bset of \d+\b/i.test(name)) return false;
+	if (/^\d+x\s/i.test(name)) return false;
+
+	// Exclude manual/non-electric kick scooters
+	if (/\b(manual|non-electric|non electric|push|kick)\s+scooter\b/i.test(name)) return false;
+	// "kick scooter" without "electric" is usually non-electric
+	if (name.includes('kick scooter') && !name.includes('electric')) return false;
+
+	// Exclude if it's clearly just a spec mention, not a product name
+	// e.g., "48V 20Ah Lithium Battery" or "1000W Brushless Motor"
+	if (/^\d+\s*(v|ah|wh|w|a)\b/i.test(nameTrimmed) && !name.includes('scooter')) return false;
+
+	// --- Price reasonableness check ---
+	if (product.price !== undefined) {
+		// Electric scooters generally $100-$15,000; $0 or $1 items are freebies/errors
+		if (product.price < 80 || product.price > 15000) return false;
+	}
+
+	// --- Positive signal check (at least one must match) ---
+	// Known brand name, model pattern, or "scooter" keyword
+	const hasScooterKeyword = /\b(scooter|e-scooter|escooter)\b/i.test(name);
+	const hasKnownBrand = [...KNOWN_SCOOTER_BRANDS].some((brand) => name.includes(brand));
+	const hasModelPattern = /\b[a-z]{1,3}\d{1,4}\b/i.test(name); // e.g., S2, G3, KQi3, M365
+	const hasProductUrl = product.url && /\/(products?|scooter|e-scooter)\//i.test(product.url);
+	const hasVoltageInName = /\b(36|48|52|60|72)v\b/i.test(name);
+	const hasWattageInName = /\b\d{3,5}\s*w\b/i.test(name);
+
+	// Must have at least one positive signal
+	if (
+		!hasScooterKeyword &&
+		!hasKnownBrand &&
+		!hasModelPattern &&
+		!hasProductUrl &&
+		!hasVoltageInName &&
+		!hasWattageInName
+	) {
+		return false;
+	}
 
 	return true;
 }
