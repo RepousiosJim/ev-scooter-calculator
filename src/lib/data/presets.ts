@@ -4680,7 +4680,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	quick_4: {
-		name: 'Quick 4',
+		name: 'Inokim Quick 4',
 		year: 2026,
 		manufacturer: { topSpeed: 60, range: 56, batteryWh: 676, price: 1699 },
 		addedDate: '2026-04-13',
@@ -4690,7 +4690,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	sonic_nano: {
-		name: 'Sonic Nano',
+		name: 'Dualtron Sonic Nano',
 		year: 2026,
 		manufacturer: { topSpeed: 40, range: 40, batteryWh: 630, price: 999 },
 		addedDate: '2026-04-13',
@@ -4700,7 +4700,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	dolphin: {
-		name: 'Dolphin',
+		name: 'Dualtron Dolphin',
 		year: 2026,
 		manufacturer: { topSpeed: 50, range: 50, batteryWh: 900, price: 1499 },
 		addedDate: '2026-04-13',
@@ -4710,7 +4710,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	compact: {
-		name: 'Compact',
+		name: 'Dualtron Compact',
 		year: 2026,
 		manufacturer: { topSpeed: 60, range: 56, batteryWh: 780, price: 1899 },
 		addedDate: '2026-04-13',
@@ -4720,7 +4720,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	aminia: {
-		name: 'Aminia',
+		name: 'Minimotors Aminia',
 		year: 2026,
 		manufacturer: { topSpeed: 60, range: 64, batteryWh: 1050, price: 2199 },
 		addedDate: '2026-04-13',
@@ -4730,7 +4730,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	forever_2_0: {
-		name: 'Forever 2.0',
+		name: 'Minimotors Forever 2.0',
 		year: 2026,
 		manufacturer: { topSpeed: 89, range: 145, batteryWh: 2100, price: 4199 },
 		addedDate: '2026-04-13',
@@ -4740,7 +4740,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	forever: {
-		name: 'Forever',
+		name: 'Minimotors Forever',
 		year: 2026,
 		manufacturer: { topSpeed: 89, range: 130, batteryWh: 1800, price: 3699 },
 		addedDate: '2026-04-13',
@@ -4750,7 +4750,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	victor_limited: {
-		name: 'Victor Limited',
+		name: 'Dualtron Victor Limited',
 		year: 2026,
 		manufacturer: { topSpeed: 80, range: 120, batteryWh: 2100, price: 3999 },
 		addedDate: '2026-04-13',
@@ -4760,7 +4760,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	spider_max: {
-		name: 'Spider Max',
+		name: 'Dualtron Spider Max',
 		year: 2026,
 		manufacturer: { topSpeed: 72, range: 100, batteryWh: 1470, price: 3199 },
 		addedDate: '2026-04-13',
@@ -4770,7 +4770,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	new_storm: {
-		name: 'New Storm',
+		name: 'Minimotors New Storm',
 		year: 2026,
 		manufacturer: { topSpeed: 89, range: 120, batteryWh: 2268, price: 4899 },
 		addedDate: '2026-04-13',
@@ -4950,7 +4950,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	punk_rider: {
-		name: 'Punk Rider',
+		name: 'Dualtron Punk Rider',
 		year: 2026,
 		manufacturer: { topSpeed: 40, range: 45, batteryWh: 720, price: 799 },
 		addedDate: '2026-04-13',
@@ -5256,7 +5256,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_8: {
-		name: 'ZERO 8',
+		name: 'Minimotors ZERO 8',
 		year: 2024,
 		manufacturer: { topSpeed: 40, range: 45, batteryWh: 624, price: 699 },
 		addedDate: '2026-04-13',
@@ -5265,7 +5265,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_9: {
-		name: 'ZERO 9',
+		name: 'Minimotors ZERO 9',
 		year: 2024,
 		manufacturer: { topSpeed: 45, range: 45, batteryWh: 624, price: 999 },
 		addedDate: '2026-04-13',
@@ -5677,7 +5677,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_10x: {
-		name: 'ZERO 10X',
+		name: 'Minimotors ZERO 10X',
 		year: 2023,
 		manufacturer: { topSpeed: 65, range: 65, batteryWh: 1196, powerToWeight: 77, price: 1399 },
 		addedDate: '2026-04-12',
@@ -5687,7 +5687,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_11x: {
-		name: 'ZERO 11X',
+		name: 'Minimotors ZERO 11X',
 		year: 2023,
 		manufacturer: { topSpeed: 100, range: 100, batteryWh: 2304, powerToWeight: 71, price: 2599 },
 		addedDate: '2026-04-12',
@@ -5697,7 +5697,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	blade_gt_plus: {
-		name: 'Blade GT+',
+		name: 'Blade Blade GT+',
 		year: 2023,
 		manufacturer: { topSpeed: 80, range: 80, batteryWh: 1680, powerToWeight: 71, price: 1799 },
 		addedDate: '2026-04-12',
@@ -6022,7 +6022,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_8x: {
-		name: 'ZERO 8X',
+		name: 'Minimotors ZERO 8X',
 		year: 2024,
 		manufacturer: { topSpeed: 55, range: 65, batteryWh: 936, powerToWeight: 93, price: 1299 },
 		addedDate: '2026-04-15',
@@ -6032,7 +6032,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	zero_10: {
-		name: 'ZERO 10',
+		name: 'Minimotors ZERO 10',
 		year: 2023,
 		manufacturer: { topSpeed: 50, range: 60, batteryWh: 768, powerToWeight: 66, price: 999 },
 		addedDate: '2026-04-15',
