@@ -12,6 +12,21 @@
 
   // Cost-per-charge: cost to go one full range
   const costPerCharge = $derived(((stats.wh / 1000) * calculatorState.config.cost).toFixed(2));
+
+  // Efficiency: Wh/km — lower is better
+  const whPerKm = $derived(stats.totalRange > 0 ? Math.round(stats.wh / stats.totalRange) : 0);
+
+  // Terrain context label — shown when not on flat/urban
+  const terrainMode = $derived(calculatorState.terrainMode);
+  const rangeLabel = $derived(
+    terrainMode === 'urban'
+      ? distanceUnit()
+      : terrainMode === 'hilly'
+        ? `${distanceUnit()} (hilly)`
+        : terrainMode === 'highway'
+          ? `${distanceUnit()} (highway)`
+          : `${distanceUnit()} (suburban)`
+  );
 </script>
 
 <div class="space-y-5" role="region" aria-live="polite" aria-atomic="true">
@@ -26,17 +41,18 @@
 
   <div class="h-px bg-gradient-to-r from-white/8 via-white/4 to-transparent -mx-1"></div>
 
-  <!-- Unified Stats Grid: 5 performance cards -->
+  <!-- Unified Stats Grid: 6 performance cards (2×3 on desktop, 2-col mobile) -->
   <div class="grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-3">
-    <StatsCard label="Max Range" value={distanceVal(stats.totalRange)} unit={distanceUnit()} highlight={true} />
+    <StatsCard label="Max Range" value={distanceVal(stats.totalRange)} unit={rangeLabel} highlight={true} />
     <StatsCard label="Top Speed" value={speedVal(stats.speed)} unit={speedUnit()} />
     <StatsCard label="Peak Power" value={stats.totalWatts} unit="W" />
     <StatsCard label="Charge Time" value={stats.chargeTime} unit="h" />
     <StatsCard label="Acceleration" value={stats.accelScore} unit={`/100 · ${accelLabel}`} />
+    <StatsCard label="Hill Climb" value={speedVal(stats.hillSpeed)} unit={speedUnit()} />
   </div>
 
-  <!-- Cost banner — full width for visibility -->
-  <div class="grid grid-cols-2 gap-2.5 sm:gap-3 pt-1 border-t border-white/[0.06]">
+  <!-- Cost + efficiency row -->
+  <div class="grid grid-cols-3 gap-2.5 sm:gap-3 pt-1 border-t border-white/[0.06]">
     <StatsCard
       label="Cost per {costDistanceLabel()}"
       value={'$' + costPer100Val(stats.costPer100km).toFixed(2)}
@@ -44,5 +60,6 @@
       highlight={true}
     />
     <StatsCard label="Cost per charge" value={'$' + costPerCharge} unit="full battery" />
+    <StatsCard label="Efficiency" value={whPerKm} unit="Wh/km" />
   </div>
 </div>
