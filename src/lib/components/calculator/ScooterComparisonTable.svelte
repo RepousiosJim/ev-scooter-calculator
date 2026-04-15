@@ -30,9 +30,31 @@
     stats: PerformanceStats;
   }
 
+  // --- Constants ---
+  const MY_BUILD_ID = '__my_build__';
+
   // --- State ---
   let searchQuery = $state('');
   let selectedIds = $state<string[]>([]);
+
+  // --- My Build: a synthetic entry from the user's current config ---
+  const myBuildEntry = $derived.by((): ScooterEntry => {
+    const config = calculatorState.config;
+    const stats = calculatorState.stats;
+    const score = computeScore(config, stats);
+    const grade = getGradeInfo(score);
+    const isCustom = calculatorState.activePresetKey === 'custom';
+    return {
+      id: MY_BUILD_ID,
+      name: isCustom ? 'My Custom Build' : calculatorState.activePresetName,
+      year: new Date().getFullYear(),
+      config,
+      meta: undefined,
+      score,
+      grade,
+      stats,
+    };
+  });
 
   // --- Build full catalog (exclude 'custom') ---
   const catalog: ScooterEntry[] = Object.entries(presets)
@@ -98,7 +120,9 @@
 
   // --- Selected scooter entries (preserve selection order) ---
   const selectedScooters = $derived(
-    selectedIds.map((id) => catalog.find((s) => s.id === id)).filter((s): s is ScooterEntry => !!s)
+    selectedIds
+      .map((id) => (id === MY_BUILD_ID ? myBuildEntry : catalog.find((s) => s.id === id)))
+      .filter((s): s is ScooterEntry => !!s)
   );
 
   // --- Add / Remove ---
@@ -304,6 +328,28 @@
 
   <!-- Scooter Picker -->
   <div class="space-y-3">
+    <!-- My Build shortcut -->
+    {#if !selectedIds.includes(MY_BUILD_ID) && selectedIds.length < 3}
+      <button
+        type="button"
+        onclick={() => addScooter(MY_BUILD_ID)}
+        class="w-full text-left px-3 py-2.5 flex items-center gap-3 border border-primary/25 bg-primary/[0.04] rounded-xl hover:bg-primary/[0.08] hover:border-primary/40 transition-all group"
+        aria-label="Add your current build to the comparison"
+      >
+        <span
+          class="inline-flex items-center justify-center w-6 h-6 text-[9px] font-black rounded-lg shrink-0"
+          style="background-color: {myBuildEntry.grade.color}22; color: {myBuildEntry.grade.color}"
+        >
+          {myBuildEntry.grade.grade}
+        </span>
+        <span class="flex-1 min-w-0">
+          <span class="text-xs font-bold text-text-primary truncate">{myBuildEntry.name}</span>
+          <span class="text-[10px] text-primary/70 ml-2">Your Current Build</span>
+        </span>
+        <span class="text-[10px] font-semibold text-primary/80 group-hover:text-primary shrink-0">Add →</span>
+      </button>
+    {/if}
+
     <!-- Search -->
     <div class="relative">
       <input
@@ -329,7 +375,10 @@
       <div class="flex flex-wrap gap-2">
         {#each selectedScooters as scooter (scooter.id)}
           <button
-            class="inline-flex items-center gap-1.5 bg-primary/15 border border-primary/30 rounded-lg text-primary text-xs font-semibold px-3 py-1.5 hover:bg-primary/25 transition-colors group"
+            class="inline-flex items-center gap-1.5 rounded-lg text-xs font-semibold px-3 py-1.5 transition-colors group
+              {scooter.id === MY_BUILD_ID
+              ? 'bg-primary/20 border border-primary/40 text-primary hover:bg-primary/30'
+              : 'bg-primary/15 border border-primary/30 text-primary hover:bg-primary/25'}"
             onclick={() => removeScooter(scooter.id)}
             aria-label="Remove {scooter.name} from comparison"
           >
@@ -339,7 +388,7 @@
             >
               {scooter.grade.grade}
             </span>
-            {scooter.name}
+            {scooter.id === MY_BUILD_ID ? '★ ' : ''}{scooter.name}
             <span class="text-primary/60 group-hover:text-primary ml-1">&#10005;</span>
           </button>
         {/each}
