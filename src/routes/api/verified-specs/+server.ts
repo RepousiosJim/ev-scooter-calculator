@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getStore } from '$lib/server/verification/store';
+
+export const config = { maxDuration: 30 };
 import { applyRateLimit } from '$lib/server/api-helpers';
 
 /** Public endpoint - no auth required. Returns verified specs for all scooters. */

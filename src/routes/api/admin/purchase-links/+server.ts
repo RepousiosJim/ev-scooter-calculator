@@ -1,6 +1,8 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
+
+export const config = { maxDuration: 60 };
 import {
 	getPurchaseLinks,
 	getAllPurchaseData,

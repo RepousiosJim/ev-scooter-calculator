@@ -4,36 +4,6 @@
 	"installCommand": "npm install",
 	"devCommand": "npm run dev",
 
-	"functions": {
-		"src/routes/api/admin/batch-verify/+server.ts": {
-			"maxDuration": 300
-		},
-		"src/routes/api/admin/scrape/+server.ts": {
-			"maxDuration": 60
-		},
-		"src/routes/api/admin/auto-verify/+server.ts": {
-			"maxDuration": 60
-		},
-		"src/routes/api/admin/enrich/+server.ts": {
-			"maxDuration": 120
-		},
-		"src/routes/api/admin/purchase-links/+server.ts": {
-			"maxDuration": 60
-		},
-		"src/routes/api/og/+server.ts": {
-			"maxDuration": 15
-		},
-		"src/routes/api/newsletter/+server.ts": {
-			"maxDuration": 30
-		},
-		"src/routes/api/verified-specs/+server.ts": {
-			"maxDuration": 30
-		},
-		"src/routes/api/cron/cleanup/+server.ts": {
-			"maxDuration": 60
-		}
-	},
-
 	"crons": [
 		{
 			"path": "/api/cron/cleanup",

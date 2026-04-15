@@ -1,6 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
+
+export const config = { maxDuration: 60 };
 import { autoVerifyScooter } from '$lib/server/verification/auto-verify';
 import { getKnownSources } from '$lib/server/verification/known-sources';
 import { presetMetadata } from '$lib/data/presets';

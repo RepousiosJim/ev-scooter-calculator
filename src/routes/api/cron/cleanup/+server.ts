@@ -1,6 +1,8 @@
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
 import { isSupabaseAvailable } from '$lib/server/db';
+
+export const config = { maxDuration: 60 };
 import { cleanupRateLimits } from '$lib/server/rate-limit-persistent';
 import { logger } from '$lib/server/logger';
 

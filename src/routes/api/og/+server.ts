@@ -1,5 +1,7 @@
 import type { RequestHandler } from './$types';
 import satori, { type Font as SatoriFont } from 'satori';
+
+export const config = { maxDuration: 15 };
 import { applyRateLimit } from '$lib/server/api-helpers';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { calculatePerformance } from '$lib/physics/calculator';

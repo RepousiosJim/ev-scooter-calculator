@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { readFile, writeFile, mkdir } from 'fs/promises';
+
+export const config = { maxDuration: 30 };
 import { join } from 'path';
 import { EMAIL_RE } from '$lib/utils/formatters';
 import { isSupabaseAvailable, db } from '$lib/server/db';
