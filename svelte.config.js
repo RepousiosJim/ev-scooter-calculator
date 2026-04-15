@@ -10,10 +10,11 @@ const config = {
 	kit: {
 		adapter: adapter({
 			runtime: 'nodejs22.x',
-			// Bundle each route into its own function file.
-			// Keeps cold-start payloads small — heavy admin/scraper code does not
-			// land in the same bundle as the lightweight public API routes.
-			split: true,
+			// Hobby plan limits deployments to 12 serverless functions.
+			// split: false bundles all routes into one function, keeping well under the limit.
+			// Revisit with split: true if upgraded to Pro.
+			split: false,
+			maxDuration: 60,
 		}),
 	},
 };
