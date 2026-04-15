@@ -29,6 +29,10 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 		autoPromote?: boolean;
 	};
 
+	// Gemini fallback is disabled for batch scans (too slow — hits Vercel 300s limit).
+	// Single-manufacturer manual scans keep it enabled for deeper extraction.
+	const skipGemini = !manufacturerId;
+
 	const encoder = new TextEncoder();
 	const targets = manufacturerId ? manufacturers.filter((m) => m.id === manufacturerId) : getScrapableManufacturers();
 
@@ -86,7 +90,7 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 					total: targets.length,
 				});
 
-				const result = await discoverScooters(mfr);
+				const result = await discoverScooters(mfr, { skipGemini });
 
 				// Track URL health for each URL attempted
 				for (const url of result.scannedUrls) {

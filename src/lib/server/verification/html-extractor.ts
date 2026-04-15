@@ -729,7 +729,7 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
  */
 export async function fetchPage(
 	url: string,
-	timeoutMs = 15000
+	timeoutMs = 8000
 ): Promise<{
 	ok: boolean;
 	status: number;

@@ -61,7 +61,10 @@ const presetCoreModelToKey: Map<string, string> = new Map(
  * 2. Extract products with HTML parser (no API needed)
  * 3. Optionally enhance with Gemini LLM for pages where HTML parsing found nothing
  */
-export async function discoverScooters(manufacturer: Manufacturer): Promise<DiscoveryResult> {
+export async function discoverScooters(
+	manufacturer: Manufacturer,
+	options: { skipGemini?: boolean } = {}
+): Promise<DiscoveryResult> {
 	const result: DiscoveryResult = {
 		manufacturer,
 		scooters: [],
@@ -102,8 +105,8 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 			}
 		}
 
-		// Step 3: If HTML extraction found nothing, try Gemini as fallback
-		if (extraction.products.length === 0 && env.GEMINI_API_KEY) {
+		// Step 3: If HTML extraction found nothing, try Gemini as fallback (skipped on batch scans)
+		if (extraction.products.length === 0 && env.GEMINI_API_KEY && !options.skipGemini) {
 			const llmResult = await extractScootersWithLLM(page.html, manufacturer, listingUrl);
 			if (llmResult.error) {
 				result.errors.push(`${listingUrl}: LLM fallback: ${llmResult.error}`);
