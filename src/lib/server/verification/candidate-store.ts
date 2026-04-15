@@ -31,10 +31,16 @@ async function loadCandidates(): Promise<PresetCandidate[]> {
 }
 
 async function saveCandidates(): Promise<void> {
+	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+		throw new Error(
+			'candidate-store file fallback invoked on Vercel — ' +
+				'configure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY so the Supabase store is used instead.'
+		);
+	}
 	if (!existsSync(DATA_DIR)) {
 		await mkdir(DATA_DIR, { recursive: true });
 	}
-	await writeFile(CANDIDATES_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+	await writeFile(CANDIDATES_FILE, JSON.stringify(cache), 'utf-8');
 }
 
 // ---------------------------------------------------------------------------
@@ -122,16 +128,37 @@ export async function upsertCandidate(candidate: PresetCandidate): Promise<void>
 	await saveCandidates();
 }
 
+export async function upsertCandidateBatch(candidates: PresetCandidate[]): Promise<void> {
+	if (candidates.length === 0) return;
+
+	if (isSupabaseAvailable()) {
+		const { error } = await db()
+			.from('preset_candidates')
+			.upsert(candidates.map(candidateToRow), { onConflict: 'key' });
+		if (error) throw new Error(`Supabase upsertCandidateBatch error: ${error.message}`);
+		return;
+	}
+
+	const all = await loadCandidates();
+	for (const candidate of candidates) {
+		const idx = all.findIndex((c) => c.key === candidate.key);
+		if (idx >= 0) all[idx] = candidate;
+		else all.push(candidate);
+	}
+	cache = all;
+	await saveCandidates();
+}
+
 export async function addCandidates(candidates: PresetCandidate[]): Promise<{ added: number; skipped: number }> {
 	if (isSupabaseAvailable()) {
-		const existing = await getCandidates();
-		const existingKeys = new Set(existing.map((c) => c.key));
-		const toInsert = candidates.filter((c) => !existingKeys.has(c.key));
-		if (toInsert.length > 0) {
-			const { error } = await db().from('preset_candidates').insert(toInsert.map(candidateToRow));
-			if (error) throw new Error(`Supabase addCandidates error: ${error.message}`);
-		}
-		return { added: toInsert.length, skipped: candidates.length - toInsert.length };
+		if (candidates.length === 0) return { added: 0, skipped: 0 };
+		const { error, data } = await db()
+			.from('preset_candidates')
+			.upsert(candidates.map(candidateToRow), { onConflict: 'key', ignoreDuplicates: true })
+			.select('key');
+		if (error) throw new Error(`Supabase addCandidates error: ${error.message}`);
+		const added = (data ?? []).length;
+		return { added, skipped: candidates.length - added };
 	}
 
 	const all = await loadCandidates();

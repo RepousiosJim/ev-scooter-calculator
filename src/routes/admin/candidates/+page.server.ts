@@ -14,6 +14,7 @@ export const load: PageServerLoad = async () => {
 			config: c.config,
 			manufacturerSpecs: c.manufacturerSpecs,
 			validation: c.validation,
+			specsQuality: c.specsQuality,
 			sources: c.sources,
 			notes: c.notes,
 		})),

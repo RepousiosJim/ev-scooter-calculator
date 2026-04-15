@@ -122,46 +122,51 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			const discovered: PurchaseLink[] = [];
 			const errors: string[] = [];
 
-			for (const retailer of retailers) {
-				if (!retailer.productUrlPattern) continue;
-
-				const productUrl = buildProductUrl(retailer, scooterName);
-
-				try {
-					const page = await fetchPage(productUrl, 10000);
-
-					if (page.ok && page.html.length > 1000) {
-						// Basic price extraction from the page
-						const priceMatch = page.html.match(/\$\s*([\d,]+(?:\.\d{2})?)/);
-						const price = priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : undefined;
-
-						// Check if the page actually contains the scooter name
-						const nameWords = scooterName
-							.toLowerCase()
-							.split(/\s+/)
-							.filter((w) => w.length > 2);
-						const pageText = page.html.toLowerCase();
-						const matchingWords = nameWords.filter((w) => pageText.includes(w));
-						const nameConfidence = matchingWords.length / Math.max(nameWords.length, 1);
-
-						if (nameConfidence >= 0.5) {
-							const affiliateUrl = buildAffiliateUrl(productUrl, retailer);
-							discovered.push({
-								retailerId: retailer.id,
-								retailerName: retailer.name,
-								url: affiliateUrl,
-								rawUrl: productUrl,
-								price: price && price > 50 && price < 15000 ? price : undefined,
-								currency: 'USD',
-								inStock: !pageText.includes('out of stock') && !pageText.includes('sold out'),
-								lastChecked: new Date().toISOString(),
-								affiliateNetwork: retailer.affiliateNetwork,
-							});
+			const retailerResults = await Promise.all(
+				retailers
+					.filter((r) => r.productUrlPattern)
+					.map(async (retailer) => {
+						const productUrl = buildProductUrl(retailer, scooterName);
+						try {
+							const page = await fetchPage(productUrl, 10000);
+							if (page.ok && page.html.length > 1000) {
+								const priceMatch = page.html.match(/\$\s*([\d,]+(?:\.\d{2})?)/);
+								const price = priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : undefined;
+								const nameWords = scooterName
+									.toLowerCase()
+									.split(/\s+/)
+									.filter((w) => w.length > 2);
+								const pageText = page.html.toLowerCase();
+								const matchingWords = nameWords.filter((w) => pageText.includes(w));
+								const nameConfidence = matchingWords.length / Math.max(nameWords.length, 1);
+								if (nameConfidence >= 0.5) {
+									const affiliateUrl = buildAffiliateUrl(productUrl, retailer);
+									return {
+										link: {
+											retailerId: retailer.id,
+											retailerName: retailer.name,
+											url: affiliateUrl,
+											rawUrl: productUrl,
+											price: price && price > 50 && price < 15000 ? price : undefined,
+											currency: 'USD',
+											inStock: !pageText.includes('out of stock') && !pageText.includes('sold out'),
+											lastChecked: new Date().toISOString(),
+											affiliateNetwork: retailer.affiliateNetwork,
+										} as PurchaseLink,
+										error: null,
+									};
+								}
+							}
+						} catch (e) {
+							return { link: null, error: `${retailer.name}: ${e instanceof Error ? e.message : 'Unknown error'}` };
 						}
-					}
-				} catch (e) {
-					errors.push(`${retailer.name}: ${e instanceof Error ? e.message : 'Unknown error'}`);
-				}
+						return { link: null, error: null };
+					})
+			);
+
+			for (const r of retailerResults) {
+				if (r.link) discovered.push(r.link);
+				if (r.error) errors.push(r.error);
 			}
 
 			// Save discovered links
@@ -190,25 +195,36 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 			const updated: string[] = [];
 			const errors: string[] = [];
 
-			for (const link of links) {
-				try {
-					const page = await fetchPage(link.rawUrl, 10000);
-					if (page.ok) {
-						const priceMatch = page.html.match(/\$\s*([\d,]+(?:\.\d{2})?)/);
-						const newPrice = priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : undefined;
-						const pageText = page.html.toLowerCase();
-						const inStock = !pageText.includes('out of stock') && !pageText.includes('sold out');
-
-						link.price = newPrice && newPrice > 50 && newPrice < 15000 ? newPrice : link.price;
-						link.inStock = inStock;
-						link.lastChecked = new Date().toISOString();
-
-						await addPurchaseLink(scooterKey, link);
-						updated.push(link.retailerName);
+			const refreshResults = await Promise.all(
+				links.map(async (link) => {
+					try {
+						const page = await fetchPage(link.rawUrl, 10000);
+						if (page.ok) {
+							const priceMatch = page.html.match(/\$\s*([\d,]+(?:\.\d{2})?)/);
+							const newPrice = priceMatch ? parseFloat(priceMatch[1].replace(/,/g, '')) : undefined;
+							const pageText = page.html.toLowerCase();
+							link.price = newPrice && newPrice > 50 && newPrice < 15000 ? newPrice : link.price;
+							link.inStock = !pageText.includes('out of stock') && !pageText.includes('sold out');
+							link.lastChecked = new Date().toISOString();
+							return { link, retailerName: link.retailerName, error: null };
+						}
+					} catch (e) {
+						return {
+							link: null,
+							retailerName: link.retailerName,
+							error: `${link.retailerName}: ${e instanceof Error ? e.message : 'Unknown error'}`,
+						};
 					}
-				} catch (e) {
-					errors.push(`${link.retailerName}: ${e instanceof Error ? e.message : 'Unknown error'}`);
+					return { link: null, retailerName: link.retailerName, error: null };
+				})
+			);
+
+			for (const r of refreshResults) {
+				if (r.link) {
+					await addPurchaseLink(scooterKey, r.link);
+					updated.push(r.retailerName);
 				}
+				if (r.error) errors.push(r.error);
 			}
 
 			return json({ success: true, updated: updated.length, errors });

@@ -17,6 +17,12 @@
 		"src/routes/api/admin/auto-verify/+server.ts": {
 			"maxDuration": 60
 		},
+		"src/routes/api/admin/enrich/+server.ts": {
+			"maxDuration": 120
+		},
+		"src/routes/api/admin/purchase-links/+server.ts": {
+			"maxDuration": 60
+		},
 		"src/routes/api/og/+server.ts": {
 			"maxDuration": 15
 		}

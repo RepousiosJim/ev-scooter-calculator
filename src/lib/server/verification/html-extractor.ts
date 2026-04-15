@@ -475,6 +475,8 @@ const KNOWN_SCOOTER_BRANDS = new Set([
 	'viper',
 ]);
 
+const KNOWN_SCOOTER_BRANDS_ARRAY = Array.from(KNOWN_SCOOTER_BRANDS);
+
 /** Filter out products that are clearly not electric scooters */
 function isLikelyScooter(product: ExtractedProduct): boolean {
 	const name = product.name.toLowerCase();
@@ -700,7 +702,7 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
 	// --- Positive signal check (at least one must match) ---
 	// Known brand name, model pattern, or "scooter" keyword
 	const hasScooterKeyword = /\b(scooter|e-scooter|escooter)\b/i.test(name);
-	const hasKnownBrand = [...KNOWN_SCOOTER_BRANDS].some((brand) => name.includes(brand));
+	const hasKnownBrand = KNOWN_SCOOTER_BRANDS_ARRAY.some((brand) => name.includes(brand));
 	const hasModelPattern = /\b[a-z]{1,3}\d{1,4}\b/i.test(name); // e.g., S2, G3, KQi3, M365
 	const hasProductUrl = product.url && /\/(products?|scooter|e-scooter)\//i.test(product.url);
 	const hasVoltageInName = /\b(36|48|52|60|72)v\b/i.test(name);

@@ -5,6 +5,7 @@
  */
 import type { PresetCandidate, SpecsQuality } from './preset-generator';
 import { assessSpecsQuality } from './preset-generator';
+import { fetchPage as fetchPageHttp } from './html-extractor';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -338,7 +339,7 @@ function parseSpecPair(label: string, value: string, specs: Partial<ExtractedSpe
 	const l = label.toLowerCase().trim();
 	const v = value.trim();
 
-	if (/battery\s*capacity|battery\s*wh/i.test(l)) {
+	if (/battery\s*capacity|battery\s*wh/i.test(l) || (/^(?:battery|capacity)\b/i.test(l) && /Wh/i.test(v))) {
 		const m = v.match(/(\d+\.?\d*)\s*Wh/i) || v.match(/(\d+\.?\d*)/);
 		if (m) {
 			const n = parseNum(m[1]);
@@ -455,6 +456,19 @@ function parseSpecPair(label: string, value: string, specs: Partial<ExtractedSpe
 // Main extraction pipeline
 // ---------------------------------------------------------------------------
 
+const CORE_SPEC_KEYS: (keyof ExtractedSpecs)[] = ['voltage', 'batteryWh', 'motorWatts', 'topSpeed', 'range', 'weight'];
+
+function deriveWh(merged: Partial<ExtractedSpecs>): void {
+	if (!merged.batteryWh && merged.voltage && merged.ampHours) {
+		merged.batteryWh = Math.round(merged.voltage * merged.ampHours);
+	}
+}
+
+function isMergedComplete(merged: Partial<ExtractedSpecs>): boolean {
+	deriveWh(merged);
+	return CORE_SPEC_KEYS.filter((k) => merged[k] !== undefined).length >= 3;
+}
+
 function extractSpecsFromHtml(html: string): { specs: Partial<ExtractedSpecs>; strategies: string[] } {
 	const merged: Partial<ExtractedSpecs> = {};
 	const strategies: string[] = [];
@@ -466,76 +480,45 @@ function extractSpecsFromHtml(html: string): { specs: Partial<ExtractedSpecs>; s
 		Object.assign(merged, jsonLd);
 	}
 
-	// Strategy B: Spec tables
-	const tables = extractFromSpecTables(html);
-	if (Object.keys(tables).length > 0) {
-		strategies.push('spec-table');
-		// Only fill gaps — don't overwrite existing
-		for (const [k, v] of Object.entries(tables)) {
-			if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+	if (!isMergedComplete(merged)) {
+		// Strategy B: Spec tables
+		const tables = extractFromSpecTables(html);
+		if (Object.keys(tables).length > 0) {
+			strategies.push('spec-table');
+			for (const [k, v] of Object.entries(tables)) {
+				if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+			}
 		}
 	}
 
-	// Strategy C: Spec sections
-	const sections = extractFromSpecSections(html);
-	if (Object.keys(sections).length > 0) {
-		strategies.push('spec-section');
-		for (const [k, v] of Object.entries(sections)) {
-			if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+	if (!isMergedComplete(merged)) {
+		// Strategy C: Spec sections
+		const sections = extractFromSpecSections(html);
+		if (Object.keys(sections).length > 0) {
+			strategies.push('spec-section');
+			for (const [k, v] of Object.entries(sections)) {
+				if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+			}
 		}
 	}
 
-	// Strategy D: Free-text mining (least reliable, fills remaining gaps)
-	const fullText = stripTags(html);
-	const textSpecs = parseSpecsFromText(fullText);
-	if (Object.keys(textSpecs).length > 0) {
-		strategies.push('text-mining');
-		for (const [k, v] of Object.entries(textSpecs)) {
-			if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+	if (!isMergedComplete(merged)) {
+		// Strategy D: Free-text mining on body slice only (least reliable, fills remaining gaps)
+		const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+		const bodyHtml = bodyMatch ? bodyMatch[1] : html;
+		const textSpecs = parseSpecsFromText(stripTags(bodyHtml));
+		if (Object.keys(textSpecs).length > 0) {
+			strategies.push('text-mining');
+			for (const [k, v] of Object.entries(textSpecs)) {
+				if (!(k in merged)) (merged as Record<string, unknown>)[k] = v;
+			}
 		}
 	}
 
-	// Derive Wh from V * Ah if missing
-	if (!merged.batteryWh && merged.voltage && merged.ampHours) {
-		merged.batteryWh = Math.round(merged.voltage * merged.ampHours);
-	}
+	// Final Wh derivation pass (also runs inside isMergedComplete but may not have fired if already complete)
+	deriveWh(merged);
 
 	return { specs: merged, strategies };
-}
-
-// ---------------------------------------------------------------------------
-// HTTP fetching
-// ---------------------------------------------------------------------------
-
-const USER_AGENT =
-	'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
-
-async function fetchPage(url: string): Promise<string | null> {
-	try {
-		const controller = new AbortController();
-		const timeout = setTimeout(() => controller.abort(), 15000);
-
-		const res = await fetch(url, {
-			headers: {
-				'User-Agent': USER_AGENT,
-				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-				'Accept-Language': 'en-US,en;q=0.9',
-			},
-			signal: controller.signal,
-			redirect: 'follow',
-		});
-
-		clearTimeout(timeout);
-
-		if (!res.ok) return null;
-
-		const ct = res.headers.get('content-type') || '';
-		if (!ct.includes('text/html') && !ct.includes('application/xhtml')) return null;
-
-		return await res.text();
-	} catch {
-		return null;
-	}
 }
 
 // ---------------------------------------------------------------------------
@@ -559,18 +542,18 @@ export async function enrichCandidate(candidate: PresetCandidate): Promise<Enric
 		};
 	}
 
-	const html = await fetchPage(url);
-	if (!html) {
+	const page = await fetchPageHttp(url);
+	if (!page.ok) {
 		return {
 			success: false,
 			specsFound: {},
 			specsQuality: candidate.specsQuality || 'stub',
 			strategies: [],
-			errors: [`Failed to fetch ${url}`],
+			errors: [`Failed to fetch ${url}: ${page.error ?? `HTTP ${page.status}`}`],
 		};
 	}
 
-	const { specs, strategies } = extractSpecsFromHtml(html);
+	const { specs, strategies } = extractSpecsFromHtml(page.html);
 	const specCount = Object.keys(specs).length;
 
 	if (specCount === 0) {

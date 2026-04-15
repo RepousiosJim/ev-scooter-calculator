@@ -121,6 +121,14 @@ function stripSuffixes(text: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Memoization caches
+// ---------------------------------------------------------------------------
+
+const normalizeCache = new Map<string, string>();
+const extractCache = new Map<string, string>();
+const CACHE_MAX = 1000;
+
+// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
@@ -131,7 +139,10 @@ function stripSuffixes(text: string): string {
  * normalizeModelName('Hiboy S2 Pro Electric Scooter for Adults')
  * // → 'hiboy s2 pro'
  */
-export function normalizeModelName(name: string): string {
+function normalizeModelName(name: string): string {
+	const cached = normalizeCache.get(name);
+	if (cached !== undefined) return cached;
+
 	let n = name.toLowerCase().trim();
 
 	// Normalize symbols
@@ -144,7 +155,11 @@ export function normalizeModelName(name: string): string {
 	n = stripSuffixes(n);
 
 	// Final cleanup
-	return n.replace(/\s+/g, ' ').trim();
+	const result = n.replace(/\s+/g, ' ').trim();
+
+	if (normalizeCache.size >= CACHE_MAX) normalizeCache.clear();
+	normalizeCache.set(name, result);
+	return result;
 }
 
 /**
@@ -159,6 +174,10 @@ export function normalizeModelName(name: string): string {
  * // → 'gt2'
  */
 export function extractCoreModel(name: string, manufacturerId?: string): string {
+	const cacheKey = `${name}|${manufacturerId ?? ''}`;
+	const cached = extractCache.get(cacheKey);
+	if (cached !== undefined) return cached;
+
 	let core = normalizeModelName(name);
 
 	// Strip explicit manufacturer prefix first
@@ -178,10 +197,14 @@ export function extractCoreModel(name: string, manufacturerId?: string): string 
 	}
 
 	// Convert to underscore-separated identifier
-	return core
+	const result = core
 		.replace(/[^a-z0-9]+/g, '_')
 		.replace(/^_+|_+$/g, '')
 		.replace(/_{2,}/g, '_');
+
+	if (extractCache.size >= CACHE_MAX) extractCache.clear();
+	extractCache.set(cacheKey, result);
+	return result;
 }
 
 /**
@@ -211,51 +234,4 @@ export function areModelsEquivalent(a: string, b: string, manufacturerA?: string
 	const normA = normalizeModelName(a);
 	const normB = normalizeModelName(b);
 	return computeSimilarity(normA, normB) > 0.8;
-}
-
-/**
- * Generates a clean, deterministic key suitable for use as a preset identifier.
- *
- * The key:
- * - Starts with a letter
- * - Contains only `[a-z0-9_]`
- * - Is at most 45 characters (leaving headroom under a 50-char limit)
- * - Matches `/^[a-z][a-z0-9_]{0,49}$/`
- *
- * @param name           Raw product / model name
- * @param manufacturerId Optional manufacturer slug to prepend
- *
- * @example
- * generateCleanKey('GT2 Electric Scooter', 'isinwheel')
- * // → 'isinwheel_gt2'
- */
-export function generateCleanKey(name: string, manufacturerId?: string): string {
-	let core = extractCoreModel(name, manufacturerId);
-
-	// Prepend manufacturer if provided and not already present in core
-	if (manufacturerId) {
-		const mfr = manufacturerId.toLowerCase().replace(/[^a-z0-9]+/g, '_');
-		if (!core.startsWith(mfr)) {
-			core = `${mfr}_${core}`;
-		}
-	}
-
-	// Sanitize
-	let key = core
-		.replace(/[^a-z0-9]+/g, '_')
-		.replace(/_{2,}/g, '_')
-		.replace(/^_+|_+$/g, '');
-
-	// Ensure it starts with a letter
-	if (key.length === 0 || !/^[a-z]/.test(key)) {
-		key = 'x_' + key;
-	}
-
-	// Truncate to 45 chars
-	key = key.slice(0, 45);
-
-	// Clean trailing underscore from truncation
-	key = key.replace(/_+$/, '');
-
-	return key;
 }

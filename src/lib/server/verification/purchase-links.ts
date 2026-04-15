@@ -59,10 +59,16 @@ async function loadData(): Promise<ScooterPurchaseData[]> {
 }
 
 async function saveData(): Promise<void> {
+	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+		throw new Error(
+			'purchase-links file fallback invoked on Vercel — ' +
+				'configure SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY so the Supabase store is used instead.'
+		);
+	}
 	if (!existsSync(DATA_DIR)) {
 		await mkdir(DATA_DIR, { recursive: true });
 	}
-	await writeFile(PURCHASE_FILE, JSON.stringify(cache, null, 2), 'utf-8');
+	await writeFile(PURCHASE_FILE, JSON.stringify(cache), 'utf-8');
 }
 
 // ---------------------------------------------------------------------------

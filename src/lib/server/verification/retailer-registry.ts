@@ -137,7 +137,7 @@ export function getActiveRetailers(): RetailerInfo[] {
  * Convert a scooter display name into a URL-safe slug.
  * "Kaabo Wolf King GTR Pro" -> "kaabo-wolf-king-gtr-pro"
  */
-export function slugifyForRetailer(name: string): string {
+function slugifyForRetailer(name: string): string {
 	return name
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
@@ -160,26 +160,15 @@ export function buildProductUrl(retailer: RetailerInfo, scooterName: string): st
  * Returns the URL unchanged if no affiliate tag is configured or network is 'none'.
  */
 export function buildAffiliateUrl(rawUrl: string, retailer: RetailerInfo): string {
+	// Affiliate networks not yet configured — returning raw product URL.
 	if (retailer.affiliateNetwork === 'none' || !retailer.affiliateTag) return rawUrl;
 
 	const url = new URL(rawUrl);
 
-	switch (retailer.affiliateNetwork) {
-		case 'amazon':
-			url.searchParams.set('tag', retailer.affiliateTag);
-			break;
-		case 'shareasale':
-			url.searchParams.set('sscid', retailer.affiliateTag);
-			break;
-		case 'cj':
-			url.searchParams.set('cjevent', retailer.affiliateTag);
-			break;
-		case 'avantlink':
-			url.searchParams.set('avad', retailer.affiliateTag);
-			break;
-		case 'direct':
-			url.searchParams.set('ref', retailer.affiliateTag);
-			break;
+	if (retailer.affiliateNetwork === 'amazon') {
+		url.searchParams.set('tag', retailer.affiliateTag);
+	} else if (retailer.affiliateNetwork === 'shareasale') {
+		url.searchParams.set('sscid', retailer.affiliateTag);
 	}
 
 	return url.toString();

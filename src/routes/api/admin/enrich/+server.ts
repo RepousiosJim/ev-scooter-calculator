@@ -1,7 +1,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requireAdmin } from '$lib/server/admin-guard';
-import { getCandidates, upsertCandidate } from '$lib/server/verification/candidate-store';
+import { getCandidates, upsertCandidateBatch } from '$lib/server/verification/candidate-store';
 import { enrichBatch, applyEnrichment } from '$lib/server/verification/spec-enrichment';
 import { specsToConfig, assessSpecsQuality } from '$lib/server/verification/preset-generator';
 import { validateConfig } from '$lib/server/verification/physics-validator';
@@ -69,8 +69,8 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 
 	const batchResult = await enrichBatch(batch, { concurrency: 3, delayMs: 1200 });
 
-	// Apply enrichment results and save
-	let saved = 0;
+	// Apply enrichment results and batch-save
+	const toSave = [];
 	for (const candidate of batch) {
 		const result = batchResult.results.get(candidate.key);
 		if (!result || !result.success) continue;
@@ -85,8 +85,6 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 					: undefined,
 			batteryWh: updated.manufacturerSpecs.batteryWh,
 			motorWatts: updated.manufacturerSpecs.motorWatts,
-			topSpeed: updated.manufacturerSpecs.topSpeed,
-			range: updated.manufacturerSpecs.range,
 			weight: updated.manufacturerSpecs.weight,
 			wheelSize: updated.manufacturerSpecs.wheelSize,
 			price: updated.manufacturerSpecs.price,
@@ -96,9 +94,11 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		updated.specsQuality = assessSpecsQuality(specInput);
 		updated.validation = validateConfig(updated.config, { batteryWh: specInput.batteryWh });
 
-		await upsertCandidate(updated);
-		saved++;
+		toSave.push(updated);
 	}
+
+	await upsertCandidateBatch(toSave);
+	const saved = toSave.length;
 
 	await logActivity(
 		'discovery_completed',

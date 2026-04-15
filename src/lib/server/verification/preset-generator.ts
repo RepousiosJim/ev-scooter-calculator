@@ -30,14 +30,8 @@ export interface PresetCandidate {
 		wheelSize?: number;
 		/** Extended identity fields */
 		ampHours?: number;
-		chargerAmps?: number;
 		chargeTime?: number;
 		motorCount?: number;
-		motorType?: 'hub' | 'belt' | 'chain';
-		tireType?: 'pneumatic' | 'solid' | 'honeycomb';
-		suspensionType?: 'none' | 'spring' | 'hydraulic' | 'air';
-		ipRating?: string;
-		brakeType?: 'disc' | 'drum' | 'electronic' | 'regenerative';
 		maxRiderWeight?: number;
 		hillGrade?: number;
 	};
@@ -122,6 +116,10 @@ const MARKETING_SUFFIXES = [
  *
  * e.g., "Varla Eagle One V3.0 Off-Road Explorer" → "varla_eagle_one_v3_0"
  */
+const MARKETING_SUFFIX_REGEXES: RegExp[] = MARKETING_SUFFIXES.map(
+	(suffix) => new RegExp(`[\\s\\-–]*${suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\-–]*`, 'gi')
+);
+
 /** Known manufacturer IDs for cross-prefix detection */
 const KNOWN_MANUFACTURER_IDS = new Set([
 	'apollo',
@@ -195,12 +193,8 @@ export function generatePresetKey(name: string, manufacturerId?: string): string
 	clean = clean.replace(/\bmodel\s+\d{4}\b/gi, '');
 
 	// Strip marketing suffixes (longest first to avoid partial matches)
-	for (const suffix of MARKETING_SUFFIXES) {
-		// Replace suffix anywhere, case-insensitive, with optional surrounding dashes/spaces
-		clean = clean.replace(
-			new RegExp(`[\\s\\-–]*${suffix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[\\s\\-–]*`, 'gi'),
-			' '
-		);
+	for (const re of MARKETING_SUFFIX_REGEXES) {
+		clean = clean.replace(re, ' ');
 	}
 
 	// Strip speed/range marketing: "20 MPH Speed", "42-Mile Range", "25 MPH"
@@ -322,8 +316,6 @@ export function specsToConfig(specs: {
 	motorWatts?: number;
 	weight?: number;
 	wheelSize?: number;
-	topSpeed?: number;
-	range?: number;
 	price?: number;
 }): ScooterConfig {
 	const voltage = specs.voltage || inferVoltage(specs.batteryWh, specs.motorWatts);

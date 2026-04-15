@@ -46,9 +46,13 @@ export interface DiscoveryResult {
 const GEMINI_MODEL = 'gemini-2.0-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
-// Pre-build a lookup Map: normalised lowercase name → preset key (avoids O(n²) per-scooter scan)
+// Pre-build lookup Maps at module load to avoid O(n*m) matching per scooter
 const presetNameToKey: Map<string, string> = new Map(
 	Object.entries(presetMetadata).map(([key, meta]) => [meta.name.toLowerCase(), key])
+);
+
+const presetCoreModelToKey: Map<string, string> = new Map(
+	Object.entries(presetMetadata).map(([key, meta]) => [extractCoreModel(meta.name, undefined), key])
 );
 
 /**
@@ -119,29 +123,45 @@ export async function discoverScooters(manufacturer: Manufacturer): Promise<Disc
 	}
 
 	// Deduplicate by core model identifier (catches "VSETT 8+ Dual Motor" = "VSETT 8+")
+	// Compute coreModel once per scooter and reuse across dedup + matching
 	const seen = new Set<string>();
-	result.scooters = result.scooters.filter((s) => {
-		const coreKey = extractCoreModel(s.name, s.manufacturerId);
-		if (!coreKey || seen.has(coreKey)) return false;
-		seen.add(coreKey);
-		return true;
-	});
+	const scooterMeta = result.scooters.map((s) => ({
+		scooter: s,
+		nameLower: s.name.toLowerCase(),
+		coreModel: extractCoreModel(s.name, s.manufacturerId),
+	}));
+
+	result.scooters = scooterMeta
+		.filter(({ coreModel }) => {
+			if (!coreModel || seen.has(coreModel)) return false;
+			seen.add(coreModel);
+			return true;
+		})
+		.map(({ scooter }) => scooter);
+
+	// Rebuild meta after dedup filter
+	const dedupedMeta = scooterMeta.filter(({ coreModel }) => seen.has(coreModel));
 
 	// Deduplicate methods
 	result.methods = [...new Set(result.methods)];
 
 	// Match against existing presets using semantic equivalence
-	for (const scooter of result.scooters) {
-		const nameLower = scooter.name.toLowerCase();
-
-		// Exact match first (O(1) Map lookup)
+	for (const { scooter, nameLower, coreModel } of dedupedMeta) {
+		// (a) Exact name match (O(1))
 		if (presetNameToKey.has(nameLower)) {
 			scooter.isKnown = true;
 			scooter.matchedKey = presetNameToKey.get(nameLower);
 			continue;
 		}
 
-		// Semantic match using model normalizer (handles marketing text, manufacturer prefixes)
+		// (b) Core model Map lookup (O(1))
+		if (presetCoreModelToKey.has(coreModel)) {
+			scooter.isKnown = true;
+			scooter.matchedKey = presetCoreModelToKey.get(coreModel);
+			continue;
+		}
+
+		// (c) Fall back to full semantic scan only when both fast paths miss
 		for (const [existingName, key] of presetNameToKey) {
 			if (areModelsEquivalent(scooter.name, existingName, scooter.manufacturerId)) {
 				scooter.isKnown = true;
