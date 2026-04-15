@@ -1,2 +1,1 @@
 export const PERFORMANCE_CACHE_LIMIT = 200;
-export const CACHE_CLEAR_THRESHOLD = 0.9;

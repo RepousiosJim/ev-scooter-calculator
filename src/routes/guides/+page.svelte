@@ -29,6 +29,10 @@
     name="description"
     content="In-depth guides on buying, riding, and maintaining electric scooters. Learn how to read specs, care for your battery, and find the best commuter scooter."
   />
+  <meta property="og:title" content="Electric Scooter Guides &amp; Reviews | EV Scooter Pro" />
+  <meta property="og:description" content="Expert guides on buying, maintaining, and upgrading electric scooters." />
+  <meta property="og:image" content="/api/og" />
+  <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">

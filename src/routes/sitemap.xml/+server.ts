@@ -8,7 +8,7 @@ export const prerender = true;
 
 export const GET: RequestHandler = async ({ url }) => {
 	const baseUrl = url.origin;
-	const lastmod = new Date().toISOString().split('T')[0];
+	const lastmod = '2025-01-15';
 
 	const pages = [
 		{ path: '/', priority: '1.0', changefreq: 'weekly' },

@@ -228,6 +228,13 @@
     name="description"
     content="Answer 5 simple questions to find the perfect electric scooter for your needs. Personalized recommendations from 170+ models."
   />
+  <meta property="og:title" content="Find Your Perfect Electric Scooter | EV Scooter Pro" />
+  <meta
+    property="og:description"
+    content="Answer 5 questions to get personalized e-scooter recommendations from 166+ models. Free guided buying tool."
+  />
+  <meta property="og:image" content="/api/og" />
+  <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

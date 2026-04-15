@@ -2,6 +2,9 @@
   <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 pb-24 lg:pb-4">
     <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-text-tertiary">
       <span class="font-semibold text-text-secondary">v1.4.0</span>
+      <a href="/cost" class="hover:text-text-secondary transition-colors">Cost Calculator</a>
+      <a href="/rankings" class="hover:text-text-secondary transition-colors">Rankings</a>
+      <a href="/guides" class="hover:text-text-secondary transition-colors">Guides</a>
       <a
         href="https://github.com/RepousiosJim/ev-scooter-calculator"
         target="_blank"

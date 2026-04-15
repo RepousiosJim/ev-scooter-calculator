@@ -1,9 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import { calculatePerformance } from '$lib/physics';
-  import { presets, presetMetadata } from '$lib/data/presets';
+  import { presetMetadata } from '$lib/data/presets';
   import type { ScooterConfig, PerformanceStats } from '$lib/types';
-  import { computeScoreBreakdown, getGrade, type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
+  import { type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
   import NewsletterSignup from '$lib/components/ui/NewsletterSignup.svelte';
@@ -92,41 +91,8 @@
     F: 'bg-rose-500/15 text-rose-400 border-rose-500/30',
   };
 
-  // Compute all rankings
-  const ranked: RankedScooter[] = $derived.by(() => {
-    const entries = Object.entries(presets)
-      .filter(([key]) => key !== 'custom')
-      .map(([key, config]) => {
-        const stats = calculatePerformance(config, 'spec');
-        const meta = presetMetadata[key];
-        const breakdown = computeScoreBreakdown(config, stats);
-        const price = meta?.manufacturer?.price;
-        return {
-          key,
-          name: meta?.name ?? key,
-          year: meta?.year ?? 0,
-          config,
-          stats,
-          score: breakdown.total,
-          grade: getGrade(breakdown.total),
-          breakdown,
-          price,
-          batteryWh: meta?.manufacturer?.batteryWh,
-          status: meta?.status,
-          hasPriceHistory: !!(meta?.priceHistory && meta.priceHistory.length > 0),
-          priceChange:
-            meta?.priceHistory && meta.priceHistory.length >= 2
-              ? (((meta.manufacturer?.price ?? meta.priceHistory[meta.priceHistory.length - 1].price) -
-                  meta.priceHistory[0].price) /
-                  meta.priceHistory[0].price) *
-                100
-              : undefined,
-          valueScore: price && price > 0 ? Math.round((breakdown.total / (price / 1000)) * 10) / 10 : undefined,
-        };
-      });
-    entries.sort((a, b) => b.score - a.score);
-    return entries;
-  });
+  // Rankings are pre-computed server-side in +page.server.ts for SSR performance
+  const ranked: RankedScooter[] = $derived(data.ranked as RankedScooter[]);
 
   const tierOrder: Grade[] = ['S', 'A', 'B', 'C', 'D', 'F'];
 
@@ -257,10 +223,10 @@
 </script>
 
 <svelte:head>
-  <title>Power Rankings — EV Scooter Pro Calculator</title>
+  <title>Best Electric Scooters Ranked 2024 | EV Scooter Pro</title>
   <meta
     name="description"
-    content="Tiered performance rankings for electric scooters based on physics-based analysis"
+    content="Compare and rank 166+ electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
   />
   {#if data.ogScooterKey}
     {@const ogImageUrl = `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}`}

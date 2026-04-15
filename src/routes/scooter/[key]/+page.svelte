@@ -169,14 +169,6 @@
       category: 'Electric Scooter',
       brand: { '@type': 'Brand', name: brandName },
       additionalProperty: additionalProperty,
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: (score / 20).toFixed(1),
-        bestRating: '5',
-        worstRating: '1',
-        ratingCount: '1',
-        reviewCount: '1',
-      },
     };
 
     if (metadata.manufacturer?.price) {
@@ -201,7 +193,7 @@
       stats.totalRange
     )} km range, {stats.totalWatts}W power. Grade: {grade}."
   />
-  <meta property="og:title" content="{metadata.name} — Performance Analysis" />
+  <meta property="og:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
   <meta
     property="og:description"
     content="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
@@ -211,7 +203,7 @@
   <meta property="og:image:height" content="630" />
   <meta property="og:type" content="product" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{metadata.name} — Performance Analysis" />
+  <meta name="twitter:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
   <meta name="twitter:image" content="{$page.url.origin}/api/og?scooter={key}" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + JSON.stringify(productSchema) + '<' + '/script>'}
@@ -271,11 +263,7 @@
     <!-- ═══════════════════════════════════════════════
          HERO
          ═══════════════════════════════════════════════ -->
-    <section
-      in:fly={{ y: 20, duration: 400, delay: 0 }}
-      class="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-6 sm:p-8"
-      aria-labelledby="hero-heading"
-    >
+    <section class="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-6 sm:p-8" aria-labelledby="hero-heading">
       <!-- Badges row -->
       <div class="flex items-center gap-2 flex-wrap mb-4">
         <span

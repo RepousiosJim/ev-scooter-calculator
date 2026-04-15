@@ -4,7 +4,7 @@ module.exports = {
 			url: ['http://localhost:4173/', 'http://localhost:4173/rankings'],
 			startServerCommand: 'npm run preview',
 			startServerReadyPattern: 'localhost',
-			numberOfRuns: 1,
+			numberOfRuns: 3,
 			settings: {
 				preset: 'desktop',
 			},

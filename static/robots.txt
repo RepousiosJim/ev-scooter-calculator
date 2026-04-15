@@ -2,4 +2,4 @@ User-agent: *
 Disallow: /admin/
 Disallow: /api/
 
-Sitemap: https://ev-scooter-calc.vercel.app/sitemap.xml
+Sitemap: https://evscooterpro.com/sitemap.xml

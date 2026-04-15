@@ -42,9 +42,9 @@
     property="og:description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
   />
-  <meta property="og:url" content={$page.url.href} />
+  <meta property="og:url" content={$page.url.origin + $page.url.pathname} />
   <meta property="og:site_name" content="EV Scooter Pro Calculator" />
-  <meta property="og:image" content="/api/og" />
+  <meta property="og:image" content={$page.url.origin + '/api/og'} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <!-- Twitter Card -->

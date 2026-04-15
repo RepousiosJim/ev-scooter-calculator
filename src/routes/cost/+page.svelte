@@ -64,6 +64,13 @@
     name="description"
     content="Compare the cost of commuting by electric scooter vs car, public transit, and bike. Calculate daily, monthly, and yearly savings."
   />
+  <meta property="og:title" content="Electric Scooter Cost Calculator | EV Scooter Pro" />
+  <meta
+    property="og:description"
+    content="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
+  />
+  <meta property="og:image" content="/api/og" />
+  <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">

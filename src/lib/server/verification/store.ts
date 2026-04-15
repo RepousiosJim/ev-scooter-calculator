@@ -17,7 +17,7 @@ function createEmptyVerification(scooterKey: string): ScooterVerification {
 	};
 }
 
-type FieldVerification = NonNullable<ScooterVerification['fields'][string]>;
+type FieldVerification = NonNullable<ScooterVerification['fields'][SpecField]>;
 
 /** Upsert a source into a field's source list and recompute its confidence. */
 function upsertSourceInField(field: FieldVerification, source: SourceEntry): void {

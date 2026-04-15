@@ -28,7 +28,7 @@
   const animatedNumber = tweened(
     untrack(() => (typeof value === 'number' ? value : 0)),
     {
-      duration: 600,
+      duration: 250,
       easing: cubicOut,
     }
   );

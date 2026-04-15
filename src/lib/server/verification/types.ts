@@ -61,18 +61,6 @@ export interface ScrapeResult {
 	error?: string;
 }
 
-export const SPEC_FIELD_LABELS: Record<SpecField, string> = {
-	topSpeed: 'Top Speed',
-	range: 'Range',
-	batteryWh: 'Battery (Wh)',
-	price: 'Price',
-	voltage: 'Voltage',
-	motorWatts: 'Motor Power',
-	weight: 'Weight',
-	wheelSize: 'Wheel Size',
-	powerToWeight: 'Power-to-Weight'
-};
-
 export const SPEC_FIELD_UNITS: Record<SpecField, string> = {
 	topSpeed: 'km/h',
 	range: 'km',
@@ -82,5 +70,5 @@ export const SPEC_FIELD_UNITS: Record<SpecField, string> = {
 	motorWatts: 'W',
 	weight: 'kg',
 	wheelSize: 'in',
-	powerToWeight: 'W/kg'
+	powerToWeight: 'W/kg',
 };

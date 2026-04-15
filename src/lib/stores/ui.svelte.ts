@@ -42,14 +42,6 @@ export function setActiveTabWithLoading(tab: 'configuration' | 'upgrades' | 'com
 }
 
 /**
- * Clear loading state (useful for cleanup)
- */
-export function clearTabLoading() {
-	uiState.isTabLoading = false;
-	uiState.pendingTab = null;
-}
-
-/**
  * Toggle between metric and imperial unit systems, persisting the choice to localStorage.
  */
 export function toggleUnitSystem() {

@@ -11,7 +11,7 @@
   // Components
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import PresetSelector from '$lib/components/calculator/PresetSelector.svelte';
-  import ProfileManager from '$lib/components/calculator/ProfileManager.svelte';
+  // ProfileManager is lazy-loaded to keep lucide-svelte out of the critical bundle
   import BasicConfig from '$lib/components/calculator/BasicConfig.svelte';
   import AdvancedConfig from '$lib/components/calculator/AdvancedConfig.svelte';
   import PerformanceSummary from '$lib/components/calculator/PerformanceSummary.svelte';
@@ -157,15 +157,25 @@
 </script>
 
 <svelte:head>
-  <title>EV Scooter Pro Calculator</title>
+  <title>Electric Scooter Range &amp; Performance Calculator | EV Scooter Pro</title>
   <meta
     name="description"
-    content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
+    content="Calculate electric scooter range, top speed, and performance. Compare 166+ e-scooter models with our free physics-based calculator."
   />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html webAppJsonLd}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html faqJsonLd}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html scriptOpen +
+    JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'EV Scooter Pro',
+      url: 'https://evscooterpro.com',
+      description: 'Electric scooter performance calculator and comparison tool',
+    }) +
+    scriptClose}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
@@ -177,12 +187,12 @@
   <div
     class="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/3 blur-3xl pointer-events-none"
     aria-hidden="true"
-    style="will-change: transform; contain: strict;"
+    style="contain: strict;"
   ></div>
   <div
     class="absolute top-1/3 right-0 w-[400px] h-[400px] rounded-full bg-secondary/3 blur-3xl pointer-events-none"
     aria-hidden="true"
-    style="will-change: transform; contain: strict;"
+    style="contain: strict;"
   ></div>
 
   <div class="relative">
@@ -224,7 +234,9 @@
                   <div class="h-px flex-1 bg-gradient-to-r from-white/[0.12] to-transparent"></div>
                 </div>
                 <PresetSelector />
-                <ProfileManager />
+                {#await import('$lib/components/calculator/ProfileManager.svelte') then { default: ProfileManager }}
+                  <ProfileManager />
+                {/await}
                 <RideModeSelector />
                 <BasicConfig />
               </div>

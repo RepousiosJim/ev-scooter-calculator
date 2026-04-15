@@ -13,7 +13,7 @@ export const load: LayoutServerLoad = ({ setHeaders, url }) => {
 	// but being explicit here avoids any risk of a missed override.
 	if (!url.pathname.startsWith('/admin')) {
 		setHeaders({
-			'Cache-Control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300',
+			'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=300',
 		});
 	}
 };

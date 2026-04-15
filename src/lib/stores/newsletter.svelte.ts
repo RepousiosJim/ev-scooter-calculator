@@ -35,14 +35,6 @@ export function setDismissed(): void {
 	save({ ...current, dismissed: true });
 }
 
-export function isSubscribed(): boolean {
-	return !!getNewsletterState().subscribedAt;
-}
-
-export function isDismissed(): boolean {
-	return getNewsletterState().dismissed;
-}
-
 export function clearSubscription(): void {
 	if (typeof localStorage === 'undefined') return;
 	localStorage.removeItem(STORAGE_KEY);

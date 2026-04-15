@@ -136,9 +136,7 @@ body::before {
 		radial-gradient(ellipse 60% 40% at 80% 100%, rgba(129, 140, 248, 0.03), transparent);
 	pointer-events: none;
 	z-index: 0;
-	/* Compositor hint: this layer never changes, promote it to its own GPU layer
-	   so the browser doesn't repaint it during scroll/animation (INP improvement). */
-	will-change: transform;
+	/* Static decorative layer — no will-change to avoid unnecessary GPU promotion */
 }
 
 /* ════════════════════════════════════════════

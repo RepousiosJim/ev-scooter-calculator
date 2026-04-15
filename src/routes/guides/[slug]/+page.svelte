@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   import type { Guide } from '$lib/data/guides';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- $page referenced in JSON-LD script block
+  import { page } from '$app/stores';
 
   let { data }: { data: PageData } = $props();
   const guide = $derived(data.guide);
@@ -70,8 +72,8 @@
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     'itemListElement': [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: '/' },
-      { '@type': 'ListItem', position: 2, name: 'Guides', item: '/guides' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Guides', item: $page.url.origin + '/guides' },
       { '@type': 'ListItem', position: 3, name: guide.title }
     ]
   })}

@@ -1,6 +1,6 @@
 /**
  * EV Scooter Calculator - Public API
- * 
+ *
  * This module exports the public API surface for the EV Scooter Calculator.
  * All imports should use the `$lib` alias.
  */
@@ -10,34 +10,19 @@
 // ============================================================================
 
 export type {
-  // Core types
-  ScooterConfig,
-  ShareableConfig,
-  PerformanceStats,
-  Bottleneck,
-  ScooterPreset,
-  Profile,
-  UpgradeDelta,
-  Recommendation,
-  PresetMetadata,
-  RideMode,
-  RideModePreset,
-  PredictionMode,
-  DeltaDirection,
-  
-  // Formula types
-  FormulaInput,
-  FormulaIntermediate,
-  FormulaTrace,
-  
-  // Advisor types
-  PerformancePriority,
-  BudgetLevel,
-  AdvisorUserPreferences,
-  RecommendationFeedback,
-  LearnedWeights,
-  AdvisorState,
-  AIRecommendation,
+	// Core types
+	ScooterConfig,
+	PerformanceStats,
+	Bottleneck,
+	ScooterPreset,
+	Profile,
+	UpgradeDelta,
+	Recommendation,
+	PresetMetadata,
+	RideMode,
+	RideModePreset,
+	PredictionMode,
+	DeltaDirection,
 } from './types';
 
 // ============================================================================
@@ -45,36 +30,35 @@ export type {
 // ============================================================================
 
 export {
-  // Calculator store
-  calculatorState,
-  toastState,
-  
-  // Calculator actions
-  applyConfig,
-  loadPreset,
-  createShareLink,
-  loadConfigFromUrl,
-  updateConfig,
-  setPredictionMode,
-  applyRideMode,
-  simulateUpgrade,
-  clearSimulation,
-  resetConfig,
-  showToast,
-  clearToast,
-  clearAllToasts,
+	// Calculator store
+	calculatorState,
+	toastState,
+
+	// Calculator actions
+	applyConfig,
+	loadPreset,
+	createShareLink,
+	loadConfigFromUrl,
+	updateConfig,
+	setPredictionMode,
+	applyRideMode,
+	simulateUpgrade,
+	clearSimulation,
+	resetConfig,
+	showToast,
+	clearToast,
+	clearAllToasts,
 } from './stores/calculator.svelte';
 
 export {
-  // UI store
-  uiState,
-  
-  // UI actions
-  toggleAdvanced,
-  toggleCompareMode,
-  setActiveTab,
-  setActiveTabWithLoading,
-  clearTabLoading,
+	// UI store
+	uiState,
+
+	// UI actions
+	toggleAdvanced,
+	toggleCompareMode,
+	setActiveTab,
+	setActiveTabWithLoading,
 } from './stores/ui.svelte';
 
 // ============================================================================
@@ -82,13 +66,13 @@ export {
 // ============================================================================
 
 export {
-  calculatePerformance,
-  calculateTemperatureFactor,
-  calculateRideModeImpact,
-  detectBottlenecks,
-  generateRecommendations,
-  calculateUpgradeDelta,
-  getAllUpgrades,
+	calculatePerformance,
+	calculateTemperatureFactor,
+	calculateRideModeImpact,
+	detectBottlenecks,
+	generateRecommendations,
+	calculateUpgradeDelta,
+	getAllUpgrades,
 } from './physics';
 
 export type { RideModeImpact } from './physics';
@@ -98,91 +82,53 @@ export type { RideModeImpact } from './physics';
 // ============================================================================
 
 // Validators
-export {
-  normalizeConfig,
-  normalizeConfigValue,
-  validateField,
-  type ConfigNumericKey,
-} from './utils/validators';
+export { normalizeConfig, normalizeConfigValue, validateField, type ConfigNumericKey } from './utils/validators';
 
 // Scoring
-export {
-  computeScore,
-  getGrade,
-  getGradeInfo,
-  type Grade,
-  type GradeInfo,
-} from './utils/scoring';
+export { computeScore, getGrade, getGradeInfo, type Grade, type GradeInfo } from './utils/scoring';
 
 // ============================================================================
 // CONSTANTS
 // ============================================================================
 
 export {
-  // Physics constants
-  NOMINAL_VOLTAGE,
-  PERFORMANCE_CACHE_LIMIT,
-  DRAG_COEFFICIENT,
-  ROLLING_RESISTANCE_COEFFICIENT,
-  AIR_DENSITY_KG_M3,
-  GRAVITY_M_S2,
-  DEFAULT_MOTOR_EFFICIENCY,
-  MODE_EFFICIENCY_FACTOR_SPEC,
-  MODE_EFFICIENCY_FACTOR_REALWORLD,
-  
-  // Conversion factors
-  INCH_TO_METERS,
-  SECONDS_PER_MINUTE,
-  METERS_PER_KILOMETER,
+	// Physics constants
+	NOMINAL_VOLTAGE,
+	ROLLING_RESISTANCE_COEFFICIENT,
+	AIR_DENSITY_KG_M3,
+	GRAVITY_M_S2,
+	DEFAULT_MOTOR_EFFICIENCY,
+	MODE_EFFICIENCY_FACTOR_SPEC,
+	MODE_EFFICIENCY_FACTOR_REALWORLD,
+
+	// Conversion factors
+	INCH_TO_METERS,
+	SECONDS_PER_MINUTE,
+	METERS_PER_KILOMETER,
 } from './constants/physics';
 
 // ============================================================================
 // DATA
 // ============================================================================
 
-export {
-  defaultConfig,
-  presets,
-  presetMetadata,
-} from './data/presets';
+export { defaultConfig, presets, presetMetadata } from './data/presets';
 
-export {
-  rideModePresets,
-} from './data/ride-modes';
+export { rideModePresets } from './data/ride-modes';
 
 // ============================================================================
 // UI COMPONENTS - ATOMS
 // ============================================================================
 
-export {
-  Button,
-  Input,
-  Slider,
-  Select,
-  Toggle,
-  Badge,
-  Icon,
-  HelpTooltip,
-} from './components/ui/atoms';
+export { Button, Input, Slider, Select, Toggle, Badge, Icon } from './components/ui/atoms';
 
 // ============================================================================
 // UI COMPONENTS - MOLECULES
 // ============================================================================
 
-export {
-  FormField,
-} from './components/ui/molecules';
+export { FormField } from './components/ui/molecules';
 
 // ============================================================================
 // UI COMPONENTS - ORGANISMS
 // ============================================================================
 
-export {
-  MobileNavigation,
-} from './components/ui/organisms';
-
-// ============================================================================
-// VERSION
-// ============================================================================
-
-export const VERSION = '1.4.0';
+export { MobileNavigation } from './components/ui/organisms';

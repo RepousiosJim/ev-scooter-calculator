@@ -6,4 +6,3 @@ export { default as Select } from './Select.svelte';
 export { default as Toggle } from './Toggle.svelte';
 export { default as Badge } from './Badge.svelte';
 export { default as Icon } from './Icon.svelte';
-export { default as HelpTooltip } from './HelpTooltip.svelte';
