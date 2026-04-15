@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
-  import { Save, Trash2, Pencil, FolderOpen, Check, X, ChevronDown, User } from 'lucide-svelte';
+  import { Save, Trash2, Pencil, FolderOpen, Check, X, ChevronDown, User, Star } from 'lucide-svelte';
   import {
     profilesState,
     saveProfile,
@@ -10,6 +10,7 @@
     renameProfile,
     setActiveProfile,
     loadProfiles,
+    toggleFavorite,
     type SavedProfile,
   } from '$lib/stores/profiles.svelte';
   import { calculatorState, applyConfig } from '$lib/stores/calculator.svelte';
@@ -35,6 +36,16 @@
   });
 
   const defaultSaveName = $derived(`${calculatorState.activePresetName} — ${formatDateShort(new Date())}`);
+
+  const favoriteCount = $derived(profilesState.profiles.filter((p) => p.isFavorite).length);
+
+  const sortedProfiles = $derived(
+    [...profilesState.profiles].sort((a, b) => {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return 0;
+    })
+  );
 
   onMount(() => {
     loadProfiles();
@@ -173,6 +184,12 @@
           {profilesState.profiles.length}
         </span>
       {/if}
+      {#if favoriteCount > 0}
+        <span class="flex items-center gap-0.5 text-[9px] font-black text-amber-400">
+          <Star size={9} class="fill-amber-400" />
+          {favoriteCount}
+        </span>
+      {/if}
     </div>
 
     <div class="flex items-center gap-1.5 flex-shrink-0">
@@ -275,7 +292,7 @@
   {#if listExpanded && profilesState.profiles.length > 0}
     <div transition:slide={{ duration: 220 }} class="border-t border-white/[0.06]">
       <ul class="divide-y divide-white/[0.05]" role="list" aria-label="Saved profiles">
-        {#each profilesState.profiles as profile (profile.id)}
+        {#each sortedProfiles as profile (profile.id)}
           {@const isActive = profile.id === profilesState.activeProfileId}
           {@const isRenaming = profile.id in renameMap}
           {@const isPendingDelete = profile.id === pendingDeleteId}
@@ -374,6 +391,19 @@
                     </span>
                   </div>
                 </div>
+
+                <!-- Favorite toggle -->
+                <button
+                  type="button"
+                  onclick={() => toggleFavorite(profile.id)}
+                  title={profile.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  class="flex items-center justify-center w-6 h-6 rounded-md transition-all duration-200 flex-shrink-0
+                    {profile.isFavorite
+                    ? 'text-amber-400 hover:text-amber-300'
+                    : 'text-text-tertiary/40 hover:text-amber-400/60'}"
+                >
+                  <Star size={11} class={profile.isFavorite ? 'fill-amber-400' : ''} />
+                </button>
 
                 <!-- Load button -->
                 {#if !isActive}

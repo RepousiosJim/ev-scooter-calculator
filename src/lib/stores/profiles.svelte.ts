@@ -11,6 +11,7 @@ export interface SavedProfile {
 	presetKey: string; // which preset it was based on, or 'custom'
 	createdAt: string; // ISO date
 	updatedAt: string; // ISO date
+	isFavorite?: boolean;
 }
 
 export const profilesState = $state({
@@ -102,6 +103,11 @@ export function renameProfile(id: string, newName: string): void {
 
 export function setActiveProfile(id: string | null): void {
 	profilesState.activeProfileId = id;
+}
+
+export function toggleFavorite(id: string): void {
+	profilesState.profiles = profilesState.profiles.map((p) => (p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
+	persistProfiles();
 }
 
 export function getProfileCount(): number {
