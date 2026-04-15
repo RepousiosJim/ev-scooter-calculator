@@ -82,7 +82,7 @@
   </div>
 {/if}
 
-{#if !isEmbed && typeof window !== 'undefined'}
+{#if !isEmbed && browser}
   <div class="toast-container fixed top-4 right-4 z-[100] flex flex-col gap-2">
     {#each toastState.toasts as toast (toast.id)}
       <Toast message={toast.message} type={toast.type} />

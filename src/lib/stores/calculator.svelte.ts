@@ -104,7 +104,7 @@ function decodeConfig(encoded: string) {
 }
 
 // Re-export toast utilities for backwards compatibility
-export { toastState, showToast, clearToast, clearAllToasts } from './toast.svelte';
+export { toastState, showToast } from './toast.svelte';
 
 // Main calculator state
 export const calculatorState = $state({
@@ -227,10 +227,6 @@ export function updateConfig<K extends ConfigNumericKey>(key: K, value: number |
 	calculatorState.activePresetKey = 'custom';
 }
 
-export function setPredictionMode(mode: PredictionMode) {
-	calculatorState.predictionMode = mode;
-}
-
 export function applyRideMode(mode: RideMode) {
 	const preset = rideModePresets[mode];
 	if (preset) {
@@ -251,10 +247,4 @@ export function simulateUpgrade(type: 'parallel' | 'voltage' | 'controller' | 'm
 export function clearSimulation() {
 	calculatorState.simulatedConfig = null;
 	calculatorState.activeUpgrade = null;
-}
-
-export function resetConfig() {
-	applyConfig(baseConfig);
-	calculatorState.activePresetKey = 'custom';
-	_showToast('Configuration reset', 'info');
 }

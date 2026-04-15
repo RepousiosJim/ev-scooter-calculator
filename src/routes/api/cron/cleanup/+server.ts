@@ -1,4 +1,5 @@
 import type { RequestHandler } from './$types';
+import { env } from '$env/dynamic/private';
 import { isSupabaseAvailable } from '$lib/server/db';
 import { cleanupRateLimits } from '$lib/server/rate-limit-persistent';
 import { logger } from '$lib/server/logger';
@@ -12,7 +13,7 @@ export const GET: RequestHandler = async ({ request }) => {
 	// Vercel Cron authentication: CRON_SECRET env var is auto-set by Vercel
 	// when crons are configured. In local dev this header is absent, which is fine.
 	const authHeader = request.headers.get('authorization');
-	const cronSecret = process.env.CRON_SECRET;
+	const cronSecret = env.CRON_SECRET;
 
 	if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
 		return new Response(JSON.stringify({ error: 'Unauthorized' }), {

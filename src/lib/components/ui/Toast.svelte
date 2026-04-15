@@ -2,8 +2,7 @@
   import { fly } from 'svelte/transition';
   import Icon from './atoms/Icon.svelte';
 
-  export let message: string;
-  export let type: 'success' | 'info' | 'warning' | 'error' = 'info';
+  let { message, type = 'info' }: { message: string; type?: 'success' | 'info' | 'warning' | 'error' } = $props();
 
   const iconMap = {
     success: 'check-circle',
@@ -28,8 +27,6 @@
     transition-all duration-300
     {colorMap[type]}"
   transition:fly={{ y: -20, duration: 300 }}
-  on:mouseenter={() => {}}
-  on:mouseleave={() => {}}
 >
   <Icon name={iconMap[type]} size="sm" class="flex-shrink-0" />
   <span class="text-sm font-medium text-text-primary">{message}</span>

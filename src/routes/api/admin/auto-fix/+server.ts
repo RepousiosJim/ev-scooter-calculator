@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { runAutoFix, type FixType } from '$lib/server/verification/auto-fix';
 
 const VALID_FIX_TYPES: readonly FixType[] = ['anomalies', 'seed', 'conflicts', 'duplicates', 'all'];
@@ -11,8 +11,9 @@ const VALID_FIX_TYPES: readonly FixType[] = ['anomalies', 'seed', 'conflicts', '
  * Run automated data quality fixes.
  * Body: { fixTypes?: ('anomalies' | 'seed' | 'conflicts' | 'duplicates' | 'all')[] }
  */
-export const POST: RequestHandler = async ({ cookies, request }) => {
+export const POST: RequestHandler = async ({ cookies, request, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	let fixTypes: FixType[] = ['all'];
 

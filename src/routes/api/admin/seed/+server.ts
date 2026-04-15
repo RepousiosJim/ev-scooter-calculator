@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { getStore, addSource, addPriceObservation } from '$lib/server/verification/store';
 import { seedData, getSeedDataKeys } from '$lib/server/verification/seed-data';
 import {
@@ -17,8 +17,9 @@ import { logActivity } from '$lib/server/verification/activity-log';
  * This populates all scooters with data from known reliable sources
  * so the admin doesn't have to manually enter everything.
  */
-export const POST: RequestHandler = async ({ cookies }) => {
+export const POST: RequestHandler = async ({ cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const store = await getStore();
 	const keys = getSeedDataKeys();

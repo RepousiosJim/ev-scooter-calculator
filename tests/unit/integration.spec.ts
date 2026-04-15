@@ -104,11 +104,13 @@ describe('Calculator Integration', () => {
 		expect(realworldRange).toBeLessThanOrEqual(specRange);
 	});
 
-	it('toggles advanced settings', () => {
-		expect(uiState.showAdvanced).toBe(false);
+	it('changes active tab', () => {
+		expect(uiState.activeTab).toBe('configuration');
 
-		uiState.showAdvanced = true;
-		expect(uiState.showAdvanced).toBe(true);
+		uiState.activeTab = 'upgrades';
+		expect(uiState.activeTab).toBe('upgrades');
+
+		uiState.activeTab = 'configuration';
 	});
 
 	it('calculates hill speed correctly', () => {

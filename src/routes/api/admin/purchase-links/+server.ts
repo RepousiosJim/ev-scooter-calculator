@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import {
 	getPurchaseLinks,
 	getAllPurchaseData,
@@ -23,8 +23,9 @@ import { logActivity } from '$lib/server/verification/activity-log';
  * GET: List purchase links.
  * Query params: ?scooterKey=specific_key  (omit for all + stats)
  */
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ url, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const scooterKey = url.searchParams.get('scooterKey');
 
@@ -46,8 +47,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
  * POST: Manage purchase links.
  * Body: { action: 'add' | 'remove' | 'set' | 'auto-discover' | 'refresh-prices', ... }
  */
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	const { action } = body as { action: string };

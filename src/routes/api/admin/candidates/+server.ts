@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { logger } from '$lib/server/logger';
 import {
 	getCandidates,
@@ -30,8 +30,9 @@ import type { DiscoveredScooter } from '$lib/server/verification/discovery';
  * GET: List candidates with optional status filter.
  * Query params: ?status=pending|approved|rejected&key=specific_key
  */
-export const GET: RequestHandler = async ({ url, cookies }) => {
+export const GET: RequestHandler = async ({ url, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const key = url.searchParams.get('key');
 	if (key) {
@@ -54,8 +55,9 @@ export const GET: RequestHandler = async ({ url, cookies }) => {
  * POST: Create candidates from discovered scooters, update status, or edit config.
  * Body: { action: 'create' | 'approve' | 'reject' | 'reset' | 'edit' | 'delete' | 'generate', ... }
  */
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	const { action } = body as { action: string };

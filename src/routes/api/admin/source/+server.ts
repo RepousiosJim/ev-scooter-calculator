@@ -1,13 +1,14 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { getStore, addSource, removeSource } from '$lib/server/verification/store';
 import type { SpecField, SourceType } from '$lib/server/verification/types';
 import { randomBytes } from 'crypto';
 import { logActivity } from '$lib/server/verification/activity-log';
 
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	const { scooterKey, field, source } = body as {
@@ -55,8 +56,9 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	return json({ success: true, verification: updated });
 };
 
-export const DELETE: RequestHandler = async ({ request, cookies }) => {
+export const DELETE: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	const { scooterKey, field, sourceId } = body as {

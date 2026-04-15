@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { getStore } from '$lib/server/verification/store';
 import type { ScooterVerification } from '$lib/server/verification/types';
 import { logActivity } from '$lib/server/verification/activity-log';
@@ -18,8 +18,9 @@ function isValidScooterVerification(value: unknown): value is ScooterVerificatio
 	);
 }
 
-export const GET: RequestHandler = async ({ cookies }) => {
+export const GET: RequestHandler = async ({ cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const store = await getStore();
 	const allData = await store.getAll();
@@ -34,8 +35,9 @@ export const GET: RequestHandler = async ({ cookies }) => {
 };
 
 /** Import verification data */
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	if (!body.data || typeof body.data !== 'object') {

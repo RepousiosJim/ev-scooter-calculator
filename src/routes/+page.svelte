@@ -44,12 +44,18 @@
       loadPreset(presetParam);
     }
 
-    startSession();
-    const cleanupBehaviorTracking = initBehaviorTracking();
-    const cleanupWebVitals = trackWebVitals();
-    initAllABTests();
-
-    analytics.startFunnel('configuration_flow', 'page_load');
+    // Defer non-critical analytics init to avoid blocking first interaction
+    let cleanupBehaviorTracking = () => {};
+    let cleanupWebVitals = () => {};
+    const scheduleAnalytics = (cb: () => void) =>
+      typeof requestIdleCallback !== 'undefined' ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 0);
+    scheduleAnalytics(() => {
+      startSession();
+      cleanupBehaviorTracking = initBehaviorTracking();
+      cleanupWebVitals = trackWebVitals();
+      initAllABTests();
+      analytics.startFunnel('configuration_flow', 'page_load');
+    });
 
     const handleBeforeUnload = () => {
       analytics.endSession();

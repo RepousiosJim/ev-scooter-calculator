@@ -1,7 +1,7 @@
 <script lang="ts">
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
-  import { Info } from 'lucide-svelte';
+  import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
   const stats = $derived(calculatorState.stats);
 
@@ -88,7 +88,7 @@
           >
             {metric.label}
             <span class="text-text-tertiary group-hover:text-text-secondary transition-colors" aria-hidden="true"
-              ><Info size={12} class="inline" /></span
+              ><Icon name="info" size="xs" /></span
             >
           </button>
           <div class="flex items-center gap-1.5">

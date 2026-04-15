@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { getActivityLog, clearActivityLog, type ActivityType } from '$lib/server/verification/activity-log';
 
 const VALID_ACTIVITY_TYPES: readonly ActivityType[] = [
@@ -21,8 +21,9 @@ const VALID_ACTIVITY_TYPES: readonly ActivityType[] = [
 	'export',
 ];
 
-export const GET: RequestHandler = async ({ cookies, url }) => {
+export const GET: RequestHandler = async ({ cookies, url, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '50') || 50, 1), 500);
 	const offset = Math.max(parseInt(url.searchParams.get('offset') || '0') || 0, 0);
@@ -34,8 +35,9 @@ export const GET: RequestHandler = async ({ cookies, url }) => {
 	return json(result);
 };
 
-export const DELETE: RequestHandler = async ({ cookies }) => {
+export const DELETE: RequestHandler = async ({ cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	await clearActivityLog();
 	return json({ success: true });

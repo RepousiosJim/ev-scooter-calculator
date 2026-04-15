@@ -1,9 +1,12 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { getStore } from '$lib/server/verification/store';
+import { applyRateLimit } from '$lib/server/api-helpers';
 
 /** Public endpoint - no auth required. Returns verified specs for all scooters. */
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ getClientAddress }) => {
+	const { limited } = await applyRateLimit(getClientAddress());
+	if (limited) return limited;
 	const store = await getStore();
 	const allData = await store.getAll();
 

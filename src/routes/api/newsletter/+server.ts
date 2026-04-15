@@ -4,6 +4,7 @@ import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { EMAIL_RE } from '$lib/utils/formatters';
 import { isSupabaseAvailable, db } from '$lib/server/db';
+import { applyRateLimit } from '$lib/server/api-helpers';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const SUBSCRIBERS_FILE = join(DATA_DIR, 'newsletter-subscribers.json');
@@ -56,7 +57,9 @@ function withLock<T>(fn: () => Promise<T>): Promise<T> {
 // POST /api/newsletter — subscribe or update preferences
 // ---------------------------------------------------------------------------
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, getClientAddress }) => {
+	const { limited } = await applyRateLimit(getClientAddress());
+	if (limited) return limited;
 	let body: { email?: string; preferences?: string[] };
 	try {
 		body = await request.json();
@@ -126,7 +129,9 @@ export const POST: RequestHandler = async ({ request }) => {
 // DELETE /api/newsletter — unsubscribe
 // ---------------------------------------------------------------------------
 
-export const DELETE: RequestHandler = async ({ request }) => {
+export const DELETE: RequestHandler = async ({ request, getClientAddress }) => {
+	const { limited } = await applyRateLimit(getClientAddress());
+	if (limited) return limited;
 	let body: { email?: string };
 	try {
 		body = await request.json();

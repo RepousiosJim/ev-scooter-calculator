@@ -18,10 +18,10 @@ function validateConfig(body: Record<string, unknown>): ValidationError[] {
 	const errors: ValidationError[] = [];
 
 	// Required numeric fields with their validation rules
-	const required: Array<{ field: string; min?: number; max?: number; label?: string }> = [
+	const required: Array<{ field: string; min?: number; max?: number; label?: string; integer?: boolean }> = [
 		{ field: 'v', min: 24, max: 96, label: 'voltage' },
 		{ field: 'ah', min: 0.1, label: 'battery capacity (Ah)' },
-		{ field: 'motors', min: 1, max: 4, label: 'motor count' },
+		{ field: 'motors', min: 1, max: 4, label: 'motor count', integer: true },
 		{ field: 'watts', min: 1, label: 'watts per motor' },
 		{ field: 'style', min: 5, max: 100, label: 'energy consumption (Wh/km)' },
 		{ field: 'weight', min: 30, max: 250, label: 'rider weight (kg)' },
@@ -45,6 +45,9 @@ function validateConfig(body: Record<string, unknown>): ValidationError[] {
 		if (isNaN(num)) {
 			errors.push({ field: rule.field, message: `'${rule.field}' must be a number` });
 			continue;
+		}
+		if (rule.integer && !Number.isInteger(num)) {
+			errors.push({ field: rule.field, message: `'${rule.field}' must be an integer` });
 		}
 		if (rule.min !== undefined && num < rule.min) {
 			errors.push({ field: rule.field, message: `'${rule.field}' must be >= ${rule.min}` });

@@ -42,7 +42,9 @@ export async function getSettings(): Promise<AdminSettings> {
 			cache = { ...DEFAULT_SETTINGS, ...JSON.parse(raw) };
 			return { ...cache! };
 		}
-	} catch { /* use defaults */ }
+	} catch {
+		/* use defaults */
+	}
 	cache = { ...DEFAULT_SETTINGS };
 	return { ...cache };
 }
@@ -51,6 +53,10 @@ export async function updateSettings(partial: Partial<AdminSettings>): Promise<A
 	const current = await getSettings();
 	const updated = { ...current, ...partial };
 	cache = updated;
+	// Vercel filesystem is read-only — keep changes in memory only for this lambda's lifetime
+	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+		return { ...updated };
+	}
 	if (!existsSync(DATA_DIR)) {
 		await mkdir(DATA_DIR, { recursive: true });
 	}

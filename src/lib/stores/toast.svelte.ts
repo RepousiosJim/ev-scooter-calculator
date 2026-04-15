@@ -22,11 +22,3 @@ export function showToast(
 		toastState.toasts = toastState.toasts.filter((t) => t.id !== id);
 	}, duration);
 }
-
-export function clearToast(id: string) {
-	toastState.toasts = toastState.toasts.filter((t) => t.id !== id);
-}
-
-export function clearAllToasts() {
-	toastState.toasts = [];
-}

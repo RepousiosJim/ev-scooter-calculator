@@ -1,5 +1,6 @@
 import type { RequestHandler } from './$types';
 import satori, { type Font as SatoriFont } from 'satori';
+import { applyRateLimit } from '$lib/server/api-helpers';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { calculatePerformance } from '$lib/physics/calculator';
 import { computeScore, getGradeInfo } from '$lib/utils/scoring';
@@ -444,7 +445,9 @@ function defaultCard() {
 // ---------------------------------------------------------------------------
 // Request handler
 // ---------------------------------------------------------------------------
-export const GET: RequestHandler = async ({ url }) => {
+export const GET: RequestHandler = async ({ url, getClientAddress }) => {
+	const { limited } = await applyRateLimit(getClientAddress(), false);
+	if (limited) return limited;
 	const scooterKey = url.searchParams.get('scooter') ?? '';
 
 	// ----- Build card data -----

@@ -39,12 +39,18 @@ async function loadChangelog(): Promise<ChangeEntry[]> {
 			cache = JSON.parse(raw);
 			return cache!;
 		}
-	} catch { /* start fresh */ }
+	} catch {
+		/* start fresh */
+	}
 	cache = [];
 	return cache;
 }
 
 async function saveChangelog(): Promise<void> {
+	// Vercel filesystem is read-only — skip file persistence; in-memory cache remains for lambda lifetime
+	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+		return;
+	}
 	if (!existsSync(DATA_DIR)) {
 		await mkdir(DATA_DIR, { recursive: true });
 	}
@@ -68,10 +74,7 @@ export async function recordChanges(
 	const newChanges: ChangeEntry[] = [];
 	const now = new Date().toISOString();
 
-	const allFields = new Set<string>([
-		...Object.keys(before?.fields || {}),
-		...Object.keys(after.fields || {}),
-	]);
+	const allFields = new Set<string>([...Object.keys(before?.fields || {}), ...Object.keys(after.fields || {})]);
 
 	for (const field of allFields) {
 		const oldField = before?.fields?.[field as SpecField];

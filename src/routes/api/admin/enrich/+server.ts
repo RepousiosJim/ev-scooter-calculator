@@ -1,6 +1,6 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAdmin } from '$lib/server/admin-guard';
+import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { getCandidates, upsertCandidateBatch } from '$lib/server/verification/candidate-store';
 import { enrichBatch, applyEnrichment } from '$lib/server/verification/spec-enrichment';
 import { specsToConfig, assessSpecsQuality } from '$lib/server/verification/preset-generator';
@@ -10,8 +10,9 @@ import { logActivity } from '$lib/server/verification/activity-log';
 /**
  * GET: Return enrichment stats for pending candidates.
  */
-export const GET: RequestHandler = async ({ cookies }) => {
+export const GET: RequestHandler = async ({ cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const pending = await getCandidates('pending');
 	const stats = {
@@ -39,8 +40,9 @@ export const GET: RequestHandler = async ({ cookies }) => {
  * Body: { action: 'enrich', keys?: string[] }
  *   - keys: specific candidate keys to enrich (defaults to all stubs)
  */
-export const POST: RequestHandler = async ({ request, cookies }) => {
+export const POST: RequestHandler = async ({ request, cookies, getClientAddress }) => {
 	await requireAdmin({ cookies });
+	await rateLimit({ getClientAddress });
 
 	const body = await request.json();
 	const { action, keys } = body;

@@ -105,6 +105,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+	response.headers.set(
+		'Content-Security-Policy',
+		[
+			"default-src 'self'",
+			"script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"font-src 'self' https://fonts.gstatic.com data:",
+			"img-src 'self' data: https:",
+			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.supabase.co",
+			"frame-ancestors 'none'",
+		].join('; ')
+	);
 
 	// Performance: HTTP Link preconnect hints for font + analytics origins.
 	// Sent as response headers so Vercel edge can forward them as Early Hints (103)
