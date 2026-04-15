@@ -2,6 +2,7 @@
   import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-svelte';
   import { speedVal, distanceVal } from '$lib/utils/units';
   import { formatPrice } from '$lib/utils/formatters';
+  import { getManufacturer, getManufacturerLogo, getManufacturerInitials } from '$lib/utils/manufacturer-logos';
   import type { PerformanceStats } from '$lib/types';
   import type { ScoreBreakdown } from '$lib/utils/scoring';
 
@@ -57,6 +58,22 @@
     <div class="flex items-start justify-between gap-2 mb-2.5">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="text-xs font-bold text-text-tertiary w-6 shrink-0">#{rank}</span>
+        {#if getManufacturerLogo(getManufacturer(scooter.name))}
+          <img
+            src={getManufacturerLogo(getManufacturer(scooter.name))}
+            alt={getManufacturer(scooter.name)}
+            class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity shrink-0"
+            onerror={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        {:else}
+          <div
+            class="w-5 h-5 flex items-center justify-center text-[10px] font-bold text-text-tertiary bg-white/5 rounded shrink-0"
+          >
+            {getManufacturerInitials(getManufacturer(scooter.name))}
+          </div>
+        {/if}
         <div class="min-w-0">
           <a
             href="/scooter/{scooter.key}"

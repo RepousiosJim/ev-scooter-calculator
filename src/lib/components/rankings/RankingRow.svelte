@@ -2,6 +2,7 @@
   import { TrendingDown, TrendingUp } from 'lucide-svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit } from '$lib/utils/units';
   import { formatPrice } from '$lib/utils/formatters';
+  import { getManufacturer, getManufacturerLogo, getManufacturerInitials } from '$lib/utils/manufacturer-logos';
   import type { PerformanceStats } from '$lib/types';
   import type { ScoreBreakdown } from '$lib/utils/scoring';
 
@@ -59,6 +60,20 @@
   </td>
   <td class="py-3 px-4">
     <div class="flex items-center gap-3">
+      {#if getManufacturerLogo(getManufacturer(scooter.name))}
+        <img
+          src={getManufacturerLogo(getManufacturer(scooter.name))}
+          alt={getManufacturer(scooter.name)}
+          class="w-6 h-6 object-contain opacity-70 hover:opacity-100 transition-opacity"
+          onerror={(e) => {
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+      {:else}
+        <div class="w-6 h-6 flex items-center justify-center text-xs font-bold text-text-tertiary bg-white/5 rounded">
+          {getManufacturerInitials(getManufacturer(scooter.name))}
+        </div>
+      {/if}
       <div>
         <a
           href="/scooter/{scooter.key}"
