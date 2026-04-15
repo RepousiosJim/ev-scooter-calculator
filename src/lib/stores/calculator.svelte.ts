@@ -9,6 +9,8 @@ import type {
 } from '$lib/types';
 import { defaultConfig, presets, presetMetadata } from '$lib/data/presets';
 import { rideModePresets } from '$lib/data/ride-modes';
+import { terrainModePresets } from '$lib/data/terrain-modes';
+import type { TerrainMode } from '$lib/types';
 import {
 	calculatePerformance,
 	detectBottlenecks,
@@ -114,6 +116,7 @@ export const calculatorState = $state({
 	simulatedConfig: null as ScooterConfig | null,
 	activeUpgrade: null as 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires' | null,
 	rideMode: 'normal' as RideMode,
+	terrainMode: 'urban' as TerrainMode,
 	activePresetKey: 'custom' as string,
 
 	// Computed values
@@ -233,6 +236,14 @@ export function applyRideMode(mode: RideMode) {
 		calculatorState.config.style = preset.style;
 		calculatorState.config.regen = preset.regen;
 		calculatorState.rideMode = mode;
+	}
+}
+
+export function applyTerrainMode(mode: TerrainMode) {
+	const preset = terrainModePresets[mode];
+	if (preset) {
+		calculatorState.config.slope = preset.slope;
+		calculatorState.terrainMode = mode;
 	}
 }
 

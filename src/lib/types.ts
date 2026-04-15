@@ -136,3 +136,13 @@ export interface RideModePreset {
 	style: number;
 	regen: number;
 }
+
+export type TerrainMode = 'urban' | 'suburban' | 'highway' | 'hilly';
+
+export interface TerrainModePreset {
+	id: TerrainMode;
+	name: string;
+	description: string;
+	icon: string;
+	slope: number;
+}

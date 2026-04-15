@@ -19,6 +19,7 @@
   import ComponentHealthPanel from '$lib/components/calculator/ComponentHealthPanel.svelte';
   import SectionDivider from '$lib/components/ui/SectionDivider.svelte';
   import RideModeSelector from '$lib/components/calculator/RideModeSelector.svelte';
+  import TerrainSelector from '$lib/components/calculator/TerrainSelector.svelte';
   import ShareButton from '$lib/components/ui/ShareButton.svelte';
 
   import VisualCRateIndicator from '$lib/components/ui/VisualCRateIndicator.svelte';
@@ -244,6 +245,7 @@
                   <ProfileManager />
                 {/await}
                 <RideModeSelector />
+                <TerrainSelector />
                 <BasicConfig />
               </div>
 
