@@ -4157,7 +4157,7 @@ export const CATALOG_LAST_UPDATED = '2026-04-15';
 export const presetMetadata: Record<string, PresetMetadata> = {
 	// --- 2024/2025 Models ---
 	m365_2025: {
-		name: 'Xiaomi Electric Scooter 5',
+		name: 'Xiaomi M365 Pro',
 		year: 2025,
 		manufacturer: { topSpeed: 35, range: 40, batteryWh: 832, price: 599 },
 		addedDate: '2025-01-10',
@@ -4225,7 +4225,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		sourceUrl: 'https://www.namielectric.com/',
 	},
 	apollo_city_2024_pro: {
-		name: 'Apollo City Pro (2024)',
+		name: 'Apollo City Pro',
 		year: 2024,
 		manufacturer: { topSpeed: 51, range: 69, batteryWh: 960, powerToWeight: 33, price: 1699 },
 		addedDate: '2025-01-10',
@@ -4297,7 +4297,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		sourceUrl: 'https://www.namielectric.com/',
 	},
 	segway_gt2: {
-		name: 'Segway SuperScooter GT2',
+		name: 'Segway GT2',
 		year: 2023,
 		manufacturer: { topSpeed: 70, range: 90, batteryWh: 1512, powerToWeight: 57, price: 3999 },
 		addedDate: '2025-01-10',
@@ -4311,7 +4311,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		],
 	},
 	segway_gt1: {
-		name: 'Segway SuperScooter GT1',
+		name: 'Segway GT1',
 		year: 2023,
 		manufacturer: { topSpeed: 60, range: 70, batteryWh: 1008, powerToWeight: 62, price: 1999 },
 		addedDate: '2025-01-10',
@@ -4473,7 +4473,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		sourceUrl: 'https://unagiscooters.com/',
 	},
 	uscooters_gt_sport: {
-		name: 'Uscooters GT Sport',
+		name: 'Uscooters GT',
 		year: 2022,
 		manufacturer: { topSpeed: 48, range: 35, batteryWh: 504, powerToWeight: 53, price: 1099 },
 		addedDate: '2025-01-10',
@@ -4660,7 +4660,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	falcon_urban_commuting_electric_scooter: {
-		name: 'Falcon Urban Commuting Electric Scooter',
+		name: 'Falcon Urban',
 		year: 2026,
 		manufacturer: { topSpeed: 35, range: 40, batteryWh: 749, price: 1049 },
 		addedDate: '2026-04-13',
@@ -4670,7 +4670,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	eagle_one_v3_0_off_road_explorer: {
-		name: 'Eagle One V3.0 Off-Road Explorer',
+		name: 'Eagle One V3.0 Explorer',
 		year: 2026,
 		manufacturer: { topSpeed: 64, range: 72, batteryWh: 1620, price: 2599 },
 		addedDate: '2026-04-13',
@@ -4780,7 +4780,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_ve1_pro_electric_scooter: {
-		name: 'Hiboy VE1 Pro Electric Scooter',
+		name: 'Hiboy VE1 Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 31, range: 40, batteryWh: 480, price: 459 },
 		addedDate: '2026-04-13',
@@ -4790,7 +4790,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_x300_big_wheel_electric_scooter: {
-		name: 'Hiboy X300 Big-Wheel Electric Scooter',
+		name: 'Hiboy X300',
 		year: 2026,
 		manufacturer: { topSpeed: 32, range: 48, batteryWh: 576, price: 648 },
 		addedDate: '2026-04-13',
@@ -4800,7 +4800,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_s2_se_electric_scooter: {
-		name: 'Hiboy S2 SE Electric Scooter',
+		name: 'Hiboy S2 SE',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 24, batteryWh: 216, price: 310 },
 		addedDate: '2026-04-13',
@@ -4810,7 +4810,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_dm2_off_road_electric_scooter: {
-		name: 'Hiboy DM2 Off-Road Electric Scooter',
+		name: 'Hiboy DM2',
 		year: 2026,
 		manufacturer: { topSpeed: 45, range: 56, batteryWh: 864, price: 1200 },
 		addedDate: '2026-04-13',
@@ -4820,7 +4820,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_dm1_off_road_electric_scooter: {
-		name: 'Hiboy DM1 Off-Road Electric Scooter',
+		name: 'Hiboy DM1',
 		year: 2026,
 		manufacturer: { topSpeed: 40, range: 48, batteryWh: 720, price: 900 },
 		addedDate: '2026-04-13',
@@ -4830,7 +4830,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_titan_electric_scooter_2025: {
-		name: 'Hiboy TITAN Electric Scooter 2025',
+		name: 'Hiboy Titan',
 		year: 2026,
 		manufacturer: { topSpeed: 40, range: 48, batteryWh: 720, price: 900 },
 		addedDate: '2026-04-13',
@@ -4840,7 +4840,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_ks4_pro_premium_electric_scooter: {
-		name: 'Hiboy KS4 Pro Premium Electric Scooter',
+		name: 'Hiboy KS4 Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 31, range: 40, batteryWh: 547, price: 400 },
 		addedDate: '2026-04-13',
@@ -4850,7 +4850,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_s2_nova_electric_scooter: {
-		name: 'Hiboy S2 Nova Electric Scooter',
+		name: 'Hiboy S2 Nova',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 27, batteryWh: 270, price: 315 },
 		addedDate: '2026-04-13',
@@ -4860,7 +4860,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hiboy_s2_electric_scooter: {
-		name: 'Hiboy S2 Electric Scooter',
+		name: 'Hiboy S2',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 27, batteryWh: 270, price: 300 },
 		addedDate: '2026-04-13',
@@ -4870,7 +4870,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	niu_kqi3_pro_electric_scooter_19_9mph: {
-		name: 'NIU KQi3 Pro Electric Scooter 19.9mph',
+		name: 'NIU KQi3 Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 32, range: 50, batteryWh: 432, price: 459 },
 		addedDate: '2026-04-13',
@@ -4880,7 +4880,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	niu_kqi3_sport_electric_scooter_17_4mph: {
-		name: 'NIU KQi3 Sport Electric Scooter 17.4mph',
+		name: 'NIU KQi3 Sport',
 		year: 2026,
 		manufacturer: { topSpeed: 28, range: 29, batteryWh: 324, price: 419 },
 		addedDate: '2026-04-13',
@@ -4910,7 +4910,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	vsett_10_single_motor_electric_scooter: {
-		name: 'VSETT 10 Single Motor Electric Scooter',
+		name: 'VSETT 10',
 		year: 2026,
 		manufacturer: { topSpeed: 55, range: 80, batteryWh: 1260, price: 1699 },
 		addedDate: '2026-04-13',
@@ -4920,7 +4920,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	teverun_fighter_supreme_7260r_v5_electric_scooter: {
-		name: 'Teverun Fighter Supreme 7260R V5 Electric Scooter',
+		name: 'Teverun Fighter Supreme 7260R V5',
 		year: 2026,
 		manufacturer: { topSpeed: 97, range: 160, batteryWh: 4320, price: 4999 },
 		addedDate: '2026-04-13',
@@ -4930,7 +4930,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	hooga_daytona_72v_all_terrain_hyper_scooter: {
-		name: 'Hooga Daytona - 72V All Terrain Hyper Scooter',
+		name: 'Hooga Daytona',
 		year: 2026,
 		manufacturer: { topSpeed: 89, range: 113, batteryWh: 2304, price: 3499 },
 		addedDate: '2026-04-13',
@@ -5000,7 +5000,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	gt4_2400w_dual_motor_off_road_electric_scooter: {
-		name: 'GT4 2400W Dual Motor Off-Road Electric Scooter',
+		name: 'GMAX GT4',
 		year: 2026,
 		manufacturer: { topSpeed: 55, range: 64, batteryWh: 864, price: 900 },
 		addedDate: '2026-04-13',
@@ -5010,7 +5010,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	s_nova_pro_commuting_electric_scooter: {
-		name: 'S Nova Pro Commuting Electric Scooter',
+		name: 'S Nova Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 31, range: 29, batteryWh: 450, price: 490 },
 		addedDate: '2026-04-13',
@@ -5020,7 +5020,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	s_nova_commuting_electric_scooter: {
-		name: 'S Nova Commuting Electric Scooter',
+		name: 'S Nova',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 25, batteryWh: 360, price: 350 },
 		addedDate: '2026-04-13',
@@ -5030,7 +5030,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	apex_pro_commuting_electric_scooter: {
-		name: 'Apex PRO Commuting Electric Scooter',
+		name: 'Apex PRO',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 24, batteryWh: 270, price: 200 },
 		addedDate: '2026-04-13',
@@ -5040,7 +5040,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	fusion_electric_scooter: {
-		name: 'Fusion Electric Scooter',
+		name: 'Fusion',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 29, batteryWh: 270, price: 249 },
 		addedDate: '2026-04-13',
@@ -5050,7 +5050,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	g3_max_long_range_escooter: {
-		name: 'G3 MAX Long Range eScooter',
+		name: 'G3 MAX',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 45, batteryWh: 360, price: 330 },
 		addedDate: '2026-04-13',
@@ -5060,7 +5060,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	gmax_ultra_electric_scooter: {
-		name: 'GMAX Ultra Electric Scooter',
+		name: 'GMAX Ultra',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 64, batteryWh: 360, price: 400 },
 		addedDate: '2026-04-13',
@@ -5070,7 +5070,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	gx2_dual_motor_electric_scooter: {
-		name: 'GX2 Dual Motor Electric Scooter',
+		name: 'GX2',
 		year: 2026,
 		manufacturer: { topSpeed: 32, range: 32, batteryWh: 480, price: 550 },
 		addedDate: '2026-04-13',
@@ -5080,7 +5080,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	gx3_off_road_electric_scooter: {
-		name: 'GX3 Off Road Electric Scooter',
+		name: 'GX3 Off Road',
 		year: 2026,
 		manufacturer: { topSpeed: 32, range: 45, batteryWh: 720, price: 799 },
 		addedDate: '2026-04-13',
@@ -5337,7 +5337,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	hover1_ace_r450: {
-		name: 'Hover-1 H-1 Pro Series Ace R450',
+		name: 'Hover-1 Ace R450',
 		year: 2024,
 		manufacturer: { topSpeed: 32, range: 41, batteryWh: 380, price: 599 },
 		addedDate: '2026-04-13',
@@ -5466,7 +5466,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 	},
 
 	mantis_2025_fluid_edition: {
-		name: 'MANTIS 2025 - Fluid Edition',
+		name: 'MANTIS 2025',
 		year: 2025,
 		manufacturer: { topSpeed: 40, range: 50, batteryWh: 768, price: 1599 },
 		addedDate: '2026-04-12',
@@ -5484,7 +5484,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	emove_roadster_electric_scooter: {
-		name: 'EMOVE Roadster Electric Scooter',
+		name: 'EMOVE Roadster',
 		year: 2025,
 		manufacturer: { topSpeed: 105, range: 128, batteryWh: 3360, price: 4990 },
 		addedDate: '2026-04-11',
@@ -5577,7 +5577,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	segway_gt3: {
-		name: 'Segway SuperScooter GT3',
+		name: 'Segway GT3',
 		year: 2025,
 		manufacturer: { topSpeed: 70, range: 90, batteryWh: 2592, powerToWeight: 60, price: 3299 },
 		addedDate: '2026-04-12',
@@ -5587,7 +5587,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	segway_gt3_pro: {
-		name: 'Segway SuperScooter GT3 Pro',
+		name: 'Segway GT3 Pro',
 		year: 2025,
 		manufacturer: { topSpeed: 70, range: 120, batteryWh: 3456, powerToWeight: 55, price: 3999 },
 		addedDate: '2026-04-12',
@@ -5929,7 +5929,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	xiaomi_pro_2: {
-		name: 'Xiaomi Mi Scooter Pro 2',
+		name: 'Xiaomi Pro 2',
 		year: 2021,
 		manufacturer: { topSpeed: 25, range: 45, batteryWh: 460, price: 549 },
 		addedDate: '2026-04-15',
