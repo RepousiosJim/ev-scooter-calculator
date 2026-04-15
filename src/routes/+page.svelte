@@ -534,5 +534,42 @@
         {/if}
       </div>
     </div>
+
+    <!-- Mobile Sticky Quick Stats Bar -->
+    <!-- Fixed bottom bar so users can see key performance stats while scrolling through config -->
+    <div class="fixed bottom-0 left-0 right-0 z-50 md:hidden" aria-live="polite" aria-label="Quick stats">
+      <div class="bg-bg-primary/95 backdrop-blur-md border-t border-white/[0.1] px-4 py-2.5 safe-area-pb">
+        <div class="flex items-center justify-between max-w-7xl mx-auto">
+          <div class="flex flex-col items-center gap-0.5 flex-1">
+            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Range</span>
+            <div class="flex items-baseline gap-0.5">
+              <span class="text-sm font-black text-text-primary">{distanceVal(stats.totalRange)}</span>
+              <span class="text-[9px] text-text-tertiary">{distanceUnit()}</span>
+            </div>
+          </div>
+          <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
+          <div class="flex flex-col items-center gap-0.5 flex-1">
+            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Speed</span>
+            <div class="flex items-baseline gap-0.5">
+              <span class="text-sm font-black text-text-primary">{speedVal(stats.speed)}</span>
+              <span class="text-[9px] text-text-tertiary">{speedUnit()}</span>
+            </div>
+          </div>
+          <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
+          <div class="flex flex-col items-center gap-0.5 flex-1">
+            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Power</span>
+            <div class="flex items-baseline gap-0.5">
+              <span class="text-sm font-black text-text-primary">{stats.totalWatts}</span>
+              <span class="text-[9px] text-text-tertiary">W</span>
+            </div>
+          </div>
+          <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
+          <div class="flex flex-col items-center gap-0.5 flex-1">
+            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Grade</span>
+            <span class="text-sm font-black text-primary">{calculatorState.performanceGrade}</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

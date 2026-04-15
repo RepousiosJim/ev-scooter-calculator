@@ -418,6 +418,15 @@ button {
 }
 
 /* ════════════════════════════════════════════
+   Mobile Safe Area Support
+   Ensures fixed bottom bars don't overlap the
+   iOS/Android home indicator gesture area.
+   ════════════════════════════════════════════ */
+.safe-area-pb {
+	padding-bottom: max(0.625rem, env(safe-area-inset-bottom, 0.625rem));
+}
+
+/* ════════════════════════════════════════════
    Mobile Touch Targets (44px minimum)
    ════════════════════════════════════════════ */
 @media (max-width: 640px) {
