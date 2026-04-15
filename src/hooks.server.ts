@@ -113,7 +113,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"font-src 'self' https://fonts.gstatic.com data:",
 			"img-src 'self' data: https:",
-			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.supabase.co",
+			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://*.supabase.co",
 			"frame-ancestors 'none'",
 		].join('; ')
 	);
