@@ -1,5 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import { RefreshCw, Zap } from 'lucide-svelte';
   import CandidateRow from '$lib/components/admin/CandidateRow.svelte';
   let { data } = $props();
@@ -19,6 +20,71 @@
   let generatedCode = $state<string | null>(null);
   let actionInProgress = $state<string | null>(null);
   let copyFeedback = $state<string | null>(null);
+
+  // Multi-select state
+  let selectedKeys = new SvelteSet<string>();
+  let batchInProgress = $state(false);
+  let batchFeedback = $state<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const selectedCount = $derived(selectedKeys.size);
+
+  function toggleSelect(key: string) {
+    if (selectedKeys.has(key)) selectedKeys.delete(key);
+    else selectedKeys.add(key);
+  }
+
+  function toggleSelectAll() {
+    selectedKeys.clear();
+    if (!allFilteredSelected) {
+      filtered.forEach((c) => selectedKeys.add(c.key));
+    }
+  }
+
+  function clearSelection() {
+    selectedKeys.clear();
+  }
+
+  async function batchAction(action: 'approve' | 'reject') {
+    if (selectedKeys.size === 0) return;
+    batchInProgress = true;
+    batchFeedback = null;
+    const keys = [...selectedKeys];
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const key of keys) {
+      try {
+        const res = await fetch('/api/admin/candidates', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action, key }),
+        });
+        const result = await res.json();
+        if (!res.ok) {
+          failed++;
+        } else {
+          succeeded++;
+          if (result.candidate) {
+            candidates = candidates.map((c) => (c.key === key ? { ...c, ...result.candidate } : c));
+          }
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    selectedKeys.clear();
+    await refreshStats();
+    batchInProgress = false;
+    batchFeedback = {
+      type: failed > 0 ? 'error' : 'success',
+      message:
+        failed > 0
+          ? `${succeeded} ${action}d, ${failed} failed`
+          : `${succeeded} candidate${succeeded !== 1 ? 's' : ''} ${action}d`,
+    };
+    setTimeout(() => (batchFeedback = null), 4000);
+  }
 
   // Sync status
   let syncing = $state(false);
@@ -119,6 +185,8 @@
 
     return result;
   });
+
+  const allFilteredSelected = $derived(filtered.length > 0 && filtered.every((c) => selectedKeys.has(c.key)));
 
   function toggleSort(col: typeof sortBy) {
     if (sortBy === col) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
@@ -502,6 +570,18 @@
     </div>
   </div>
 
+  <!-- Batch Feedback -->
+  {#if batchFeedback}
+    <div
+      class="px-4 py-2.5 rounded-xl text-sm font-medium
+             {batchFeedback.type === 'success'
+        ? 'bg-green-500/10 border border-green-500/20 text-green-400'
+        : 'bg-red-500/10 border border-red-500/20 text-red-400'}"
+    >
+      {batchFeedback.message}
+    </div>
+  {/if}
+
   <!-- Candidate List -->
   {#if filtered.length === 0}
     <div class="bg-[#12121a] border border-gray-800 rounded-xl p-12 text-center">
@@ -527,22 +607,107 @@
       {/if}
     </div>
   {:else}
+    <!-- Sticky Batch Action Bar — visible when 2+ candidates selected -->
+    {#if selectedCount >= 2}
+      <div
+        class="sticky top-4 z-20 flex items-center gap-3 px-4 py-3
+               bg-[#1a1a2e] border border-cyan-500/25 rounded-xl shadow-lg shadow-black/40
+               backdrop-blur-sm"
+      >
+        <span class="text-sm font-medium text-cyan-400 tabular-nums">
+          {selectedCount} selected
+        </span>
+        <div class="w-px h-4 bg-white/10 shrink-0"></div>
+        <button
+          type="button"
+          onclick={() => batchAction('approve')}
+          disabled={batchInProgress}
+          class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider
+                 text-green-400 bg-green-500/10 border border-green-500/20 rounded-lg
+                 hover:bg-green-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
+        >
+          {#if batchInProgress}
+            <span class="inline-block w-3 h-3 border-2 border-green-400/30 border-t-green-400 rounded-full animate-spin"
+            ></span>
+          {/if}
+          Approve All
+        </button>
+        <button
+          type="button"
+          onclick={() => batchAction('reject')}
+          disabled={batchInProgress}
+          class="px-4 py-1.5 text-xs font-bold uppercase tracking-wider
+                 text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg
+                 hover:bg-red-500/20 disabled:opacity-50 transition-all flex items-center gap-2"
+        >
+          {#if batchInProgress}
+            <span class="inline-block w-3 h-3 border-2 border-red-400/30 border-t-red-400 rounded-full animate-spin"
+            ></span>
+          {/if}
+          Reject All
+        </button>
+        <button
+          type="button"
+          onclick={clearSelection}
+          disabled={batchInProgress}
+          class="ml-auto px-3 py-1.5 text-xs text-gray-400 hover:text-white
+                 bg-white/[0.03] border border-white/[0.08] rounded-lg
+                 hover:bg-white/[0.06] disabled:opacity-50 transition-all"
+        >
+          Clear
+        </button>
+      </div>
+    {/if}
+
+    <!-- Select-all row -->
+    <div class="flex items-center gap-3 px-1">
+      <label class="flex items-center gap-2 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={allFilteredSelected}
+          onchange={toggleSelectAll}
+          class="w-4 h-4 rounded border border-gray-700 bg-white/[0.03] accent-cyan-500 cursor-pointer"
+        />
+        <span class="text-xs text-gray-500">
+          {allFilteredSelected ? 'Deselect all' : `Select all ${filtered.length}`}
+        </span>
+      </label>
+      {#if selectedCount > 0 && selectedCount < filtered.length}
+        <span class="text-xs text-gray-600">{selectedCount} of {filtered.length} selected</span>
+      {/if}
+    </div>
+
     <div class="space-y-2">
       {#each filtered as candidate (candidate.key)}
-        <CandidateRow
-          {candidate}
-          expanded={expandedKey === candidate.key}
-          loading={actionInProgress === candidate.key}
-          generatedCode={expandedKey === candidate.key ? generatedCode : null}
-          {copyFeedback}
-          ontoggle={() => {
-            expandedKey = expandedKey === candidate.key ? null : candidate.key;
-            generatedCode = null;
-          }}
-          onaction={performAction}
-          ongeneratecode={generateCode}
-          oncopy={copyToClipboard}
-        />
+        <div class="flex items-start gap-3">
+          <!-- Checkbox -->
+          <label class="mt-3.5 flex-shrink-0 cursor-pointer" aria-label="Select {candidate.name}">
+            <input
+              type="checkbox"
+              checked={selectedKeys.has(candidate.key)}
+              onchange={() => toggleSelect(candidate.key)}
+              class="w-4 h-4 rounded border border-gray-700 bg-white/[0.03] accent-cyan-500 cursor-pointer"
+            />
+          </label>
+
+          <!-- Row -->
+          <div class="flex-1 min-w-0">
+            <CandidateRow
+              {candidate}
+              expanded={expandedKey === candidate.key}
+              loading={actionInProgress === candidate.key}
+              generatedCode={expandedKey === candidate.key ? generatedCode : null}
+              {copyFeedback}
+              ontoggle={() => {
+                expandedKey = expandedKey === candidate.key ? null : candidate.key;
+                generatedCode = null;
+              }}
+              onaction={performAction}
+              ongeneratecode={generateCode}
+              oncopy={copyToClipboard}
+            />
+          </div>
+        </div>
       {/each}
     </div>
   {/if}

@@ -168,15 +168,41 @@
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col min-w-0">
-      <header class="h-12 bg-[#12121a] border-b border-gray-800 flex items-center px-4 shrink-0">
+      <header class="h-12 bg-[#12121a] border-b border-gray-800 flex items-center px-4 shrink-0 gap-3">
         <button
           onclick={() => (sidebarOpen = !sidebarOpen)}
-          class="text-gray-400 hover:text-white mr-4 text-lg"
+          class="text-gray-400 hover:text-white text-lg shrink-0"
           aria-label="Toggle sidebar"
         >
           &#9776;
         </button>
-        <span class="text-sm text-gray-400"> Scooter Spec & Price Verification </span>
+
+        <!-- Breadcrumb -->
+        <nav class="flex items-center gap-1.5 text-xs min-w-0" aria-label="Breadcrumb">
+          <a href="/admin" class="text-gray-500 hover:text-gray-300 transition-colors shrink-0">Admin</a>
+          {#if $page.url.pathname !== '/admin'}
+            <span class="text-gray-700 shrink-0">/</span>
+            {#if $page.url.pathname === '/admin/pipeline'}
+              <span class="text-cyan-400 font-medium">Pipeline</span>
+            {:else if $page.url.pathname === '/admin/discover'}
+              <span class="text-green-400 font-medium">Discover New</span>
+            {:else if $page.url.pathname === '/admin/candidates'}
+              <span class="text-yellow-400 font-medium">Candidates</span>
+            {:else if $page.url.pathname === '/admin/alerts'}
+              <span class="text-red-400 font-medium">Smart Alerts</span>
+            {:else if $page.url.pathname === '/admin/logs'}
+              <span class="text-purple-400 font-medium">Activity Log</span>
+            {:else if $page.url.pathname === '/admin/settings'}
+              <span class="text-gray-300 font-medium">Settings</span>
+            {:else}
+              <span class="text-gray-300 font-medium truncate">
+                {$page.url.pathname.replace('/admin/', '')}
+              </span>
+            {/if}
+          {/if}
+        </nav>
+
+        <span class="ml-auto text-xs text-gray-600 shrink-0 hidden sm:block">Spec & Price Verification</span>
       </header>
 
       <main class="flex-1 overflow-y-auto p-6">

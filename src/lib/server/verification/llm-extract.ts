@@ -15,8 +15,11 @@ const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GE
 /** Maximum text characters to send to the LLM (keep tokens low for free tier) */
 const MAX_TEXT_LENGTH = 12000;
 
-interface LLMExtractionResult {
-	specs: Partial<Record<SpecField, number>>;
+/** Extended spec fields the LLM can extract beyond the base SpecField set */
+type LLMSpecField = SpecField | 'ampHours' | 'chargeTime' | 'maxRiderWeight';
+
+export interface LLMExtractionResult {
+	specs: Partial<Record<LLMSpecField, number>>;
 	confidence: 'high' | 'medium' | 'low';
 	notes?: string;
 }
@@ -95,28 +98,31 @@ export async function extractWithLLM(html: string, scooterName: string, url: str
 }
 
 function buildPrompt(scooterName: string, pageText: string): string {
-	return `You are a data extraction assistant. Extract electric scooter specifications from this product page text for the "${scooterName}".
+	return `You are a precision data extraction assistant for electric scooters. Extract ONLY verified specifications from this product page for the "${scooterName}".
 
-Return a JSON object with ONLY these fields (omit any you cannot find):
-- topSpeed: number (km/h — convert from mph if needed: multiply by 1.609)
-- range: number (km — convert from miles if needed: multiply by 1.609)
-- batteryWh: number (Wh — if given in Ah and voltage, calculate: Ah × V)
-- price: number (USD — just the number, no currency symbol)
-- voltage: number (V)
-- motorWatts: number (W — if given in kW, multiply by 1000. Use peak/max wattage if multiple values)
-- weight: number (kg — convert from lbs if needed: multiply by 0.4536)
+Return a JSON object with ONLY the fields you can confidently extract (omit fields you cannot find with certainty):
+- topSpeed: number (km/h — convert mph × 1.609; use the highest stated speed if multiple modes given)
+- range: number (km — convert miles × 1.609; use the manufacturer's standard range, not the best-case)
+- batteryWh: number (Wh — if given as Ah × V, compute it; e.g. 15Ah × 48V = 720Wh)
+- ampHours: number (Ah — raw battery capacity before Wh conversion, if stated)
+- price: number (USD — just the digits, no currency symbol; use current/sale price if shown)
+- voltage: number (V — rated system voltage, e.g. 36, 48, 52, 60, 72)
+- motorWatts: number (W — use rated/continuous watts, not peak unless that's all that's given; for dual motors multiply by 2)
+- weight: number (kg — scooter weight without rider; convert lbs × 0.4536)
 - wheelSize: number (inches)
+- chargeTime: number (hours — time to full charge from empty)
+- maxRiderWeight: number (kg — maximum supported rider weight; convert lbs × 0.4536)
 
 Also include:
-- confidence: "high" if specs clearly match the scooter name, "medium" if partially sure, "low" if uncertain
-- notes: brief note about what you found (optional)
+- confidence: "high" if 5+ specs clearly match the scooter name, "medium" if 2-4 specs found, "low" if fewer than 2
+- notes: one sentence describing quality of the data found (optional)
 
 Rules:
-- Only extract specs that are clearly for this specific scooter, not accessories or other products
-- Use the most commonly stated value if multiple values exist
-- All units must be metric (km/h, km, kg) — convert imperial values
-- Return numbers only, no units in the values
-- If the page doesn't contain specs for this scooter, return empty specs with confidence "low"
+- Only extract specs explicitly stated for THIS scooter model — never infer from accessories or comparison products
+- If the same field appears multiple times with different values, prefer the value labeled "rated" or "nominal" over "peak"
+- All units must be metric — show only the numeric value (no units in the value)
+- Numbers must be realistic: speed 5–120 km/h, range 5–200 km, battery 100–10000 Wh, motor 100–20000 W, weight 5–80 kg, wheel 4–20 inches
+- Return {} for specs if the page clearly does not contain specs for this scooter
 
 PAGE TEXT:
 ${pageText.slice(0, MAX_TEXT_LENGTH)}`;
@@ -216,29 +222,35 @@ function parseGeminiResponse(content: string): LLMExtractionResult {
 		}
 
 		const parsed = JSON.parse(json);
-		const specs: Partial<Record<SpecField, number>> = {};
+		const specs: Partial<Record<LLMSpecField, number>> = {};
 
-		const validFields: SpecField[] = [
+		const validFields: LLMSpecField[] = [
 			'topSpeed',
 			'range',
 			'batteryWh',
+			'ampHours',
 			'price',
 			'voltage',
 			'motorWatts',
 			'weight',
 			'wheelSize',
+			'chargeTime',
+			'maxRiderWeight',
 		];
 
 		// Sanity ranges for each field
 		const ranges: Record<string, [number, number]> = {
-			topSpeed: [10, 200],
-			range: [5, 500],
+			topSpeed: [5, 200],
+			range: [3, 500],
 			batteryWh: [100, 10000],
-			price: [50, 20000],
+			ampHours: [3, 150],
+			price: [50, 25000],
 			voltage: [12, 120],
 			motorWatts: [100, 20000],
-			weight: [5, 100],
+			weight: [3, 100],
 			wheelSize: [4, 20],
+			chargeTime: [0.5, 24],
+			maxRiderWeight: [40, 300],
 		};
 
 		for (const field of validFields) {

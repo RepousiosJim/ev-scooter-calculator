@@ -214,6 +214,50 @@
     </button>
   </div>
 
+  <!-- Status Summary Chips — shown after a scan has results -->
+  {#if discoveryResults && !scanning}
+    <div class="flex flex-wrap items-center gap-2">
+      <span
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+               bg-white/[0.05] border border-white/[0.08] text-gray-300"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+        {discoveryResults.totalScootersFound} total
+      </span>
+      <span
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+               bg-green-500/10 border border-green-500/20 text-green-400"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+        {discoveryResults.totalNew} new
+      </span>
+      <span
+        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+               bg-white/[0.03] border border-white/[0.06] text-gray-500"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-gray-600"></span>
+        {discoveryResults.totalKnown} already known
+      </span>
+      {#if candidateResult}
+        <span
+          class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+                 bg-yellow-500/10 border border-yellow-500/20 text-yellow-400"
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
+          {candidateResult.added} candidates created
+        </span>
+        {#if candidateResult.skipped > 0}
+          <span
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium
+                   bg-white/[0.03] border border-white/[0.06] text-gray-500"
+          >
+            {candidateResult.skipped} duplicates skipped
+          </span>
+        {/if}
+      {/if}
+    </div>
+  {/if}
+
   <!-- Scan Progress -->
   {#if scanning}
     <div class="bg-[#12121a] border border-gray-800 rounded-xl p-4 space-y-3">

@@ -6,6 +6,7 @@
 import type { PresetCandidate, SpecsQuality } from './preset-generator';
 import { assessSpecsQuality } from './preset-generator';
 import { fetchPage as fetchPageHttp } from './html-extractor';
+import { extractWithLLM, isLLMAvailable } from './llm-extract';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -554,15 +555,30 @@ export async function enrichCandidate(candidate: PresetCandidate): Promise<Enric
 	}
 
 	const { specs, strategies } = extractSpecsFromHtml(page.html);
-	const specCount = Object.keys(specs).length;
+	const coreCount = CORE_SPEC_KEYS.filter((k) => specs[k] !== undefined).length;
 
+	// LLM fallback: call Gemini when HTML extraction is insufficient (<3 core specs)
+	if (coreCount < 3 && isLLMAvailable()) {
+		const llmResult = await extractWithLLM(page.html, candidate.name, url);
+		if (llmResult.confidence !== 'low' && Object.keys(llmResult.specs).length > 0) {
+			strategies.push('llm');
+			// Merge LLM fields — HTML extraction takes priority (already set values win)
+			for (const [k, v] of Object.entries(llmResult.specs)) {
+				if (v !== undefined && !(k in specs)) {
+					(specs as Record<string, unknown>)[k] = v;
+				}
+			}
+		}
+	}
+
+	const specCount = Object.keys(specs).length;
 	if (specCount === 0) {
 		return {
 			success: false,
 			specsFound: {},
 			specsQuality: candidate.specsQuality || 'stub',
 			strategies,
-			errors: ['No specs found in page HTML'],
+			errors: ['No specs found in page HTML or via LLM'],
 		};
 	}
 
