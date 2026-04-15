@@ -178,23 +178,6 @@ export async function discoverScooters(
 	return result;
 }
 
-/**
- * Scan all scrapable manufacturers.
- */
-export async function discoverAll(
-	scrapableManufacturers: Manufacturer[],
-	onProgress?: (manufacturer: string, index: number, total: number) => void
-): Promise<DiscoveryResult[]> {
-	const results: DiscoveryResult[] = [];
-	for (let i = 0; i < scrapableManufacturers.length; i++) {
-		const mfr = scrapableManufacturers[i];
-		onProgress?.(mfr.name, i, scrapableManufacturers.length);
-		const result = await discoverScooters(mfr);
-		results.push(result);
-	}
-	return results;
-}
-
 /** Convert an ExtractedProduct to a DiscoveredScooter */
 function productToScooter(product: ExtractedProduct, manufacturer: Manufacturer): DiscoveredScooter {
 	return {

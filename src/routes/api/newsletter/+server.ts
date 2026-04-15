@@ -102,6 +102,10 @@ export const POST: RequestHandler = async ({ request }) => {
 		return json({ success: true, message: "You're subscribed!" });
 	}
 
+	if (process.env.VERCEL) {
+		return json({ error: 'Newsletter service unavailable — Supabase not configured' }, { status: 503 });
+	}
+
 	const result = await withLock(async () => {
 		const data = await loadSubscribers();
 		const ex = data.subscribers[cleanEmail];
@@ -147,6 +151,10 @@ export const DELETE: RequestHandler = async ({ request }) => {
 		}
 		if (!count) return json({ error: 'Subscription not found' }, { status: 404 });
 		return json({ success: true, message: 'You have been unsubscribed.' });
+	}
+
+	if (process.env.VERCEL) {
+		return json({ error: 'Newsletter service unavailable — Supabase not configured' }, { status: 503 });
 	}
 
 	const result = await withLock(async () => {

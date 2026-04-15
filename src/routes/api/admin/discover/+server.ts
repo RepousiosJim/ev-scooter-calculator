@@ -92,13 +92,11 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 
 				const result = await discoverScooters(mfr, { skipGemini });
 
-				// Track URL health for each URL attempted
-				for (const url of result.scannedUrls) {
-					await updateUrlHealth(url, 200, undefined, result.scooters.length);
-				}
-				for (const url of result.deadUrls) {
-					await updateUrlHealth(url, 404, 'Page not found or unreachable');
-				}
+				// Track URL health — run all upserts concurrently rather than sequentially
+				await Promise.all([
+					...result.scannedUrls.map((url) => updateUrlHealth(url, 200, undefined, result.scooters.length)),
+					...result.deadUrls.map((url) => updateUrlHealth(url, 404, 'Page not found or unreachable')),
+				]);
 
 				// Persist discovered entries
 				const entries: DiscoveryEntry[] = result.scooters.map((s) => ({
