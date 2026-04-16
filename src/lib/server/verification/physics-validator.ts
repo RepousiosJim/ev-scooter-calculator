@@ -26,6 +26,15 @@ const RANGES = {
 	wheel: { min: 5, max: 14, label: 'Wheel Size' },
 	weight: { min: 40, max: 160, label: 'Rider Weight' },
 	scooterWeight: { min: 5, max: 65, label: 'Scooter Weight' },
+	// Unit-range guards — these fields are easily entered in the wrong unit
+	// (soh as 100% instead of 0–1, regen as 1 instead of 0.10, style as
+	// a class enum instead of Wh/km, cost as MSRP instead of $/kWh).
+	// Range violations here are unit errors, not "unusual but plausible" data.
+	soh: { min: 0.1, max: 1, label: 'State of Health (0–1)' },
+	regen: { min: 0, max: 0.5, label: 'Regen Efficiency (0–0.5)' },
+	style: { min: 10, max: 80, label: 'Riding Style (Wh/km)' },
+	ridePosition: { min: 0.3, max: 0.7, label: 'Ride Position Drag Factor' },
+	cost: { min: 0.05, max: 1, label: 'Electricity Cost ($/kWh)' },
 } as const;
 
 // Cross-field validation rules
@@ -110,6 +119,13 @@ const CROSS_CHECKS = {
 	},
 };
 
+/**
+ * Fields where any out-of-range value indicates a unit error (e.g. soh as a
+ * percentage, regen as a boolean, cost as MSRP). Always flagged as `error`,
+ * never `warning` — there is no "unusual but plausible" interpretation.
+ */
+const UNIT_ERROR_FIELDS = new Set(['soh', 'regen', 'style', 'ridePosition', 'cost']);
+
 export function validateConfig(config: ScooterConfig, claimedSpecs?: { batteryWh?: number }): ValidationResult {
 	const issues: ValidationIssue[] = [];
 
@@ -118,9 +134,14 @@ export function validateConfig(config: ScooterConfig, claimedSpecs?: { batteryWh
 		const value = config[key as keyof ScooterConfig] as number | undefined;
 		if (value === undefined || value === null) continue;
 		if (value < range.min || value > range.max) {
+			const severity: 'error' | 'warning' = UNIT_ERROR_FIELDS.has(key)
+				? 'error'
+				: value < range.min * 0.5 || value > range.max * 2
+					? 'error'
+					: 'warning';
 			issues.push({
 				field: key,
-				severity: value < range.min * 0.5 || value > range.max * 2 ? 'error' : 'warning',
+				severity,
 				message: `${range.label} (${value}) outside expected range ${range.min}-${range.max}`,
 				expected: `${range.min}-${range.max}`,
 			});

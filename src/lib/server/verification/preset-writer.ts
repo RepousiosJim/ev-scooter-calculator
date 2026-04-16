@@ -14,6 +14,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { resolve } from 'path';
 import type { PresetCandidate } from './preset-generator';
+import { validateConfig } from './physics-validator';
 
 const PRESETS_PATH = resolve('src/lib/data/presets.ts');
 
@@ -49,6 +50,21 @@ export async function isPresetInFile(key: string): Promise<boolean> {
  */
 export async function addPresetToFile(candidate: PresetCandidate): Promise<{ success: boolean; error?: string }> {
 	try {
+		// Reject configs with unit-error fields (soh as %, regen as boolean,
+		// style as enum, cost as MSRP). Range failures here are not "unusual
+		// but plausible" — they are wrong units that corrupt physics output
+		// across every consumer page.
+		const guard = validateConfig(candidate.config);
+		const unitErrors = guard.issues.filter(
+			(i) => i.severity === 'error' && ['soh', 'regen', 'style', 'ridePosition', 'cost'].includes(i.field)
+		);
+		if (unitErrors.length > 0) {
+			return {
+				success: false,
+				error: `Unit-range validation failed: ${unitErrors.map((e) => e.message).join('; ')}`,
+			};
+		}
+
 		let content = await readPresetsFile();
 		const key = candidate.key;
 
