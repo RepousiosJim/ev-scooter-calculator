@@ -1,6 +1,7 @@
 import type { RequestHandler } from './$types';
-import { presets, presetMetadata } from '$lib/data/presets';
+import { presets, presetMetadata, CATALOG_LAST_UPDATED } from '$lib/data/presets';
 import { guides } from '$lib/data/guides';
+import { getTopComparisonPairs } from '$lib/utils/comparison-pairs';
 
 // Prerender the sitemap at build time — it is fully static (derived from presets + guides).
 // Vercel will serve this from the CDN edge with zero cold starts.
@@ -8,11 +9,11 @@ export const prerender = true;
 
 export const GET: RequestHandler = async ({ url }) => {
 	const baseUrl = url.origin;
-	const lastmod = '2025-01-15';
+	const lastmod = CATALOG_LAST_UPDATED;
 
 	const pages = [
 		{ path: '/', priority: '1.0', changefreq: 'weekly' },
-		{ path: '/rankings', priority: '0.8', changefreq: 'weekly' },
+		{ path: '/rankings', priority: '0.9', changefreq: 'daily' },
 		{ path: '/wizard', priority: '0.7', changefreq: 'monthly' },
 		{ path: '/cost', priority: '0.7', changefreq: 'monthly' },
 		{ path: '/guides', priority: '0.7', changefreq: 'weekly' },
@@ -20,10 +21,15 @@ export const GET: RequestHandler = async ({ url }) => {
 		{ path: '/notifications', priority: '0.4', changefreq: 'monthly' },
 	];
 
-	// Add individual scooter detail pages
+	// Add individual scooter detail pages (high priority — these are the primary SEO targets)
 	for (const key of Object.keys(presets)) {
 		if (key === 'custom' || !presetMetadata[key]) continue;
-		pages.push({ path: `/scooter/${key}`, priority: '0.6', changefreq: 'monthly' });
+		pages.push({ path: `/scooter/${key}`, priority: '0.8', changefreq: 'weekly' });
+	}
+
+	// Add programmatic comparison pages — high-signal long-tail queries
+	for (const pair of getTopComparisonPairs()) {
+		pages.push({ path: `/compare/${pair.slug}`, priority: '0.7', changefreq: 'monthly' });
 	}
 
 	// Add individual guide pages

@@ -36,6 +36,7 @@
 
   // Derived display values
   const topRecommendations = $derived(recommendations.slice(0, 3));
+  const relatedScooters = $derived(data.relatedScooters);
 
   const statusLabel = $derived.by(() => {
     switch (metadata.status) {
@@ -974,6 +975,49 @@
         Print / PDF
       </button>
     </nav>
+
+    <!-- ═══════════════════════════════════════════════
+         COMPARE WITH SIMILAR
+         ═══════════════════════════════════════════════ -->
+    {#if relatedScooters.length > 0}
+      <section in:fly={{ y: 20, duration: 400, delay: 480 }} aria-labelledby="compare-heading">
+        <div class="flex items-center gap-3 mb-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true"></span>
+          <h2 id="compare-heading" class="text-xs font-bold uppercase tracking-[0.12em] text-text-secondary">
+            Compare {metadata.name} With
+          </h2>
+          <div class="h-px flex-1 bg-gradient-to-r from-white/[0.06] to-transparent" aria-hidden="true"></div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {#each relatedScooters as rel (rel.key)}
+            <a
+              href="/compare/{rel.compareSlug}"
+              class="group bg-white/[0.02] border border-white/[0.08] rounded-xl p-4 hover:border-primary/30 hover:bg-white/[0.04] transition-colors"
+            >
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  <div class="text-[10px] font-bold uppercase tracking-[0.12em] text-text-tertiary mb-1">
+                    {metadata.name} vs
+                  </div>
+                  <div class="text-sm font-bold text-text-primary truncate group-hover:text-primary transition-colors">
+                    {rel.name}
+                  </div>
+                  <div class="text-[10px] text-text-tertiary mt-0.5">
+                    {rel.year} · {rel.score.toFixed(1)}/100
+                  </div>
+                </div>
+                <span
+                  class="text-lg font-black tabular-nums shrink-0 px-2 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08]"
+                >
+                  {rel.grade}
+                </span>
+              </div>
+            </a>
+          {/each}
+        </div>
+      </section>
+    {/if}
 
     <!-- Newsletter Signup -->
     <div class="mt-8">
