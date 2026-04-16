@@ -21,6 +21,7 @@ import {
 } from '$lib/constants/physics';
 import { PERFORMANCE_CACHE_LIMIT } from '$lib/constants/cache';
 import { LRUCache } from './cache';
+import { hashCacheKey } from './cache-key-hash';
 
 /**
  * Calculate estimated scooter weight based on battery energy capacity.
@@ -49,11 +50,7 @@ export function calculateTemperatureFactor(ambientTemp: number): number {
 	return 1.0; // Optimal range: 20–45°C
 }
 
-function getPerformanceCacheKey(config: ScooterConfig, mode: PredictionMode): string {
-	return `${mode}|${config.v}|${config.ah}|${config.motors}|${config.watts}|${config.controller ?? 0}|${config.style}|${config.weight}|${config.wheel}|${config.rpm ?? 0}|${config.motorKv ?? 0}|${config.scooterWeight ?? 0}|${config.drivetrainEfficiency ?? 0.9}|${config.batterySagPercent ?? 0.08}|${config.charger}|${config.regen}|${config.cost}|${config.slope}|${config.ridePosition}|${config.dragCoefficient ?? 0.7}|${config.frontalArea ?? 0.5}|${config.rollingResistance ?? 0.015}|${config.soh}|${config.ambientTemp}`;
-}
-
-const performanceCache = new LRUCache<string, PerformanceStats>(PERFORMANCE_CACHE_LIMIT);
+const performanceCache = new LRUCache<number, PerformanceStats>(PERFORMANCE_CACHE_LIMIT);
 
 const ZERO_STATS: PerformanceStats = Object.freeze({
 	wh: 0,
@@ -74,7 +71,7 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
 		return ZERO_STATS;
 	}
 
-	const cacheKey = getPerformanceCacheKey(config, mode);
+	const cacheKey = hashCacheKey(config, mode);
 	const cached = performanceCache.get(cacheKey);
 	if (cached) return cached;
 
