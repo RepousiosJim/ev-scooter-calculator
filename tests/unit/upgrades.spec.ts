@@ -285,14 +285,14 @@ describe('getAllUpgrades', () => {
 	it('returns exactly 5 recommendations (one per upgrade type)', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		expect(recs).toHaveLength(5);
 	});
 
 	it('each recommendation has the required shape', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		for (const rec of recs) {
 			expect(rec).toHaveProperty('upgradeType');
 			expect(rec).toHaveProperty('title');
@@ -309,7 +309,7 @@ describe('getAllUpgrades', () => {
 	it('upgrade types are correct', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const types = recs.map((r) => r.upgradeType);
 		expect(types).toContain('parallel');
 		expect(types).toContain('voltage');
@@ -321,7 +321,7 @@ describe('getAllUpgrades', () => {
 	it('parallel upgrade is "high" confidence when range < 50 km', () => {
 		const config = makeConfig();
 		const stats = makeStats({ totalRange: 30 }); // below 50 km threshold
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const parallelRec = recs.find((r) => r.upgradeType === 'parallel')!;
 		expect(parallelRec.confidence).toBe('high');
 	});
@@ -329,7 +329,7 @@ describe('getAllUpgrades', () => {
 	it('parallel upgrade is "low" confidence when range >= 50 km and cRate <= 2', () => {
 		const config = makeConfig();
 		const stats = makeStats({ totalRange: 80, cRate: 1.5 });
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const parallelRec = recs.find((r) => r.upgradeType === 'parallel')!;
 		expect(parallelRec.confidence).toBe('low');
 	});
@@ -337,7 +337,7 @@ describe('getAllUpgrades', () => {
 	it('voltage boost is "low" confidence when voltage >= 72V', () => {
 		const config = makeConfig({ v: 72 });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const voltageRec = recs.find((r) => r.upgradeType === 'voltage')!;
 		expect(voltageRec.confidence).toBe('low');
 	});
@@ -345,7 +345,7 @@ describe('getAllUpgrades', () => {
 	it('voltage boost is "medium" confidence when voltage < 72V', () => {
 		const config = makeConfig({ v: 52 });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const voltageRec = recs.find((r) => r.upgradeType === 'voltage')!;
 		expect(voltageRec.confidence).toBe('medium');
 	});
@@ -353,7 +353,7 @@ describe('getAllUpgrades', () => {
 	it('controller upgrade is "high" confidence when controller is defined', () => {
 		const config = makeConfig({ controller: 20 });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const controllerRec = recs.find((r) => r.upgradeType === 'controller')!;
 		expect(controllerRec.confidence).toBe('high');
 	});
@@ -361,7 +361,7 @@ describe('getAllUpgrades', () => {
 	it('controller upgrade is "low" confidence when no controller limit is set', () => {
 		const config = makeConfig({ controller: undefined });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const controllerRec = recs.find((r) => r.upgradeType === 'controller')!;
 		expect(controllerRec.confidence).toBe('low');
 	});
@@ -369,7 +369,7 @@ describe('getAllUpgrades', () => {
 	it('motor upgrade is "medium" confidence for single-motor scooter', () => {
 		const config = makeConfig({ motors: 1 });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const motorRec = recs.find((r) => r.upgradeType === 'motor')!;
 		expect(motorRec.confidence).toBe('medium');
 	});
@@ -377,7 +377,7 @@ describe('getAllUpgrades', () => {
 	it('motor upgrade is "low" confidence for dual-motor scooter', () => {
 		const config = makeConfig({ motors: 2 });
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const motorRec = recs.find((r) => r.upgradeType === 'motor')!;
 		expect(motorRec.confidence).toBe('low');
 	});
@@ -385,7 +385,7 @@ describe('getAllUpgrades', () => {
 	it('tires upgrade is "medium" confidence for high rolling resistance', () => {
 		const config = makeConfig({ rollingResistance: 0.025 }); // >= 0.015
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const tiresRec = recs.find((r) => r.upgradeType === 'tires')!;
 		expect(tiresRec.confidence).toBe('medium');
 	});
@@ -393,7 +393,7 @@ describe('getAllUpgrades', () => {
 	it('tires upgrade is "low" confidence for already low rolling resistance', () => {
 		const config = makeConfig({ rollingResistance: 0.01 }); // < 0.015
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const tiresRec = recs.find((r) => r.upgradeType === 'tires')!;
 		expect(tiresRec.confidence).toBe('low');
 	});
@@ -401,7 +401,7 @@ describe('getAllUpgrades', () => {
 	it('tires upgrade has difficulty "easy"', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const tiresRec = recs.find((r) => r.upgradeType === 'tires')!;
 		expect(tiresRec.difficulty).toBe('easy');
 	});
@@ -409,7 +409,7 @@ describe('getAllUpgrades', () => {
 	it('parallel battery has difficulty "moderate"', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		const parallelRec = recs.find((r) => r.upgradeType === 'parallel')!;
 		expect(parallelRec.difficulty).toBe('moderate');
 	});
@@ -417,7 +417,7 @@ describe('getAllUpgrades', () => {
 	it('expectedGains.spec is a non-empty string for all upgrade types', () => {
 		const config = makeConfig();
 		const stats = makeStats();
-		const recs = getAllUpgrades(config, stats);
+		const recs = getAllUpgrades(config, stats, stats);
 		for (const rec of recs) {
 			expect(typeof rec.expectedGains.spec).toBe('string');
 			expect(rec.expectedGains.spec.length).toBeGreaterThan(0);

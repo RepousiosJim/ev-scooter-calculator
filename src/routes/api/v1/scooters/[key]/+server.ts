@@ -23,11 +23,13 @@ export const GET: RequestHandler = async ({ params, getClientAddress }) => {
 	const meta = presetMetadata[key];
 
 	const stats = calculatePerformance(config, 'spec');
+	const specStats = stats;
+	const realworldStats = calculatePerformance(config, 'realworld');
 	const score = computeScore(config, stats);
 	const gradeInfo = getGradeInfo(score);
 	const scoreBreakdown = apiScoreBreakdown(config, stats);
 	const bottlenecks = detectBottlenecks(stats, config);
-	const recommendations = generateRecommendations(config, stats);
+	const recommendations = generateRecommendations(config, specStats, realworldStats);
 
 	return json(
 		{

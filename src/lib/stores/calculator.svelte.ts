@@ -169,12 +169,16 @@ export const calculatorState = $state({
 	},
 
 	get recommendations(): Recommendation[] {
-		return generateRecommendations(this.config, this.stats);
+		const specStats = calculatePerformance(this.config, 'spec');
+		const realworldStats = calculatePerformance(this.config, 'realworld');
+		return generateRecommendations(this.config, specStats, realworldStats);
 	},
 
 	get incompatibleUpgrades(): Recommendation[] {
+		const specStats = calculatePerformance(this.config, 'spec');
+		const realworldStats = calculatePerformance(this.config, 'realworld');
 		const recommendedTypes = new Set(this.recommendations.map((r) => r.upgradeType));
-		return getAllUpgrades(this.config, this.stats).filter((u) => !recommendedTypes.has(u.upgradeType));
+		return getAllUpgrades(this.config, specStats, realworldStats).filter((u) => !recommendedTypes.has(u.upgradeType));
 	},
 
 	get upgradeDelta(): UpgradeDelta | null {

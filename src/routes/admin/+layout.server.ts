@@ -2,9 +2,9 @@ import type { LayoutServerLoad } from './$types';
 import { getStore } from '$lib/server/verification/store';
 import { generateAlerts } from '$lib/server/verification/smart-alerts';
 
-export const load: LayoutServerLoad = async ({ url, setHeaders }) => {
-	// Admin pages must never be cached publicly — override the root layout's cache headers.
-	setHeaders({ 'Cache-Control': 'private, no-store' });
+export const load: LayoutServerLoad = async ({ url }) => {
+	// Cache headers (`private, no-store`) for all /admin/* routes are set at
+	// the CDN layer in vercel.json — not here.
 	// Auth is handled by hooks.server.ts — if we get here on non-login pages, user is authenticated
 	const isLogin = url.pathname.startsWith('/admin/login');
 

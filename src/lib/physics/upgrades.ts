@@ -77,10 +77,15 @@ export function calculateUpgradeDelta(
 	};
 }
 
-export function getAllUpgrades(config: ScooterConfig, stats: PerformanceStats): Recommendation[] {
+export function getAllUpgrades(
+	config: ScooterConfig,
+	specStats: PerformanceStats,
+	realworldStats: PerformanceStats
+): Recommendation[] {
 	const allPossible: Recommendation[] = [];
-	const currentSpec = calculatePerformance(config, 'spec');
-	const currentRealworld = calculatePerformance(config, 'realworld');
+	const currentSpec = specStats;
+	const currentRealworld = realworldStats;
+	const stats = specStats; // For condition checks
 
 	const upgradeTypes: Recommendation['upgradeType'][] = ['parallel', 'voltage', 'controller', 'motor', 'tires'];
 

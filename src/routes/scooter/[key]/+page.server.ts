@@ -42,12 +42,14 @@ export const load: PageServerLoad = ({ params }) => {
 	const config = presets[key];
 	const metadata = presetMetadata[key];
 	const stats = calculatePerformance(config, 'spec');
+	const specStats = stats;
+	const realworldStats = calculatePerformance(config, 'realworld');
 	const breakdown = computeScoreBreakdown(config, stats);
 	const score = breakdown.total;
 	const grade = getGrade(score);
 	const gradeInfo = getGradeInfo(score);
 	const bottlenecks = detectBottlenecks(stats, config);
-	const recommendations = generateRecommendations(config, stats);
+	const recommendations = generateRecommendations(config, specStats, realworldStats);
 
 	// Compute related scooters: 2 same-brand + 3 closest-scoring cross-brand.
 	// These power the "Compare with" internal-link block — critical for SEO crawl depth

@@ -149,8 +149,9 @@ describe('Recommendation Engine', () => {
 			watts: 2000,
 		};
 
-		const stats = calculatePerformance(configWithHighCrate);
-		const recommendations = generateRecommendations(configWithHighCrate, stats);
+		const specStats = calculatePerformance(configWithHighCrate, 'spec');
+		const realworldStats = calculatePerformance(configWithHighCrate, 'realworld');
+		const recommendations = generateRecommendations(configWithHighCrate, specStats, realworldStats);
 
 		expect(recommendations.some((r) => r.upgradeType === 'parallel')).toBe(true);
 	});
@@ -162,8 +163,9 @@ describe('Recommendation Engine', () => {
 			watts: 500,
 		};
 
-		const stats = calculatePerformance(configWithLowVoltage);
-		const recommendations = generateRecommendations(configWithLowVoltage, stats);
+		const specStats = calculatePerformance(configWithLowVoltage, 'spec');
+		const realworldStats = calculatePerformance(configWithLowVoltage, 'realworld');
+		const recommendations = generateRecommendations(configWithLowVoltage, specStats, realworldStats);
 
 		expect(recommendations.some((r) => r.upgradeType === 'voltage')).toBe(true);
 	});
@@ -175,8 +177,9 @@ describe('Recommendation Engine', () => {
 			watts: 2000,
 		};
 
-		const stats = calculatePerformance(configWithController);
-		const recommendations = generateRecommendations(configWithController, stats);
+		const specStats = calculatePerformance(configWithController, 'spec');
+		const realworldStats = calculatePerformance(configWithController, 'realworld');
+		const recommendations = generateRecommendations(configWithController, specStats, realworldStats);
 
 		expect(recommendations.some((r) => r.upgradeType === 'controller')).toBe(true);
 	});

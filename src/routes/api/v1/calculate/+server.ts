@@ -111,11 +111,13 @@ export const POST: RequestHandler = async ({ request, url, getClientAddress }) =
 
 	const config = coerceConfig(body);
 	const stats = calculatePerformance(config, mode);
+	const specStats = calculatePerformance(config, 'spec');
+	const realworldStats = calculatePerformance(config, 'realworld');
 	const score = computeScore(config, stats);
 	const gradeInfo = getGradeInfo(score);
 	const scoreBreakdown = apiScoreBreakdown(config, stats);
 	const bottlenecks = detectBottlenecks(stats, config);
-	const recommendations = generateRecommendations(config, stats);
+	const recommendations = generateRecommendations(config, specStats, realworldStats);
 
 	// Strip internal fields from the echoed config
 	const {
