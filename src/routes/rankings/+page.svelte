@@ -278,11 +278,20 @@
 
     <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-6 lg:pt-8 pb-8">
       <!-- Page Header -->
-      <div class="mb-6 lg:mb-8">
-        <h1 class="text-xl font-black text-text-primary tracking-tight">Power Rankings</h1>
-        <p class="text-xs text-text-tertiary mt-1">
-          {ranked.length} scooters ranked by composite performance score
-        </p>
+      <div class="mb-6 lg:mb-8 flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h1 class="text-xl font-black text-text-primary tracking-tight">Power Rankings</h1>
+          <p class="text-xs text-text-tertiary mt-1">
+            {ranked.length} scooters ranked by composite performance score
+          </p>
+        </div>
+        <a
+          href="/best"
+          class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-hover bg-primary/[0.06] hover:bg-primary/[0.12] border border-primary/20 rounded-full px-3 py-1.5 transition-colors"
+        >
+          Browse by category
+          <span aria-hidden="true">→</span>
+        </a>
       </div>
 
       <!-- Controls Bar -->

@@ -4144,6 +4144,33 @@ export const presets: ScooterPreset = {
 	},
 };
 
+/**
+ * Clamp preset config fields to physically plausible ranges.
+ *
+ * The admin auto-approval pipeline has historically let through values
+ * that are out-of-unit (e.g. `soh: 100` meant as a percentage but consumed
+ * as a 0–1 multiplier, `regen: 1` meaning 100% which the physics engine
+ * interprets literally, `style: 3` Wh/km which produces nonsense range).
+ *
+ * This runs once at module load and mutates the preset objects in place.
+ * A deeper fix belongs in the admin pipeline + a data audit pass, but
+ * clamping here protects every consumer (detail pages, compare pages,
+ * rankings, collection pages) from surfacing absurd numbers.
+ */
+function normalizePresetConfig(cfg: ScooterConfig): void {
+	if (cfg.soh > 1) cfg.soh = cfg.soh / 100;
+	if (cfg.soh <= 0 || cfg.soh > 1) cfg.soh = 1;
+	if (cfg.regen > 0.5) cfg.regen = 0.15;
+	if (cfg.ridePosition < 0.4 || cfg.ridePosition > 0.65) cfg.ridePosition = 0.55;
+	if (cfg.style < 15 || cfg.style > 80) cfg.style = 32;
+	if (cfg.cost > 1) cfg.cost = 0.2;
+}
+
+for (const key of Object.keys(presets)) {
+	if (key === 'custom') continue;
+	normalizePresetConfig(presets[key]);
+}
+
 export const defaultConfig: ScooterConfig = {
 	...customPreset,
 	controller: undefined,

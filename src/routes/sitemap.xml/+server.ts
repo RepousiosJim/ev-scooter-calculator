@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types';
 import { presets, presetMetadata, CATALOG_LAST_UPDATED } from '$lib/data/presets';
 import { guides } from '$lib/data/guides';
 import { getTopComparisonPairs } from '$lib/utils/comparison-pairs';
+import { collections } from '$lib/data/collections';
 
 // Prerender the sitemap at build time — it is fully static (derived from presets + guides).
 // Vercel will serve this from the CDN edge with zero cold starts.
@@ -17,6 +18,7 @@ export const GET: RequestHandler = async ({ url }) => {
 		{ path: '/wizard', priority: '0.7', changefreq: 'monthly' },
 		{ path: '/cost', priority: '0.7', changefreq: 'monthly' },
 		{ path: '/guides', priority: '0.7', changefreq: 'weekly' },
+		{ path: '/best', priority: '0.8', changefreq: 'weekly' },
 		{ path: '/embed/demo', priority: '0.5', changefreq: 'monthly' },
 		{ path: '/notifications', priority: '0.4', changefreq: 'monthly' },
 	];
@@ -35,6 +37,11 @@ export const GET: RequestHandler = async ({ url }) => {
 	// Add individual guide pages
 	for (const guide of guides) {
 		pages.push({ path: `/guides/${guide.slug}`, priority: '0.6', changefreq: 'monthly' });
+	}
+
+	// Add collection landing pages — commercial-intent "best of" queries
+	for (const collection of collections) {
+		pages.push({ path: `/best/${collection.slug}`, priority: '0.75', changefreq: 'weekly' });
 	}
 
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>
