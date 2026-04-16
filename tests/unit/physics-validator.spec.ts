@@ -116,8 +116,8 @@ describe('validateConfig — range checks (single-field warnings)', () => {
 		expect(issue).toBeDefined();
 	});
 
-	it('warns when scooterWeight exceeds 65 kg', () => {
-		const config = { ...validConfig, scooterWeight: 80 };
+	it('warns when scooterWeight exceeds 90 kg', () => {
+		const config = { ...validConfig, scooterWeight: 100 };
 		const result = validateConfig(config);
 		const issue = result.issues.find((i) => i.field === 'scooterWeight');
 		expect(issue).toBeDefined();
@@ -173,16 +173,25 @@ describe('validateConfig — cross-checks', () => {
 	});
 
 	describe('powerToWeight ratio', () => {
-		it('warns when power-to-weight is below 3 W/kg', () => {
-			// totalPower = 200*1 = 200, totalWeight = 80+28 = 108, ratio = 1.85
-			const config = { ...validConfig, watts: 200, motors: 1, scooterWeight: 28 };
+		it('warns when power-to-weight is below 2 W/kg', () => {
+			// totalPower = 150*1 = 150, totalWeight = 80+28 = 108, ratio = 1.39
+			const config = { ...validConfig, watts: 150, motors: 1, scooterWeight: 28 };
 			const result = validateConfig(config);
 			const ptwIssue = result.issues.find((i) => i.field === 'power-to-weight');
 			expect(ptwIssue).toBeDefined();
 			expect(ptwIssue!.severity).toBe('warning');
 		});
 
-		it('errors when power-to-weight exceeds 100 W/kg', () => {
+		it('warns when power-to-weight is between 100 and 200 W/kg', () => {
+			// totalPower = 6000*2 = 12000, totalWeight = 80+20 = 100, ratio = 120
+			const config = { ...validConfig, watts: 6000, motors: 2, weight: 80, scooterWeight: 20 };
+			const result = validateConfig(config);
+			const ptwIssue = result.issues.find((i) => i.field === 'power-to-weight');
+			expect(ptwIssue).toBeDefined();
+			expect(ptwIssue!.severity).toBe('warning');
+		});
+
+		it('errors when power-to-weight exceeds 200 W/kg', () => {
 			// totalPower = 8000*2 = 16000, totalWeight = 40+0 = 40, ratio = 400
 			const config = { ...validConfig, watts: 8000, motors: 2, weight: 40, scooterWeight: 0 };
 			const result = validateConfig(config);
@@ -192,7 +201,7 @@ describe('validateConfig — cross-checks', () => {
 		});
 
 		it('passes with normal power-to-weight ratio', () => {
-			// totalPower = 500*1 = 500, totalWeight = 80+28 = 108, ratio ~= 4.6 W/kg (above 3, below 100)
+			// totalPower = 500*1 = 500, totalWeight = 80+28 = 108, ratio ~= 4.6 W/kg
 			const result = validateConfig(validConfig);
 			const ptwIssue = result.issues.find((i) => i.field === 'power-to-weight');
 			expect(ptwIssue).toBeUndefined();
@@ -225,20 +234,18 @@ describe('validateConfig — cross-checks', () => {
 	});
 
 	describe('C-rate check', () => {
-		it('warns when C-rate is between 3.5 and 5', () => {
-			// totalPower = 1600W, wh = v*ah
-			// cRate = totalPower / wh > 3.5 → wh < 1600/3.5 ≈ 457
-			// v=52, ah=8 → wh=416 → cRate = 1600/416 = 3.85
-			const config = { ...validConfig, watts: 800, motors: 2, ah: 8 }; // totalPower=1600, wh=416
+		it('warns when C-rate is between 5 and 7', () => {
+			// totalPower = 5200W, wh = 52*16 = 832 → cRate = 6.25
+			const config = { ...validConfig, watts: 2600, motors: 2, ah: 16 };
 			const result = validateConfig(config);
 			const crIssue = result.issues.find((i) => i.field === 'c-rate');
 			expect(crIssue).toBeDefined();
 			expect(crIssue!.severity).toBe('warning');
 		});
 
-		it('errors when C-rate exceeds 5', () => {
-			// totalPower=3200, wh = 52*10 = 520, cRate = 3200/520 ≈ 6.15
-			const config = { ...validConfig, watts: 1600, motors: 2, ah: 10 };
+		it('errors when C-rate exceeds 7', () => {
+			// totalPower=6800, wh = 52*10 = 520, cRate = 13.08
+			const config = { ...validConfig, watts: 3400, motors: 2, ah: 10 };
 			const result = validateConfig(config);
 			const crIssue = result.issues.find((i) => i.field === 'c-rate');
 			expect(crIssue).toBeDefined();
@@ -246,11 +253,8 @@ describe('validateConfig — cross-checks', () => {
 		});
 
 		it('does not flag normal C-rates', () => {
-			// 3200W / 832Wh = 3.84... wait, let's recalculate validConfig
-			// totalPower = 1600*2 = 3200, wh = 52*16 = 832, cRate = 3.85
-			// Hmm, validConfig itself might trigger a warning.
-			// Use lower power to be safe
-			const config = { ...validConfig, watts: 500, motors: 1 }; // 500W / 832Wh = 0.6C
+			// 500W / 832Wh = 0.6C
+			const config = { ...validConfig, watts: 500, motors: 1 };
 			const result = validateConfig(config);
 			const crIssue = result.issues.find((i) => i.field === 'c-rate');
 			expect(crIssue).toBeUndefined();

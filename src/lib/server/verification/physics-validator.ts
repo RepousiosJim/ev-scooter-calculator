@@ -25,7 +25,7 @@ const RANGES = {
 	motors: { min: 1, max: 2, label: 'Motor Count' },
 	wheel: { min: 5, max: 14, label: 'Wheel Size' },
 	weight: { min: 40, max: 160, label: 'Rider Weight' },
-	scooterWeight: { min: 5, max: 65, label: 'Scooter Weight' },
+	scooterWeight: { min: 5, max: 90, label: 'Scooter Weight' },
 	// Unit-range guards — these fields are easily entered in the wrong unit
 	// (soh as 100% instead of 0–1, regen as 1 instead of 0.10, style as
 	// a class enum instead of Wh/km, cost as MSRP instead of $/kWh).
@@ -60,19 +60,26 @@ const CROSS_CHECKS = {
 			};
 		return null;
 	},
-	// Power-to-weight ratio should be plausible
+	// Power-to-weight ratio should be plausible.
+	// Hyper-scooters (Teverun Ultra, etc.) routinely hit 100–150 W/kg at peak.
+	// Anything beyond ~200 W/kg is double-counted motor power.
 	powerToWeight: (config: ScooterConfig) => {
 		const totalPower = config.watts * config.motors;
 		const totalWeight = config.weight + (config.scooterWeight || 0);
 		const ratio = totalPower / totalWeight;
-		// < 5 W/kg is very underpowered, > 80 W/kg is extreme
-		if (ratio > 100)
+		if (ratio > 200)
 			return {
 				field: 'power-to-weight',
 				severity: 'error' as const,
 				message: `Power-to-weight ratio ${ratio.toFixed(1)} W/kg is impossibly high`,
 			};
-		if (ratio < 3)
+		if (ratio > 100)
+			return {
+				field: 'power-to-weight',
+				severity: 'warning' as const,
+				message: `Power-to-weight ratio ${ratio.toFixed(1)} W/kg is very high — verify peak vs nominal watts`,
+			};
+		if (ratio < 2)
 			return {
 				field: 'power-to-weight',
 				severity: 'warning' as const,
@@ -98,18 +105,20 @@ const CROSS_CHECKS = {
 			};
 		return null;
 	},
-	// C-rate shouldn't be extreme
+	// C-rate shouldn't be extreme.
+	// Modern high-discharge scooter cells (Samsung 50E, LG M50T) handle 5–7C
+	// briefly under hard acceleration; anything beyond ~7C is suspect.
 	cRate: (config: ScooterConfig) => {
 		const totalPower = config.watts * config.motors;
 		const wh = config.v * config.ah;
 		const cRate = totalPower / wh;
-		if (cRate > 5)
+		if (cRate > 7)
 			return {
 				field: 'c-rate',
 				severity: 'error' as const,
 				message: `C-rate of ${cRate.toFixed(1)}C is dangerously high — check battery capacity`,
 			};
-		if (cRate > 3.5)
+		if (cRate > 5)
 			return {
 				field: 'c-rate',
 				severity: 'warning' as const,
