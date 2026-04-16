@@ -2,7 +2,7 @@ import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 
-export const config = { maxDuration: 120 };
+export const config = { maxDuration: 60 };
 import { getCandidates, upsertCandidateBatch } from '$lib/server/verification/candidate-store';
 import { enrichBatch, applyEnrichment } from '$lib/server/verification/spec-enrichment';
 import { specsToConfig, assessSpecsQuality } from '$lib/server/verification/preset-generator';

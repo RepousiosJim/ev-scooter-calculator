@@ -1,45 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 
-// Mock lucide-svelte before importing comparison utilities
-vi.mock('lucide-svelte', () => ({
-	TrendingUp: 'TrendingUp',
-	TrendingDown: 'TrendingDown',
-	ArrowLeftRight: 'ArrowLeftRight',
-}));
-
-import { getDeltaColor, getDeltaIcon, formatDelta, hasSignificantChange, formatValue } from '$lib/utils/comparison';
-
-beforeEach(() => {
-	vi.clearAllMocks();
-});
-
-describe('getDeltaColor', () => {
-	it('returns text-success for "up" direction', () => {
-		expect(getDeltaColor('up')).toBe('text-success');
-	});
-
-	it('returns text-danger for "down" direction', () => {
-		expect(getDeltaColor('down')).toBe('text-danger');
-	});
-
-	it('returns text-textMuted for "neutral" direction', () => {
-		expect(getDeltaColor('neutral')).toBe('text-textMuted');
-	});
-});
-
-describe('getDeltaIcon', () => {
-	it('returns TrendingUp icon for "up" direction', () => {
-		expect(getDeltaIcon('up')).toBe('TrendingUp');
-	});
-
-	it('returns TrendingDown icon for "down" direction', () => {
-		expect(getDeltaIcon('down')).toBe('TrendingDown');
-	});
-
-	it('returns ArrowLeftRight icon for "neutral" direction', () => {
-		expect(getDeltaIcon('neutral')).toBe('ArrowLeftRight');
-	});
-});
+import { formatDelta, hasSignificantChange, formatValue } from '$lib/utils/comparison';
 
 describe('formatDelta', () => {
 	it('returns positive absolute and percent when upgraded > current', () => {

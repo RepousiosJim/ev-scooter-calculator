@@ -1,27 +1,4 @@
 import type { DeltaDirection } from '$lib/types';
-import { TrendingUp, TrendingDown, ArrowLeftRight } from 'lucide-svelte';
-
-export function getDeltaColor(direction: DeltaDirection): string {
-	switch (direction) {
-		case 'up':
-			return 'text-success';
-		case 'down':
-			return 'text-danger';
-		default:
-			return 'text-textMuted';
-	}
-}
-
-export function getDeltaIcon(direction: DeltaDirection) {
-	switch (direction) {
-		case 'up':
-			return TrendingUp;
-		case 'down':
-			return TrendingDown;
-		default:
-			return ArrowLeftRight;
-	}
-}
 
 export function formatDelta(
 	current: number,

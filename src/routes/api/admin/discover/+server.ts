@@ -1,8 +1,8 @@
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 
-// Vercel: allow up to 300 s for discovery scans across all manufacturers.
-export const config = { maxDuration: 300 };
+// Vercel Hobby plan max: 60 s
+export const config = { maxDuration: 60 };
 import { requireAdmin, rateLimit } from '$lib/server/admin-guard';
 import { manufacturers, getScrapableManufacturers } from '$lib/server/verification/manufacturers';
 import { discoverScooters, type DiscoveredScooter } from '$lib/server/verification/discovery';
