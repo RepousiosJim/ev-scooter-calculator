@@ -15,6 +15,7 @@
   } from '$lib/stores/profiles.svelte';
   import { calculatorState, applyConfig } from '$lib/stores/calculator.svelte';
   import { showToast } from '$lib/stores/toast.svelte';
+  import { resolvePresetKey } from '$lib/data/preset-aliases';
 
   let showSaveForm = $state(false);
   let saveInputValue = $state('');
@@ -112,7 +113,7 @@
 
   function handleLoad(profile: SavedProfile) {
     applyConfig(profile.config);
-    calculatorState.activePresetKey = profile.presetKey;
+    calculatorState.activePresetKey = resolvePresetKey(profile.presetKey);
     setActiveProfile(profile.id);
     openMenuId = null;
     pendingDeleteId = null;

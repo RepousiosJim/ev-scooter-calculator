@@ -8,6 +8,7 @@ import type {
 	RideMode,
 } from '$lib/types';
 import { defaultConfig, presets, presetMetadata } from '$lib/data/presets';
+import { resolvePresetKey } from '$lib/data/preset-aliases';
 import { rideModePresets } from '$lib/data/ride-modes';
 import { terrainModePresets } from '$lib/data/terrain-modes';
 import type { TerrainMode } from '$lib/types';
@@ -218,7 +219,8 @@ export function applyConfig(config: Partial<ScooterConfig>) {
 	calculatorState.rideMode = matchRideMode(calculatorState.config);
 }
 
-export function loadPreset(presetKey: string) {
+export function loadPreset(requestedKey: string) {
+	const presetKey = resolvePresetKey(requestedKey);
 	const preset = presets[presetKey];
 	if (preset) {
 		// Preserve user's temperature setting when loading presets

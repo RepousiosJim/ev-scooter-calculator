@@ -9,14 +9,21 @@ Scooter presets live in `src/lib/data/presets.ts`, in two maps keyed by the same
 - `presets[key]` — the `ScooterConfig` the calculator runs (volts, amp-hours, motors, peak watts per motor, wheel size, base consumption `style`, optional `speedCap`, …).
 - `presetMetadata[key]` — display data: `name` (always prefixed with the brand), `year`, and the manufacturer's claims (`topSpeed`, `range`, `batteryWh`, `price`).
 
-After adding or changing a preset, calibrate its base consumption against the claimed range:
+`watts` is the **peak** output per motor (divide a published total peak by the motor count). Manufacturers' rated/nominal figures are lower and make the scooter look slower than it is.
+
+After adding or changing a preset, calibrate it against the manufacturer's claims:
 
 ```bash
-node scripts/calibrate-presets.mjs           # dry run: table of old → new style values and flags
-node scripts/calibrate-presets.mjs --write   # write the calibrated values into presets.ts
+node scripts/calibrate-presets.mjs           # dry run: table of old → new values and flags
+node scripts/calibrate-presets.mjs --write   # write motorKv and style into presets.ts
 ```
 
-`style` is the scooter's base consumption in Wh/km at reference conditions (80 kg rider, flat ground, no regen, full-power cruise, default tyres). The script sets it so the engine reproduces the claimed range under the conditions manufacturers measure at (75 kg rider, flat, ~15 km/h); the everyday range then comes from the physics model. Bump `CATALOG_VERSION` and `CATALOG_LAST_UPDATED` when the catalog changes — `CONTENT_YEAR` (used in "best of" titles) is derived from the latter.
+The script does two things:
+
+1. **Top speed:** fits `motorKv` so the calculated top speed matches the claimed top speed. Presets with a firmware or legal `speedCap` keep their KV. If the listed power can't reach the claim at any KV, the scooter is listed as power-limited; check its `watts`.
+2. **Range:** sets `style`, the scooter's base consumption in Wh/km at reference conditions (80 kg rider, flat ground, no regen, full-power cruise, default tyres), so the engine reproduces the claimed range under the conditions manufacturers measure at (75 kg rider, flat, ~15 km/h). The everyday range then comes from the physics model. If the preset has an independently tested range (`tested.range` in its metadata), that is used instead, and the everyday range is set to match the test. Use this when a claim is an eco-mode figure far above real riding.
+
+When a preset is merged into another or its key changes, add the old key to `src/lib/data/preset-aliases.ts`. Old `/scooter/…`, `/compare/…` and `?preset=` links then redirect to the current key. Keys removed because the model doesn't exist are not aliased; they return 404. Bump `CATALOG_VERSION` and `CATALOG_LAST_UPDATED` when the catalog changes — `CONTENT_YEAR` (used in "best of" titles) is derived from the latter.
 
 ### Ride Modes
 

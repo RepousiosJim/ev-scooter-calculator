@@ -4,6 +4,7 @@ import { validateSession } from '$lib/server/auth';
 import { runAutoFix } from '$lib/server/verification/auto-fix';
 import { recoverOrphanedRuns } from '$lib/server/verification/discovery-store';
 import { logger } from '$lib/server/logger';
+import { canonicalPresetPath } from '$lib/data/preset-aliases';
 
 // ---------------------------------------------------------------------------
 // Unexpected errors: log them (visible in Vercel's function logs). Users see a
@@ -77,6 +78,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// The promise is cached, so subsequent requests don't re-run or re-await.
 	if (!startupFixPromise) {
 		startupFixPromise = runStartupFix();
+	}
+
+	// Scooters that were merged into another entry or renamed: send old links to
+	// the current page.
+	const presetRedirect = canonicalPresetPath(pathname);
+	if (presetRedirect) {
+		throw redirect(308, presetRedirect + event.url.search);
 	}
 
 	// Classify by the matched route ID (and the decoded path for unmatched

@@ -365,7 +365,7 @@ export const seedData: Record<string, SeedScooterData> = {
 		],
 	},
 
-	m365_pro_2: {
+	xiaomi_pro_2: {
 		specs: {
 			topSpeed: [{ value: 25, source: 'Xiaomi Official', type: 'manufacturer' }],
 			range: [
