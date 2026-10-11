@@ -30,9 +30,7 @@ Page (+page.svelte)
 │   ├── UpgradeSimulator
 │   │   └── UpgradeCard[]
 │   ├── ComparisonDeltaCard[]
-│   ├── ComparisonDisplay
-│   └── UpgradeGuidance
-│       └── RecommendationCard[]
+│   └── ComparisonDisplay
 │
 └── Compare Tab
     └── ScooterComparisonTable
@@ -120,7 +118,6 @@ Located in `src/lib/components/ui/`
 
 | Component                 | File                           | Props                           | Description          |
 | ------------------------- | ------------------------------ | ------------------------------- | -------------------- |
-| **Card**                  | `Card.svelte`                  | `title`, `class`                | Container card       |
 | **Tabs**                  | `Tabs.svelte`                  | `tabs`, `activeTab`, `onChange` | Tab navigation       |
 | **BottomSheet**           | `BottomSheet.svelte`           | `isOpen`, `title`, `onClose`    | Mobile bottom sheet  |
 | **Hero**                  | `Hero.svelte`                  | -                               | Page header section  |
@@ -165,7 +162,6 @@ Located in `src/lib/components/calculator/`
 | --------------------- | -------------------------- | --------------------- | ------------------------- |
 | **UpgradeSimulator**  | `UpgradeSimulator.svelte`  | `simulateUpgrade`     | Upgrade selection UI      |
 | **UpgradeCard**       | `UpgradeCard.svelte`       | `upgrade`, `onSelect` | Individual upgrade option |
-| **UpgradeGuidance**   | `UpgradeGuidance.svelte`   | `recommendations`     | Recommendation list       |
 | **ComparisonDisplay** | `ComparisonDisplay.svelte` | `stats`, `simStats`   | Before/after view         |
 | **ComparisonSummary** | `ComparisonSummary.svelte` | `upgradeDelta`        | Delta summary             |
 

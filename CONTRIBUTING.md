@@ -30,7 +30,7 @@
 ### Styling
 
 - Use Tailwind utility classes
-- Prefer existing theme colors from `tailwind.config.js`
+- Prefer existing theme colors from the `@theme` block in `src/app.css`
 - Avoid inline styles unless needed for dynamic values
 - Maintain consistency with existing patterns
 

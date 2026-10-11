@@ -209,8 +209,7 @@ Reactive Update
 UI Updates
 ├── ComparisonDeltaCards show before/after
 ├── ComparisonSummary displays deltas
-├── ComparisonDisplay shows detailed diff
-└── UpgradeGuidance highlights this upgrade
+└── ComparisonDisplay shows detailed diff
 ```
 
 ---
