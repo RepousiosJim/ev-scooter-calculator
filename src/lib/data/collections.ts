@@ -1,5 +1,5 @@
 import type { ScooterConfig, PerformanceStats, PresetMetadata } from '$lib/types';
-import { presets, presetMetadata } from '$lib/data/presets';
+import { presets, presetMetadata, CONTENT_YEAR } from '$lib/data/presets';
 import { calculatePerformance } from '$lib/physics/calculator';
 import { computeScoreBreakdown, getGrade } from '$lib/utils/scoring';
 
@@ -38,9 +38,8 @@ export const collections: Collection[] = [
 	{
 		slug: 'best-budget-scooters',
 		h1: 'Best Budget Electric Scooters',
-		title: 'Best Budget Electric Scooters Under $800 (2026)',
-		description:
-			'Our ranked list of the best affordable electric scooters under $800, scored on real-world range, speed, and build quality. Updated for 2026.',
+		title: `Best Budget Electric Scooters Under $800 (${CONTENT_YEAR})`,
+		description: `Our ranked list of the best affordable electric scooters under $800, scored on real-world range, speed, and build quality. Updated for ${CONTENT_YEAR}.`,
 		keyword: 'budget electric scooter',
 		intro:
 			'Every scooter below comes in under $800 retail, scored across range, speed, power, and real-world efficiency using our physics-based calculator. They are ranked by overall performance grade so you see the best value-for-money first — not the cheapest.',
@@ -52,7 +51,7 @@ export const collections: Collection[] = [
 	{
 		slug: 'best-long-range-scooters',
 		h1: 'Best Long-Range Electric Scooters',
-		title: 'Best Long-Range Electric Scooters — 80+ km Range (2026)',
+		title: `Best Long-Range Electric Scooters — 80+ km Range (${CONTENT_YEAR})`,
 		description:
 			'Top long-range electric scooters ranked by calculated real-world range. These are the picks for commutes over 40 km or riders who hate charging.',
 		keyword: 'long range electric scooter',
@@ -66,7 +65,7 @@ export const collections: Collection[] = [
 	{
 		slug: 'fastest-electric-scooters',
 		h1: 'Fastest Electric Scooters',
-		title: 'Fastest Electric Scooters in 2026 — Ranked by Top Speed',
+		title: `Fastest Electric Scooters in ${CONTENT_YEAR} — Ranked by Top Speed`,
 		description:
 			'The fastest electric scooters we track, ranked by calculated top speed. See real performance numbers on high-voltage, dual-motor flagship models.',
 		keyword: 'fastest electric scooter',
@@ -80,7 +79,7 @@ export const collections: Collection[] = [
 	{
 		slug: 'best-commuter-scooters',
 		h1: 'Best Electric Scooters for Commuting',
-		title: 'Best Electric Scooters for Commuting (2026)',
+		title: `Best Electric Scooters for Commuting (${CONTENT_YEAR})`,
 		description:
 			'The best electric scooters for daily commuting — balanced on range (25–80 km), portability, and price. Physics-based rankings, no sponsored picks.',
 		keyword: 'best commuter electric scooter',
@@ -125,7 +124,7 @@ export const collections: Collection[] = [
 	{
 		slug: 'best-lightweight-scooters',
 		h1: 'Best Lightweight Electric Scooters',
-		title: 'Best Lightweight Electric Scooters Under 18 kg (2026)',
+		title: `Best Lightweight Electric Scooters Under 18 kg (${CONTENT_YEAR})`,
 		description:
 			'The lightest electric scooters worth riding, ranked by overall score. Perfect for apartment dwellers, multi-modal commuters, and transit riders.',
 		keyword: 'lightweight electric scooter',
@@ -139,7 +138,7 @@ export const collections: Collection[] = [
 	{
 		slug: 'best-dual-motor-scooters',
 		h1: 'Best Dual-Motor Electric Scooters',
-		title: 'Best Dual-Motor Electric Scooters — All-Wheel-Drive Rankings (2026)',
+		title: `Best Dual-Motor Electric Scooters — All-Wheel-Drive Rankings (${CONTENT_YEAR})`,
 		description:
 			'Dual-motor electric scooters ranked by combined power and calculated top speed. AWD traction, higher peak watts, and real acceleration.',
 		keyword: 'dual motor electric scooter',

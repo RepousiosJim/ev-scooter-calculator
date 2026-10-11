@@ -13,6 +13,7 @@ import { describe, it, expect, vi } from 'vitest';
 // ---------------------------------------------------------------------------
 vi.mock('$lib/server/rate-limit', () => ({
 	checkRateLimit: vi.fn(),
+	RATE_LIMIT_PUBLIC: 100,
 }));
 
 // Mock scoring so apiScoreBreakdown doesn't need real physics

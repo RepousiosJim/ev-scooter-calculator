@@ -1,5 +1,10 @@
 <script lang="ts">
   import { consumeSSE } from '$lib/utils/sse-client';
+  import { onDestroy } from 'svelte';
+
+  // Abort any in-flight admin job stream when leaving the page.
+  const streamAbort = new AbortController();
+  onDestroy(() => streamAbort.abort());
 
   let { data } = $props();
 
@@ -47,6 +52,7 @@
         '/api/admin/discover',
         {
           method: 'POST',
+          signal: streamAbort.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         },
@@ -100,6 +106,7 @@
         '/api/admin/discover',
         {
           method: 'POST',
+          signal: streamAbort.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ manufacturerId }),
         },

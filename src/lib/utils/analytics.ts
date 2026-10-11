@@ -254,10 +254,14 @@ export function trackWebVitals(): Cleanup {
 
 		// Report CLS when the page is hidden (most accurate moment)
 		const reportCls = () => trackEvent('web_vital', { metric: 'CLS', value: Math.round(clsScore * 1000) / 1000 });
-		document.addEventListener('visibilitychange', () => {
+		const onVisibilityChange = () => {
 			if (document.visibilityState === 'hidden') reportCls();
+		};
+		document.addEventListener('visibilitychange', onVisibilityChange);
+		cleanups.push(() => {
+			clsObserver.disconnect();
+			document.removeEventListener('visibilitychange', onVisibilityChange);
 		});
-		cleanups.push(() => clsObserver.disconnect());
 	}
 
 	// INP — interaction-to-next-paint (available in Chrome 96+)
@@ -308,29 +312,6 @@ export function trackWebVitals(): Cleanup {
 	return () => cleanups.forEach((fn) => fn());
 }
 
-// -- A/B Testing --------------------------------------------------------------
-
-type Variant = 'A' | 'B';
-type TestName = 'preset_layout' | 'config_input_style' | 'results_display_density' | 'upgrade_simulator_visibility';
-
-function initABTest(testName: TestName): Variant {
-	if (typeof window === 'undefined') return 'A';
-	const key = `ab_test_${testName}`;
-	const stored = localStorage.getItem(key);
-	if (stored === 'A' || stored === 'B') return stored;
-	const variant: Variant = Math.random() < 0.5 ? 'A' : 'B';
-	localStorage.setItem(key, variant);
-	trackEvent('ab_test_assignment', { test_name: testName, variant });
-	return variant;
-}
-
-export function initAllABTests(): void {
-	initABTest('preset_layout');
-	initABTest('config_input_style');
-	initABTest('results_display_density');
-	initABTest('upgrade_simulator_visibility');
-}
-
 // -- Public API ---------------------------------------------------------------
 
 export const analytics = {
@@ -341,5 +322,4 @@ export const analytics = {
 	advanceFunnel,
 	initBehaviorTracking,
 	trackWebVitals,
-	initAllABTests,
 };

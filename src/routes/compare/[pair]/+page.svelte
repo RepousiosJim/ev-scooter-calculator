@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import Seo from '$lib/components/Seo.svelte';
+  import { CONTENT_YEAR } from '$lib/data/presets';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, Trophy, Zap, Gauge, Battery, Activity, TrendingUp, Scale, DollarSign } from 'lucide-svelte';
   import type { ComparePageData } from './+page.server.ts';
 
@@ -10,9 +12,7 @@
   const winners = $derived(data.winners);
   const overallWinner = $derived(data.overallWinner);
 
-  const titleText = $derived(
-    `${a.metadata.name} vs ${b.metadata.name}: Which Is Better? (${a.metadata.year} Comparison)`
-  );
+  const titleText = $derived(`${a.metadata.name} vs ${b.metadata.name}: Which Is Better? (${CONTENT_YEAR} Comparison)`);
 
   const descriptionText = $derived(
     `Head-to-head comparison of the ${a.metadata.name} and ${b.metadata.name}. ` +
@@ -82,17 +82,9 @@
 </script>
 
 <svelte:head>
-  <title>{titleText}</title>
-  <meta name="description" content={descriptionText} />
-  <link rel="canonical" href="{$page.url.origin}/compare/{data.slug}" />
-  <meta property="og:title" content={titleText} />
-  <meta property="og:description" content={descriptionText} />
-  <meta property="og:type" content="article" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={titleText} />
-  <meta name="twitter:description" content={descriptionText} />
+  <Seo title={titleText} description={descriptionText} path="/compare/{data.slug}" type="article" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(schemaJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
@@ -174,7 +166,7 @@
               style="background: {side.gradeInfo.color}18; border: 1px solid {side.gradeInfo.color}44"
             >
               <span class="text-3xl font-black leading-none" style="color: {side.gradeInfo.color}">{side.grade}</span>
-              <span class="text-[9px] font-bold tabular-nums text-text-tertiary mt-1">{side.score.toFixed(1)}</span>
+              <span class="text-[10px] font-bold tabular-nums text-text-tertiary mt-1">{side.score.toFixed(1)}</span>
             </div>
           </div>
         </a>
@@ -227,9 +219,9 @@
               <!-- Winner badge -->
               <div class="shrink-0">
                 {#if w.winner === 'tie'}
-                  <span class="text-[9px] font-bold uppercase tracking-wider text-text-tertiary">Tie</span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Tie</span>
                 {:else}
-                  <span class="text-[9px] font-bold uppercase tracking-wider text-primary"
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-primary"
                     >{w.winner === 'A' ? '← A' : 'B →'}</span
                   >
                 {/if}

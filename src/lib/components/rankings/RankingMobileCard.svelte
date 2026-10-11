@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION } from '$lib/constants/physics';
   import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-svelte';
   import { speedVal, distanceVal } from '$lib/utils/units';
   import { formatPrice } from '$lib/utils/formatters';
@@ -54,7 +55,8 @@
 
 <div class="border {tierMeta.bg} {tierMeta.border}">
   <!-- Top row: rank + name + score -->
-  <button type="button" class="w-full text-left p-3.5" onclick={ontoggleexpand}>
+  <!-- Not a button: it contains a link, and interactive elements can't nest. -->
+  <div class="w-full text-left p-3.5">
     <div class="flex items-start justify-between gap-2 mb-2.5">
       <div class="flex items-center gap-2.5 min-w-0">
         <span class="text-xs font-bold text-text-tertiary w-6 shrink-0">#{rank}</span>
@@ -64,7 +66,7 @@
             alt={getManufacturer(scooter.name)}
             class="w-5 h-5 object-contain opacity-70 hover:opacity-100 transition-opacity shrink-0"
             onerror={(e) => {
-              e.currentTarget.style.display = 'none';
+              (e.currentTarget as HTMLElement).style.display = 'none';
             }}
           />
         {:else}
@@ -84,13 +86,13 @@
             <span class="text-[10px] text-text-tertiary">{scooter.year}</span>
             {#if scooter.status === 'discontinued'}
               <span
-                class="text-[8px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1 py-0.5 border border-rose-500/20"
+                class="text-[10px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1 py-0.5 border border-rose-500/20"
                 >EOL</span
               >
             {/if}
             {#if scooter.hasPriceHistory && scooter.priceChange !== undefined}
               <span
-                class="inline-flex items-center gap-0.5 text-[8px] font-bold uppercase tracking-wider {scooter.priceChange <
+                class="inline-flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider {scooter.priceChange <
                 0
                   ? 'text-emerald-400'
                   : 'text-rose-400'}"
@@ -117,36 +119,44 @@
     <!-- Stats row -->
     <div class="grid grid-cols-4 gap-2 text-center">
       <div>
-        <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Speed</div>
+        <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Speed</div>
         <div class="text-xs font-bold text-text-primary mt-0.5">
           {Math.round(speedVal(scooter.stats.speed))}
         </div>
       </div>
       <div>
-        <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Range</div>
+        <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Range</div>
         <div class="text-xs font-bold text-text-primary mt-0.5">
           {Math.round(distanceVal(scooter.stats.totalRange))}
         </div>
       </div>
       <div>
-        <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Power</div>
+        <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Power</div>
         <div class="text-xs font-bold text-text-primary mt-0.5">
           {Math.round(scooter.stats.totalWatts)}W
         </div>
       </div>
       <div>
-        <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Price</div>
+        <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Price</div>
         <div class="text-xs font-bold text-text-primary mt-0.5">{formatPrice(scooter.price)}</div>
       </div>
     </div>
-  </button>
+    <button
+      type="button"
+      class="mt-2.5 w-full text-center text-[11px] font-bold uppercase tracking-wider text-text-secondary hover:text-text-primary py-1.5 border-t border-white/[0.06]"
+      aria-expanded={isExpanded}
+      onclick={ontoggleexpand}
+    >
+      {isExpanded ? 'Hide' : 'Show'} score breakdown
+    </button>
+  </div>
 
   <!-- Expandable score breakdown -->
   {#if isExpanded}
     {@const b = scooter.breakdown}
     <div class="px-3.5 pb-3 space-y-2.5">
       <div class="bg-white/[0.03] rounded-lg p-2.5 border border-white/[0.06]">
-        <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider mb-2">Score Breakdown</div>
+        <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider mb-2">Score Breakdown</div>
         <div class="grid grid-cols-2 gap-x-4 gap-y-1.5">
           <div class="flex items-center justify-between">
             <span class="text-[10px] text-text-secondary">Accel</span>
@@ -195,8 +205,8 @@
         {/if}
       </div>
 
-      {#if scooter.stats.cRate > 2.5}
-        <div class="inline-flex items-center gap-1 text-[9px] text-rose-400 font-bold uppercase tracking-wider">
+      {#if scooter.stats.cRate > C_RATE_CAUTION}
+        <div class="inline-flex items-center gap-1 text-[10px] text-rose-400 font-bold uppercase tracking-wider">
           <AlertTriangle size={10} /> Battery strain {scooter.stats.cRate.toFixed(1)}C
         </div>
       {/if}

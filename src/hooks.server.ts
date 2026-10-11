@@ -1,5 +1,4 @@
-import * as Sentry from '@sentry/sveltekit';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { validateSession } from '$lib/server/auth';
 import { runAutoFix } from '$lib/server/verification/auto-fix';
@@ -7,17 +6,15 @@ import { recoverOrphanedRuns } from '$lib/server/verification/discovery-store';
 import { logger } from '$lib/server/logger';
 
 // ---------------------------------------------------------------------------
-// Sentry — server-side (only initialised when SENTRY_DSN is set)
+// Unexpected errors: log them (visible in Vercel's function logs). Users see a
+// generic message; details stay server-side.
 // ---------------------------------------------------------------------------
-const sentryDsn = process.env.SENTRY_DSN;
-if (sentryDsn) {
-	Sentry.init({
-		dsn: sentryDsn,
-		tracesSampleRate: 0.1,
-	});
-}
-
-export const handleError = Sentry.handleErrorWithSentry();
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	if (status !== 404) {
+		logger.error({ err: error, path: event.url.pathname, status }, 'Unhandled server error');
+	}
+	return { message };
+};
 
 // ---------------------------------------------------------------------------
 // Startup: auto-seed + recover orphaned discovery runs (runs once)
@@ -50,6 +47,14 @@ async function runStartupFix() {
 	}
 }
 
+function safeDecodePath(pathname: string): string {
+	try {
+		return decodeURI(pathname);
+	} catch {
+		return pathname;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Request handler
 // ---------------------------------------------------------------------------
@@ -74,13 +79,27 @@ export const handle: Handle = async ({ event, resolve }) => {
 		startupFixPromise = runStartupFix();
 	}
 
+	// Classify by the matched route ID (and the decoded path for unmatched
+	// requests) rather than the raw pathname: SvelteKit decodes the path before
+	// routing, so a percent-encoded variant like `/%61dmin` would otherwise reach
+	// /admin routes without passing the guard below.
+	const routeId = event.route.id ?? '';
+	const decodedPath = safeDecodePath(pathname);
+	const isAdminPage = routeId.startsWith('/admin') || (!routeId && decodedPath.startsWith('/admin'));
+	const isAdminApi = routeId.startsWith('/api/admin') || (!routeId && decodedPath.startsWith('/api/admin'));
+	// Exact match only: a prefix check would also exempt e.g. /admin/loginX, which
+	// matches the /admin/[scooterKey] route.
+	const isLoginPage = routeId
+		? routeId === '/admin/login'
+		: decodedPath === '/admin/login' || decodedPath === '/admin/login/';
+
 	// Admin routes wait for startup to complete; public routes don't block.
-	if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
+	if (isAdminPage || isAdminApi) {
 		await startupFixPromise;
 	}
 
 	// Guard all /admin page routes except /admin/login
-	if (event.url.pathname.startsWith('/admin') && !event.url.pathname.startsWith('/admin/login')) {
+	if (isAdminPage && !isLoginPage) {
 		const sessionToken = event.cookies.get('admin_session');
 		if (!(await validateSession(sessionToken))) {
 			throw redirect(303, '/admin/login');
@@ -89,21 +108,33 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Guard all /api/admin/* routes — defense-in-depth so a new handler
 	// without requireAdmin() is never silently unprotected.
-	if (event.url.pathname.startsWith('/api/admin')) {
+	if (isAdminApi) {
 		const sessionToken = event.cookies.get('admin_session');
 		if (!(await validateSession(sessionToken))) {
 			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' },
 			});
 		}
 	}
 
 	const response = await resolve(event);
 
+	// Admin pages and admin API responses must never be cached by the CDN.
+	if (isAdminPage || isAdminApi) {
+		response.headers.set('Cache-Control', 'private, no-store');
+	}
+
+	// The embed widget is meant to be framed by third-party sites.
+	const isEmbed = routeId.startsWith('/embed');
+
 	// Security headers
 	response.headers.set('X-Content-Type-Options', 'nosniff');
-	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+	if (isEmbed) {
+		response.headers.delete('X-Frame-Options');
+	} else {
+		response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+	}
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set(
 		'Content-Security-Policy',
@@ -113,8 +144,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"font-src 'self' https://fonts.gstatic.com data:",
 			"img-src 'self' data: https:",
-			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://*.supabase.co",
-			"frame-ancestors 'none'",
+			"connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.google.com https://*.g.doubleclick.net https://fonts.googleapis.com https://*.supabase.co",
+			isEmbed ? 'frame-ancestors *' : "frame-ancestors 'none'",
 		].join('; ')
 	);
 

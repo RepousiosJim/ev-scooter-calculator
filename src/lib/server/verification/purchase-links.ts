@@ -8,9 +8,8 @@ import { join } from 'path';
 import type { AffiliateNetwork } from './retailer-registry';
 import { isSupabaseAvailable, db } from '$lib/server/db';
 
-// Helper: access the purchase_links table which may not exist in generated types yet
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const purchaseTable = () => (db() as any).from('purchase_links');
+// Table created by supabase/migrations/003_security_hardening.sql
+const purchaseTable = () => db().from('purchase_links');
 
 // ---------------------------------------------------------------------------
 // Types

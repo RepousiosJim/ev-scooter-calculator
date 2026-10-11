@@ -39,7 +39,7 @@
     }
   });
 
-  const formattedValue = $derived(() => {
+  const formattedValue = $derived.by(() => {
     if (typeof value !== 'number') return value;
     const currentValue = $animatedNumber;
     return Number.isInteger(currentValue) ? currentValue : currentValue.toFixed(1);
@@ -50,7 +50,7 @@
 <div
   data-testid="stat-{label.toLowerCase().replace(/\s+/g, '-')}"
   role={onClick ? 'button' : 'group'}
-  aria-label="{label}: {formattedValue()} {unit || ''}"
+  aria-label="{label}: {formattedValue} {unit || ''}"
   class="relative w-full bg-white/[0.03] p-3.5 sm:p-4 border rounded-xl
     transition-all duration-300
     {highlight ? 'border-primary/20 bg-primary/[0.04]' : 'border-white/[0.08]'}
@@ -87,7 +87,7 @@
           : 'text-text-primary'}"
         style="font-variant-numeric: tabular-nums;"
       >
-        {formattedValue()}
+        {formattedValue}
       </span>
       {#if unit}
         <span class="text-[11px] font-semibold text-text-tertiary" aria-hidden="true">{unit}</span>

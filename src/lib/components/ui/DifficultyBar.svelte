@@ -29,13 +29,17 @@
     </span>
   {/if}
 
-  <div class={`flex gap-0.5 ${barWidthClass}`}>
+  <div
+    class={`flex gap-0.5 ${barWidthClass}`}
+    role="img"
+    aria-label={`${difficulty} difficulty: ${filledSegments} of ${segments}`}
+  >
     {#each Array(segments) as _, i (i)}
       <div
         class={`flex-1 rounded-sm ${barHeightClass} transition-colors ${
           i < filledSegments ? fillColor : 'bg-white/10'
         }`}
-        aria-label={`${difficulty} difficulty: ${i + 1} of ${segments} segments`}
+        aria-hidden="true"
       ></div>
     {/each}
   </div>

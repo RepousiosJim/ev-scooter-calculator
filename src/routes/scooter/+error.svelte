@@ -1,14 +1,15 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { page } from '$app/state';
 </script>
 
 <svelte:head>
-  <title>{page.status} — Scooter — EV Scooter Pro Calculator</title>
+  <Seo title="{page.status} — Scooter — EV Scooter Pro Calculator" noindex />
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary flex items-center justify-center p-6">
   <div class="text-center max-w-md">
-    <div class="text-8xl font-black text-primary/20 mb-4">{page.status}</div>
+    <div class="text-8xl font-black text-primary/50 mb-4">{page.status}</div>
     <h1 class="text-xl font-bold text-text-primary mb-2">
       {#if page.status === 404}
         Scooter not found

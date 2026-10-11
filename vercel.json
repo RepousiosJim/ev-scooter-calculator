@@ -1,7 +1,7 @@
 {
 	"framework": "sveltekit",
 	"buildCommand": "npm run build",
-	"installCommand": "npm install",
+	"installCommand": "npm ci",
 	"devCommand": "npm run dev",
 
 	"crons": [
@@ -50,22 +50,29 @@
 		{
 			"source": "/admin/:path*",
 			"headers": [
-				{ "key": "X-Content-Type-Options", "value": "nosniff" },
-				{ "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-				{ "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
 				{ "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
 				{ "key": "Cache-Control", "value": "private, no-store" }
 			]
 		},
 		{
+			"source": "/api/admin/:path*",
+			"headers": [{ "key": "Cache-Control", "value": "private, no-store" }]
+		},
+		{
+			"source": "/((?!embed).*)",
+			"headers": [{ "key": "X-Frame-Options", "value": "SAMEORIGIN" }]
+		},
+		{
 			"source": "/(.*)",
 			"headers": [
 				{ "key": "X-Content-Type-Options", "value": "nosniff" },
-				{ "key": "X-Frame-Options", "value": "SAMEORIGIN" },
 				{ "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-				{ "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-				{ "key": "Cache-Control", "value": "public, max-age=0, s-maxage=3600, stale-while-revalidate=300" }
+				{ "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
 			]
+		},
+		{
+			"source": "/((?!admin|api/admin|api/cron|api/newsletter|_app/|fonts/|favicon\\.svg|pwa-|robots\\.txt).*)",
+			"headers": [{ "key": "Cache-Control", "value": "public, max-age=0, s-maxage=3600, stale-while-revalidate=300" }]
 		}
 	],
 

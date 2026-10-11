@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import Seo from '$lib/components/Seo.svelte';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, Trophy, ArrowRight, Zap, Gauge, Activity, DollarSign } from 'lucide-svelte';
   import type { CollectionPageData } from './+page.server.ts';
 
@@ -21,7 +23,7 @@
           '@type': 'Product',
           name: e.name,
           category: 'Electric Scooter',
-          url: `${$page.url.origin}/scooter/${e.key}`,
+          url: `${SITE_URL}/scooter/${e.key}`,
           brand: { '@type': 'Brand', name: e.name.split(' ')[0] },
           ...(e.price != null
             ? {
@@ -41,8 +43,8 @@
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Best Scooters', item: $page.url.origin + '/best' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Best Scooters', item: SITE_URL + '/best' },
       { '@type': 'ListItem', position: 3, name: data.h1 },
     ],
   }));
@@ -56,17 +58,11 @@
 </script>
 
 <svelte:head>
-  <title>{data.title}</title>
-  <meta name="description" content={data.description} />
-  <link rel="canonical" href="{$page.url.origin}/best/{data.slug}" />
-  <meta property="og:title" content={data.title} />
-  <meta property="og:description" content={data.description} />
-  <meta property="og:type" content="article" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <Seo title={data.title} description={data.description} path="/best/{data.slug}" type="article" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(schemaJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(breadcrumbJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(breadcrumbJson) + '<' + '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

@@ -1,8 +1,9 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
   import type { Guide } from '$lib/data/guides';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- $page referenced in JSON-LD script block
-  import { page } from '$app/stores';
 
   let { data }: { data: PageData } = $props();
   const guide = $derived(data.guide);
@@ -28,9 +29,9 @@
   }
 
   // Structured data for SEO — used in template via {@html structuredData}
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- referenced in JSON-LD script block
+
   const structuredData = $derived(
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'Article',
       headline: guide.title,
@@ -57,27 +58,24 @@
 </script>
 
 <svelte:head>
-  <title>{guide.title} — EV Scooter Pro</title>
-  <meta name="description" content={guide.description} />
-  <meta property="og:title" content="{guide.title} — EV Scooter Pro" />
-  <meta property="og:description" content={guide.description} />
-  <meta property="og:type" content="article" />
+  <Seo title="{guide.title} — EV Scooter Pro" description={guide.description} type="article" />
   <meta property="article:published_time" content={guide.publishedDate} />
   <meta property="article:modified_time" content={guide.updatedDate} />
-  <script type="application/ld+json">
-{@html structuredData}
-  </script>
-  <script type="application/ld+json">
-{@html JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    'itemListElement': [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Guides', item: $page.url.origin + '/guides' },
-      { '@type': 'ListItem', position: 3, name: guide.title }
-    ]
-  })}
-  </script>
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html '<script type="application/ld+json">' + structuredData + '<' + '/script>'}
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html '<script type="application/ld+json">' +
+    serializeJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Guides', item: SITE_URL + '/guides' },
+        { '@type': 'ListItem', position: 3, name: guide.title },
+      ],
+    }) +
+    '<' +
+    '/script>'}
 </svelte:head>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">

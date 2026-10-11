@@ -12,43 +12,50 @@ describe('Calculator Integration', () => {
 	it('loads preset and updates all calculations', () => {
 		loadPreset('m365_2025');
 
-		expect(calculatorState.config.v).toBe(52);
+		expect(calculatorState.config.v).toBe(46.8);
 		expect(calculatorState.stats.totalRange).toBeGreaterThan(0);
 		expect(calculatorState.stats.speed).toBeGreaterThan(0);
 		expect(calculatorState.stats.totalWatts).toBeGreaterThan(0);
 	});
 
-	it('applies ride mode and updates config', () => {
+	it('applies eco ride mode: caps speed and power, keeps base consumption', () => {
 		loadPreset('custom');
 		const initialStyle = calculatorState.config.style;
+		const full = { ...calculatorState.stats };
 
 		applyRideMode('eco');
 
-		expect(calculatorState.config.style).toBeLessThan(initialStyle);
 		expect(calculatorState.rideMode).toBe('eco');
-		expect(calculatorState.config.regen).toBeGreaterThan(0);
+		expect(calculatorState.config.style).toBe(initialStyle);
+		expect(calculatorState.config.speedFactor).toBe(0.6);
+		expect(calculatorState.config.powerLimit).toBe(0.5);
+		expect(calculatorState.stats.speed).toBeLessThan(full.speed);
+		expect(calculatorState.stats.totalRange).toBeGreaterThan(full.totalRange);
 	});
 
-	it('applies sport ride mode correctly', () => {
+	it('turbo mode removes ride-mode limits', () => {
 		loadPreset('custom');
+		applyRideMode('eco');
 
-		applyRideMode('sport');
+		applyRideMode('turbo');
 
-		expect(calculatorState.rideMode).toBe('sport');
-		expect(calculatorState.config.style).toBe(32);
+		expect(calculatorState.rideMode).toBe('turbo');
+		expect(calculatorState.config.speedFactor).toBeUndefined();
+		expect(calculatorState.config.powerLimit).toBeUndefined();
 	});
 
 	it('simulates upgrade and calculates deltas', () => {
 		loadPreset('m365_2025');
 		simulateUpgrade('parallel');
 
-		expect(calculatorState.simulatedConfig?.ah).toBe(32); // 16 * 2
+		expect(calculatorState.simulatedConfig?.ah).toBe(20.4); // 10.2 * 2
 		expect(calculatorState.upgradeDelta?.rangeChange).toBeGreaterThan(0);
 		expect(calculatorState.upgradeDelta?.cRateChange).toBeLessThan(0);
 	});
 
 	it('simulates voltage upgrade correctly', () => {
-		loadPreset('m365_2025');
+		// Not m365_2025: it has a 25 km/h legal speed cap, so more voltage can't add speed.
+		loadPreset('navee_gt3');
 		const initialVoltage = calculatorState.config.v;
 
 		simulateUpgrade('voltage');

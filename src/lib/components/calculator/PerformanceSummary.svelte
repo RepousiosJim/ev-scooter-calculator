@@ -1,8 +1,18 @@
 <script lang="ts">
+  import { CHARGE_WALL_EFFICIENCY } from '$lib/constants/physics';
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import StatsCard from '$lib/components/ui/StatsCard.svelte';
   import PerformanceGradeBadge from '$lib/components/ui/PerformanceGradeBadge.svelte';
-  import { distanceVal, speedVal, distanceUnit, speedUnit, costPer100Val, costDistanceLabel } from '$lib/utils/units';
+  import {
+    distanceVal,
+    speedVal,
+    distanceUnit,
+    speedUnit,
+    costPer100Val,
+    costDistanceLabel,
+    efficiencyVal,
+    efficiencyUnit,
+  } from '$lib/utils/units';
 
   const stats = $derived(calculatorState.stats);
   const grade = $derived(calculatorState.performanceGrade);
@@ -11,10 +21,11 @@
   );
 
   // Cost-per-charge: cost to go one full range
-  const costPerCharge = $derived(((stats.wh / 1000) * calculatorState.config.cost).toFixed(2));
+  // Wall energy (includes charging losses), consistent with costPer100km.
+  const costPerCharge = $derived(((stats.wh / 1000 / CHARGE_WALL_EFFICIENCY) * calculatorState.config.cost).toFixed(2));
 
   // Efficiency: Wh/km — lower is better
-  const whPerKm = $derived(stats.totalRange > 0 ? Math.round(stats.wh / stats.totalRange) : 0);
+  const whPerKm = $derived(stats.totalRange > 0 ? Math.round(efficiencyVal(stats.wh / stats.totalRange)) : 0);
 
   // Terrain context label — shown when not on flat/urban
   const terrainMode = $derived(calculatorState.terrainMode);
@@ -54,12 +65,12 @@
   <!-- Cost + efficiency row -->
   <div class="grid grid-cols-3 gap-2.5 sm:gap-3 pt-1 border-t border-white/[0.06]">
     <StatsCard
-      label="Cost per {costDistanceLabel()}"
+      label="Cost {costDistanceLabel()}"
       value={'$' + costPer100Val(stats.costPer100km).toFixed(2)}
       unit="electricity"
       highlight={true}
     />
     <StatsCard label="Cost per charge" value={'$' + costPerCharge} unit="full battery" />
-    <StatsCard label="Efficiency" value={whPerKm} unit="Wh/km" />
+    <StatsCard label="Efficiency" value={whPerKm} unit={efficiencyUnit()} />
   </div>
 </div>

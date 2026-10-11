@@ -337,7 +337,7 @@
         aria-label="Add your current build to the comparison"
       >
         <span
-          class="inline-flex items-center justify-center w-6 h-6 text-[9px] font-black rounded-lg shrink-0"
+          class="inline-flex items-center justify-center w-6 h-6 text-[10px] font-black rounded-lg shrink-0"
           style="background-color: {myBuildEntry.grade.color}22; color: {myBuildEntry.grade.color}"
         >
           {myBuildEntry.grade.grade}
@@ -383,7 +383,7 @@
             aria-label="Remove {scooter.name} from comparison"
           >
             <span
-              class="inline-flex items-center justify-center w-4 h-4 text-[9px] font-black rounded-lg"
+              class="inline-flex items-center justify-center w-4 h-4 text-[10px] font-black rounded-lg"
               style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
             >
               {scooter.grade.grade}
@@ -415,7 +415,7 @@
               aria-label="Add {scooter.name} to comparison"
             >
               <span
-                class="inline-flex items-center justify-center w-5 h-5 text-[9px] font-black rounded-lg shrink-0"
+                class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black rounded-lg shrink-0"
                 style="background-color: {scooter.grade.color}20; color: {scooter.grade.color}"
               >
                 {scooter.grade.grade}
@@ -462,7 +462,7 @@
                     <span class="text-xs text-text-secondary font-mono">{scooter.score.toFixed(1)}</span>
                   </div>
                   {#if scooter.id === activeKey}
-                    <span class="text-[9px] font-bold text-primary uppercase tracking-widest">Active</span>
+                    <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Active</span>
                   {/if}
                 </div>
               </th>

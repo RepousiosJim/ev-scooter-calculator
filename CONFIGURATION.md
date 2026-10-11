@@ -4,139 +4,154 @@
 
 ### Presets
 
-Scooter presets are stored in `src/lib/data/presets.ts`. To add a new preset:
+Scooter presets live in `src/lib/data/presets.ts`, in two maps keyed by the same preset key:
 
-```typescript
-{
-  name: 'My Scooter',
-  config: {
-    v: 48,
-    ah: 13,
-    motors: 1,
-    watts: 800,
-    // ... other config values
-  }
-}
+- `presets[key]` — the `ScooterConfig` the calculator runs (volts, amp-hours, motors, peak watts per motor, wheel size, base consumption `style`, optional `speedCap`, …).
+- `presetMetadata[key]` — display data: `name` (always prefixed with the brand), `year`, and the manufacturer's claims (`topSpeed`, `range`, `batteryWh`, `price`).
+
+After adding or changing a preset, calibrate its base consumption against the claimed range:
+
+```bash
+node scripts/calibrate-presets.mjs           # dry run: table of old → new style values and flags
+node scripts/calibrate-presets.mjs --write   # write the calibrated values into presets.ts
 ```
+
+`style` is the scooter's base consumption in Wh/km at reference conditions (80 kg rider, flat ground, no regen, full-power cruise, default tyres). The script sets it so the engine reproduces the claimed range under the conditions manufacturers measure at (75 kg rider, flat, ~15 km/h); the everyday range then comes from the physics model. Bump `CATALOG_VERSION` and `CATALOG_LAST_UPDATED` when the catalog changes — `CONTENT_YEAR` (used in "best of" titles) is derived from the latter.
 
 ### Ride Modes
 
-Ride modes are stored in `src/lib/data/ride-modes.ts`. These affect efficiency calculations:
+Ride modes are defined in `src/lib/data/ride-modes.ts`. Like real scooter firmware, each mode caps speed and power **relative to the scooter's own capability** and sets regen strength; they do not change the scooter's base consumption:
 
-- Eco: Lower speed, extended range
-- Standard: Balanced performance
-- Sport: Higher speed, reduced range
-- Custom: User-defined efficiency
+| Mode   | Speed cap | Power cap | Regen |
+| ------ | --------- | --------- | ----- |
+| Eco    | 60%       | 50%       | 0.12  |
+| Normal | 80%       | 75%       | 0.08  |
+| Sport  | 95%       | 90%       | 0.05  |
+| Turbo  | 100%      | 100%      | 0.03  |
+
+They are stored in the config as `speedFactor` and `powerLimit` (absent means 100%, i.e. Turbo — how a preset loads).
 
 ### Physics Constants
 
-Physical constants are defined in `src/lib/constants/physics.ts`:
+Constants live in `src/lib/constants/physics.ts`, including:
 
-```typescript
-export const AIR_DENSITY = 1.225; // kg/m³
-export const GRAVITY = 9.81;      // m/s²
-export const ROLLING_RESISTANCE = 15; // W
-```
+- `AIR_DENSITY_KG_M3`, `GRAVITY_M_S2`, `ROLLING_RESISTANCE_COEFFICIENT` (default tyre Cr, 0.02)
+- `C_RATE_CAUTION` (2.0) and `C_RATE_CRITICAL` (3.0) — battery discharge warning thresholds
+- `CHARGE_WALL_EFFICIENCY` (0.88) — share of wall energy that reaches the battery (used for cost)
+- Consumption model: `REF_RIDER_KG`, `CRUISE_FRACTION_OF_TOP_SPEED`, `CRUISE_MIN_KMH`, `CRUISE_MAX_KMH`, `REGEN_FLAT_BRAKING_SHARE`, `IDLE_BASE_W`, `IDLE_PER_MOTOR_FRACTION_OF_RATED`
+- Calibration: `CLAIM_RIDER_KG`, `CLAIM_CRUISE_KMH`
 
-These values are calibrated for typical EV scooter parameters.
+The cruise and claim constants were fitted to independent range tests; re-run the calibration script after changing any of them.
 
 ## Advanced Configuration
 
 ### Cache Settings
 
-Performance calculations are cached. Cache behavior is configured in `src/lib/utils/physics.ts`:
+Performance results are memoised in an LRU cache keyed on the exact config. The size is set in `src/lib/constants/cache.ts`:
 
 ```typescript
-const PERFORMANCE_CACHE_LIMIT = 200;
+export const PERFORMANCE_CACHE_LIMIT = 200;
 ```
 
 ### Theme Configuration
 
-Theme colors are defined in `src/app.css` and `tailwind.config.js`. To customize:
+Theme tokens are defined with Tailwind v4's `@theme` block in `src/app.css` (there is no `tailwind.config.js`):
 
 ```css
 @theme {
-  --color-primary: #00d4ff;
-  --color-secondary: #7000ff;
-  --color-bg-dark: #0f172a;
-  /* ... */
+	--color-primary: #22d3ee;
+	--color-text-tertiary: #8291a7; /* keep ≥4.5:1 contrast on the background tokens */
+	/* ... */
 }
 ```
 
 ### localStorage Schema
 
-Profiles are stored in localStorage under the key `ev-scooter-profiles`:
+Saved profiles are stored under the key `ev-scooter-profiles` and validated on load (malformed entries are dropped):
 
 ```json
 [
-  {
-    "id": 1234567890,
-    "name": "My Scooter",
-    "config": { /* ScooterConfig object */ },
-    "createdAt": 1234567890000,
-    "updatedAt": 1234567890000
-  }
+	{
+		"id": "uuid",
+		"name": "My Scooter",
+		"config": {
+			/* ScooterConfig */
+		},
+		"presetKey": "custom",
+		"createdAt": "2026-01-01T00:00:00.000Z",
+		"updatedAt": "2026-01-01T00:00:00.000Z",
+		"isFavorite": false
+	}
 ]
 ```
 
 ## Environment-Specific Behavior
 
 ### Development
-- Hot module replacement enabled
-- Source maps included
-- Development warnings visible
+
+- `npm run dev` serves on `http://localhost:3000` with hot module replacement
+- Without Supabase credentials, data is stored in local JSON files under `data/` (gitignored)
 
 ### Production
-- Code minified
-- Tree shaking enabled
-- Performance optimizations applied
-- PWA assets generated
+
+- Deployed to Vercel (see [DEPLOYMENT.md](DEPLOYMENT.md))
+- Supabase is required for persistent data
+- PWA assets are generated
 
 ## Calculations Reference
 
-### Range Calculation
+All formulas live in `src/lib/physics/calculator.ts`.
+
+### Power
 
 ```
-baseRange = (v * ah * soh * temperatureFactor) / style
-regenGain = baseRange * (regen * 0.2)
-totalRange = baseRange + regenGain
+uncappedWatts  = motors × watts × (1 − sag) × temperatureFactor
+controllerCap  = controller × V × (1 − sag) × drivetrainEfficiency   (if a controller limit is set)
+totalWatts     = min(uncappedWatts, controllerCap) × powerLimit
 ```
 
-### Speed Calculation
+`watts` is peak output power per motor, so drivetrain efficiency only converts the controller's electrical limit to output power.
 
-Speed is drag-limited based on:
-- Available motor power
-- Aerodynamic drag (Cd × Frontal Area or ridePosition factor)
-- Rolling resistance (Dynamic based on tire profile)
-- Efficiency losses (drivetrain, battery sag)
+### Speed
+
+Top speed is the equilibrium speed where available power equals rolling + aerodynamic (+ grade) resistance, limited by the motor's KV/RPM, the firmware `speedCap`, and the ride mode's `speedFactor`.
+
+### Range
+
+```
+whPerKm    = style × physicsWhPerKm(actual ride) / physicsWhPerKm(reference ride)
+totalRange = V × Ah × soh × temperatureFactor / whPerKm
+```
+
+`physicsWhPerKm` models rolling resistance, aerodynamic drag at a typical cruise speed (0.75 × top speed, 15–32 km/h, lowered by ride mode), an out-and-back grade, a small regen recovery and no-load losses. Physics is used only as a ratio, so heavier riders, hills, worse tyres and faster cruising all reduce range relative to the calibrated base. Real-world mode applies extra drivetrain losses.
 
 ### Acceleration Score
 
 ```
 powerToWeight = totalWatts / (scooterWeight + riderWeight)
-accelScore = min(100, (powerToWeight / 25) * 100)
+accelScore    = min(100, (powerToWeight / 25) × 100)
 ```
 
 ## Customizing Behavior
 
 ### Adding New Bottlenecks
 
-Edit `detectBottlenecks()` in `src/lib/utils/physics.ts`:
+Edit `detectBottlenecks()` in `src/lib/physics/bottlenecks.ts`:
 
 ```typescript
 if (stats.someCondition) {
-  bottlenecks.push({
-    type: 'NEW_BOTTLENECK',
-    message: 'Description',
-    upgrade: 'suggestedUpgrade'
-  });
+	bottlenecks.push({
+		type: 'NEW_BOTTLENECK',
+		message: 'Description',
+		upgrade: 'suggestedUpgrade',
+	});
 }
 ```
 
 ### Adding New Recommendations
 
-Edit `generateRecommendations()` in `src/lib/utils/physics.ts` following the existing pattern.
+Edit `generateRecommendations()` in `src/lib/physics/recommendations.ts`, following the existing pattern. Compute gains by re-running `calculatePerformance()` on the upgraded config and format them with `formatPercentChange()` / `formatSignedDelta()` from `src/lib/utils/formatters.ts`.
 
 ### Modifying Upgrade Simulation
 
-Upgrade types and their effects are defined in `simulateUpgrade()` and `calculateUpgradeDelta()`.
+Upgrade types and their effects are defined in `simulateUpgrade()` and `calculateUpgradeDelta()` in `src/lib/physics/upgrades.ts`.

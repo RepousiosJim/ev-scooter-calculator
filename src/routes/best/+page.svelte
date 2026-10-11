@@ -1,5 +1,8 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import Seo from '$lib/components/Seo.svelte';
+  import { CONTENT_YEAR } from '$lib/data/presets';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-svelte';
   import type { CollectionIndexPageData } from './+page.server.ts';
 
@@ -7,7 +10,7 @@
 
   const all = $derived(data.collections);
 
-  const titleText = 'Best Electric Scooters — Curated Rankings by Category (2026)';
+  const titleText = `Best Electric Scooters — Curated Rankings by Category (${CONTENT_YEAR})`;
   const descriptionText =
     'Browse our full catalog of best-of rankings for electric scooters: budget picks, long range, fastest, commuter, hill climbers, and more. Physics-based, no sponsored picks.';
 
@@ -16,29 +19,23 @@
     '@type': 'CollectionPage',
     name: titleText,
     description: descriptionText,
-    url: `${$page.url.origin}/best`,
+    url: `${SITE_URL}/best`,
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: all.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: c.h1,
-        url: `${$page.url.origin}/best/${c.slug}`,
+        url: `${SITE_URL}/best/${c.slug}`,
       })),
     },
   }));
 </script>
 
 <svelte:head>
-  <title>{titleText}</title>
-  <meta name="description" content={descriptionText} />
-  <link rel="canonical" href="{$page.url.origin}/best" />
-  <meta property="og:title" content={titleText} />
-  <meta property="og:description" content={descriptionText} />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <Seo title={titleText} description={descriptionText} path="/best" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(schemaJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

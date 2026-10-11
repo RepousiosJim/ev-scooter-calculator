@@ -764,3 +764,72 @@ describe('consumeSSE – error categorisation via SSEError', () => {
 		expect(err.name).toBe('SSEError');
 	});
 });
+
+// ---------------------------------------------------------------------------
+// WHATWG parsing rules and retry safety
+// ---------------------------------------------------------------------------
+
+describe('consumeSSE – spec-compliant parsing', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	async function collect(chunks: string[]) {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn().mockResolvedValue({ ok: true, status: 200, body: makeStream(chunks.map(enc)) } as unknown as Response)
+		);
+		const events: [string, unknown][] = [];
+		await consumeSSE('/x', {}, (e, d) => events.push([e, d]));
+		return events;
+	}
+
+	it('handles CRLF and bare CR line endings', async () => {
+		expect(await collect(['data: 1\r\n\r\ndata: 2\r\rdata: 3\n\n'])).toEqual([
+			['message', 1],
+			['message', 2],
+			['message', 3],
+		]);
+	});
+
+	it('handles a CRLF split across chunks', async () => {
+		expect(await collect(['event: a\r', '\ndata: {"x":1}\r', '\n\r\n'])).toEqual([['a', { x: 1 }]]);
+	});
+
+	it('joins multiple data lines with a newline', async () => {
+		expect(await collect(['data: line1\ndata: line2\n\n'])).toEqual([['message', 'line1\nline2']]);
+	});
+
+	it('accepts "field:value" without a space and ignores comments', async () => {
+		expect(await collect([': keep-alive\nevent:done\ndata:{"ok":true}\n\n'])).toEqual([['done', { ok: true }]]);
+	});
+
+	it('strips a leading BOM', async () => {
+		expect(await collect(['﻿data: 1\n\n'])).toEqual([['message', 1]]);
+	});
+
+	it('discards an incomplete event at end of stream', async () => {
+		expect(await collect(['data: 1\n\ndata: 2'])).toEqual([['message', 1]]);
+	});
+});
+
+describe('consumeSSE – POST requests are not retried by default', () => {
+	afterEach(() => vi.unstubAllGlobals());
+
+	it('does not retry a POST on 5xx (it would re-run the job)', async () => {
+		const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503, body: null } as unknown as Response);
+		vi.stubGlobal('fetch', fetchMock);
+		await expect(consumeSSE('/api/admin/batch-verify', { method: 'POST' }, () => {})).rejects.toBeInstanceOf(SSEError);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+
+	it('still retries a POST when the caller opts in', async () => {
+		vi.useFakeTimers();
+		const fetchMock = vi.fn().mockResolvedValue({ ok: false, status: 503, body: null } as unknown as Response);
+		vi.stubGlobal('fetch', fetchMock);
+		const p = consumeSSE('/x', { method: 'POST' }, () => {}, { maxRetries: 1, baseDelay: 10 });
+		const settled = p.catch(() => 'rejected');
+		await vi.runAllTimersAsync();
+		expect(await settled).toBe('rejected');
+		expect(fetchMock).toHaveBeenCalledTimes(2);
+		vi.useRealTimers();
+	});
+});

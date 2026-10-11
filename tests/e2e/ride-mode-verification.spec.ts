@@ -10,7 +10,7 @@ test.describe('Ride Mode Presets Feature', () => {
 		await expect(rideModeLabel).toBeVisible();
 
 		// Buttons are inside a radiogroup with role="radio"
-		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		const modeButtons = page.locator('[role="radiogroup"][aria-label="Ride mode selection"] button[role="radio"]');
 		await expect(modeButtons).toHaveCount(4);
 
 		// Each mode button should be visible
@@ -21,7 +21,7 @@ test.describe('Ride Mode Presets Feature', () => {
 	});
 
 	test('should select ride mode and show impact', async ({ page }) => {
-		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		const modeButtons = page.locator('[role="radiogroup"][aria-label="Ride mode selection"] button[role="radio"]');
 
 		// Click Eco mode (first button)
 		await modeButtons.nth(0).click();
@@ -44,7 +44,7 @@ test.describe('Ride Mode Presets Feature', () => {
 	});
 
 	test('should update performance stats when switching modes', async ({ page }) => {
-		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		const modeButtons = page.locator('[role="radiogroup"][aria-label="Ride mode selection"] button[role="radio"]');
 
 		// Click Eco then Turbo — just verify no errors and buttons respond
 		await modeButtons.nth(0).click();
@@ -59,7 +59,7 @@ test.describe('Ride Mode Presets Feature', () => {
 		await expect(page.getByText('Ride Mode').first()).toBeVisible();
 
 		// Each mode button contains a text label (Eco / Normal / Sport / Turbo)
-		const modeButtons = page.locator('[role="radiogroup"] button[role="radio"]');
+		const modeButtons = page.locator('[role="radiogroup"][aria-label="Ride mode selection"] button[role="radio"]');
 		const texts = await Promise.all([0, 1, 2, 3].map((i) => modeButtons.nth(i).textContent()));
 		const joined = texts.join(' ').toLowerCase();
 		expect(joined).toContain('eco');

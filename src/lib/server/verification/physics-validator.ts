@@ -32,7 +32,7 @@ const RANGES = {
 	// Range violations here are unit errors, not "unusual but plausible" data.
 	soh: { min: 0.1, max: 1, label: 'State of Health (0–1)' },
 	regen: { min: 0, max: 0.5, label: 'Regen Efficiency (0–0.5)' },
-	style: { min: 10, max: 80, label: 'Riding Style (Wh/km)' },
+	style: { min: 7, max: 80, label: 'Base consumption (Wh/km)' },
 	ridePosition: { min: 0.3, max: 0.7, label: 'Ride Position Drag Factor' },
 	cost: { min: 0.05, max: 1, label: 'Electricity Cost ($/kWh)' },
 } as const;

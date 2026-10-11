@@ -1,5 +1,5 @@
 import { json } from '@sveltejs/kit';
-import { checkRateLimit, type RateLimitResult } from './rate-limit';
+import { checkRateLimit, RATE_LIMIT_PUBLIC, type RateLimitOptions, type RateLimitResult } from './rate-limit';
 import { computeScoreBreakdown } from '$lib/utils/scoring';
 import type { ScooterConfig, PerformanceStats } from '$lib/types';
 
@@ -17,18 +17,24 @@ export function corsResponse() {
 	return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export function buildHeaders(rl: RateLimitResult, cache = true) {
+export function buildHeaders(rl: RateLimitResult, cache = true, limit = RATE_LIMIT_PUBLIC) {
 	return {
 		...CORS_HEADERS,
 		...(cache ? CACHE_HEADERS : {}),
 		'Content-Type': 'application/json',
 		'X-RateLimit-Remaining': String(rl.remaining),
-		'X-RateLimit-Limit': '100',
+		'X-RateLimit-Limit': String(limit),
 		'X-RateLimit-Reset': String(Math.floor(rl.resetAt / 1000)),
 	};
 }
 
 export function rateLimitResponse(rl: RateLimitResult, headers: Record<string, string>) {
+	if (rl.unavailable) {
+		return json(
+			{ error: 'Service temporarily unavailable' },
+			{ status: 503, headers: { ...headers, 'Retry-After': '60' } }
+		);
+	}
 	const retryAfter = Math.ceil((rl.resetAt - Date.now()) / 1000);
 	return json(
 		{ error: 'Rate limit exceeded', retryAfter },
@@ -40,9 +46,14 @@ export function rateLimitResponse(rl: RateLimitResult, headers: Record<string, s
  * Check rate limit and return headers + optional 429 response.
  * Usage: const { headers, limited } = applyRateLimit(ip); if (limited) return limited;
  */
-export async function applyRateLimit(ip: string, cache = true) {
-	const rl = await checkRateLimit(ip);
-	const headers = buildHeaders(rl, cache);
+export async function applyRateLimit(
+	ip: string,
+	cache = true,
+	max = RATE_LIMIT_PUBLIC,
+	options: RateLimitOptions = {}
+) {
+	const rl = await checkRateLimit(ip, max, options);
+	const headers = buildHeaders(rl, cache, max);
 	const limited = rl.allowed ? null : rateLimitResponse(rl, headers);
 	return { headers, limited };
 }

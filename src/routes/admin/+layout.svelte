@@ -1,11 +1,11 @@
 <script lang="ts">
   import '../../app.css';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { presetMetadata } from '$lib/data/presets';
 
   let { data, children } = $props();
 
-  const isLoginPage = $derived($page.url.pathname.startsWith('/admin/login'));
+  const isLoginPage = $derived(page.url.pathname.startsWith('/admin/login'));
 
   const scootersByYear = $derived.by(() => {
     const grouped: Record<number, { key: string; name: string }[]> = {};
@@ -48,7 +48,7 @@
         <a
           href="/admin"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin'
+					   {page.url.pathname === '/admin'
             ? 'bg-cyan-500/10 text-cyan-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -58,7 +58,7 @@
         <a
           href="/admin/pipeline"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/pipeline'
+					   {page.url.pathname === '/admin/pipeline'
             ? 'bg-cyan-500/10 text-cyan-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -68,7 +68,7 @@
         <a
           href="/admin/discover"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/discover'
+					   {page.url.pathname === '/admin/discover'
             ? 'bg-green-500/10 text-green-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -78,7 +78,7 @@
         <a
           href="/admin/candidates"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/candidates'
+					   {page.url.pathname === '/admin/candidates'
             ? 'bg-yellow-500/10 text-yellow-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -88,7 +88,7 @@
         <a
           href="/admin/alerts"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/alerts'
+					   {page.url.pathname === '/admin/alerts'
             ? 'bg-red-500/10 text-red-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -106,7 +106,7 @@
         <a
           href="/admin/logs"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/logs'
+					   {page.url.pathname === '/admin/logs'
             ? 'bg-purple-500/10 text-purple-400'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -116,7 +116,7 @@
         <a
           href="/admin/settings"
           class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors
-					   {$page.url.pathname === '/admin/settings'
+					   {page.url.pathname === '/admin/settings'
             ? 'bg-gray-500/10 text-gray-300'
             : 'text-gray-400 hover:text-white hover:bg-white/5'}"
         >
@@ -133,7 +133,7 @@
               <a
                 href="/admin/{scooter.key}"
                 class="flex items-center px-3 py-1.5 rounded-lg text-xs transition-colors
-								   {$page.url.pathname === `/admin/${scooter.key}`
+								   {page.url.pathname === `/admin/${scooter.key}`
                   ? 'bg-cyan-500/10 text-cyan-400'
                   : 'text-gray-400 hover:text-white hover:bg-white/5'}"
               >
@@ -180,23 +180,23 @@
         <!-- Breadcrumb -->
         <nav class="flex items-center gap-1.5 text-xs min-w-0" aria-label="Breadcrumb">
           <a href="/admin" class="text-gray-500 hover:text-gray-300 transition-colors shrink-0">Admin</a>
-          {#if $page.url.pathname !== '/admin'}
+          {#if page.url.pathname !== '/admin'}
             <span class="text-gray-700 shrink-0">/</span>
-            {#if $page.url.pathname === '/admin/pipeline'}
+            {#if page.url.pathname === '/admin/pipeline'}
               <span class="text-cyan-400 font-medium">Pipeline</span>
-            {:else if $page.url.pathname === '/admin/discover'}
+            {:else if page.url.pathname === '/admin/discover'}
               <span class="text-green-400 font-medium">Discover New</span>
-            {:else if $page.url.pathname === '/admin/candidates'}
+            {:else if page.url.pathname === '/admin/candidates'}
               <span class="text-yellow-400 font-medium">Candidates</span>
-            {:else if $page.url.pathname === '/admin/alerts'}
+            {:else if page.url.pathname === '/admin/alerts'}
               <span class="text-red-400 font-medium">Smart Alerts</span>
-            {:else if $page.url.pathname === '/admin/logs'}
+            {:else if page.url.pathname === '/admin/logs'}
               <span class="text-purple-400 font-medium">Activity Log</span>
-            {:else if $page.url.pathname === '/admin/settings'}
+            {:else if page.url.pathname === '/admin/settings'}
               <span class="text-gray-300 font-medium">Settings</span>
             {:else}
               <span class="text-gray-300 font-medium truncate">
-                {$page.url.pathname.replace('/admin/', '')}
+                {page.url.pathname.replace('/admin/', '')}
               </span>
             {/if}
           {/if}

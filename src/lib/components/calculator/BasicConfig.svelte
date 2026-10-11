@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION, C_RATE_CRITICAL } from '$lib/constants/physics';
   import { untrack } from 'svelte';
   import { calculatorState, updateConfig, applyConfig } from '$lib/stores/calculator.svelte';
   import { defaultConfig } from '$lib/data/presets';
@@ -65,8 +66,8 @@
     const wh = localValues.v * localValues.ah;
     const cRate = stats.cRate;
 
-    if (cRate > 3.0) w.watts = `High C-rate (${cRate.toFixed(1)}C) — battery stress`;
-    else if (cRate > 2.5) w.watts = `Elevated C-rate (${cRate.toFixed(1)}C)`;
+    if (cRate > C_RATE_CRITICAL) w.watts = `High C-rate (${cRate.toFixed(1)}C) — battery stress`;
+    else if (cRate > C_RATE_CAUTION) w.watts = `Elevated C-rate (${cRate.toFixed(1)}C)`;
 
     if (localValues.v >= 72 && localValues.ah < 15) w.ah = 'Low capacity for high voltage — limited range';
     if (wh > 5000) w.v = 'Very high energy — verify specs are realistic';
@@ -252,11 +253,15 @@
 
       <div class="space-y-4">
         <div class="flex justify-between items-center px-1">
-          <span class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]">Motor Units</span>
+          <span id="motor-units-label" class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
+            >Motor Units</span
+          >
         </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2" role="group" aria-labelledby="motor-units-label">
           {#each [1, 2] as count (count)}
             <button
+              type="button"
+              aria-pressed={config.motors === count}
               onclick={() => updateConfig('motors', count)}
               class="py-2.5 border rounded-lg transition-all duration-300 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2
                 {config.motors === count

@@ -29,7 +29,7 @@
   let closeButtonElement: HTMLButtonElement | null = $state(null);
   let startY = 0;
   let currentY = 0;
-  let isDragging = false;
+  let isDragging = $state(false);
   let translateY = $state(0);
   let titleId = `bottom-sheet-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 

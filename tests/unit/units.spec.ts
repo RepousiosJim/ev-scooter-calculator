@@ -28,6 +28,8 @@ import {
 	tempUnit,
 	costDistanceLabel,
 	costPer100Val,
+	efficiencyVal,
+	efficiencyUnit,
 } from '$lib/utils/units';
 
 // ---------------------------------------------------------------------------
@@ -272,5 +274,20 @@ describe('costPer100Val', () => {
 
 	it('returns 0 for 0 input', () => {
 		expect(costPer100Val(0)).toBe(0);
+	});
+});
+
+describe('efficiencyVal / efficiencyUnit', () => {
+	it('keeps Wh/km in metric', () => {
+		mockUiState.unitSystem = 'metric';
+		expect(efficiencyVal(20)).toBe(20);
+		expect(efficiencyUnit()).toBe('Wh/km');
+	});
+
+	it('converts to Wh/mi in imperial (more energy per longer unit)', () => {
+		mockUiState.unitSystem = 'imperial';
+		expect(efficiencyVal(20)).toBeCloseTo(32.19, 2);
+		expect(efficiencyUnit()).toBe('Wh/mi');
+		mockUiState.unitSystem = 'metric';
 	});
 });

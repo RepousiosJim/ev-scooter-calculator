@@ -1,17 +1,20 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { CATALOG_MODEL_COUNT_LABEL, CONTENT_YEAR } from '$lib/data/presets';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
   import { presetMetadata } from '$lib/data/presets';
   import type { ScooterConfig, PerformanceStats } from '$lib/types';
-  import { type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
+  import { consumptionWhPerKm, type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
   import NewsletterSignup from '$lib/components/ui/NewsletterSignup.svelte';
   import RankingsFilters from '$lib/components/rankings/RankingsFilters.svelte';
   import RankingRow from '$lib/components/rankings/RankingRow.svelte';
   import RankingMobileCard from '$lib/components/rankings/RankingMobileCard.svelte';
-  import { goto, replaceState } from '$app/navigation';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- $page referenced in JSON-LD script block
-  import { page } from '$app/stores';
+  import { afterNavigate, goto, replaceState } from '$app/navigation';
+
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { loadPreset } from '$lib/stores/calculator.svelte';
@@ -125,9 +128,17 @@
     mounted = true;
   });
 
-  // Sync filter state to URL without navigation
+  // replaceState throws if called before the client router has initialised,
+  // which is still the case when onMount runs; afterNavigate fires once it is.
+  let routerReady = $state(false);
+  afterNavigate(() => {
+    routerReady = true;
+  });
+
+  // Sync filter state to URL without navigation (debounced so typing in the
+  // search box doesn't rewrite history on every keystroke)
   $effect(() => {
-    if (!browser || !mounted) return;
+    if (!browser || !mounted || !routerReady) return;
     const url = new URL(window.location.href);
     // Update params based on current state
     if (sortBy !== 'score') url.searchParams.set('sort', sortBy);
@@ -136,7 +147,9 @@
     else url.searchParams.delete('q');
     if (bestForFilter !== 'all') url.searchParams.set('best', bestForFilter);
     else url.searchParams.delete('best');
-    replaceState(url, {});
+    if (url.href === window.location.href) return;
+    const timer = setTimeout(() => replaceState(url, {}), 300);
+    return () => clearTimeout(timer);
   });
 
   const filteredRanked = $derived.by(() => {
@@ -156,7 +169,7 @@
           sorted.sort((a, b) => b.stats.totalRange - a.stats.totalRange);
           break;
         case 'efficiency':
-          sorted.sort((a, b) => a.config.style - b.config.style);
+          sorted.sort((a, b) => consumptionWhPerKm(a.stats) - consumptionWhPerKm(b.stats));
           break;
         case 'portable':
           sorted.sort((a, b) => (a.config.scooterWeight ?? 99) - (b.config.scooterWeight ?? 99));
@@ -223,44 +236,27 @@
 </script>
 
 <svelte:head>
-  <title>Best Electric Scooters Ranked 2024 | EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Compare and rank 166+ electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
-  />
-  {#if data.ogScooterKey}
-    {@const ogImageUrl = `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}`}
-    {@const scooterMeta = presetMetadata[data.ogScooterKey]}
-    {@const ogTitle = scooterMeta
-      ? `${scooterMeta.name} — EV Scooter Pro Rankings`
+  <Seo
+    title="Best Electric Scooters Ranked {CONTENT_YEAR} | EV Scooter Pro"
+    description="Compare and rank {CATALOG_MODEL_COUNT_LABEL} electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
+    path="/rankings"
+    socialTitle={data.ogScooterKey && presetMetadata[data.ogScooterKey]
+      ? `${presetMetadata[data.ogScooterKey].name} — EV Scooter Pro Rankings`
       : 'Power Rankings — EV Scooter Pro Calculator'}
-    <meta property="og:title" content={ogTitle} />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={ogTitle} />
-    <meta name="twitter:image" content={ogImageUrl} />
-  {:else}
-    {@const ogImageUrl = `/api/og`}
-    <meta property="og:title" content="Power Rankings — EV Scooter Pro Calculator" />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Power Rankings — EV Scooter Pro Calculator" />
-    <meta name="twitter:image" content={ogImageUrl} />
-  {/if}
-  <script type="application/ld+json">
-{@html JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    'itemListElement': [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Rankings' }
-    ]
-  })}
-  </script>
+    image={data.ogScooterKey ? `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}` : '/api/og'}
+  />
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html '<script type="application/ld+json">' +
+    serializeJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Rankings' },
+      ],
+    }) +
+    '<' +
+    '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
@@ -399,7 +395,8 @@
                       >
                       <th
                         class="py-2.5 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-20"
-                      ></th>
+                        ><span class="sr-only">Actions</span></th
+                      >
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/[0.04]">

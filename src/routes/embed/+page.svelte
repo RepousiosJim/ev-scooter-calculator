@@ -1,12 +1,14 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import Seo from '$lib/components/Seo.svelte';
+  import { SITE_URL } from '$lib/config/site';
+  import { page } from '$app/state';
   import { presets, presetMetadata } from '$lib/data/presets';
   import { calculatePerformance } from '$lib/physics';
   import { computeScore, getGradeInfo } from '$lib/utils/scoring';
   import type { ScooterConfig, PresetMetadata } from '$lib/types';
 
   // ----- Parse query params -----
-  const params = $derived($page.url.searchParams);
+  const params = $derived(page.url.searchParams);
   const scooterKey = $derived(params.get('scooter') ?? '');
 
   const DEFAULT_CONFIG: Partial<ScooterConfig> = {
@@ -101,8 +103,7 @@
 </script>
 
 <svelte:head>
-  <title>EV Scooter Widget</title>
-  <meta name="robots" content="noindex" />
+  <Seo title="EV Scooter Widget" noindex />
 </svelte:head>
 
 <!-- Widget root — dark card, no background page chrome -->
@@ -118,7 +119,7 @@
       <!-- Header: name + grade badge -->
       <div class="widget-header">
         <div class="widget-name-block">
-          <span class="widget-name">{resolved.name}</span>
+          <h1 class="widget-name">{resolved.name}</h1>
           {#if resolved.year}
             <span class="widget-year">{resolved.year}</span>
           {/if}
@@ -164,7 +165,7 @@
 
       <!-- Footer link -->
       <div class="widget-footer">
-        <a href="https://evscooterpro.com" target="_blank" rel="noopener noreferrer" class="powered-by">
+        <a href={SITE_URL} target="_blank" rel="noopener noreferrer" class="powered-by">
           Powered by <strong>EV Scooter Pro</strong>
         </a>
       </div>
@@ -248,6 +249,7 @@
   }
 
   .widget-name {
+    margin: 0;
     font-size: 15px;
     font-weight: 700;
     color: #f1f5f9;
@@ -260,7 +262,7 @@
 
   .widget-year {
     font-size: 11px;
-    color: #64748b;
+    color: #8291a7;
     font-weight: 500;
   }
 
@@ -284,12 +286,12 @@
   }
 
   .grade-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    color: var(--grade-color);
+    /* Lightened so every grade colour reaches 4.5:1 on its tinted background. */
+    color: color-mix(in srgb, var(--grade-color) 70%, white);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    opacity: 0.85;
     margin-top: 2px;
   }
 
@@ -343,7 +345,7 @@
   .stat-label {
     font-size: 10px;
     font-weight: 600;
-    color: #64748b;
+    color: #8291a7;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -370,7 +372,7 @@
 
   .powered-by {
     font-size: 11px;
-    color: #475569;
+    color: #8291a7;
     text-decoration: none;
     transition: color 0.15s;
   }

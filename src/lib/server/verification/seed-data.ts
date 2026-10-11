@@ -36,22 +36,12 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 3360, source: 'Voro Motors Spec Sheet', type: 'manufacturer' },
 				{ value: 3360, source: 'Electric Scooter Guide', type: 'review' },
 			],
-			voltage: [
-				{ value: 84, source: 'Voro Motors Spec Sheet', type: 'manufacturer' },
-			],
-			motorWatts: [
-				{ value: 6000, source: 'Voro Motors (2x3000W)', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 65, source: 'Voro Motors Spec Sheet', type: 'manufacturer' },
-			],
-			wheelSize: [
-				{ value: 11, source: 'Voro Motors Spec Sheet', type: 'manufacturer' },
-			],
+			voltage: [{ value: 84, source: 'Voro Motors Spec Sheet', type: 'manufacturer' }],
+			motorWatts: [{ value: 6000, source: 'Voro Motors (2x3000W)', type: 'manufacturer' }],
+			weight: [{ value: 65, source: 'Voro Motors Spec Sheet', type: 'manufacturer' }],
+			wheelSize: [{ value: 11, source: 'Voro Motors Spec Sheet', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 5995, source: 'Voro Motors' },
-		],
+		prices: [{ price: 5995, source: 'Voro Motors' }],
 	},
 
 	inmotion_rs: {
@@ -68,15 +58,9 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 2880, source: 'InMotion Official', type: 'manufacturer' },
 				{ value: 2880, source: 'FluidFreeRide', type: 'retailer' },
 			],
-			voltage: [
-				{ value: 72, source: 'InMotion Official', type: 'manufacturer' },
-			],
-			motorWatts: [
-				{ value: 4000, source: 'InMotion (2x2000W)', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 58, source: 'InMotion Official', type: 'manufacturer' },
-			],
+			voltage: [{ value: 72, source: 'InMotion Official', type: 'manufacturer' }],
+			motorWatts: [{ value: 4000, source: 'InMotion (2x2000W)', type: 'manufacturer' }],
+			weight: [{ value: 58, source: 'InMotion Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 3999, source: 'InMotion Official' },
@@ -98,9 +82,7 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 2520, source: 'Kaabo Official', type: 'manufacturer' },
 				{ value: 2520, source: 'Voro Motors', type: 'retailer' },
 			],
-			weight: [
-				{ value: 63, source: 'Kaabo Official', type: 'manufacturer' },
-			],
+			weight: [{ value: 63, source: 'Kaabo Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 3995, source: 'Kaabo USA' },
@@ -110,22 +92,12 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	teverun_fighter_supreme: {
 		specs: {
-			topSpeed: [
-				{ value: 110, source: 'Teverun Official', type: 'manufacturer' },
-			],
-			range: [
-				{ value: 120, source: 'Teverun Official', type: 'manufacturer' },
-			],
-			batteryWh: [
-				{ value: 4320, source: 'Teverun Official', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 45, source: 'Teverun Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 110, source: 'Teverun Official', type: 'manufacturer' }],
+			range: [{ value: 120, source: 'Teverun Official', type: 'manufacturer' }],
+			batteryWh: [{ value: 4320, source: 'Teverun Official', type: 'manufacturer' }],
+			weight: [{ value: 45, source: 'Teverun Official', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 4299, source: 'MiniMotors USA' },
-		],
+		prices: [{ price: 4299, source: 'MiniMotors USA' }],
 	},
 
 	nami_klima: {
@@ -142,9 +114,7 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 1500, source: 'NAMI Official', type: 'manufacturer' },
 				{ value: 1500, source: 'FluidFreeRide', type: 'retailer' },
 			],
-			weight: [
-				{ value: 36, source: 'NAMI Official', type: 'manufacturer' },
-			],
+			weight: [{ value: 36, source: 'NAMI Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 2199, source: 'NAMI Official' },
@@ -162,50 +132,30 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 69, source: 'Apollo Scooters', type: 'manufacturer' },
 				{ value: 55, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 960, source: 'Apollo Scooters', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 30, source: 'Apollo Scooters', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 960, source: 'Apollo Scooters', type: 'manufacturer' }],
+			weight: [{ value: 30, source: 'Apollo Scooters', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 1699, source: 'Apollo Scooters' },
-		],
+		prices: [{ price: 1699, source: 'Apollo Scooters' }],
 	},
 
 	apollo_go: {
 		specs: {
-			topSpeed: [
-				{ value: 45, source: 'Apollo Scooters', type: 'manufacturer' },
-			],
-			range: [
-				{ value: 48, source: 'Apollo Scooters', type: 'manufacturer' },
-			],
-			batteryWh: [
-				{ value: 540, source: 'Apollo Scooters', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 45, source: 'Apollo Scooters', type: 'manufacturer' }],
+			range: [{ value: 48, source: 'Apollo Scooters', type: 'manufacturer' }],
+			batteryWh: [{ value: 540, source: 'Apollo Scooters', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 1199, source: 'Apollo Scooters' },
-		],
+		prices: [{ price: 1199, source: 'Apollo Scooters' }],
 	},
 
 	niu_kqi_air: {
 		specs: {
-			topSpeed: [
-				{ value: 32, source: 'NIU Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 32, source: 'NIU Official', type: 'manufacturer' }],
 			range: [
 				{ value: 50, source: 'NIU Official', type: 'manufacturer' },
 				{ value: 40, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 451, source: 'NIU Official', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 12, source: 'NIU Official', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 451, source: 'NIU Official', type: 'manufacturer' }],
+			weight: [{ value: 12, source: 'NIU Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 1049, source: 'NIU Official' },
@@ -229,9 +179,7 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 2304, source: 'FluidFreeRide', type: 'retailer' },
 				{ value: 2304, source: 'Voro Motors', type: 'retailer' },
 			],
-			weight: [
-				{ value: 47, source: 'NAMI Official', type: 'manufacturer' },
-			],
+			weight: [{ value: 47, source: 'NAMI Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 3499, source: 'NAMI Official' },
@@ -250,12 +198,8 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 90, source: 'Segway Store', type: 'manufacturer' },
 				{ value: 56, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 1512, source: 'Segway Store', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 52, source: 'Segway Store', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 1512, source: 'Segway Store', type: 'manufacturer' }],
+			weight: [{ value: 52, source: 'Segway Store', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 3999, source: 'Segway Store' },
@@ -265,22 +209,12 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	segway_gt1: {
 		specs: {
-			topSpeed: [
-				{ value: 60, source: 'Segway Store', type: 'manufacturer' },
-			],
-			range: [
-				{ value: 70, source: 'Segway Store', type: 'manufacturer' },
-			],
-			batteryWh: [
-				{ value: 1008, source: 'Segway Store', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 48, source: 'Segway Store', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 60, source: 'Segway Store', type: 'manufacturer' }],
+			range: [{ value: 70, source: 'Segway Store', type: 'manufacturer' }],
+			batteryWh: [{ value: 1008, source: 'Segway Store', type: 'manufacturer' }],
+			weight: [{ value: 48, source: 'Segway Store', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 1999, source: 'Segway Store' },
-		],
+		prices: [{ price: 1999, source: 'Segway Store' }],
 	},
 
 	kaabo_mantis_king_gt: {
@@ -297,9 +231,7 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 1440, source: 'Kaabo Official', type: 'manufacturer' },
 				{ value: 1440, source: 'Voro Motors', type: 'retailer' },
 			],
-			weight: [
-				{ value: 34, source: 'Kaabo Official', type: 'manufacturer' },
-			],
+			weight: [{ value: 34, source: 'Kaabo Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 2195, source: 'Kaabo USA' },
@@ -317,12 +249,8 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 70, source: 'Segway Store', type: 'manufacturer' },
 				{ value: 50, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 551, source: 'Segway Store', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 24.3, source: 'Segway Store', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 551, source: 'Segway Store', type: 'manufacturer' }],
+			weight: [{ value: 24.3, source: 'Segway Store', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 899, source: 'Segway Store' },
@@ -332,16 +260,12 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	niu_kqi3_max: {
 		specs: {
-			topSpeed: [
-				{ value: 38, source: 'NIU Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 38, source: 'NIU Official', type: 'manufacturer' }],
 			range: [
 				{ value: 65, source: 'NIU Official', type: 'manufacturer' },
 				{ value: 48, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 608, source: 'NIU Official', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 608, source: 'NIU Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 899, source: 'NIU Official' },
@@ -351,19 +275,13 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	gotrax_g4: {
 		specs: {
-			topSpeed: [
-				{ value: 32, source: 'Gotrax Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 32, source: 'Gotrax Official', type: 'manufacturer' }],
 			range: [
 				{ value: 40, source: 'Gotrax Official', type: 'manufacturer' },
 				{ value: 30, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 374, source: 'Gotrax Official', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 16.3, source: 'Gotrax Official', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 374, source: 'Gotrax Official', type: 'manufacturer' }],
+			weight: [{ value: 16.3, source: 'Gotrax Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 499, source: 'Gotrax Official' },
@@ -373,23 +291,15 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	emove_cruiser_s: {
 		specs: {
-			topSpeed: [
-				{ value: 53, source: 'Voro Motors', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 53, source: 'Voro Motors', type: 'manufacturer' }],
 			range: [
 				{ value: 100, source: 'Voro Motors', type: 'manufacturer' },
 				{ value: 72, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 1560, source: 'Voro Motors', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 23, source: 'Voro Motors', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 1560, source: 'Voro Motors', type: 'manufacturer' }],
+			weight: [{ value: 23, source: 'Voro Motors', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 1399, source: 'Voro Motors' },
-		],
+		prices: [{ price: 1399, source: 'Voro Motors' }],
 	},
 
 	// --- 2022 & CLASSICS ---
@@ -407,9 +317,7 @@ export const seedData: Record<string, SeedScooterData> = {
 				{ value: 1536, source: 'VSETT Official', type: 'manufacturer' },
 				{ value: 1536, source: 'RevRides', type: 'retailer' },
 			],
-			weight: [
-				{ value: 36, source: 'VSETT Official', type: 'manufacturer' },
-			],
+			weight: [{ value: 36, source: 'VSETT Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 1799, source: 'VSETT Official' },
@@ -419,33 +327,21 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	vsett_9_plus: {
 		specs: {
-			topSpeed: [
-				{ value: 53, source: 'VSETT Official', type: 'manufacturer' },
-			],
-			range: [
-				{ value: 70, source: 'VSETT Official', type: 'manufacturer' },
-			],
-			batteryWh: [
-				{ value: 921, source: 'VSETT Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 53, source: 'VSETT Official', type: 'manufacturer' }],
+			range: [{ value: 70, source: 'VSETT Official', type: 'manufacturer' }],
+			batteryWh: [{ value: 921, source: 'VSETT Official', type: 'manufacturer' }],
 		},
-		prices: [
-			{ price: 1290, source: 'VSETT Official' },
-		],
+		prices: [{ price: 1290, source: 'VSETT Official' }],
 	},
 
 	hiboy_s2_pro: {
 		specs: {
-			topSpeed: [
-				{ value: 30, source: 'Hiboy Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 30, source: 'Hiboy Official', type: 'manufacturer' }],
 			range: [
 				{ value: 40, source: 'Hiboy Official', type: 'manufacturer' },
 				{ value: 28, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 417, source: 'Hiboy Official', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 417, source: 'Hiboy Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 399, source: 'Hiboy Official' },
@@ -455,19 +351,13 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	dualtron_thunder_3: {
 		specs: {
-			topSpeed: [
-				{ value: 100, source: 'MiniMotors USA', type: 'retailer' },
-			],
-			range: [
-				{ value: 125, source: 'MiniMotors USA', type: 'retailer' },
-			],
+			topSpeed: [{ value: 100, source: 'MiniMotors USA', type: 'retailer' }],
+			range: [{ value: 125, source: 'MiniMotors USA', type: 'retailer' }],
 			batteryWh: [
 				{ value: 2880, source: 'MiniMotors USA', type: 'retailer' },
 				{ value: 2880, source: 'Voro Motors', type: 'retailer' },
 			],
-			weight: [
-				{ value: 47, source: 'MiniMotors USA', type: 'retailer' },
-			],
+			weight: [{ value: 47, source: 'MiniMotors USA', type: 'retailer' }],
 		},
 		prices: [
 			{ price: 4499, source: 'MiniMotors USA' },
@@ -477,19 +367,13 @@ export const seedData: Record<string, SeedScooterData> = {
 
 	m365_pro_2: {
 		specs: {
-			topSpeed: [
-				{ value: 25, source: 'Xiaomi Official', type: 'manufacturer' },
-			],
+			topSpeed: [{ value: 25, source: 'Xiaomi Official', type: 'manufacturer' }],
 			range: [
 				{ value: 45, source: 'Xiaomi Official', type: 'manufacturer' },
 				{ value: 33, source: 'Electric Scooter Guide (tested)', type: 'review' },
 			],
-			batteryWh: [
-				{ value: 460, source: 'Xiaomi Official', type: 'manufacturer' },
-			],
-			weight: [
-				{ value: 14.2, source: 'Xiaomi Official', type: 'manufacturer' },
-			],
+			batteryWh: [{ value: 460, source: 'Xiaomi Official', type: 'manufacturer' }],
+			weight: [{ value: 14.2, source: 'Xiaomi Official', type: 'manufacturer' }],
 		},
 		prices: [
 			{ price: 500, source: 'Xiaomi Store' },

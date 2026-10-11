@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { uiState } from '$lib/stores/ui.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
@@ -10,15 +10,17 @@
     { label: 'Compare', value: 'compare', icon: 'scooter' },
   ] as const;
 
-  const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
-  const isWizard = $derived($page.url.pathname.startsWith('/wizard'));
-  const isGuides = $derived($page.url.pathname.startsWith('/guides'));
+  const isRankings = $derived(page.url.pathname.startsWith('/rankings'));
+  const isWizard = $derived(page.url.pathname.startsWith('/wizard'));
+  const isGuides = $derived(page.url.pathname.startsWith('/guides'));
+  // Calculator tabs only switch panels on the home page; elsewhere they link there.
+  const isHome = $derived(page.url.pathname === '/');
 
   let tabRefs = $state<HTMLElement[]>([]);
   let indicatorStyle = $state('left:0;width:0');
 
   function updateIndicator() {
-    if (isRankings) {
+    if (!isHome) {
       indicatorStyle = 'left:0;width:0';
       return;
     }
@@ -35,7 +37,7 @@
   $effect(() => {
     // Track reactive dependencies so the effect re-runs when these change
     void uiState.activeTab;
-    void isRankings;
+    void isHome;
     tick().then(updateIndicator);
   });
 
@@ -88,17 +90,18 @@
           <Icon name="acceleration" size="sm" class="text-primary" />
         </div>
         <div class="hidden sm:block">
-          <h1
-            class="text-sm font-black tracking-tight leading-tight transition-colors"
+          <!-- Brand, not a heading: each page owns its single <h1>. -->
+          <span
+            class="block text-sm font-black tracking-tight leading-tight transition-colors"
             style="background: linear-gradient(90deg, #f0f4f8 0%, #94a3b8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;"
           >
             EV Scooter Pro
-          </h1>
-          <p class="text-[9px] font-semibold text-text-tertiary uppercase tracking-[0.18em] leading-none mt-0.5">
+          </span>
+          <p class="text-[10px] font-semibold text-text-tertiary uppercase tracking-[0.18em] leading-none mt-0.5">
             Calculator
           </p>
         </div>
-        <h1 class="sm:hidden text-sm font-black text-text-primary tracking-tight">EV Scooter Pro</h1>
+        <span class="sm:hidden text-sm font-black text-text-primary tracking-tight">EV Scooter Pro</span>
       </a>
 
       <!-- Desktop Nav: Calculator tabs + Rankings link -->
@@ -106,8 +109,8 @@
         <!-- Calculator tabs (segmented control) -->
         <div
           class="relative flex items-center bg-white/[0.04] border border-white/[0.06] rounded-full p-1"
-          role="tablist"
-          aria-label="Calculator tabs"
+          role={isHome ? 'tablist' : undefined}
+          aria-label={isHome ? 'Calculator tabs' : undefined}
         >
           <!-- Sliding indicator -->
           <div
@@ -117,7 +120,7 @@
           ></div>
 
           {#each calcTabs as tab, index (tab.value)}
-            {#if isRankings}
+            {#if !isHome}
               <a
                 href="/"
                 onclick={() => {

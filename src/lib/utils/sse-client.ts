@@ -85,29 +85,71 @@ function classifyStatus(status: number): { ok: boolean; retriable: boolean } {
 	return { ok: false, retriable: false };
 }
 
-/** Parse SSE blocks already split on '\n\n' and call onEvent for each. */
-function parseBlocks(blocks: string[], onEvent: (event: string, data: unknown) => void): void {
-	for (const block of blocks) {
-		if (!block.trim()) continue;
+/**
+ * Incremental Server-Sent Events parser following the WHATWG spec:
+ * - lines end in CRLF, LF or CR (a CR at the end of one chunk may be followed by
+ *   the LF of the next, so a trailing CR is held back);
+ * - a leading BOM is stripped; lines starting with ':' are comments;
+ * - "field: value" splits at the first colon and drops one leading space; a
+ *   line without a colon is a field with an empty value;
+ * - multiple data lines are joined with "\n"; a blank line dispatches the event
+ *   (only if it has data); an incomplete event at end of stream is discarded.
+ * JSON data is parsed when possible; otherwise the raw string is passed.
+ */
+class SSEParser {
+	private buffer = '';
+	private sawFirstChunk = false;
+	private eventName = '';
+	private dataLines: string[] = [];
 
-		let eventName = 'message';
-		let eventData = '';
+	constructor(private onEvent: (event: string, data: unknown) => void) {}
 
-		for (const line of block.split('\n')) {
-			if (line.startsWith('event: ')) {
-				eventName = line.slice(7).trim();
-			} else if (line.startsWith('data: ')) {
-				eventData = line.slice(6);
-			}
+	push(chunk: string): void {
+		if (!this.sawFirstChunk) {
+			this.sawFirstChunk = true;
+			if (chunk.charCodeAt(0) === 0xfeff) chunk = chunk.slice(1);
 		}
+		this.buffer += chunk;
 
-		if (eventData) {
-			try {
-				onEvent(eventName, JSON.parse(eventData));
-			} catch {
-				onEvent(eventName, eventData);
-			}
+		let start = 0;
+		for (let i = 0; i < this.buffer.length; i++) {
+			const ch = this.buffer[i];
+			if (ch !== '\n' && ch !== '\r') continue;
+			// A CR at the very end might be the first half of a CRLF split across chunks.
+			if (ch === '\r' && i === this.buffer.length - 1) break;
+			this.line(this.buffer.slice(start, i));
+			if (ch === '\r' && this.buffer[i + 1] === '\n') i++;
+			start = i + 1;
 		}
+		this.buffer = this.buffer.slice(start);
+	}
+
+	private line(line: string): void {
+		if (line === '') return this.dispatch();
+		if (line.startsWith(':')) return;
+		const colon = line.indexOf(':');
+		const field = colon === -1 ? line : line.slice(0, colon);
+		let value = colon === -1 ? '' : line.slice(colon + 1);
+		if (value.startsWith(' ')) value = value.slice(1);
+		if (field === 'event') this.eventName = value;
+		else if (field === 'data') this.dataLines.push(value);
+		// `id` and `retry` are not used by this client; unknown fields are ignored.
+	}
+
+	private dispatch(): void {
+		const name = this.eventName || 'message';
+		const data = this.dataLines.join('\n');
+		const hasData = this.dataLines.length > 0;
+		this.eventName = '';
+		this.dataLines = [];
+		if (!hasData) return;
+		let parsed: unknown = data;
+		try {
+			parsed = JSON.parse(data);
+		} catch {
+			/* not JSON — pass the raw string */
+		}
+		this.onEvent(name, parsed);
 	}
 }
 
@@ -168,11 +210,13 @@ async function attempt(
 	const controller = new AbortController();
 	const mergedSignal = controller.signal;
 
-	// Propagate external abort into our controller
+	// Propagate external abort into our controller. Removed in `finally` so
+	// retries don't pile listeners onto the caller's signal.
+	const forwardAbort = () => controller.abort();
 	if (externalSignal.aborted) {
 		controller.abort();
 	} else {
-		externalSignal.addEventListener('abort', () => controller.abort(), { once: true });
+		externalSignal.addEventListener('abort', forwardAbort, { once: true });
 	}
 
 	let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -219,22 +263,20 @@ async function attempt(
 		armTimeout(); // reset watchdog on connection open
 
 		const decoder = new TextDecoder();
-		let buffer = '';
+		const parser = new SSEParser(onEvent);
 
 		while (true) {
 			const { done, value } = await Promise.race([reader.read(), abortRace]);
 
-			if (done) break;
+			if (done) {
+				parser.push(decoder.decode());
+				break;
+			}
 
 			// Reset watchdog each time data arrives
 			armTimeout();
 
-			buffer += decoder.decode(value, { stream: true });
-
-			const parts = buffer.split('\n\n');
-			buffer = parts.pop() ?? '';
-
-			parseBlocks(parts, onEvent);
+			parser.push(decoder.decode(value, { stream: true }));
 		}
 	} catch (err) {
 		// Cancel the reader to release the lock (best-effort)
@@ -259,6 +301,7 @@ async function attempt(
 
 		throw err;
 	} finally {
+		externalSignal.removeEventListener('abort', forwardAbort);
 		try {
 			reader?.releaseLock();
 		} catch {
@@ -297,9 +340,12 @@ export async function consumeSSE(
 	onEvent: (event: string, data: unknown) => void,
 	sseOptions?: SSEOptions
 ): Promise<void> {
+	const method = (options.method ?? sseOptions?.fetchOptions?.method ?? 'GET').toUpperCase();
 	const {
 		fetchOptions,
-		maxRetries = 3,
+		// Retrying a POST would re-run its side effects (e.g. start a batch job
+		// again), so only idempotent requests retry unless the caller opts in.
+		maxRetries = method === 'GET' || method === 'HEAD' ? 3 : 0,
 		baseDelay = 1000,
 		maxDelay = 30_000,
 		timeout,

@@ -55,7 +55,7 @@ npm install
 npm run dev
 ```
 
-Then visit `http://localhost:5173`.
+Then visit `http://localhost:3000`.
 
 Useful commands:
 

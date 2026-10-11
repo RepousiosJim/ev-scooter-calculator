@@ -1,6 +1,8 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { fly } from 'svelte/transition';
-  import { page } from '$app/stores';
   import {
     ArrowLeft,
     Zap,
@@ -187,35 +189,26 @@
 </script>
 
 <svelte:head>
-  <title>{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator</title>
-  <meta
-    name="description"
-    content="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
+  <Seo
+    title="{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator"
+    description="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
       stats.totalRange
-    )} km range, {stats.totalWatts}W power. Grade: {grade}."
+    )} km range, {Math.round(stats.totalWatts)}W power. Grade: {grade}."
+    socialTitle="{metadata.name} ({metadata.year}) — EV Scooter Pro"
+    socialDescription="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
+    image="/api/og?scooter={key}"
+    type="product"
   />
-  <meta property="og:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
-  <meta
-    property="og:description"
-    content="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
-  />
-  <meta property="og:image" content="{$page.url.origin}/api/og?scooter={key}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:type" content="product" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
-  <meta name="twitter:image" content="{$page.url.origin}/api/og?scooter={key}" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(productSchema) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(productSchema) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-        { '@type': 'ListItem', position: 2, name: 'Rankings', item: $page.url.origin + '/rankings' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Rankings', item: SITE_URL + '/rankings' },
         { '@type': 'ListItem', position: 3, name: metadata.name },
       ],
     }) +
@@ -420,6 +413,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Acceleration score"
             aria-valuenow={breakdown.accel}
             aria-valuemin={0}
             aria-valuemax={30}
@@ -442,6 +436,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Range score"
             aria-valuenow={breakdown.range}
             aria-valuemin={0}
             aria-valuemax={25}
@@ -464,6 +459,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Speed score"
             aria-valuenow={breakdown.speed}
             aria-valuemin={0}
             aria-valuemax={20}
@@ -486,6 +482,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Efficiency score"
             aria-valuenow={breakdown.efficiency}
             aria-valuemin={0}
             aria-valuemax={15}
@@ -656,48 +653,52 @@
               <!-- Speed row -->
               <div>
                 <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">Top Speed</dt>
-                <div class="flex items-baseline gap-3 flex-wrap">
-                  <dd class="flex items-baseline gap-1">
+                <dd class="flex items-baseline gap-3 flex-wrap">
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {claimedSpeed != null ? claimedSpeed : '—'}<span class="text-[10px] text-text-tertiary">
                         km/h</span
                       >
                     </span>
-                  </dd>
-                  <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                  <dd class="flex items-baseline gap-1">
+                  </span>
+                  <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {calcSpeed}<span class="text-[10px] text-text-tertiary"> km/h</span>
                     </span>
-                  </dd>
+                  </span>
                   {#if speedDelta !== null}
-                    <dd class="text-xs font-bold {deltaClass(speedDelta)} tabular-nums">{deltaStr(speedDelta)} km/h</dd>
+                    <span class="text-xs font-bold {deltaClass(speedDelta)} tabular-nums"
+                      >{deltaStr(speedDelta)} km/h</span
+                    >
                   {/if}
-                </div>
+                </dd>
               </div>
               <!-- Range row -->
               <div>
                 <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">Range</dt>
-                <div class="flex items-baseline gap-3 flex-wrap">
-                  <dd class="flex items-baseline gap-1">
+                <dd class="flex items-baseline gap-3 flex-wrap">
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {claimedRange != null ? claimedRange : '—'}<span class="text-[10px] text-text-tertiary"> km</span>
                     </span>
-                  </dd>
-                  <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                  <dd class="flex items-baseline gap-1">
+                  </span>
+                  <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {calcRange}<span class="text-[10px] text-text-tertiary"> km</span>
                     </span>
-                  </dd>
+                  </span>
                   {#if rangeDelta !== null}
-                    <dd class="text-xs font-bold {deltaClass(rangeDelta)} tabular-nums">{deltaStr(rangeDelta)} km</dd>
+                    <span class="text-xs font-bold {deltaClass(rangeDelta)} tabular-nums"
+                      >{deltaStr(rangeDelta)} km</span
+                    >
                   {/if}
-                </div>
+                </dd>
               </div>
               <!-- Battery Wh if available -->
               {#if metadata.manufacturer.batteryWh}
@@ -705,21 +706,21 @@
                   <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">
                     Battery Energy
                   </dt>
-                  <div class="flex items-baseline gap-3 flex-wrap">
-                    <dd class="flex items-baseline gap-1">
+                  <dd class="flex items-baseline gap-3 flex-wrap">
+                    <span class="flex items-baseline gap-1">
                       <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                       <span class="text-sm font-black text-text-primary tabular-nums">
                         {metadata.manufacturer.batteryWh}<span class="text-[10px] text-text-tertiary"> Wh</span>
                       </span>
-                    </dd>
-                    <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                    <dd class="flex items-baseline gap-1">
+                    </span>
+                    <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                    <span class="flex items-baseline gap-1">
                       <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                       <span class="text-sm font-black text-text-primary tabular-nums">
                         {Math.round(stats.wh)}<span class="text-[10px] text-text-tertiary"> Wh</span>
                       </span>
-                    </dd>
-                  </div>
+                    </span>
+                  </dd>
                 </div>
               {/if}
             </dl>

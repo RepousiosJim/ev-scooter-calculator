@@ -3,12 +3,14 @@
  * falling back to in-memory for local dev / no-DB setups.
  */
 import { isSupabaseAvailable } from './db';
+import { logger } from './logger';
 import { checkRateLimitPersistent } from './rate-limit-persistent';
 
 const WINDOW_MS = 60_000; // 1 minute
 
 export const RATE_LIMIT_PUBLIC = 100; // req/min for public API
 export const RATE_LIMIT_ADMIN = 60; // req/min for admin API
+export const RATE_LIMIT_NEWSLETTER = 5; // req/min for newsletter subscribe/unsubscribe
 
 interface BucketEntry {
 	count: number;
@@ -39,6 +41,21 @@ export interface RateLimitResult {
 	allowed: boolean;
 	remaining: number;
 	resetAt: number; // Unix timestamp (ms)
+	/** True when the request was refused because the limiter backend is down (failMode 'closed'). */
+	unavailable?: boolean;
+}
+
+export interface RateLimitOptions {
+	/**
+	 * What to do when the persistent (Supabase) limiter errors:
+	 * - 'memory' (default): fall back to the per-instance in-memory limiter. Weaker on
+	 *   multi-instance serverless, but still a limit — never fail open.
+	 * - 'closed': refuse the request (`allowed: false, unavailable: true`). Use for
+	 *   brute-force-sensitive or abusable endpoints such as login and newsletter.
+	 */
+	failMode?: 'memory' | 'closed';
+	/** Separate bucket namespace so unrelated endpoints sharing a `max` don't share a bucket. */
+	scope?: string;
 }
 
 /**
@@ -46,14 +63,28 @@ export interface RateLimitResult {
  * Pass a `max` to use a custom limit (default: RATE_LIMIT_PUBLIC).
  * Returns a Promise when Supabase is available, or a sync result for in-memory.
  */
-export function checkRateLimit(ip: string, max = RATE_LIMIT_PUBLIC): RateLimitResult | Promise<RateLimitResult> {
+export function checkRateLimit(
+	ip: string,
+	max = RATE_LIMIT_PUBLIC,
+	options: RateLimitOptions = {}
+): RateLimitResult | Promise<RateLimitResult> {
+	const { failMode = 'memory', scope } = options;
+	// Key on ip+max so public and admin limits track independently per IP
+	const key = scope ? `${scope}:${ip}:${max}` : `${ip}:${max}`;
+
 	if (isSupabaseAvailable()) {
-		return checkRateLimitPersistent(ip, max).catch(() => checkRateLimitInMemory(ip, max));
+		return checkRateLimitPersistent(key, max).catch((err) => {
+			logger.warn({ err, scope, failMode }, '[rate-limit] persistent limiter unavailable');
+			if (failMode === 'closed') {
+				return { allowed: false, remaining: 0, resetAt: Date.now() + WINDOW_MS, unavailable: true };
+			}
+			return checkRateLimitInMemory(key, max);
+		});
 	}
-	return checkRateLimitInMemory(ip, max);
+	return checkRateLimitInMemory(key, max);
 }
 
-function checkRateLimitInMemory(ip: string, max: number): RateLimitResult {
+function checkRateLimitInMemory(key: string, max: number): RateLimitResult {
 	const now = Date.now();
 
 	if (buckets.size > 10000) {
@@ -65,8 +96,6 @@ function checkRateLimitInMemory(ip: string, max: number): RateLimitResult {
 		}
 	}
 
-	// Use ip+max as key so public and admin limits track independently per IP
-	const key = `${ip}:${max}`;
 	const entry = buckets.get(key);
 
 	if (!entry || now - entry.windowStart >= WINDOW_MS) {

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { CATALOG_MODEL_COUNT_LABEL } from '$lib/data/presets';
   import { fly } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import type { PageData } from './$types';
@@ -223,18 +225,11 @@
 </script>
 
 <svelte:head>
-  <title>Which Electric Scooter Should I Buy? — EV Scooter Pro Calculator</title>
-  <meta
-    name="description"
-    content="Answer 5 simple questions to find the perfect electric scooter for your needs. Personalized recommendations from 170+ models."
+  <Seo
+    title="Which Electric Scooter Should I Buy? — EV Scooter Pro Calculator"
+    description="Answer 5 simple questions to find the perfect electric scooter for your needs. Personalized recommendations from {CATALOG_MODEL_COUNT_LABEL} models."
+    socialTitle="Find Your Perfect Electric Scooter | EV Scooter Pro"
   />
-  <meta property="og:title" content="Find Your Perfect Electric Scooter | EV Scooter Pro" />
-  <meta
-    property="og:description"
-    content="Answer 5 questions to get personalized e-scooter recommendations from 166+ models. Free guided buying tool."
-  />
-  <meta property="og:image" content="/api/og" />
-  <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
@@ -271,7 +266,7 @@
         <div>
           <p class="text-xs font-bold uppercase tracking-[0.12em] text-primary mb-1">Scooter Finder</p>
           <h1 class="text-2xl sm:text-3xl font-black text-text-primary tracking-tight">Which Scooter Should I Buy?</h1>
-          <p class="text-text-tertiary text-sm mt-1">Personalized picks from 170+ models</p>
+          <p class="text-text-tertiary text-sm mt-1">Personalized picks from {CATALOG_MODEL_COUNT_LABEL} models</p>
         </div>
         {#if step <= TOTAL_STEPS}
           <div class="shrink-0 text-right">

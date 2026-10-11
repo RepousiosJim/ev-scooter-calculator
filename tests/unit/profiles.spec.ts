@@ -108,6 +108,28 @@ describe('loadProfiles', () => {
 		expect(profilesState.profiles).toHaveLength(0);
 	});
 
+	it('drops malformed entries instead of crashing', () => {
+		const good = {
+			id: 'ok',
+			name: 'Good',
+			config: testConfig,
+			presetKey: 'custom',
+			createdAt: '2025-01-01T00:00:00.000Z',
+			updatedAt: '2025-01-01T00:00:00.000Z',
+		};
+		mockStorage[STORAGE_KEY] = JSON.stringify([
+			good,
+			null,
+			'string',
+			{ ...good, id: 'no-config', config: undefined },
+			{ ...good, id: 'bad-number', config: { ...testConfig, v: 'fast' } },
+		]);
+
+		loadProfiles();
+
+		expect(profilesState.profiles.map((p) => p.id)).toEqual(['ok']);
+	});
+
 	it('loads a valid array of profiles from localStorage', () => {
 		const stored = [
 			{

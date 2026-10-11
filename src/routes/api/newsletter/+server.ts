@@ -5,8 +5,18 @@ import { readFile, writeFile, mkdir } from 'fs/promises';
 export const config = { maxDuration: 30 };
 import { join } from 'path';
 import { EMAIL_RE } from '$lib/utils/formatters';
+
+/** RFC 5321 caps a forward-path at 254 characters. */
+const MAX_EMAIL_LENGTH = 254;
+
+/** Same response whether or not the address was subscribed, so the endpoint can't be used to probe the list. */
+const UNSUBSCRIBED_RESPONSE = { success: true, message: 'If that address was subscribed, it has been removed.' };
 import { isSupabaseAvailable, db } from '$lib/server/db';
 import { applyRateLimit } from '$lib/server/api-helpers';
+import { RATE_LIMIT_NEWSLETTER } from '$lib/server/rate-limit';
+
+/** Own bucket, and refuse rather than fall back when the limiter DB is down (abusable endpoint). */
+const NEWSLETTER_RATE_LIMIT_OPTIONS = { scope: 'newsletter', failMode: 'closed' } as const;
 
 const DATA_DIR = join(process.cwd(), 'data');
 const SUBSCRIBERS_FILE = join(DATA_DIR, 'newsletter-subscribers.json');
@@ -60,7 +70,12 @@ function withLock<T>(fn: () => Promise<T>): Promise<T> {
 // ---------------------------------------------------------------------------
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
-	const { limited } = await applyRateLimit(getClientAddress());
+	const { limited } = await applyRateLimit(
+		getClientAddress(),
+		false,
+		RATE_LIMIT_NEWSLETTER,
+		NEWSLETTER_RATE_LIMIT_OPTIONS
+	);
 	if (limited) return limited;
 	let body: { email?: string; preferences?: string[] };
 	try {
@@ -71,7 +86,7 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 
 	const { email, preferences = [] } = body;
 
-	if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
+	if (!email || typeof email !== 'string' || email.length > MAX_EMAIL_LENGTH || !EMAIL_RE.test(email.trim())) {
 		return json({ error: 'Invalid email address' }, { status: 400 });
 	}
 
@@ -132,7 +147,12 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 // ---------------------------------------------------------------------------
 
 export const DELETE: RequestHandler = async ({ request, getClientAddress }) => {
-	const { limited } = await applyRateLimit(getClientAddress());
+	const { limited } = await applyRateLimit(
+		getClientAddress(),
+		false,
+		RATE_LIMIT_NEWSLETTER,
+		NEWSLETTER_RATE_LIMIT_OPTIONS
+	);
 	if (limited) return limited;
 	let body: { email?: string };
 	try {
@@ -143,35 +163,32 @@ export const DELETE: RequestHandler = async ({ request, getClientAddress }) => {
 
 	const { email } = body;
 
-	if (!email || typeof email !== 'string' || !EMAIL_RE.test(email.trim())) {
+	if (!email || typeof email !== 'string' || email.length > MAX_EMAIL_LENGTH || !EMAIL_RE.test(email.trim())) {
 		return json({ error: 'Invalid email address' }, { status: 400 });
 	}
 
 	const cleanEmail = email.trim().toLowerCase();
 
 	if (isSupabaseAvailable()) {
-		const { error, count } = await db().from('newsletter_subscribers').delete().eq('email', cleanEmail);
+		const { error } = await db().from('newsletter_subscribers').delete().eq('email', cleanEmail);
 
 		if (error) {
 			console.error('[newsletter] Supabase unsubscribe error:', error);
 			return json({ error: 'Failed to unsubscribe' }, { status: 500 });
 		}
-		if (!count) return json({ error: 'Subscription not found' }, { status: 404 });
-		return json({ success: true, message: 'You have been unsubscribed.' });
+		return json(UNSUBSCRIBED_RESPONSE);
 	}
 
 	if (process.env.VERCEL) {
 		return json({ error: 'Newsletter service unavailable — Supabase not configured' }, { status: 503 });
 	}
 
-	const result = await withLock(async () => {
+	await withLock(async () => {
 		const data = await loadSubscribers();
-		if (!data.subscribers[cleanEmail]) return null;
+		if (!data.subscribers[cleanEmail]) return;
 		delete data.subscribers[cleanEmail];
 		await saveSubscribers(data);
-		return { success: true, message: 'You have been unsubscribed.' };
 	});
 
-	if (!result) return json({ error: 'Subscription not found' }, { status: 404 });
-	return json(result);
+	return json(UNSUBSCRIBED_RESPONSE);
 };

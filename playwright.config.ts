@@ -8,7 +8,7 @@ export default defineConfig({
 	workers: process.env.CI ? 1 : undefined,
 	reporter: 'html',
 	use: {
-		baseURL: 'http://localhost:3000',
+		baseURL: process.env.CI ? 'http://localhost:4173' : 'http://localhost:3000',
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 		video: 'retain-on-failure',
@@ -37,9 +37,17 @@ export default defineConfig({
 		},
 	],
 
-	webServer: {
-		command: 'npm run dev',
-		url: 'http://localhost:3000',
-		reuseExistingServer: true,
-	},
+	// CI tests the production build (`npm run build` runs first) via `vite preview`;
+	// locally, the dev server is reused for speed.
+	webServer: process.env.CI
+		? {
+				command: 'npm run preview -- --port 4173 --strictPort',
+				url: 'http://localhost:4173',
+				reuseExistingServer: false,
+			}
+		: {
+				command: 'npm run dev',
+				url: 'http://localhost:3000',
+				reuseExistingServer: true,
+			},
 });

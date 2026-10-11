@@ -32,9 +32,9 @@ const rules: ScrapeRuleset[] = [
 					// Meta tag content attribute or text
 					const match = raw.match(/[\d,]+(?:\.\d{2})?/);
 					return match ? parseFloat(match[0].replace(/,/g, '')) : NaN;
-				}
-			}
-		}
+				},
+			},
+		},
 	},
 	{
 		manufacturer: 'Segway-Ninebot',
@@ -45,9 +45,9 @@ const rules: ScrapeRuleset[] = [
 				transform: (raw: string) => {
 					const match = raw.match(/[\d,]+(?:\.\d{2})?/);
 					return match ? parseFloat(match[0].replace(/,/g, '')) : NaN;
-				}
-			}
-		}
+				},
+			},
+		},
 	},
 	{
 		manufacturer: 'Electric Scooter Guide',
@@ -55,25 +55,25 @@ const rules: ScrapeRuleset[] = [
 		selectors: {
 			topSpeed: {
 				cssSelector: '.esg-spec-speed, .spec-table td, .review-specs td',
-				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:km/h|mph)'
+				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:km/h|mph)',
 			},
 			range: {
 				cssSelector: '.esg-spec-range, .spec-table td, .review-specs td',
-				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:km|mi)'
+				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:km|mi)',
 			},
 			batteryWh: {
 				cssSelector: '.esg-spec-battery, .spec-table td, .review-specs td',
-				regex: '(\\d+(?:\\.\\d+)?)\\s*Wh'
+				regex: '(\\d+(?:\\.\\d+)?)\\s*Wh',
 			},
 			price: {
 				cssSelector: '.esg-spec-price, .spec-table td, .review-specs td',
-				regex: '\\$?([\\d,]+(?:\\.\\d{2})?)'
+				regex: '\\$?([\\d,]+(?:\\.\\d{2})?)',
 			},
 			weight: {
 				cssSelector: '.esg-spec-weight, .spec-table td, .review-specs td',
-				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:kg|lbs?)'
-			}
-		}
+				regex: '(\\d+(?:\\.\\d+)?)\\s*(?:kg|lbs?)',
+			},
+		},
 	},
 	{
 		manufacturer: 'Gotrax',
@@ -84,9 +84,9 @@ const rules: ScrapeRuleset[] = [
 				transform: (raw: string) => {
 					const match = raw.match(/[\d,]+(?:\.\d{2})?/);
 					return match ? parseFloat(match[0].replace(/,/g, '')) : NaN;
-				}
-			}
-		}
+				},
+			},
+		},
 	},
 	{
 		manufacturer: 'Hiboy',
@@ -97,9 +97,9 @@ const rules: ScrapeRuleset[] = [
 				transform: (raw: string) => {
 					const match = raw.match(/[\d,]+(?:\.\d{2})?/);
 					return match ? parseFloat(match[0].replace(/,/g, '')) : NaN;
-				}
-			}
-		}
+				},
+			},
+		},
 	},
 ];
 
@@ -109,13 +109,7 @@ const rules: ScrapeRuleset[] = [
 export function getScraperRules(url: string): ScrapeRuleset | null {
 	try {
 		const hostname = new URL(url).hostname.toLowerCase();
-		return (
-			rules.find((r) =>
-				r.urlPatterns.some(
-					(pattern) => hostname.includes(pattern.toLowerCase())
-				)
-			) || null
-		);
+		return rules.find((r) => r.urlPatterns.some((pattern) => hostname.includes(pattern.toLowerCase()))) || null;
 	} catch {
 		return null;
 	}
@@ -125,6 +119,6 @@ export function getScraperRules(url: string): ScrapeRuleset | null {
 export function getAllRulesets(): { manufacturer: string; urlPatterns: string[] }[] {
 	return rules.map((r) => ({
 		manufacturer: r.manufacturer,
-		urlPatterns: r.urlPatterns
+		urlPatterns: r.urlPatterns,
 	}));
 }

@@ -8,9 +8,12 @@ import type { RateLimitResult } from './rate-limit';
 
 const WINDOW_MS = 60_000;
 
-export async function checkRateLimitPersistent(ip: string, max: number): Promise<RateLimitResult> {
+/**
+ * Check `key` against the persistent limiter. Throws if the database is
+ * unavailable — the caller decides whether to fall back or fail closed.
+ */
+export async function checkRateLimitPersistent(key: string, max: number): Promise<RateLimitResult> {
 	const now = Date.now();
-	const key = `${ip}:${max}`;
 
 	const { data, error } = await db().rpc('check_rate_limit_atomic', {
 		p_key: key,
@@ -19,9 +22,8 @@ export async function checkRateLimitPersistent(ip: string, max: number): Promise
 		p_window_ms: WINDOW_MS,
 	});
 
-	// Fail open on DB error — don't block requests if the rate-limit table is unavailable
 	if (error || !data?.[0]) {
-		return { allowed: true, remaining: max - 1, resetAt: now + WINDOW_MS };
+		throw new Error(`Rate-limit RPC failed: ${error?.message ?? 'no result'}`);
 	}
 
 	const row = data[0];

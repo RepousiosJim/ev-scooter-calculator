@@ -1,4 +1,8 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { CATALOG_MODEL_COUNT_LABEL } from '$lib/data/presets';
+  import { SITE_URL } from '$lib/config/site';
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
   // lucide-svelte removed from this file — replaced with the inline SVG Icon component
@@ -6,7 +10,7 @@
   import { calculatorState, loadConfigFromUrl, loadPreset } from '$lib/stores/calculator.svelte';
   import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
   import { analytics } from '$lib/utils/analytics';
-  import { initBehaviorTracking, trackWebVitals, startSession, initAllABTests } from '$lib/utils/analytics';
+  import { initBehaviorTracking, trackWebVitals, startSession } from '$lib/utils/analytics';
 
   // Components
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
@@ -48,15 +52,23 @@
     // Defer non-critical analytics init to avoid blocking first interaction
     let cleanupBehaviorTracking = () => {};
     let cleanupWebVitals = () => {};
-    const scheduleAnalytics = (cb: () => void) =>
-      typeof requestIdleCallback !== 'undefined' ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 0);
-    scheduleAnalytics(() => {
+    const initAnalytics = () => {
       startSession();
       cleanupBehaviorTracking = initBehaviorTracking();
       cleanupWebVitals = trackWebVitals();
-      initAllABTests();
       analytics.startFunnel('configuration_flow', 'page_load');
-    });
+    };
+    // Cancelled on unmount so trackers can't start after cleanup has run.
+    const cancelAnalytics =
+      typeof requestIdleCallback !== 'undefined'
+        ? (
+            (id) => () =>
+              cancelIdleCallback(id)
+          )(requestIdleCallback(initAnalytics, { timeout: 3000 }))
+        : (
+            (id) => () =>
+              clearTimeout(id)
+          )(setTimeout(initAnalytics, 0));
 
     const handleBeforeUnload = () => {
       analytics.endSession();
@@ -65,6 +77,7 @@
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
+      cancelAnalytics();
       window.removeEventListener('beforeunload', handleBeforeUnload);
 
       // Clean up analytics listeners and intervals
@@ -82,13 +95,13 @@
   const scriptClose = '<' + '/script>';
   const webAppJsonLd =
     scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'EV Scooter Pro Calculator',
       description:
         'Free online calculator for electric scooter performance analysis, hardware compatibility checking, upgrade simulation, and scooter comparison. Calculates real-world range, top speed, power output, and efficiency.',
-      url: 'https://evscooterpro.com/',
+      url: SITE_URL + '/',
       applicationCategory: 'UtilitiesApplication',
       operatingSystem: 'Any',
       browserRequirements: 'Requires JavaScript',
@@ -108,7 +121,7 @@
     scriptClose;
   const faqJsonLd =
     scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: [
@@ -164,10 +177,10 @@
 </script>
 
 <svelte:head>
-  <title>Electric Scooter Range &amp; Performance Calculator | EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Calculate electric scooter range, top speed, and performance. Compare 166+ e-scooter models with our free physics-based calculator."
+  <Seo
+    title="Electric Scooter Range & Performance Calculator | EV Scooter Pro"
+    description="Calculate electric scooter range, top speed, and performance. Compare {CATALOG_MODEL_COUNT_LABEL} e-scooter models with our free physics-based calculator."
+    path="/"
   />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html webAppJsonLd}
@@ -175,11 +188,11 @@
   {@html faqJsonLd}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'EV Scooter Pro',
-      url: 'https://evscooterpro.com',
+      url: SITE_URL,
       description: 'Electric scooter performance calculator and comparison tool',
     }) +
     scriptClose}
@@ -206,6 +219,7 @@
     <AppHeader />
 
     <div class="max-w-7xl mx-auto px-3 sm:px-4 pt-6 lg:pt-8 pb-20 lg:pb-16">
+      <h1 class="sr-only">Electric scooter range and performance calculator</h1>
       <!-- Calculator Tab -->
       <div
         aria-labelledby="configuration-heading"
@@ -541,31 +555,31 @@
       <div class="bg-bg-primary/95 backdrop-blur-md border-t border-white/[0.1] px-4 py-2.5 safe-area-pb">
         <div class="flex items-center justify-between max-w-7xl mx-auto">
           <div class="flex flex-col items-center gap-0.5 flex-1">
-            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Range</span>
+            <span class="text-[10px] text-text-tertiary uppercase tracking-wider">Range</span>
             <div class="flex items-baseline gap-0.5">
               <span class="text-sm font-black text-text-primary">{distanceVal(stats.totalRange)}</span>
-              <span class="text-[9px] text-text-tertiary">{distanceUnit()}</span>
+              <span class="text-[10px] text-text-tertiary">{distanceUnit()}</span>
             </div>
           </div>
           <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
           <div class="flex flex-col items-center gap-0.5 flex-1">
-            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Speed</span>
+            <span class="text-[10px] text-text-tertiary uppercase tracking-wider">Speed</span>
             <div class="flex items-baseline gap-0.5">
               <span class="text-sm font-black text-text-primary">{speedVal(stats.speed)}</span>
-              <span class="text-[9px] text-text-tertiary">{speedUnit()}</span>
+              <span class="text-[10px] text-text-tertiary">{speedUnit()}</span>
             </div>
           </div>
           <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
           <div class="flex flex-col items-center gap-0.5 flex-1">
-            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Power</span>
+            <span class="text-[10px] text-text-tertiary uppercase tracking-wider">Power</span>
             <div class="flex items-baseline gap-0.5">
               <span class="text-sm font-black text-text-primary">{stats.totalWatts}</span>
-              <span class="text-[9px] text-text-tertiary">W</span>
+              <span class="text-[10px] text-text-tertiary">W</span>
             </div>
           </div>
           <div class="w-px h-8 bg-white/[0.06]" aria-hidden="true"></div>
           <div class="flex flex-col items-center gap-0.5 flex-1">
-            <span class="text-[9px] text-text-tertiary uppercase tracking-wider">Grade</span>
+            <span class="text-[10px] text-text-tertiary uppercase tracking-wider">Grade</span>
             <span class="text-sm font-black text-primary">{calculatorState.performanceGrade}</span>
           </div>
         </div>

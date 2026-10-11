@@ -77,7 +77,9 @@ describe('preset catalog data quality', () => {
 			if (claim.range > 0 && calc.totalRange > 0) {
 				const diff = Math.abs(calc.totalRange - claim.range) / claim.range;
 				const line = `[${key}] range: claimed ${claim.range} km, calculated ${calc.totalRange.toFixed(1)} km (${(diff * 100).toFixed(0)}% off)`;
-				if (diff > 0.85) errors.push(line);
+				// Ranges are calibrated to claims (see scripts/calibrate-presets.mjs), so
+				// everyday range should sit near ~0.7× the claim; ≥50% off is a regression.
+				if (diff >= 0.5) errors.push(line);
 				else if (diff > 0.35) warnings.push(line);
 			}
 		}

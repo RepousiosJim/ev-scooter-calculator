@@ -1,5 +1,15 @@
 import type { RequestHandler } from './$types';
+import { read } from '$app/server';
 import satori, { type Font as SatoriFont } from 'satori';
+// Assets are imported with ?url and loaded via read() so the build bundles them
+// into the serverless function. Satori needs TTF/OTF/WOFF (not WOFF2); these are
+// Inter (OFL, see fonts/OFL.txt) subset to Latin. The resvg wasm binary is not
+// traced into the Vercel function by a plain require.resolve, so it is loaded
+// the same way.
+import inter400Url from '$lib/server/og/fonts/inter-400.ttf?url';
+import inter700Url from '$lib/server/og/fonts/inter-700.ttf?url';
+import inter900Url from '$lib/server/og/fonts/inter-900.ttf?url';
+import resvgWasmUrl from '@resvg/resvg-wasm/index_bg.wasm?url';
 
 export const config = { maxDuration: 15 };
 import { applyRateLimit } from '$lib/server/api-helpers';
@@ -8,7 +18,7 @@ import { calculatePerformance } from '$lib/physics/calculator';
 import { computeScore, getGradeInfo } from '$lib/utils/scoring';
 
 // ---------------------------------------------------------------------------
-// Font cache — fetched once per server cold-start, reused for every request.
+// Font cache — loaded once per server cold-start, reused for every request.
 // ---------------------------------------------------------------------------
 let fontDataRegular: ArrayBuffer | null = null;
 let fontDataBold: ArrayBuffer | null = null;
@@ -17,18 +27,9 @@ let fontDataBlack: ArrayBuffer | null = null;
 async function loadFonts(): Promise<void> {
 	if (fontDataRegular && fontDataBold && fontDataBlack) return;
 
-	// Fetch Inter subsets from Google Fonts CDN (latin, common weights only)
-	const [regular, bold, black] = await Promise.all([
-		fetch('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2').then(
-			(r) => r.arrayBuffer()
-		),
-		fetch('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuI6fAZ9hiA.woff2').then(
-			(r) => r.arrayBuffer()
-		),
-		fetch('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2').then(
-			(r) => r.arrayBuffer()
-		),
-	]);
+	const [regular, bold, black] = await Promise.all(
+		[inter400Url, inter700Url, inter900Url].map((url) => read(url).arrayBuffer())
+	);
 
 	fontDataRegular = regular;
 	fontDataBold = bold;
@@ -46,15 +47,10 @@ async function initWasm(): Promise<boolean> {
 	wasmAttempted = true;
 	try {
 		const { initWasm: init } = await import('@resvg/resvg-wasm');
-		// Read the wasm binary directly from the filesystem (works in Node.js 22 on Vercel)
-		const { readFile } = await import('node:fs/promises');
-		const { createRequire } = await import('node:module');
-		const require = createRequire(import.meta.url);
-		const wasmPath: string = require.resolve('@resvg/resvg-wasm/index_bg.wasm');
-		const wasmBytes = await readFile(wasmPath);
-		await init(wasmBytes);
+		await init(await read(resvgWasmUrl).arrayBuffer());
 		wasmReady = true;
-	} catch {
+	} catch (err) {
+		console.error('[og] resvg wasm init failed; serving SVG fallback:', err);
 		wasmReady = false;
 	}
 	return wasmReady;

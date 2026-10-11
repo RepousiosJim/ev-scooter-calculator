@@ -36,6 +36,22 @@ function persistProfiles(): void {
 	}
 }
 
+function isSavedProfile(value: unknown): value is SavedProfile {
+	if (!value || typeof value !== 'object') return false;
+	const p = value as Record<string, unknown>;
+	const config = p.config as Record<string, unknown> | undefined;
+	return (
+		typeof p.id === 'string' &&
+		typeof p.name === 'string' &&
+		typeof p.presetKey === 'string' &&
+		!!config &&
+		typeof config === 'object' &&
+		['v', 'ah', 'motors', 'watts', 'style', 'weight', 'wheel'].every(
+			(k) => typeof config[k] === 'number' && Number.isFinite(config[k])
+		)
+	);
+}
+
 // --- Public API ---
 
 export function loadProfiles(): void {
@@ -44,7 +60,8 @@ export function loadProfiles(): void {
 		if (!raw) return;
 		const parsed = JSON.parse(raw);
 		if (Array.isArray(parsed)) {
-			profilesState.profiles = parsed as SavedProfile[];
+			// Keep only well-formed entries; a corrupted or hand-edited item must not crash the UI.
+			profilesState.profiles = parsed.filter(isSavedProfile);
 		}
 	} catch {
 		// Corrupted data — reset to empty.

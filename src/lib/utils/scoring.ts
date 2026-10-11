@@ -13,11 +13,16 @@ export interface ScoreBreakdown {
 	weightPenalty: number;
 }
 
+/** Actual consumption (Wh/km) for these stats; Infinity if there is no range. */
+export function consumptionWhPerKm(stats: PerformanceStats): number {
+	return stats.totalRange > 0 ? stats.wh / stats.totalRange : Infinity;
+}
+
 export function computeScoreBreakdown(config: ScooterConfig, stats: PerformanceStats): ScoreBreakdown {
 	const accel = Math.sqrt(stats.accelScore / 100) * 30;
 	const range = Math.sqrt(Math.min(stats.totalRange, 200) / 200) * 25;
 	const speed = Math.sqrt(Math.min(stats.speed, 120) / 120) * 20;
-	const efficiency = Math.max(0, (35 - config.style) / 35) * 15;
+	const efficiency = Math.max(0, (35 - consumptionWhPerKm(stats)) / 35) * 15;
 	const strainPenalty = Math.max(0, (stats.cRate - 1.5) * 8);
 	const weightPenalty = Math.max(0, ((config.scooterWeight ?? 30) - 25) / 100) * 5;
 

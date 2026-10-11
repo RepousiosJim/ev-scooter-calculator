@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION } from '$lib/constants/physics';
   import { calculatorState, clearSimulation } from '$lib/stores/calculator.svelte';
   import UpgradeCard from './UpgradeCard.svelte';
   import { fly } from 'svelte/transition';
@@ -18,7 +19,7 @@
     return [
       { label: 'Top Speed', value: `${Math.round(speedVal(s.speed))} ${speedUnit()}`, good: s.speed >= 60 },
       { label: 'Range', value: `${Math.round(distanceVal(s.totalRange))} ${distanceUnit()}`, good: s.totalRange >= 50 },
-      { label: 'C-Rate', value: `${s.cRate.toFixed(1)}C`, good: s.cRate <= 2.0 },
+      { label: 'C-Rate', value: `${s.cRate.toFixed(1)}C`, good: s.cRate <= C_RATE_CAUTION },
       { label: 'Acceleration', value: `${Math.round(s.accelScore)}/100`, good: s.accelScore >= 60 },
       { label: 'Power', value: `${Math.round(s.totalWatts)}W`, good: s.totalWatts >= 2000 },
     ];

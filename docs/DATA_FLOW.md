@@ -9,8 +9,8 @@ Complete data flow architecture for the EV Scooter Calculator.
 The application follows a **unidirectional data flow** pattern:
 
 ```
-User Input → Component Event → Action Function → 
-Normalization → State Update → $derived Recomputation → 
+User Input → Component Event → Action Function →
+Normalization → State Update → $derived Recomputation →
 UI Re-render
 ```
 
@@ -66,14 +66,14 @@ calculatorState = $state({
   predictionMode: PredictionMode,  // 'spec' | 'realworld'
   rideMode: RideMode,              // 'eco' | 'normal' | 'sport' | 'turbo'
   activePresetKey: string,         // Selected preset ID
-  
+
   // Simulation State
   simulatedConfig: ScooterConfig | null,
   activeUpgrade: UpgradeType | null,
-  
+
   // UI State
   formulas: FormulaTrace[],
-  
+
   // Computed Values ($derived)
   get stats(): PerformanceStats,
   get bottlenecks(): Bottleneck[],
@@ -90,24 +90,24 @@ All state mutations go through **action functions**:
 
 ```typescript
 // Configuration updates
-updateConfig(key, value)      // Update single field
-applyConfig(partialConfig)    // Batch update
-resetConfig()                 // Reset to defaults
+updateConfig(key, value); // Update single field
+applyConfig(partialConfig); // Batch update
+resetConfig(); // Reset to defaults
 
 // Preset management
-loadPreset(presetKey)         // Load preset
+loadPreset(presetKey); // Load preset
 
 // Simulation
-simulateUpgrade(type)         // Start simulation
-clearSimulation()             // Clear simulation
+simulateUpgrade(type); // Start simulation
+clearSimulation(); // Clear simulation
 
 // Mode changes
-setPredictionMode(mode)       // Switch prediction mode
-applyRideMode(mode)           // Apply ride mode preset
+setPredictionMode(mode); // Switch prediction mode
+applyRideMode(mode); // Apply ride mode preset
 
 // Sharing
-loadConfigFromUrl()           // Load from URL params
-createShareLink(config)       // Generate share URL
+loadConfigFromUrl(); // Load from URL params
+createShareLink(config); // Generate share URL
 ```
 
 ---
@@ -209,8 +209,7 @@ Reactive Update
 UI Updates
 ├── ComparisonDeltaCards show before/after
 ├── ComparisonSummary displays deltas
-├── ComparisonDisplay shows detailed diff
-└── UpgradeGuidance highlights this upgrade
+└── ComparisonDisplay shows detailed diff
 ```
 
 ---
@@ -281,24 +280,20 @@ hillSpeed = calculateHillClimb(config)
 ```svelte
 <!-- BasicConfig.svelte -->
 <script>
-  import { calculatorState, updateConfig } from '$lib/stores/calculator.svelte';
-  
-  // Reactive derived values
-  const stats = $derived(calculatorState.stats);
-  const bottlenecks = $derived(calculatorState.bottlenecks);
-  
-  // Event handler
-  function handleInput(key: string, value: number) {
-    updateConfig(key as ConfigNumericKey, value);
-  }
+	import { calculatorState, updateConfig } from '$lib/stores/calculator.svelte';
+
+	// Reactive derived values
+	const stats = $derived(calculatorState.stats);
+	const bottlenecks = $derived(calculatorState.bottlenecks);
+
+	// Event handler
+	function handleInput(key: string, value: number) {
+		updateConfig(key as ConfigNumericKey, value);
+	}
 </script>
 
 <!-- Bindings update automatically when state changes -->
-<FormField 
-  label="Voltage" 
-  value={calculatorState.config.v}
-  on:input={(e) => handleInput('v', e.detail)}
-/>
+<FormField label="Voltage" value={calculatorState.config.v} on:input={(e) => handleInput('v', e.detail)} />
 ```
 
 ### Store Subscriptions
@@ -306,15 +301,15 @@ hillSpeed = calculateHillClimb(config)
 ```typescript
 // UI state subscription
 uiState = $state({
-  activeTab: 'configuration',
-  showAdvanced: false,
-  isCompareMode: false,
+	activeTab: 'configuration',
+	showAdvanced: false,
+	isCompareMode: false,
 });
 
 // Actions update UI state
-setActiveTab('upgrades');     // Changes activeTab
-toggleAdvanced(true);          // Toggles showAdvanced
-toggleCompareMode(true);       // Toggles isCompareMode
+setActiveTab('upgrades'); // Changes activeTab
+toggleAdvanced(true); // Toggles showAdvanced
+toggleCompareMode(true); // Toggles isCompareMode
 ```
 
 ---
@@ -326,12 +321,12 @@ toggleCompareMode(true);       // Toggles isCompareMode
 ```typescript
 // physics/cache.ts
 const calculationCache = new LRUCache<string, PerformanceStats>({
-  maxSize: 200
+	maxSize: 200,
 });
 
 // Cache key generation
 function generateCacheKey(config: ScooterConfig, mode: PredictionMode): string {
-  return `${JSON.stringify(config)}:${mode}`;
+	return `${JSON.stringify(config)}:${mode}`;
 }
 ```
 
@@ -522,12 +517,12 @@ Recalculate
 ```typescript
 // validators.ts
 const validationRules = {
-  v: { min: 24, max: 96, required: true },        // Voltage
-  ah: { min: 5, max: 100, required: true },       // Capacity
-  motors: { min: 1, max: 4, required: true },     // Motor count
-  watts: { min: 250, max: 10000, required: true },// Power
-  weight: { min: 50, max: 150, required: true },  // Rider weight
-  // ... etc
+	v: { min: 24, max: 96, required: true }, // Voltage
+	ah: { min: 5, max: 100, required: true }, // Capacity
+	motors: { min: 1, max: 4, required: true }, // Motor count
+	watts: { min: 250, max: 10000, required: true }, // Power
+	weight: { min: 50, max: 150, required: true }, // Rider weight
+	// ... etc
 };
 ```
 
@@ -561,14 +556,14 @@ const validationRules = {
 
 ## Key Files
 
-| File | Responsibility |
-|------|----------------|
+| File                          | Responsibility       |
+| ----------------------------- | -------------------- |
 | `stores/calculator.svelte.ts` | Main state container |
-| `stores/ui.svelte.ts` | UI state management |
-| `physics/calculator.ts` | Core calculations |
-| `physics/cache.ts` | Result caching |
-| `utils/validators.ts` | Input validation |
-| `utils/formatters.ts` | Display formatting |
+| `stores/ui.svelte.ts`         | UI state management  |
+| `physics/calculator.ts`       | Core calculations    |
+| `physics/cache.ts`            | Result caching       |
+| `utils/validators.ts`         | Input validation     |
+| `utils/formatters.ts`         | Display formatting   |
 
 ---
 
@@ -586,10 +581,10 @@ const validationRules = {
 ```typescript
 // Add to actions for debugging
 export function updateConfig(key: ConfigKey, value: number) {
-  console.log('[updateConfig]', key, '→', value);
-  const normalized = normalizeConfigValue(key, value, calculatorState.config[key]);
-  console.log('[updateConfig] normalized:', normalized);
-  calculatorState.config[key] = normalized;
-  console.log('[updateConfig] state updated');
+	console.log('[updateConfig]', key, '→', value);
+	const normalized = normalizeConfigValue(key, value, calculatorState.config[key]);
+	console.log('[updateConfig] normalized:', normalized);
+	calculatorState.config[key] = normalized;
+	console.log('[updateConfig] state updated');
 }
 ```

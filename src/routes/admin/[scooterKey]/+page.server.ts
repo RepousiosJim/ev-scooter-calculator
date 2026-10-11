@@ -1,10 +1,12 @@
 import type { PageServerLoad } from './$types';
+import { requireAdminPage } from '$lib/server/admin-guard';
 import { error } from '@sveltejs/kit';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { getStore } from '$lib/server/verification/store';
 import type { SpecField } from '$lib/server/verification/types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, cookies }) => {
+	await requireAdminPage({ cookies });
 	const { scooterKey } = params;
 	const meta = presetMetadata[scooterKey];
 	const config = presets[scooterKey];

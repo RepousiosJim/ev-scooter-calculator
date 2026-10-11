@@ -1,22 +1,40 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { ArrowLeft, Car, Train, Bike, Zap, Leaf, DollarSign, TrendingDown } from 'lucide-svelte';
 
   // ─── Inputs ──────────────────────────────────────────────────────────────────
 
-  let dailyDistance = $state(10); // km
-  let daysPerWeek = $state(5);
-  let electricityPrice = $state(0.2); // $/kWh
-  let whPerKm = $state(25); // Wh/km
-  let scooterPrice = $state(1000); // $
-  let lifespan = $state(3); // years
-  let monthlyMaintenance = $state(5); // $/mo
-  let carCostPerKm = $state(0.35); // $/km
-  let transitMonthlyPass = $state(80); // $/mo
-  let bikeMaintenance = $state(10); // $/mo
+  let dailyDistanceInput = $state(10); // km
+  let daysPerWeekInput = $state(5);
+  let electricityPriceInput = $state(0.2); // $/kWh
+  let whPerKmInput = $state(25); // Wh/km
+  let scooterPriceInput = $state(1000); // $
+  let lifespanInput = $state(3); // years
+  let monthlyMaintenanceInput = $state(5); // $/mo
+  let carCostPerKmInput = $state(0.35); // $/km
+  let transitMonthlyPassInput = $state(80); // $/mo
+  let bikeMaintenanceInput = $state(10); // $/mo
 
   // ─── Derived calculations ─────────────────────────────────────────────────
 
+  /** Coerce an input to a finite number within [min, max]; empty/NaN → min. */
+  function clamp(value: number, min: number, max = Infinity): number {
+    return Number.isFinite(value) ? Math.min(max, Math.max(min, value)) : min;
+  }
+
   const results = $derived.by(() => {
+    // HTML min/max aren't enforced while typing, so clamp before dividing.
+    const dailyDistance = clamp(dailyDistanceInput, 0, 100);
+    const daysPerWeek = clamp(daysPerWeekInput, 0, 7);
+    const electricityPrice = clamp(electricityPriceInput, 0);
+    const whPerKm = clamp(whPerKmInput, 0);
+    const scooterPrice = clamp(scooterPriceInput, 0);
+    const lifespan = clamp(lifespanInput, 1, 10);
+    const monthlyMaintenance = clamp(monthlyMaintenanceInput, 0);
+    const carCostPerKm = clamp(carCostPerKmInput, 0);
+    const transitMonthlyPass = clamp(transitMonthlyPassInput, 0);
+    const bikeMaintenance = clamp(bikeMaintenanceInput, 0);
+
     const scooterCostPerKm = electricityPrice * (whPerKm / 1000);
     const dailyScooterCost = scooterCostPerKm * dailyDistance;
     const monthlyKm = dailyDistance * daysPerWeek * 4.33;
@@ -32,6 +50,9 @@
     const co2Saved = dailyDistance * daysPerWeek * 52 * 0.21;
 
     return {
+      monthlyMaintenance,
+      transitMonthlyPass,
+      bikeMaintenance,
       scooterCostPerKm,
       monthlyKm,
       monthlyScooterElec,
@@ -59,18 +80,12 @@
 </script>
 
 <svelte:head>
-  <title>Ride Cost Calculator — EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Compare the cost of commuting by electric scooter vs car, public transit, and bike. Calculate daily, monthly, and yearly savings."
+  <Seo
+    title="Ride Cost Calculator — EV Scooter Pro"
+    description="Compare the cost of commuting by electric scooter vs car, public transit, and bike. Calculate daily, monthly, and yearly savings."
+    socialTitle="Electric Scooter Cost Calculator | EV Scooter Pro"
+    socialDescription="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
   />
-  <meta property="og:title" content="Electric Scooter Cost Calculator | EV Scooter Pro" />
-  <meta
-    property="og:description"
-    content="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
-  />
-  <meta property="og:image" content="/api/og" />
-  <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">
@@ -110,11 +125,11 @@
           <div class="grid grid-cols-2 gap-3">
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Daily distance (km)</span>
-              <input type="number" min="1" max="100" bind:value={dailyDistance} class={inputClass} />
+              <input type="number" min="1" max="100" bind:value={dailyDistanceInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Days per week</span>
-              <input type="number" min="1" max="7" bind:value={daysPerWeek} class={inputClass} />
+              <input type="number" min="1" max="7" bind:value={daysPerWeekInput} class={inputClass} />
             </label>
           </div>
         </div>
@@ -126,23 +141,23 @@
           <div class="grid grid-cols-2 gap-3">
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Electricity ($/kWh)</span>
-              <input type="number" min="0.01" step="0.01" bind:value={electricityPrice} class={inputClass} />
+              <input type="number" min="0.01" step="0.01" bind:value={electricityPriceInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Consumption (Wh/km)</span>
-              <input type="number" min="10" max="80" bind:value={whPerKm} class={inputClass} />
+              <input type="number" min="10" max="80" bind:value={whPerKmInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Purchase price ($)</span>
-              <input type="number" min="0" bind:value={scooterPrice} class={inputClass} />
+              <input type="number" min="0" bind:value={scooterPriceInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Lifespan (years)</span>
-              <input type="number" min="1" max="10" bind:value={lifespan} class={inputClass} />
+              <input type="number" min="1" max="10" bind:value={lifespanInput} class={inputClass} />
             </label>
             <label class="block col-span-2">
               <span class="text-xs text-text-secondary block mb-1">Monthly maintenance ($)</span>
-              <input type="number" min="0" bind:value={monthlyMaintenance} class={inputClass} />
+              <input type="number" min="0" bind:value={monthlyMaintenanceInput} class={inputClass} />
             </label>
           </div>
         </div>
@@ -154,15 +169,15 @@
           <div class="grid grid-cols-2 gap-3">
             <label class="block col-span-2">
               <span class="text-xs text-text-secondary block mb-1">Car cost per km ($)</span>
-              <input type="number" min="0" step="0.01" bind:value={carCostPerKm} class={inputClass} />
+              <input type="number" min="0" step="0.01" bind:value={carCostPerKmInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Transit pass ($/mo)</span>
-              <input type="number" min="0" bind:value={transitMonthlyPass} class={inputClass} />
+              <input type="number" min="0" bind:value={transitMonthlyPassInput} class={inputClass} />
             </label>
             <label class="block">
               <span class="text-xs text-text-secondary block mb-1">Bike maint. ($/mo)</span>
-              <input type="number" min="0" bind:value={bikeMaintenance} class={inputClass} />
+              <input type="number" min="0" bind:value={bikeMaintenanceInput} class={inputClass} />
             </label>
           </div>
         </div>
@@ -194,7 +209,7 @@
             <p class={sectionLabel}>Monthly Breakdown</p>
           </div>
           <div class="space-y-2">
-            {#each [['Electricity', results.monthlyScooterElec], ['Maintenance', monthlyMaintenance], ['Depreciation', results.monthlyScooterDeprec]] as [name, val] (name)}
+            {#each [['Electricity', results.monthlyScooterElec], ['Maintenance', results.monthlyMaintenance], ['Depreciation', results.monthlyScooterDeprec]] as [name, val] (name)}
               <div class="flex items-center justify-between text-sm">
                 <span class="text-text-secondary">{name}</span>
                 <span class="text-text-primary tabular-nums">${fmt(Number(val))}</span>
@@ -210,7 +225,7 @@
 
         <!-- 3-up comparison cards -->
         <div class="grid grid-cols-3 gap-3">
-          {#each [{ Icon: Car, label: 'Car', monthly: results.monthlyCarCost, savings: results.yearlySavingsVsCar }, { Icon: Train, label: 'Transit', monthly: transitMonthlyPass, savings: results.yearlySavingsVsTransit }, { Icon: Bike, label: 'Bike', monthly: bikeMaintenance, savings: results.yearlySavingsVsBike }] as alt (alt.label)}
+          {#each [{ Icon: Car, label: 'Car', monthly: results.monthlyCarCost, savings: results.yearlySavingsVsCar }, { Icon: Train, label: 'Transit', monthly: results.transitMonthlyPass, savings: results.yearlySavingsVsTransit }, { Icon: Bike, label: 'Bike', monthly: results.bikeMaintenance, savings: results.yearlySavingsVsBike }] as alt (alt.label)}
             <div class="rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 flex flex-col gap-2">
               <div class="flex items-center gap-1.5">
                 <alt.Icon size={13} class="text-text-tertiary shrink-0" />
