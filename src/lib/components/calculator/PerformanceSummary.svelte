@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { CHARGE_WALL_EFFICIENCY } from '$lib/constants/physics';
   import { calculatorState } from '$lib/stores/calculator.svelte';
   import StatsCard from '$lib/components/ui/StatsCard.svelte';
   import PerformanceGradeBadge from '$lib/components/ui/PerformanceGradeBadge.svelte';
@@ -11,7 +12,8 @@
   );
 
   // Cost-per-charge: cost to go one full range
-  const costPerCharge = $derived(((stats.wh / 1000) * calculatorState.config.cost).toFixed(2));
+  // Wall energy (includes charging losses), consistent with costPer100km.
+  const costPerCharge = $derived(((stats.wh / 1000 / CHARGE_WALL_EFFICIENCY) * calculatorState.config.cost).toFixed(2));
 
   // Efficiency: Wh/km — lower is better
   const whPerKm = $derived(stats.totalRange > 0 ? Math.round(stats.wh / stats.totalRange) : 0);

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION, C_RATE_CRITICAL } from '$lib/constants/physics';
   import { untrack } from 'svelte';
   import { calculatorState, updateConfig, applyConfig } from '$lib/stores/calculator.svelte';
   import { defaultConfig } from '$lib/data/presets';
@@ -65,8 +66,8 @@
     const wh = localValues.v * localValues.ah;
     const cRate = stats.cRate;
 
-    if (cRate > 3.0) w.watts = `High C-rate (${cRate.toFixed(1)}C) — battery stress`;
-    else if (cRate > 2.5) w.watts = `Elevated C-rate (${cRate.toFixed(1)}C)`;
+    if (cRate > C_RATE_CRITICAL) w.watts = `High C-rate (${cRate.toFixed(1)}C) — battery stress`;
+    else if (cRate > C_RATE_CAUTION) w.watts = `Elevated C-rate (${cRate.toFixed(1)}C)`;
 
     if (localValues.v >= 72 && localValues.ah < 15) w.ah = 'Low capacity for high voltage — limited range';
     if (wh > 5000) w.v = 'Very high energy — verify specs are realistic';

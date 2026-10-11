@@ -1,9 +1,10 @@
 import type { Bottleneck, PerformanceStats, ScooterConfig } from '$lib/types';
+import { C_RATE_CRITICAL } from '$lib/constants/physics';
 
 export function detectBottlenecks(stats: PerformanceStats, config: ScooterConfig): Bottleneck[] {
 	const bottlenecks: Bottleneck[] = [];
 
-	if (stats.cRate > 3.0) {
+	if (stats.cRate > C_RATE_CRITICAL) {
 		bottlenecks.push({
 			type: 'SAG_WARNING',
 			message: 'Battery discharge is too high. Expect voltage sag and reduced performance.',

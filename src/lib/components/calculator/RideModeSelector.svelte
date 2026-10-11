@@ -21,13 +21,15 @@
   ];
 
   const currentMode = $derived(calculatorState.rideMode);
-  const impact = $derived(() => {
+  // Impact of the selected mode relative to Normal (hidden for Normal, or when the
+  // config matches no mode, e.g. a freshly loaded preset).
+  const impactValue = $derived.by(() => {
+    if (!currentMode || currentMode === 'normal') return null;
     const preset = rideModePresets[currentMode];
-    if (!preset) return null;
-    return calculateRideModeImpact(calculatorState.config, preset.style, preset.regen, calculatorState.predictionMode);
+    const normal = rideModePresets.normal;
+    const baseline = { ...calculatorState.config, style: normal.style, regen: normal.regen };
+    return calculateRideModeImpact(baseline, preset.style, preset.regen, calculatorState.predictionMode);
   });
-
-  const impactValue = $derived(impact());
 
   function selectMode(mode: RideMode) {
     applyRideMode(mode);

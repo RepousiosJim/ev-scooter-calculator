@@ -22,3 +22,11 @@ export const METERS_PER_KILOMETER = 1000;
 // Motor and speed constants
 export const DEFAULT_MOTOR_EFFICIENCY = 0.85;
 export const BASE_SPEED_AT_NOMINAL_VOLTAGE = 75; // km/h
+
+// Battery discharge-rate thresholds (C-rate). Above CAUTION, a parallel pack is
+// worth recommending; above CRITICAL, expect significant sag (bottleneck warning).
+export const C_RATE_CAUTION = 2.0;
+export const C_RATE_CRITICAL = 3.0;
+
+// Fraction of wall energy that ends up in the battery (charger + charging losses).
+export const CHARGE_WALL_EFFICIENCY = 0.88;

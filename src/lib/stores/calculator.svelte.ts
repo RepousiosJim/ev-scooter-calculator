@@ -26,7 +26,9 @@ const baseConfig = normalizeConfig(defaultConfig, defaultConfig);
 
 type ShareConfigKey = Exclude<keyof ScooterConfig, 'id' | 'name'>;
 
-const configKeys: ShareConfigKey[] = [
+// Positional: share links encode values in this order, so only ever APPEND new
+// keys — reordering or removing entries breaks existing links.
+export const configKeys: ShareConfigKey[] = [
 	'v',
 	'ah',
 	'motors',
@@ -49,6 +51,7 @@ const configKeys: ShareConfigKey[] = [
 	'dragCoefficient',
 	'frontalArea',
 	'rollingResistance',
+	'rpm',
 ];
 
 function canUseBase64(): boolean {
@@ -74,7 +77,7 @@ function fromBase64Url(value: string): string | null {
 	}
 }
 
-function encodeConfig(config: ScooterConfig) {
+export function encodeConfig(config: ScooterConfig) {
 	if (!canUseBase64()) return null;
 	const values = configKeys.map((key) => {
 		const value = config[key];
@@ -83,7 +86,7 @@ function encodeConfig(config: ScooterConfig) {
 	return toBase64Url(JSON.stringify(values));
 }
 
-function decodeConfig(encoded: string) {
+export function decodeConfig(encoded: string) {
 	if (!canUseBase64()) return null;
 	try {
 		const json = fromBase64Url(encoded);
@@ -108,24 +111,57 @@ function decodeConfig(encoded: string) {
 // Re-export toast utilities for backwards compatibility
 export { toastState, showToast } from './toast.svelte';
 
-// Main calculator state
-export const calculatorState = $state({
-	config: { ...baseConfig },
+type UpgradeType = 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires';
+type PerformanceGrade = 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'F';
 
-	predictionMode: 'spec' as PredictionMode,
-	simulatedConfig: null as ScooterConfig | null,
-	activeUpgrade: null as 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires' | null,
-	rideMode: 'normal' as RideMode,
-	terrainMode: 'urban' as TerrainMode,
-	activePresetKey: 'custom' as string,
+/**
+ * Main calculator state.
+ *
+ * Derived values use `$derived` so each is computed once per change and shared
+ * by every reader. (Plain getters on a `$state` object recompute on every read —
+ * `stats` alone was being recalculated ~11 times per update.)
+ */
+class CalculatorStore {
+	config = $state<ScooterConfig>({ ...baseConfig });
+	predictionMode = $state<PredictionMode>('spec');
+	simulatedConfig = $state<ScooterConfig | null>(null);
+	activeUpgrade = $state<UpgradeType | null>(null);
+	/** Null when the current config doesn't correspond to a ride mode (e.g. after loading a preset). */
+	rideMode = $state<RideMode | null>(null);
+	terrainMode = $state<TerrainMode>('urban');
+	activePresetKey = $state<string>('custom');
 
-	// Computed values
-	get activePresetName(): string {
+	activePresetName = $derived.by(() => {
 		if (this.activePresetKey === 'custom') return 'Custom Configuration';
 		return presetMetadata[this.activePresetKey]?.name || 'Unknown Model';
-	},
+	});
 
-	get performanceGrade(): 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C+' | 'C' | 'C-' | 'D+' | 'D' | 'F' {
+	specStats = $derived(calculatePerformance(this.config, 'spec'));
+	realworldStats = $derived(calculatePerformance(this.config, 'realworld'));
+	stats = $derived<PerformanceStats>(this.predictionMode === 'realworld' ? this.realworldStats : this.specStats);
+
+	simStats = $derived<PerformanceStats | null>(
+		this.simulatedConfig ? calculatePerformance(this.simulatedConfig, this.predictionMode) : null
+	);
+
+	bottlenecks = $derived<Bottleneck[]>(detectBottlenecks(this.stats, this.config));
+
+	recommendations = $derived<Recommendation[]>(
+		generateRecommendations(this.config, this.specStats, this.realworldStats)
+	);
+
+	incompatibleUpgrades = $derived.by<Recommendation[]>(() => {
+		const recommendedTypes = new Set(this.recommendations.map((r) => r.upgradeType));
+		return getAllUpgrades(this.config, this.specStats, this.realworldStats).filter(
+			(u) => !recommendedTypes.has(u.upgradeType)
+		);
+	});
+
+	upgradeDelta = $derived<UpgradeDelta | null>(
+		this.activeUpgrade ? calculateUpgradeDelta(this.config, this.activeUpgrade) : null
+	);
+
+	performanceGrade = $derived.by<PerformanceGrade>(() => {
 		const s = this.stats;
 		const accel = s.accelScore; // 0-100
 
@@ -152,44 +188,25 @@ export const calculatorState = $state({
 		if (score >= 30) return 'D+';
 		if (score >= 20) return 'D';
 		return 'F';
-	},
+	});
+}
 
-	// Computed values
-	get stats(): PerformanceStats {
-		return calculatePerformance(this.config, this.predictionMode);
-	},
+export const calculatorState = new CalculatorStore();
 
-	get simStats(): PerformanceStats | null {
-		if (!this.simulatedConfig) return null;
-		return calculatePerformance(this.simulatedConfig, this.predictionMode);
-	},
+/** The ride mode whose settings the config currently matches, if any. */
+function matchRideMode(config: ScooterConfig): RideMode | null {
+	for (const preset of Object.values(rideModePresets)) {
+		if (preset.style === config.style && preset.regen === config.regen) return preset.id;
+	}
+	return null;
+}
 
-	get bottlenecks(): Bottleneck[] {
-		return detectBottlenecks(this.stats, this.config);
-	},
-
-	get recommendations(): Recommendation[] {
-		const specStats = calculatePerformance(this.config, 'spec');
-		const realworldStats = calculatePerformance(this.config, 'realworld');
-		return generateRecommendations(this.config, specStats, realworldStats);
-	},
-
-	get incompatibleUpgrades(): Recommendation[] {
-		const specStats = calculatePerformance(this.config, 'spec');
-		const realworldStats = calculatePerformance(this.config, 'realworld');
-		const recommendedTypes = new Set(this.recommendations.map((r) => r.upgradeType));
-		return getAllUpgrades(this.config, specStats, realworldStats).filter((u) => !recommendedTypes.has(u.upgradeType));
-	},
-
-	get upgradeDelta(): UpgradeDelta | null {
-		if (!this.activeUpgrade) return null;
-		return calculateUpgradeDelta(this.config, this.activeUpgrade);
-	},
-});
+calculatorState.rideMode = matchRideMode(calculatorState.config);
 
 // Actions
 export function applyConfig(config: Partial<ScooterConfig>) {
 	calculatorState.config = normalizeConfig(config, baseConfig);
+	calculatorState.rideMode = matchRideMode(calculatorState.config);
 }
 
 export function loadPreset(presetKey: string) {
@@ -232,6 +249,9 @@ export function updateConfig<K extends ConfigNumericKey>(key: K, value: number |
 	const normalizedValue = normalizeConfigValue(key, value, calculatorState.config[key]);
 	calculatorState.config[key] = normalizedValue as ScooterConfig[K];
 	calculatorState.activePresetKey = 'custom';
+	if (key === 'style' || key === 'regen') {
+		calculatorState.rideMode = matchRideMode(calculatorState.config);
+	}
 }
 
 export function applyRideMode(mode: RideMode) {
@@ -251,7 +271,7 @@ export function applyTerrainMode(mode: TerrainMode) {
 	}
 }
 
-export function simulateUpgrade(type: 'parallel' | 'voltage' | 'controller' | 'motor' | 'tires') {
+export function simulateUpgrade(type: UpgradeType) {
 	const current = { ...calculatorState.config };
 	const newConfig = simulateUpgradePhysics(current, type);
 

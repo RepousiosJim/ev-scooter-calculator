@@ -18,6 +18,7 @@ import {
 	MODE_EFFICIENCY_FACTOR_REALWORLD,
 	MIN_SAG_PERCENT_SPEC,
 	MIN_SAG_PERCENT_REALWORLD,
+	CHARGE_WALL_EFFICIENCY,
 } from '$lib/constants/physics';
 import { PERFORMANCE_CACHE_LIMIT } from '$lib/constants/cache';
 import { LRUCache } from './cache';
@@ -66,8 +67,19 @@ const ZERO_STATS: PerformanceStats = Object.freeze({
 });
 
 export function calculatePerformance(config: ScooterConfig, mode: PredictionMode = 'spec'): PerformanceStats {
-	// Guard against invalid inputs that would produce NaN/Infinity
-	if (config.v <= 0 || config.ah <= 0 || config.style <= 0 || config.weight <= 0) {
+	// Guard against invalid inputs that would produce NaN/Infinity. `!(x > 0)` also
+	// rejects NaN and undefined, which a plain `x <= 0` lets through.
+	const requiredPositive = [
+		config.v,
+		config.ah,
+		config.style,
+		config.weight,
+		config.soh,
+		config.motors,
+		config.watts,
+		config.wheel,
+	];
+	if (requiredPositive.some((x) => !(x > 0) || !Number.isFinite(x)) || !Number.isFinite(config.ambientTemp)) {
 		return ZERO_STATS;
 	}
 
@@ -133,7 +145,8 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
 	const chargerWatts = config.charger * config.v;
 	const chargeTime = chargerWatts > 0 ? (wh / chargerWatts) * CHARGER_EFFICIENCY_FACTOR : 0;
 
-	const costPerCharge = (wh / 1000) * config.cost;
+	// Pay for wall energy, not battery energy: charging loses ~12%.
+	const costPerCharge = (wh / 1000 / CHARGE_WALL_EFFICIENCY) * config.cost;
 	const costPer100km = (100 / totalRange) * costPerCharge;
 
 	const totalWeight = effectiveScooterWeight + config.weight;

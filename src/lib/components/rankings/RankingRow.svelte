@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION } from '$lib/constants/physics';
   import { TrendingDown, TrendingUp } from 'lucide-svelte';
   import { speedVal, speedUnit, distanceVal, distanceUnit } from '$lib/utils/units';
   import { formatPrice } from '$lib/utils/formatters';
@@ -99,7 +100,7 @@
               )}%
             </span>
           {/if}
-          {#if scooter.stats.cRate > 2.5}
+          {#if scooter.stats.cRate > C_RATE_CAUTION}
             <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider">
               {scooter.stats.cRate.toFixed(1)}C strain
             </span>

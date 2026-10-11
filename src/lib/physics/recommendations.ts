@@ -1,6 +1,13 @@
 import type { Recommendation, ScooterConfig, PerformanceStats } from '$lib/types';
 import { calculatePerformance } from './calculator';
-import { NOMINAL_VOLTAGE } from '$lib/constants/physics';
+import { formatPercentChange, formatSignedDelta } from '$lib/utils/formatters';
+import { NOMINAL_VOLTAGE, C_RATE_CAUTION } from '$lib/constants/physics';
+
+/** "2.00x" ratio of before/after, or "n/a" if undefined. */
+function formatRatio(before: number, after: number): string {
+	const ratio = before / after;
+	return Number.isFinite(ratio) && ratio > 0 ? `${ratio.toFixed(2)}x` : 'n/a';
+}
 
 export function generateRecommendations(
 	config: ScooterConfig,
@@ -11,7 +18,7 @@ export function generateRecommendations(
 	const stats = specStats; // For condition checks that use stats parameter
 
 	// Parallel Battery: C-rate stress OR limited range
-	if (stats.cRate > 2.0 || stats.totalRange < 50) {
+	if (stats.cRate > C_RATE_CAUTION || stats.totalRange < 50) {
 		const parallelConfig: ScooterConfig = { ...config, ah: config.ah * 2 };
 		const parallelSpec = calculatePerformance(parallelConfig, 'spec');
 		const parallelRealworld = calculatePerformance(parallelConfig, 'realworld');
@@ -20,13 +27,13 @@ export function generateRecommendations(
 			upgradeType: 'parallel',
 			title: 'Add Parallel Battery',
 			reason:
-				stats.cRate > 2.0
+				stats.cRate > C_RATE_CAUTION
 					? `Battery C-rate (${stats.cRate.toFixed(1)}C) exceeds safe limits, causing voltage sag.`
 					: `Range (${stats.totalRange.toFixed(0)} km) is limited by battery capacity.`,
 			whatChanges: 'Doubles battery capacity, halves C-rate, significantly reduces voltage sag.',
 			expectedGains: {
-				spec: `+${((parallelSpec.totalRange / specStats.totalRange - 1) * 100).toFixed(0)}% range, ${(specStats.cRate / parallelSpec.cRate).toFixed(2)}x lower C-rate`,
-				realworld: `+${((parallelRealworld.totalRange / realworldStats.totalRange - 1) * 100).toFixed(0)}% range, ${(realworldStats.cRate / parallelRealworld.cRate).toFixed(2)}x lower C-rate`,
+				spec: `${formatPercentChange(specStats.totalRange, parallelSpec.totalRange)} range, ${formatRatio(specStats.cRate, parallelSpec.cRate)} lower C-rate`,
+				realworld: `${formatPercentChange(realworldStats.totalRange, parallelRealworld.totalRange)} range, ${formatRatio(realworldStats.cRate, parallelRealworld.cRate)} lower C-rate`,
 			},
 			tradeoffs: 'Increases weight by ~8-12kg. Requires battery enclosure modification.',
 			confidence: 'high',
@@ -51,8 +58,8 @@ export function generateRecommendations(
 			reason: `Top speed (${stats.speed.toFixed(0)} km/h) could be improved with higher voltage.`,
 			whatChanges: 'Increases motor RPM and torque for higher top speed and better acceleration.',
 			expectedGains: {
-				spec: `+${((voltageSpec.speed / specStats.speed - 1) * 100).toFixed(0)}% top speed, +${(voltageSpec.accelScore - specStats.accelScore).toFixed(0)} accel`,
-				realworld: `+${((voltageRealworld.speed / realworldStats.speed - 1) * 100).toFixed(0)}% top speed, +${(voltageRealworld.accelScore - realworldStats.accelScore).toFixed(0)} accel`,
+				spec: `${formatPercentChange(specStats.speed, voltageSpec.speed)} top speed, ${formatSignedDelta(specStats.accelScore, voltageSpec.accelScore)} accel`,
+				realworld: `${formatPercentChange(realworldStats.speed, voltageRealworld.speed)} top speed, ${formatSignedDelta(realworldStats.accelScore, voltageRealworld.accelScore)} accel`,
 			},
 			tradeoffs: 'Requires new controller (matched to voltage). Check motor voltage rating.',
 			confidence: 'medium',
@@ -91,8 +98,8 @@ export function generateRecommendations(
 			reason: `Single ${config.watts}W motor provides ${stats.accelScore < 40 ? 'weak' : 'moderate'} acceleration (${stats.accelScore.toFixed(0)}/100).`,
 			whatChanges: 'Adds second motor with higher wattage for dual-drive traction.',
 			expectedGains: {
-				spec: `+${(motorSpec.accelScore - specStats.accelScore).toFixed(0)} acceleration score, better hill climbing`,
-				realworld: `+${(motorRealworld.accelScore - realworldStats.accelScore).toFixed(0)} acceleration score, improved traction`,
+				spec: `${formatSignedDelta(specStats.accelScore, motorSpec.accelScore)} acceleration score, better hill climbing`,
+				realworld: `${formatSignedDelta(realworldStats.accelScore, motorRealworld.accelScore)} acceleration score, improved traction`,
 			},
 			tradeoffs: 'Higher power consumption reduces range. May require controller upgrade.',
 			confidence: 'medium',
@@ -106,7 +113,7 @@ export function generateRecommendations(
 		const tireConfig: ScooterConfig = { ...config, rollingResistance: 0.012 };
 		const tireSpec = calculatePerformance(tireConfig, 'spec');
 
-		const rangeGain = ((tireSpec.totalRange / specStats.totalRange - 1) * 100).toFixed(0);
+		const rangeGain = formatPercentChange(specStats.totalRange, tireSpec.totalRange);
 
 		recommendations.push({
 			upgradeType: 'tires',
@@ -114,8 +121,8 @@ export function generateRecommendations(
 			reason: 'Switching to street-performance tires reduces energy lost to rolling resistance.',
 			whatChanges: 'Switch to low-rolling-resistance tires for improved efficiency.',
 			expectedGains: {
-				spec: `+${rangeGain}% range from reduced rolling resistance`,
-				realworld: `+${rangeGain}% real-world range, smoother ride quality`,
+				spec: `${rangeGain} range from reduced rolling resistance`,
+				realworld: `${rangeGain} real-world range, smoother ride quality`,
 			},
 			tradeoffs: 'Low-profile tires may have reduced comfort and off-road capability.',
 			confidence: 'low',

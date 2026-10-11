@@ -1,5 +1,7 @@
 import type { ScooterConfig, UpgradeDelta, Recommendation, PerformanceStats } from '$lib/types';
 import { calculatePerformance } from './calculator';
+import { formatPercentChange, formatSignedDelta } from '$lib/utils/formatters';
+import { C_RATE_CAUTION } from '$lib/constants/physics';
 
 export function simulateUpgrade(
 	config: ScooterConfig,
@@ -107,18 +109,18 @@ export function getAllUpgrades(
 			case 'parallel':
 				title = 'Add Parallel Battery';
 				reason =
-					stats.cRate <= 2.0 && stats.totalRange >= 50
+					stats.cRate <= C_RATE_CAUTION && stats.totalRange >= 50
 						? `Battery C-rate (${stats.cRate.toFixed(1)}C) is within safe limits and range (${stats.totalRange.toFixed(0)} km) is adequate. Not a priority upgrade.`
-						: `Battery C-rate (${stats.cRate.toFixed(1)}C) ${stats.cRate > 2.0 ? 'exceeds safe limits, causing voltage sag.' : 'is OK, but'} range (${stats.totalRange.toFixed(0)} km) ${stats.totalRange < 50 ? 'is below average — a second pack would help significantly.' : 'could still benefit from extra capacity.'}`;
+						: `Battery C-rate (${stats.cRate.toFixed(1)}C) ${stats.cRate > C_RATE_CAUTION ? 'exceeds safe limits, causing voltage sag.' : 'is OK, but'} range (${stats.totalRange.toFixed(0)} km) ${stats.totalRange < 50 ? 'is below average — a second pack would help significantly.' : 'could still benefit from extra capacity.'}`;
 				whatChanges = 'Doubles battery capacity, halves C-rate, significantly reduces voltage sag.';
 				expectedGains = {
-					spec: `+${((upgradedSpec.totalRange / currentSpec.totalRange - 1) * 100).toFixed(0)}% range`,
-					realworld: `+${((upgradedRealworld.totalRange / currentRealworld.totalRange - 1) * 100).toFixed(0)}% range`,
+					spec: `${formatPercentChange(currentSpec.totalRange, upgradedSpec.totalRange)} range`,
+					realworld: `${formatPercentChange(currentRealworld.totalRange, upgradedRealworld.totalRange)} range`,
 				};
 				tradeoffs = 'Increases weight by ~8-12kg.';
 				estimatedCost = '$300-600';
 				difficulty = 'moderate';
-				confidence = stats.cRate > 2.0 || stats.totalRange < 50 ? 'high' : 'low';
+				confidence = stats.cRate > C_RATE_CAUTION || stats.totalRange < 50 ? 'high' : 'low';
 				break;
 			case 'voltage':
 				title = 'Voltage Boost (+20%)';
@@ -128,8 +130,8 @@ export function getAllUpgrades(
 						: `Current ${config.v}V limits top speed to ${stats.speed.toFixed(0)} km/h. A 20% voltage boost would increase RPM and torque for noticeably higher speed.`;
 				whatChanges = 'Increases motor RPM and torque for higher top speed.';
 				expectedGains = {
-					spec: `+${((upgradedSpec.speed / currentSpec.speed - 1) * 100).toFixed(0)}% top speed`,
-					realworld: `+${((upgradedRealworld.speed / currentRealworld.speed - 1) * 100).toFixed(0)}% top speed`,
+					spec: `${formatPercentChange(currentSpec.speed, upgradedSpec.speed)} top speed`,
+					realworld: `${formatPercentChange(currentRealworld.speed, upgradedRealworld.speed)} top speed`,
 				};
 				tradeoffs = 'Requires new controller and charger.';
 				estimatedCost = '$200-500';
@@ -143,7 +145,7 @@ export function getAllUpgrades(
 					: `Controller (${config.controller}A) is restricting motor output. Removing this bottleneck allows full power delivery.`;
 				whatChanges = 'Allows motors to reach higher peak power output.';
 				expectedGains = {
-					spec: `+${((upgradedSpec.totalWatts / currentSpec.totalWatts - 1) * 100).toFixed(0)}% peak power`,
+					spec: `${formatPercentChange(currentSpec.totalWatts, upgradedSpec.totalWatts)} peak power`,
 					realworld: 'Better acceleration',
 				};
 				tradeoffs = 'Higher battery stress. Check thermal limits.';
@@ -159,7 +161,7 @@ export function getAllUpgrades(
 						: `Single motor limits acceleration (${stats.accelScore.toFixed(0)}/100) and hill performance. Dual motors improve traction and power delivery.`;
 				whatChanges = 'Adds/Upgrades motors for dual-drive traction.';
 				expectedGains = {
-					spec: `+${(upgradedSpec.accelScore - currentSpec.accelScore).toFixed(0)} accel score`,
+					spec: `${formatSignedDelta(currentSpec.accelScore, upgradedSpec.accelScore)} accel score`,
 					realworld: 'Improved hill climbing',
 				};
 				tradeoffs = 'Higher consumption. Needs dual controllers.';
@@ -175,8 +177,8 @@ export function getAllUpgrades(
 						: `Current tires have higher rolling resistance (${(config.rollingResistance ?? 0.02).toFixed(3)}). Switching to street-performance tires reduces energy lost to rolling resistance.`;
 				whatChanges = 'Switch to high-performance low-resistance tires.';
 				expectedGains = {
-					spec: `+${((upgradedSpec.totalRange / currentSpec.totalRange - 1) * 100).toFixed(0)}% range`,
-					realworld: `+${((upgradedRealworld.totalRange / currentRealworld.totalRange - 1) * 100).toFixed(0)}% range`,
+					spec: `${formatPercentChange(currentSpec.totalRange, upgradedSpec.totalRange)} range`,
+					realworld: `${formatPercentChange(currentRealworld.totalRange, upgradedRealworld.totalRange)} range`,
 				};
 				tradeoffs = 'Reduced off-road grip.';
 				estimatedCost = '$80-150';

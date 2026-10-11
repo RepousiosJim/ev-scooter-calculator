@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { C_RATE_CAUTION } from '$lib/constants/physics';
   import { TrendingDown, TrendingUp, AlertTriangle } from 'lucide-svelte';
   import { speedVal, distanceVal } from '$lib/utils/units';
   import { formatPrice } from '$lib/utils/formatters';
@@ -195,7 +196,7 @@
         {/if}
       </div>
 
-      {#if scooter.stats.cRate > 2.5}
+      {#if scooter.stats.cRate > C_RATE_CAUTION}
         <div class="inline-flex items-center gap-1 text-[9px] text-rose-400 font-bold uppercase tracking-wider">
           <AlertTriangle size={10} /> Battery strain {scooter.stats.cRate.toFixed(1)}C
         </div>
