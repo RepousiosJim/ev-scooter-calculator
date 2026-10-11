@@ -2,14 +2,6 @@
   import Seo from '$lib/components/Seo.svelte';
   import { page } from '$app/state';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
-  import { SENTRY_ENABLED } from '$lib/sentry';
-  import { browser } from '$app/environment';
-
-  async function reportIssue() {
-    if (!browser || !SENTRY_ENABLED) return;
-    const Sentry = await import('@sentry/sveltekit');
-    Sentry.showReportDialog();
-  }
 </script>
 
 <svelte:head>
@@ -45,15 +37,6 @@
       >
         Back to Calculator
       </a>
-      {#if SENTRY_ENABLED && page.status !== 404}
-        <button
-          type="button"
-          onclick={reportIssue}
-          class="inline-flex px-6 py-2.5 text-sm font-bold text-text-secondary border border-border bg-transparent hover:bg-white/5 transition-colors uppercase tracking-wider"
-        >
-          Report Issue
-        </button>
-      {/if}
     </div>
   </div>
 </div>

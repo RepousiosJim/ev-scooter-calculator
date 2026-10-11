@@ -23,9 +23,9 @@ _"Stop shipping without a safety net"_
 | 1.3 | **Test the server API routes** — unit tests for `/api/admin/verify`, `/api/admin/batch-verify`, `/api/admin/discover`, `/api/admin/candidates` | These endpoints handle data mutations with zero test coverage. The entire verification pipeline is untested. | M      |
 | 1.4 | **Un-skip the 5 accessibility E2E tests** (keyboard nav, focus management, reduced motion) and fix any failures                                | Skipped tests are worse than no tests — they give false confidence.                                          | S      |
 | 1.5 | **Add E2E tests to CI** as a separate workflow step with Playwright                                                                            | E2E exists but doesn't run in CI. Regressions in routing, navigation, presets can ship undetected.           | S      |
-| 1.6 | **Add error monitoring** — Sentry or equivalent, client + server                                                                               | You have zero visibility into production errors. A user hitting a bug is invisible to you.                   | S      |
+| 1.6 | **Add error monitoring** — server errors are logged (no third-party monitoring)                                                                | You have zero visibility into production errors. A user hitting a bug is invisible to you.                   | S      |
 
-**Exit criteria:** CI runs lint + type check + unit tests (with coverage) + E2E. Sentry captures errors. Coverage >= 70%.
+**Exit criteria:** CI runs lint + type check + unit tests (with coverage) + E2E. Server errors are logged. Coverage >= 70%.
 
 ---
 

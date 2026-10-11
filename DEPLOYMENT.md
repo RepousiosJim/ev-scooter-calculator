@@ -22,9 +22,6 @@ Adapter settings (`svelte.config.js`): Node 22 runtime, `split: false` (one func
 | `CRON_SECRET`               | Yes      | Authenticates Vercel Cron calls to `/api/cron/cleanup`. **Vercel does not create it — add it yourself**; without it the cron returns 401. |
 | `PUBLIC_SITE_URL`           | No       | Canonical origin for canonical/OG/sitemap URLs. Defaults to `https://evscooterpro.com`.                                                   |
 | `GEMINI_API_KEY`            | No       | AI spec extraction in the admin pipeline.                                                                                                 |
-| `VITE_SENTRY_DSN`           | No       | Browser error reporting (Sentry loads lazily, only when set).                                                                             |
-| `SENTRY_DSN`                | No       | Server error reporting.                                                                                                                   |
-| `SENTRY_AUTH_TOKEN`         | No       | Uploads source maps to Sentry during the build.                                                                                           |
 | `LOG_LEVEL`                 | No       | `debug` / `info` (default) / `warn`.                                                                                                      |
 
 See `.env.example` for local development.

@@ -52,7 +52,7 @@ All items shipped on this branch; see the commits for details.
 - E2E runs on `vite preview` of the build in CI; 3 already-broken tests fixed; suite 47/47 passing.
 - Admin SSE client: no POST auto-retry, listener leak fixed, WHATWG parser, aborted on navigation.
 - Storage: dead A/B code removed, guarded localStorage, validated profiles, listener/idle leaks fixed.
-- `$app/stores` → `$app/state`; client Sentry lazy-loaded (not in the client build without a DSN); `autoInstrument.load` off.
+- `$app/stores` → `$app/state`. Sentry has since been removed entirely (no longer used); server errors are logged via the app logger.
 - GA bootstrap moved to `static/ga-init.js`; strict hash-based CSP running **report-only** with `/api/csp-report` (0 violations in testing). Enforce it once production reports are clean.
 - Dead code removed (`tailwind.config.js`, 3 unused components, `autoprefixer`, legacy `@typescript-eslint/*`); DEPLOYMENT/CONFIGURATION/README rewritten.
 - **Deferred (pure refactors, no user-visible effect):** splitting large components; splitting the presets data chunk.

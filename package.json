@@ -51,7 +51,6 @@
 	},
 	"dependencies": {
 		"@resvg/resvg-wasm": "^2.6.2",
-		"@sentry/sveltekit": "^10.76.2",
 		"@supabase/supabase-js": "^2.117.3",
 		"lucide-svelte": "^0.469.0",
 		"node-html-parser": "^7.1.0",

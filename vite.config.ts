@@ -1,10 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { sentrySvelteKit } from '@sentry/sveltekit';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
-
-// Only upload source maps when SENTRY_AUTH_TOKEN is present (CI/CD only).
-const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
 export default defineConfig({
 	server: {
@@ -16,17 +12,12 @@ export default defineConfig({
 	build: {
 		// Target modern browsers — smaller output, faster parse
 		target: 'es2020',
-		// Emit source maps when SENTRY_AUTH_TOKEN is present so Sentry can
-		// symbolicate production stack traces. Hidden maps keep the files off the
-		// CDN while still uploading them to Sentry.
-		sourcemap: !!sentryAuthToken ? 'hidden' : false,
+		sourcemap: false,
 		rollupOptions: {
 			output: {
 				// Manual chunk splitting to keep the initial JS payload small.
 				// Heavy libraries land in named async chunks, only fetched when needed.
 				manualChunks(id) {
-					// Sentry — large, only needed for error capture, not for rendering
-					if (id.includes('@sentry')) return 'sentry';
 					// Supabase — only used in server/admin paths
 					if (id.includes('@supabase')) return 'supabase';
 					// lucide-svelte icons — tree-shaken per component but grouping reduces
@@ -43,14 +34,6 @@ export default defineConfig({
 		},
 	},
 	plugins: [
-		sentrySvelteKit({
-			// Don't wrap universal (client-side) load functions: that would add a
-			// static Sentry import to every +page.ts/+layout.ts and defeat the lazy
-			// client loading in hooks.client.ts. Server loads stay instrumented.
-			autoInstrument: { load: false, serverLoad: true },
-			autoUploadSourceMaps: !!sentryAuthToken,
-			sourceMapsUploadOptions: sentryAuthToken ? { authToken: sentryAuthToken } : undefined,
-		}),
 		sveltekit(),
 		VitePWA({
 			registerType: 'autoUpdate',

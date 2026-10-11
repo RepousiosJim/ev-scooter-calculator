@@ -1,5 +1,4 @@
-import * as Sentry from '@sentry/sveltekit';
-import type { Handle } from '@sveltejs/kit';
+import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { redirect } from '@sveltejs/kit';
 import { validateSession } from '$lib/server/auth';
 import { runAutoFix } from '$lib/server/verification/auto-fix';
@@ -7,17 +6,15 @@ import { recoverOrphanedRuns } from '$lib/server/verification/discovery-store';
 import { logger } from '$lib/server/logger';
 
 // ---------------------------------------------------------------------------
-// Sentry — server-side (only initialised when SENTRY_DSN is set)
+// Unexpected errors: log them (visible in Vercel's function logs). Users see a
+// generic message; details stay server-side.
 // ---------------------------------------------------------------------------
-const sentryDsn = process.env.SENTRY_DSN;
-if (sentryDsn) {
-	Sentry.init({
-		dsn: sentryDsn,
-		tracesSampleRate: 0.1,
-	});
-}
-
-export const handleError = Sentry.handleErrorWithSentry();
+export const handleError: HandleServerError = ({ error, event, status, message }) => {
+	if (status !== 404) {
+		logger.error({ err: error, path: event.url.pathname, status }, 'Unhandled server error');
+	}
+	return { message };
+};
 
 // ---------------------------------------------------------------------------
 // Startup: auto-seed + recover orphaned discovery runs (runs once)
@@ -147,7 +144,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"font-src 'self' https://fonts.gstatic.com data:",
 			"img-src 'self' data: https:",
-			"connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.google.com https://*.g.doubleclick.net https://fonts.googleapis.com https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
+			"connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.google.com https://*.g.doubleclick.net https://fonts.googleapis.com https://*.supabase.co",
 			isEmbed ? 'frame-ancestors *' : "frame-ancestors 'none'",
 		].join('; ')
 	);
