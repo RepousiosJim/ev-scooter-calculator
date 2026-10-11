@@ -12,7 +12,7 @@ export function detectBottlenecks(stats: PerformanceStats, config: ScooterConfig
 		});
 	}
 
-	if (config.controller && config.controller < stats.totalWatts / config.v) {
+	if (stats.controllerLimited) {
 		bottlenecks.push({
 			type: 'CONTROLLER_LIMIT',
 			message: 'Controller amp limit is restricting motor power output.',

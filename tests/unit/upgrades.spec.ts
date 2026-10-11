@@ -350,12 +350,20 @@ describe('getAllUpgrades', () => {
 		expect(voltageRec.confidence).toBe('medium');
 	});
 
-	it('controller upgrade is "high" confidence when controller is defined', () => {
+	it('controller upgrade is "high" confidence when the controller limits power', () => {
 		const config = makeConfig({ controller: 20 });
-		const stats = makeStats();
+		const stats = makeStats({ controllerLimited: true });
 		const recs = getAllUpgrades(config, stats, stats);
 		const controllerRec = recs.find((r) => r.upgradeType === 'controller')!;
 		expect(controllerRec.confidence).toBe('high');
+	});
+
+	it('controller upgrade is "low" confidence when a controller is set but not limiting', () => {
+		const config = makeConfig({ controller: 200 });
+		const stats = makeStats({ controllerLimited: false });
+		const recs = getAllUpgrades(config, stats, stats);
+		const controllerRec = recs.find((r) => r.upgradeType === 'controller')!;
+		expect(controllerRec.confidence).toBe('low');
 	});
 
 	it('controller upgrade is "low" confidence when no controller limit is set', () => {

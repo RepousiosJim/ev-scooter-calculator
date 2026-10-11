@@ -1,7 +1,8 @@
 import type { Recommendation, ScooterConfig, PerformanceStats } from '$lib/types';
 import { calculatePerformance } from './calculator';
 import { formatPercentChange, formatSignedDelta } from '$lib/utils/formatters';
-import { NOMINAL_VOLTAGE, C_RATE_CAUTION } from '$lib/constants/physics';
+import { C_RATE_CAUTION } from '$lib/constants/physics';
+import { simulateUpgrade } from './upgrades';
 
 /** "2.00x" ratio of before/after, or "n/a" if undefined. */
 function formatRatio(before: number, after: number): string {
@@ -68,16 +69,20 @@ export function generateRecommendations(
 		});
 	}
 
-	// Controller Upgrade: controller is bottlenecking power
-	if (config.controller && config.controller < (stats.totalWatts / config.v) * 0.8) {
+	// Controller Upgrade: the controller's current limit is what caps power
+	if (config.controller && stats.controllerLimited) {
+		const controllerConfig = simulateUpgrade(config, 'controller');
+		const controllerSpec = calculatePerformance(controllerConfig, 'spec');
+		const controllerRealworld = calculatePerformance(controllerConfig, 'realworld');
+
 		recommendations.push({
 			upgradeType: 'controller',
 			title: 'High-Amp Controller',
-			reason: `Current ${config.controller}A controller limits motor output to ${(config.controller * config.v).toFixed(0)}W vs ${stats.totalWatts.toFixed(0)}W potential.`,
+			reason: `Current ${config.controller}A controller limits motor output to ${stats.totalWatts.toFixed(0)}W vs ${(stats.uncappedWatts ?? stats.totalWatts).toFixed(0)}W potential.`,
 			whatChanges: 'Allows motors to reach full power output for better acceleration and hill climbing.',
 			expectedGains: {
-				spec: `+${(((config.motors * config.watts * (config.v / NOMINAL_VOLTAGE) - config.controller * config.v) / (config.controller * config.v)) * 100).toFixed(0)}% power output`,
-				realworld: 'Improved acceleration and hill climbing in real-world conditions',
+				spec: `${formatPercentChange(specStats.totalWatts, controllerSpec.totalWatts)} power output, ${formatSignedDelta(specStats.accelScore, controllerSpec.accelScore)} accel`,
+				realworld: `${formatPercentChange(realworldStats.totalWatts, controllerRealworld.totalWatts)} power output, ${formatSignedDelta(realworldStats.accelScore, controllerRealworld.accelScore)} accel`,
 			},
 			tradeoffs: 'May require thicker gauge wiring. Check motor thermal limits.',
 			confidence: 'high',

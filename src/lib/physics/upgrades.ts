@@ -142,7 +142,9 @@ export function getAllUpgrades(
 				title = 'High-Amp Controller';
 				reason = !config.controller
 					? 'No controller limit configured — motors already have unrestricted power delivery.'
-					: `Controller (${config.controller}A) is restricting motor output. Removing this bottleneck allows full power delivery.`;
+					: stats.controllerLimited
+						? `Controller (${config.controller}A) is restricting motor output. Removing this bottleneck allows full power delivery.`
+						: `Controller (${config.controller}A) can already supply the motors' full power — not a bottleneck.`;
 				whatChanges = 'Allows motors to reach higher peak power output.';
 				expectedGains = {
 					spec: `${formatPercentChange(currentSpec.totalWatts, upgradedSpec.totalWatts)} peak power`,
@@ -151,7 +153,7 @@ export function getAllUpgrades(
 				tradeoffs = 'Higher battery stress. Check thermal limits.';
 				estimatedCost = '$150-300';
 				difficulty = 'moderate';
-				confidence = config.controller ? 'high' : 'low';
+				confidence = stats.controllerLimited ? 'high' : 'low';
 				break;
 			case 'motor':
 				title = 'Dual High-Power Motors';

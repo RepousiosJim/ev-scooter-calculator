@@ -42,6 +42,10 @@ export interface PerformanceStats {
 	accelScore: number; // Acceleration score (0-100)
 	amps: number; // Current draw (amps)
 	cRate: number; // Battery discharge rate (C)
+	/** Motor power before the controller's current limit (W); equals totalWatts when not limited. */
+	uncappedWatts?: number;
+	/** True when the controller's current limit is what caps power. */
+	controllerLimited?: boolean;
 }
 
 export interface Bottleneck {

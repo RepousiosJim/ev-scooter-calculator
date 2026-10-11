@@ -107,10 +107,21 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
 
 	const effectiveVoltage = config.v * (1 - effectiveSagPercent);
 
-	// Motor rated watts are at the scooter's own nominal voltage; only apply sag and temperature
-	const totalWatts = config.motors * config.watts * (1 - effectiveSagPercent) * temperatureFactor;
+	// Motor rated watts are output (shaft) power at the scooter's own nominal
+	// voltage — drivetrain efficiency is already baked in, so only apply sag and
+	// temperature.
+	const uncappedWatts = config.motors * config.watts * (1 - effectiveSagPercent) * temperatureFactor;
 
-	const maxSpeed = calculateMaxSpeed(config, effectiveDrivetrainEfficiency);
+	// Controller ratings are battery-side current limits: amps × sagged voltage is
+	// the electrical input it allows, and drivetrain efficiency converts that to
+	// output power.
+	const controllerCapWatts = config.controller
+		? config.controller * effectiveVoltage * effectiveDrivetrainEfficiency
+		: Infinity;
+	const controllerLimited = controllerCapWatts < uncappedWatts;
+	const totalWatts = Math.min(uncappedWatts, controllerCapWatts);
+
+	const maxSpeed = calculateMaxSpeed(config, effectiveSagPercent, modeEfficiencyFactor);
 
 	const CdA =
 		config.dragCoefficient && config.frontalArea ? config.dragCoefficient * config.frontalArea : config.ridePosition;
@@ -168,6 +179,8 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
 		accelScore,
 		amps,
 		cRate,
+		uncappedWatts,
+		controllerLimited,
 	};
 
 	performanceCache.set(cacheKey, result);
@@ -175,11 +188,14 @@ export function calculatePerformance(config: ScooterConfig, mode: PredictionMode
 	return result;
 }
 
-function calculateMaxSpeed(config: ScooterConfig, efficiency: number = 1.0): number {
+function calculateMaxSpeed(config: ScooterConfig, sagPercent: number, modeFactor: number): number {
 	if (config.motorKv) {
+		// No-load RPM scales with the voltage the motor actually sees (after sag);
+		// drivetrain efficiency is a power loss, not an RPM loss. The real-world
+		// mode factor is kept as a general derate.
 		const circumferenceM = config.wheel * INCH_TO_METERS * Math.PI;
-		const motorRpm = config.motorKv * config.v;
-		return ((motorRpm * circumferenceM * SECONDS_PER_MINUTE) / METERS_PER_KILOMETER) * efficiency;
+		const motorRpm = config.motorKv * config.v * (1 - sagPercent);
+		return ((motorRpm * circumferenceM * SECONDS_PER_MINUTE) / METERS_PER_KILOMETER) * modeFactor;
 	}
 	if (config.rpm) {
 		const circumferenceM = config.wheel * INCH_TO_METERS * Math.PI;
