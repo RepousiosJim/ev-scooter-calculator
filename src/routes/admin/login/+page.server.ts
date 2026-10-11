@@ -9,7 +9,12 @@ const LOGIN_RATE_LIMIT = 10;
 
 export const actions: Actions = {
 	default: async ({ request, cookies, getClientAddress }) => {
-		const rl = await checkRateLimit(getClientAddress(), LOGIN_RATE_LIMIT);
+		// Fail closed: if the limiter backend is down, refuse logins rather than allow
+		// unlimited password guesses.
+		const rl = await checkRateLimit(getClientAddress(), LOGIN_RATE_LIMIT, { scope: 'login', failMode: 'closed' });
+		if (rl.unavailable) {
+			return fail(503, { error: 'Login is temporarily unavailable. Please try again shortly.' });
+		}
 		if (!rl.allowed) {
 			return fail(429, { error: 'Too many login attempts. Please wait before trying again.' });
 		}

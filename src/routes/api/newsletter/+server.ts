@@ -13,6 +13,10 @@ const MAX_EMAIL_LENGTH = 254;
 const UNSUBSCRIBED_RESPONSE = { success: true, message: 'If that address was subscribed, it has been removed.' };
 import { isSupabaseAvailable, db } from '$lib/server/db';
 import { applyRateLimit } from '$lib/server/api-helpers';
+import { RATE_LIMIT_NEWSLETTER } from '$lib/server/rate-limit';
+
+/** Own bucket, and refuse rather than fall back when the limiter DB is down (abusable endpoint). */
+const NEWSLETTER_RATE_LIMIT_OPTIONS = { scope: 'newsletter', failMode: 'closed' } as const;
 
 const DATA_DIR = join(process.cwd(), 'data');
 const SUBSCRIBERS_FILE = join(DATA_DIR, 'newsletter-subscribers.json');
@@ -66,7 +70,12 @@ function withLock<T>(fn: () => Promise<T>): Promise<T> {
 // ---------------------------------------------------------------------------
 
 export const POST: RequestHandler = async ({ request, getClientAddress }) => {
-	const { limited } = await applyRateLimit(getClientAddress());
+	const { limited } = await applyRateLimit(
+		getClientAddress(),
+		false,
+		RATE_LIMIT_NEWSLETTER,
+		NEWSLETTER_RATE_LIMIT_OPTIONS
+	);
 	if (limited) return limited;
 	let body: { email?: string; preferences?: string[] };
 	try {
@@ -138,7 +147,12 @@ export const POST: RequestHandler = async ({ request, getClientAddress }) => {
 // ---------------------------------------------------------------------------
 
 export const DELETE: RequestHandler = async ({ request, getClientAddress }) => {
-	const { limited } = await applyRateLimit(getClientAddress());
+	const { limited } = await applyRateLimit(
+		getClientAddress(),
+		false,
+		RATE_LIMIT_NEWSLETTER,
+		NEWSLETTER_RATE_LIMIT_OPTIONS
+	);
 	if (limited) return limited;
 	let body: { email?: string };
 	try {

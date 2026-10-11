@@ -23,7 +23,7 @@ describe('checkRateLimitPersistent', () => {
 		const now = Date.now();
 		mockRpc.mockResolvedValue(rpcResult(true, 9, now + 60_000));
 
-		const result = await checkRateLimitPersistent('1.1.1.1', 10);
+		const result = await checkRateLimitPersistent('1.1.1.1:10', 10);
 		expect(result.allowed).toBe(true);
 		expect(result.remaining).toBe(9);
 		expect(mockRpc).toHaveBeenCalledWith(
@@ -54,21 +54,22 @@ describe('checkRateLimitPersistent', () => {
 		expect(result.remaining).toBe(6);
 	});
 
-	it('fails open when rpc returns an error', async () => {
+	it('throws when rpc returns an error so the caller can choose a fallback', async () => {
 		mockRpc.mockResolvedValue({ data: null, error: { message: 'DB error' } });
 
-		const result = await checkRateLimitPersistent('9.9.9.9', 10);
-		expect(result.allowed).toBe(true);
-		expect(result.remaining).toBe(9);
+		await expect(checkRateLimitPersistent('9.9.9.9:10', 10)).rejects.toThrow('DB error');
 	});
 
-	it('fails open when rpc rejects', async () => {
+	it('throws when rpc returns no row', async () => {
+		mockRpc.mockResolvedValue({ data: [], error: null });
+
+		await expect(checkRateLimitPersistent('9.9.9.8:10', 10)).rejects.toThrow();
+	});
+
+	it('propagates rpc rejections', async () => {
 		mockRpc.mockRejectedValue(new Error('Network error'));
 
-		// Should not throw
-		const result = await checkRateLimitPersistent('8.8.8.8', 10).catch(() => null);
-		// Either fails open or throws — either way we test the function doesn't silently block
-		expect(result === null || result?.allowed === true).toBe(true);
+		await expect(checkRateLimitPersistent('8.8.8.8:10', 10)).rejects.toThrow('Network error');
 	});
 });
 
