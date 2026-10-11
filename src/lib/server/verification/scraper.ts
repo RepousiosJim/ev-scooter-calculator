@@ -4,39 +4,9 @@ import { getScraperRules, type ScrapeRuleset } from './scraper-rules';
 import { extractWithLLM, isLLMAvailable } from './llm-extract';
 import { presetMetadata } from '$lib/data/presets';
 import { validateScrapingUrl } from './url-safety';
+import { safeFetch } from '$lib/server/net/safe-fetch';
 
 const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5 MB
-
-/** Read a response body up to maxBytes; throws if the limit is exceeded. */
-async function readBodyWithLimit(response: Response, maxBytes: number): Promise<string> {
-	const contentLength = response.headers.get('content-length');
-	if (contentLength && parseInt(contentLength, 10) > maxBytes) {
-		throw new Error(`Response Content-Length (${contentLength}) exceeds limit of ${maxBytes} bytes`);
-	}
-
-	const reader = response.body?.getReader();
-	if (!reader) return response.text();
-
-	const decoder = new TextDecoder();
-	let body = '';
-	let bytesRead = 0;
-
-	try {
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) break;
-			bytesRead += value.byteLength;
-			if (bytesRead > maxBytes) {
-				throw new Error(`Response body exceeds limit of ${maxBytes} bytes`);
-			}
-			body += decoder.decode(value, { stream: true });
-		}
-	} finally {
-		reader.cancel().catch(() => {});
-	}
-
-	return body;
-}
 
 /**
  * Scrape a product page URL and extract scooter specs.
@@ -60,22 +30,24 @@ export async function scrapeUrl(scooterKey: string, url: string): Promise<Scrape
 	}
 
 	try {
-		const response = await fetch(url, {
+		// safeFetch re-checks DNS results and every redirect hop, and caps the body.
+		const response = await safeFetch(url, {
 			headers: {
 				'User-Agent':
 					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 				Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
 				'Accept-Language': 'en-US,en;q=0.5',
 			},
-			signal: AbortSignal.timeout(15000),
+			timeoutMs: 15000,
+			maxBytes: MAX_BODY_BYTES,
 		});
 
 		if (!response.ok) {
-			result.error = `HTTP ${response.status}: ${response.statusText}`;
+			result.error = `HTTP ${response.status}`;
 			return result;
 		}
 
-		const html = await readBodyWithLimit(response, MAX_BODY_BYTES);
+		const html = response.body;
 
 		// Strategy 1: LLM extraction (Gemini) — best results, handles any format
 		if (isLLMAvailable()) {

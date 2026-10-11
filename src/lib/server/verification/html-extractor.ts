@@ -9,6 +9,7 @@
  * Gemini LLM is called separately only as an optional enhancement.
  */
 import { parse, type HTMLElement } from 'node-html-parser';
+import { safeFetch } from '$lib/server/net/safe-fetch';
 
 export interface ExtractedProduct {
 	name: string;
@@ -732,6 +733,8 @@ function isLikelyScooter(product: ExtractedProduct): boolean {
 
 /**
  * Fetch a URL with proper headers and timeout.
+ * URLs here come from listing pages, scraped HTML and stored purchase links, so
+ * the request goes through safeFetch (SSRF checks on every hop, body size cap).
  * Returns { ok, status, html, error }
  */
 export async function fetchPage(
@@ -744,23 +747,21 @@ export async function fetchPage(
 	error?: string;
 }> {
 	try {
-		const response = await fetch(url, {
+		const response = await safeFetch(url, {
 			headers: {
 				'User-Agent':
 					'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
 				Accept: 'text/html,application/xhtml+xml',
 				'Accept-Language': 'en-US,en;q=0.9',
 			},
-			signal: AbortSignal.timeout(timeoutMs),
-			redirect: 'follow',
+			timeoutMs,
 		});
 
 		if (!response.ok) {
 			return { ok: false, status: response.status, html: '', error: `HTTP ${response.status}` };
 		}
 
-		const html = await response.text();
-		return { ok: true, status: response.status, html };
+		return { ok: true, status: response.status, html: response.body };
 	} catch (e) {
 		const msg = e instanceof Error ? e.message : 'Unknown error';
 		return { ok: false, status: 0, html: '', error: msg };
