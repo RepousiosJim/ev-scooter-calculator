@@ -6,66 +6,66 @@ const KG_TO_LBS = 2.20462;
 export type UnitSystem = 'metric' | 'imperial';
 
 export function isImperial(): boolean {
-  return uiState.unitSystem === 'imperial';
+	return uiState.unitSystem === 'imperial';
 }
 
 /** Convert km to display value (km or miles) */
 export function distanceVal(km: number): number {
-  return isImperial() ? km * KM_TO_MILES : km;
+	return isImperial() ? km * KM_TO_MILES : km;
 }
 
 /** Convert km/h to display value (km/h or mph) */
 export function speedVal(kmh: number): number {
-  return isImperial() ? kmh * KM_TO_MILES : kmh;
+	return isImperial() ? kmh * KM_TO_MILES : kmh;
 }
 
 /** Convert kg to display value (kg or lbs) */
 export function weightVal(kg: number): number {
-  return isImperial() ? kg * KG_TO_LBS : kg;
+	return isImperial() ? kg * KG_TO_LBS : kg;
 }
 
 /** Get distance unit label */
 export function distanceUnit(): string {
-  return isImperial() ? 'mi' : 'km';
+	return isImperial() ? 'mi' : 'km';
 }
 
 /** Get speed unit label */
 export function speedUnit(): string {
-  return isImperial() ? 'mph' : 'km/h';
+	return isImperial() ? 'mph' : 'km/h';
 }
 
 /** Get weight unit label */
 export function weightUnit(): string {
-  return isImperial() ? 'lbs' : 'kg';
+	return isImperial() ? 'lbs' : 'kg';
 }
 
 /** Convert °C to display value (°C or °F) */
 export function tempVal(celsius: number): number {
-  return isImperial() ? celsius * 9 / 5 + 32 : celsius;
+	return isImperial() ? (celsius * 9) / 5 + 32 : celsius;
 }
 
 /** Convert display temp back to °C for storage */
 export function tempToMetric(displayTemp: number): number {
-  return isImperial() ? (displayTemp - 32) * 5 / 9 : displayTemp;
+	return isImperial() ? ((displayTemp - 32) * 5) / 9 : displayTemp;
 }
 
 /** Get temperature unit label */
 export function tempUnit(): string {
-  return isImperial() ? '°F' : '°C';
+	return isImperial() ? '°F' : '°C';
 }
 
 /** Convert display weight back to kg for storage */
 export function weightToMetric(displayWeight: number): number {
-  return isImperial() ? displayWeight / KG_TO_LBS : displayWeight;
+	return isImperial() ? displayWeight / KG_TO_LBS : displayWeight;
 }
 
 /** Get cost-per-distance label */
 export function costDistanceLabel(): string {
-  return isImperial() ? 'per 100mi' : 'per 100km';
+	return isImperial() ? 'per 100mi' : 'per 100km';
 }
 
 /** Convert cost per 100km to cost per 100mi */
 export function costPer100Val(costPer100km: number): number {
-  // cost per 100 miles = cost per 100km * (100mi / 100km) = costPer100km / KM_TO_MILES
-  return isImperial() ? costPer100km / KM_TO_MILES : costPer100km;
+	// cost per 100 miles = cost per 100km * (100mi / 100km) = costPer100km / KM_TO_MILES
+	return isImperial() ? costPer100km / KM_TO_MILES : costPer100km;
 }

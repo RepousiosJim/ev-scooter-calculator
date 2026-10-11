@@ -2,13 +2,13 @@
 
 ## Participant Information
 
-**Date:** ********\_\_\_********
+**Date:** **\*\*\*\***\_\_\_**\*\*\*\***
 
-**Participant ID:** ******\_******
+**Participant ID:** **\*\***\_**\*\***
 
-**Name (Optional):** ********\_\_\_********
+**Name (Optional):** **\*\*\*\***\_\_\_**\*\*\*\***
 
-**Email (for incentive payment):** ********\_\_\_********
+**Email (for incentive payment):** **\*\*\*\***\_\_\_**\*\*\*\***
 
 ## Consent Statement
 
@@ -22,9 +22,9 @@ I understand that:
 4. My responses will be anonymized in any reports or presentations.
 5. The session will last approximately 45 minutes.
 
-**Participant Signature:** ********\_\_\_******** (type name)
+**Participant Signature:** **\*\*\*\***\_\_\_**\*\*\*\*** (type name)
 
-**Date:** ********\_\_\_********
+**Date:** **\*\*\*\***\_\_\_**\*\*\*\***
 
 ## Participant Segmentation
 
@@ -34,7 +34,7 @@ Please select the category that best describes you:
 [ ] Casual Rider - I ride occasionally, want simple upgrade recommendations
 [ ] Fleet Manager - I manage multiple scooters, need efficiency comparisons
 [ ] First-Time Buyer - I'm researching before my first purchase
-[ ] Other: ********\_********
+[ ] Other: **\*\*\*\***\_**\*\*\*\***
 
 ## Technical Background
 
@@ -46,24 +46,24 @@ Please select the category that best describes you:
 
 **Do you currently own an EV scooter?**
 
-[ ] Yes - Brand/Model: ********\_\_\_********
+[ ] Yes - Brand/Model: **\*\*\*\***\_\_\_**\*\*\*\***
 [ ] No
 
 ## Data Collection Template
 
 ### Session Metadata
 
-- Start Time: ********\_********
-- End Time: ********\_********
-- Duration: ********\_******** minutes
-- Interviewer: ********\_********
+- Start Time: **\*\*\*\***\_**\*\*\*\***
+- End Time: **\*\*\*\***\_**\*\*\*\***
+- Duration: **\*\*\*\***\_**\*\*\*\*** minutes
+- Interviewer: **\*\*\*\***\_**\*\*\*\***
 
 ### Technology Stack Used
 
 - Device: [ ] Mobile (phone) [ ] Tablet [ ] Desktop/Laptop [ ] Other: **\_**
 - Operating System: [ ] iOS [ ] Android [ ] Windows [ ] macOS [ ] Linux [ ] Other: **\_**
 - Browser: [ ] Chrome [ ] Safari [ ] Firefox [ ] Edge [ ] Other: **\_**
-- Screen Resolution: ********\_********
+- Screen Resolution: **\*\*\*\***\_**\*\*\*\***
 
 ### Notes Template
 
@@ -118,7 +118,7 @@ Please select the category that best describes you:
 - Task 2: **\_** minutes
 - Task 3: **\_** minutes
 
-**Overall Satisfaction Rating:** ****\_**** / 10
+**Overall Satisfaction Rating:** \***\*\_\*\*** / 10
 
 **Recommendation Likelihood:**
 [ ] Highly likely

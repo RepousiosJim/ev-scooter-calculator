@@ -37,23 +37,27 @@ Note: Environment variables must be prefixed with `VITE_` to be accessible in cl
 The production build is static and can be deployed to any static hosting service:
 
 ### Vercel
+
 1. Connect your repository to Vercel
 2. Vercel automatically detects SvelteKit and builds correctly
 3. Deploy!
 
 ### Netlify
+
 1. Connect your repository to Netlify
 2. Set build command: `npm run build`
 3. Set publish directory: `.svelte-kit/output/client`
 4. Deploy!
 
 ### GitHub Pages
+
 1. Run `npm run build`
 2. Deploy the contents of `.svelte-kit/output/client` to the `gh-pages` branch
 
 ## PWA Support
 
 The application includes PWA configuration via `vite-plugin-pwa`. The build will generate:
+
 - A service worker for offline support
 - A web app manifest
 - Optimized assets
@@ -73,6 +77,7 @@ The application includes PWA configuration via `vite-plugin-pwa`. The build will
 - Mobile browsers (iOS Safari, Chrome Mobile)
 
 Minimum versions:
+
 - Chrome 90+
 - Firefox 88+
 - Safari 14+

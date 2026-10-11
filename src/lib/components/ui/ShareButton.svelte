@@ -8,7 +8,7 @@
     if (link) {
       await navigator.clipboard.writeText(link);
       showToast = true;
-      setTimeout(() => showToast = false, 2500);
+      setTimeout(() => (showToast = false), 2500);
     }
   }
 </script>
@@ -23,7 +23,9 @@
 </button>
 
 {#if showToast}
-  <div class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60] text-sm font-medium">
+  <div
+    class="fixed bottom-20 left-1/2 -translate-x-1/2 bg-success text-white px-6 py-3 rounded-lg shadow-lg z-[60] text-sm font-medium"
+  >
     Link copied to clipboard!
   </div>
 {/if}

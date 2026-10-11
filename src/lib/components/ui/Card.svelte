@@ -7,7 +7,7 @@
     hover = false,
     glow = false,
     subtitle = '',
-    icon = ''
+    icon = '',
   }: {
     title?: string;
     class?: string;
@@ -24,7 +24,7 @@
       default: 'bg-bg-secondary border-white/5',
       gradient: 'bg-gradient-card border-white/10',
       glass: 'glass border-white/10',
-      elevated: 'bg-bg-secondary border-white/5 shadow-2xl'
+      elevated: 'bg-bg-secondary border-white/5 shadow-2xl',
     };
     return variants[variant];
   };
@@ -38,8 +38,10 @@
   };
 </script>
 
-<div class="rounded-xl p-6 border shadow-lg transition-all duration-slow
-  {getVariantClasses()} {getHoverClasses()} {getGlowClasses()} {className}">
+<div
+  class="rounded-xl p-6 border shadow-lg transition-all duration-slow
+  {getVariantClasses()} {getHoverClasses()} {getGlowClasses()} {className}"
+>
   {#if title || subtitle}
     <div class="mb-5">
       <div class="flex items-start gap-3">

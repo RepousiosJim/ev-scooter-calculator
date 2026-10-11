@@ -10,5 +10,5 @@ export const actions: Actions = {
 		}
 		cookies.delete('admin_session', { path: '/' });
 		throw redirect(303, '/admin/login');
-	}
+	},
 };

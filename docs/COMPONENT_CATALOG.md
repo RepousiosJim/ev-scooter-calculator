@@ -46,28 +46,29 @@ Page (+page.svelte)
 
 Located in `src/lib/components/ui/atoms/`
 
-| Component | File | Props | Description |
-|-----------|------|-------|-------------|
-| **Button** | `Button.svelte` | `variant`, `size`, `disabled`, `type` | Primary action button with variants |
-| **Input** | `Input.svelte` | `value`, `placeholder`, `type`, `disabled` | Text/number input field |
-| **Slider** | `Slider.svelte` | `value`, `min`, `max`, `step` | Range slider input |
-| **Select** | `Select.svelte` | `value`, `options`, `placeholder` | Dropdown select |
-| **Toggle** | `Toggle.svelte` | `checked`, `disabled` | Toggle switch |
-| **Badge** | `Badge.svelte` | `variant`, `size` | Status badge |
-| **Icon** | `Icon.svelte` | `name`, `size`, `class` | SVG icon component |
-| **Tooltip** | `Tooltip.svelte` | `content`, `position` | Hover tooltip |
-| **HelpTooltip** | `HelpTooltip.svelte` | `content` | Contextual help icon |
-| **ValidationError** | `ValidationError.svelte` | `message` | Error message display |
+| Component           | File                     | Props                                      | Description                         |
+| ------------------- | ------------------------ | ------------------------------------------ | ----------------------------------- |
+| **Button**          | `Button.svelte`          | `variant`, `size`, `disabled`, `type`      | Primary action button with variants |
+| **Input**           | `Input.svelte`           | `value`, `placeholder`, `type`, `disabled` | Text/number input field             |
+| **Slider**          | `Slider.svelte`          | `value`, `min`, `max`, `step`              | Range slider input                  |
+| **Select**          | `Select.svelte`          | `value`, `options`, `placeholder`          | Dropdown select                     |
+| **Toggle**          | `Toggle.svelte`          | `checked`, `disabled`                      | Toggle switch                       |
+| **Badge**           | `Badge.svelte`           | `variant`, `size`                          | Status badge                        |
+| **Icon**            | `Icon.svelte`            | `name`, `size`, `class`                    | SVG icon component                  |
+| **Tooltip**         | `Tooltip.svelte`         | `content`, `position`                      | Hover tooltip                       |
+| **HelpTooltip**     | `HelpTooltip.svelte`     | `content`                                  | Contextual help icon                |
+| **ValidationError** | `ValidationError.svelte` | `message`                                  | Error message display               |
 
 **Example Usage:**
+
 ```svelte
 <script>
-  import { Button, Input, Icon } from '$lib/components/ui/atoms';
+	import { Button, Input, Icon } from '$lib/components/ui/atoms';
 </script>
 
 <Button variant="primary" size="md">
-  <Icon name="save" size="sm" />
-  Save
+	<Icon name="save" size="sm" />
+	Save
 </Button>
 
 <Input type="number" placeholder="Enter voltage" />
@@ -79,19 +80,20 @@ Located in `src/lib/components/ui/atoms/`
 
 Located in `src/lib/components/ui/molecules/`
 
-| Component | File | Props | Description |
-|-----------|------|-------|-------------|
-| **FormField** | `FormField.svelte` | `label`, `value`, `error`, `required` | Label + input with validation |
-| **ProgressBar** | `ProgressBar.svelte` | `value`, `max`, `color` | Progress indicator |
+| Component       | File                 | Props                                 | Description                   |
+| --------------- | -------------------- | ------------------------------------- | ----------------------------- |
+| **FormField**   | `FormField.svelte`   | `label`, `value`, `error`, `required` | Label + input with validation |
+| **ProgressBar** | `ProgressBar.svelte` | `value`, `max`, `color`               | Progress indicator            |
 
 **Example Usage:**
+
 ```svelte
 <script>
-  import { FormField, ProgressBar } from '$lib/components/ui/molecules';
+	import { FormField, ProgressBar } from '$lib/components/ui/molecules';
 </script>
 
 <FormField label="Battery Voltage" required>
-  <Input type="number" bind:value={voltage} />
+	<Input type="number" bind:value={voltage} />
 </FormField>
 
 <ProgressBar value={75} max={100} color="primary" />
@@ -103,12 +105,12 @@ Located in `src/lib/components/ui/molecules/`
 
 Located in `src/lib/components/ui/organisms/`
 
-| Component | File | Props | Description |
-|-----------|------|-------|-------------|
-| **ConfigPanel** | `ConfigPanel.svelte` | `config`, `onChange` | Configuration form container |
-| **Dashboard** | `Dashboard.svelte` | `stats` | Results dashboard |
-| **MobileNavigation** | `MobileNavigation.svelte` | `activeTab`, `onTabChange` | Mobile bottom navigation |
-| **ResultsPanel** | `ResultsPanel.svelte` | `stats`, `bottlenecks` | Results display panel |
+| Component            | File                      | Props                      | Description                  |
+| -------------------- | ------------------------- | -------------------------- | ---------------------------- |
+| **ConfigPanel**      | `ConfigPanel.svelte`      | `config`, `onChange`       | Configuration form container |
+| **Dashboard**        | `Dashboard.svelte`        | `stats`                    | Results dashboard            |
+| **MobileNavigation** | `MobileNavigation.svelte` | `activeTab`, `onTabChange` | Mobile bottom navigation     |
+| **ResultsPanel**     | `ResultsPanel.svelte`     | `stats`, `bottlenecks`     | Results display panel        |
 
 ---
 
@@ -116,20 +118,20 @@ Located in `src/lib/components/ui/organisms/`
 
 Located in `src/lib/components/ui/`
 
-| Component | File | Props | Description |
-|-----------|------|-------|-------------|
-| **Card** | `Card.svelte` | `title`, `class` | Container card |
-| **Tabs** | `Tabs.svelte` | `tabs`, `activeTab`, `onChange` | Tab navigation |
-| **BottomSheet** | `BottomSheet.svelte` | `isOpen`, `title`, `onClose` | Mobile bottom sheet |
-| **Hero** | `Hero.svelte` | - | Page header section |
-| **Toast** | `Toast.svelte` | `message`, `type` | Notification toast |
-| **LoadingSkeleton** | `LoadingSkeleton.svelte` | `lines` | Loading placeholder |
-| **TourModal** | `TourModal.svelte` | `steps`, `isOpen` | Onboarding tour |
-| **ShareButton** | `ShareButton.svelte` | `config` | Share configuration |
-| **SectionDivider** | `SectionDivider.svelte` | `icon`, `label` | Section separator |
-| **ComparisonDeltaCard** | `ComparisonDeltaCard.svelte` | `before`, `after`, `label` | Delta comparison |
-| **VisualCRateIndicator** | `VisualCRateIndicator.svelte` | `value` | C-rate visualization |
-| **PerformanceGradeBadge** | `PerformanceGradeBadge.svelte` | `grade` | Grade display |
+| Component                 | File                           | Props                           | Description          |
+| ------------------------- | ------------------------------ | ------------------------------- | -------------------- |
+| **Card**                  | `Card.svelte`                  | `title`, `class`                | Container card       |
+| **Tabs**                  | `Tabs.svelte`                  | `tabs`, `activeTab`, `onChange` | Tab navigation       |
+| **BottomSheet**           | `BottomSheet.svelte`           | `isOpen`, `title`, `onClose`    | Mobile bottom sheet  |
+| **Hero**                  | `Hero.svelte`                  | -                               | Page header section  |
+| **Toast**                 | `Toast.svelte`                 | `message`, `type`               | Notification toast   |
+| **LoadingSkeleton**       | `LoadingSkeleton.svelte`       | `lines`                         | Loading placeholder  |
+| **TourModal**             | `TourModal.svelte`             | `steps`, `isOpen`               | Onboarding tour      |
+| **ShareButton**           | `ShareButton.svelte`           | `config`                        | Share configuration  |
+| **SectionDivider**        | `SectionDivider.svelte`        | `icon`, `label`                 | Section separator    |
+| **ComparisonDeltaCard**   | `ComparisonDeltaCard.svelte`   | `before`, `after`, `label`      | Delta comparison     |
+| **VisualCRateIndicator**  | `VisualCRateIndicator.svelte`  | `value`                         | C-rate visualization |
+| **PerformanceGradeBadge** | `PerformanceGradeBadge.svelte` | `grade`                         | Grade display        |
 
 ---
 
@@ -139,44 +141,44 @@ Located in `src/lib/components/calculator/`
 
 ### Configuration Components
 
-| Component | File | Dependencies | Description |
-|-----------|------|--------------|-------------|
-| **BasicConfig** | `BasicConfig.svelte` | `calculatorState`, `updateConfig` | Basic configuration form |
-| **AdvancedConfig** | `AdvancedConfig.svelte` | `calculatorState` | Advanced parameters |
-| **PresetSelector** | `PresetSelector.svelte` | `presets`, `loadPreset` | Preset dropdown |
-| **RideModeSelector** | `RideModeSelector.svelte` | `rideModePresets`, `applyRideMode` | Ride mode tabs |
+| Component            | File                      | Dependencies                       | Description              |
+| -------------------- | ------------------------- | ---------------------------------- | ------------------------ |
+| **BasicConfig**      | `BasicConfig.svelte`      | `calculatorState`, `updateConfig`  | Basic configuration form |
+| **AdvancedConfig**   | `AdvancedConfig.svelte`   | `calculatorState`                  | Advanced parameters      |
+| **PresetSelector**   | `PresetSelector.svelte`   | `presets`, `loadPreset`            | Preset dropdown          |
+| **RideModeSelector** | `RideModeSelector.svelte` | `rideModePresets`, `applyRideMode` | Ride mode tabs           |
 
 ### Results Components
 
-| Component | File | Dependencies | Description |
-|-----------|------|--------------|-------------|
-| **PerformanceSummary** | `PerformanceSummary.svelte` | `calculatorState.stats` | Key metrics summary |
-| **EfficiencyPanel** | `EfficiencyPanel.svelte` | `stats`, `config` | Efficiency metrics |
-| **ComponentHealthPanel** | `ComponentHealthPanel.svelte` | `stats`, `config` | Health indicators |
-| **BottleneckPanel** | `BottleneckPanel.svelte` | `bottlenecks` | Performance limits |
-| **PowerGraph** | `PowerGraph.svelte` | `stats` | Power curve chart |
-| **ResultDisplay** | `ResultDisplay.svelte` | `stats` | Legacy results view |
+| Component                | File                          | Dependencies            | Description         |
+| ------------------------ | ----------------------------- | ----------------------- | ------------------- |
+| **PerformanceSummary**   | `PerformanceSummary.svelte`   | `calculatorState.stats` | Key metrics summary |
+| **EfficiencyPanel**      | `EfficiencyPanel.svelte`      | `stats`, `config`       | Efficiency metrics  |
+| **ComponentHealthPanel** | `ComponentHealthPanel.svelte` | `stats`, `config`       | Health indicators   |
+| **BottleneckPanel**      | `BottleneckPanel.svelte`      | `bottlenecks`           | Performance limits  |
+| **PowerGraph**           | `PowerGraph.svelte`           | `stats`                 | Power curve chart   |
+| **ResultDisplay**        | `ResultDisplay.svelte`        | `stats`                 | Legacy results view |
 
 ### Upgrade Components
 
-| Component | File | Dependencies | Description |
-|-----------|------|--------------|-------------|
-| **UpgradeSimulator** | `UpgradeSimulator.svelte` | `simulateUpgrade` | Upgrade selection UI |
-| **UpgradeCard** | `UpgradeCard.svelte` | `upgrade`, `onSelect` | Individual upgrade option |
-| **UpgradeGuidance** | `UpgradeGuidance.svelte` | `recommendations` | Recommendation list |
-| **ComparisonDisplay** | `ComparisonDisplay.svelte` | `stats`, `simStats` | Before/after view |
-| **ComparisonSummary** | `ComparisonSummary.svelte` | `upgradeDelta` | Delta summary |
+| Component             | File                       | Dependencies          | Description               |
+| --------------------- | -------------------------- | --------------------- | ------------------------- |
+| **UpgradeSimulator**  | `UpgradeSimulator.svelte`  | `simulateUpgrade`     | Upgrade selection UI      |
+| **UpgradeCard**       | `UpgradeCard.svelte`       | `upgrade`, `onSelect` | Individual upgrade option |
+| **UpgradeGuidance**   | `UpgradeGuidance.svelte`   | `recommendations`     | Recommendation list       |
+| **ComparisonDisplay** | `ComparisonDisplay.svelte` | `stats`, `simStats`   | Before/after view         |
+| **ComparisonSummary** | `ComparisonSummary.svelte` | `upgradeDelta`        | Delta summary             |
 
 ### Comparison Components
 
-| Component | File | Dependencies | Description |
-|-----------|------|--------------|-------------|
+| Component                  | File                            | Dependencies          | Description           |
+| -------------------------- | ------------------------------- | --------------------- | --------------------- |
 | **ScooterComparisonTable** | `ScooterComparisonTable.svelte` | `presets`, `metadata` | Full comparison table |
 
 ### Formula Components
 
-| Component | File | Dependencies | Description |
-|-----------|------|--------------|-------------|
+| Component               | File                         | Dependencies    | Description       |
+| ----------------------- | ---------------------------- | --------------- | ----------------- |
 | **FormulaDetailsPanel** | `FormulaDetailsPanel.svelte` | `formulaTraces` | Formula breakdown |
 
 ---
@@ -221,27 +223,27 @@ Components
 ```typescript
 // Config-related
 interface ConfigProps {
-  config: ScooterConfig;
-  onChange?: (key: keyof ScooterConfig, value: number) => void;
+	config: ScooterConfig;
+	onChange?: (key: keyof ScooterConfig, value: number) => void;
 }
 
 // Stats-related
 interface StatsProps {
-  stats: PerformanceStats;
+	stats: PerformanceStats;
 }
 
 // Comparison-related
 interface ComparisonProps {
-  before: PerformanceStats;
-  after: PerformanceStats;
-  delta: UpgradeDelta;
+	before: PerformanceStats;
+	after: PerformanceStats;
+	delta: UpgradeDelta;
 }
 
 // Event handlers
 interface InputProps {
-  value: number;
-  oninput: (value: number) => void;
-  onchange?: (value: number) => void;
+	value: number;
+	oninput: (value: number) => void;
+	onchange?: (value: number) => void;
 }
 ```
 
@@ -288,13 +290,9 @@ All components must:
 5. Include screen reader labels
 
 Example:
+
 ```svelte
-<button
-  type="button"
-  aria-label="Close dialog"
-  aria-pressed={isOpen}
-  on:click={toggle}
->
-  <Icon name="close" aria-hidden="true" />
+<button type="button" aria-label="Close dialog" aria-pressed={isOpen} on:click={toggle}>
+	<Icon name="close" aria-hidden="true" />
 </button>
 ```

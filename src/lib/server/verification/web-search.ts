@@ -19,16 +19,13 @@ export interface SearchAndExtractResult {
  * Search the web for scooter specs using DuckDuckGo HTML (no API key needed).
  * Then scrape the top results to extract specs.
  */
-export async function searchAndExtractSpecs(
-	scooterName: string,
-	scooterKey: string
-): Promise<SearchAndExtractResult> {
+export async function searchAndExtractSpecs(scooterName: string, scooterKey: string): Promise<SearchAndExtractResult> {
 	const query = `${scooterName} electric scooter specifications price battery range`;
 	const result: SearchAndExtractResult = {
 		query,
 		searchResults: [],
 		extractedSpecs: {},
-		errors: []
+		errors: [],
 	};
 
 	// Step 1: Search using DuckDuckGo HTML lite
@@ -50,9 +47,7 @@ export async function searchAndExtractSpecs(
 	}
 
 	// Step 2: Scrape top 3 results to extract specs
-	const urlsToScrape = result.searchResults
-		.slice(0, 3)
-		.filter((r) => isScooterRelevantUrl(r.url));
+	const urlsToScrape = result.searchResults.slice(0, 3).filter((r) => isScooterRelevantUrl(r.url));
 
 	for (const searchResult of urlsToScrape) {
 		try {
@@ -65,14 +60,12 @@ export async function searchAndExtractSpecs(
 					result.extractedSpecs[field as SpecField]!.push({
 						value: value as number,
 						source: searchResult.title || new URL(searchResult.url).hostname,
-						url: searchResult.url
+						url: searchResult.url,
 					});
 				}
 			}
 		} catch (e) {
-			result.errors.push(
-				`Scrape failed for ${searchResult.url}: ${e instanceof Error ? e.message : 'Unknown'}`
-			);
+			result.errors.push(`Scrape failed for ${searchResult.url}: ${e instanceof Error ? e.message : 'Unknown'}`);
 		}
 	}
 
@@ -92,9 +85,9 @@ async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
 			'User-Agent':
 				'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
 			Accept: 'text/html',
-			'Accept-Language': 'en-US,en;q=0.5'
+			'Accept-Language': 'en-US,en;q=0.5',
 		},
-		signal: AbortSignal.timeout(10000)
+		signal: AbortSignal.timeout(10000),
 	});
 
 	if (!response.ok) {
@@ -134,7 +127,7 @@ async function searchDuckDuckGo(query: string): Promise<SearchResult[]> {
 					results.push({
 						title: linkEl.textContent.trim(),
 						url: href,
-						snippet: snippetEl?.textContent?.trim() || ''
+						snippet: snippetEl?.textContent?.trim() || '',
 					});
 				}
 			}
@@ -163,7 +156,7 @@ function generateFallbackUrls(scooterName: string): SearchResult[] {
 	return retailers.map((r) => ({
 		title: `${scooterName} - ${r.name}`,
 		url: r.base,
-		snippet: `Check ${r.name} for ${scooterName} specs and pricing`
+		snippet: `Check ${r.name} for ${scooterName} specs and pricing`,
 	}));
 }
 
@@ -179,7 +172,7 @@ function isScooterRelevantUrl(url: string): boolean {
 		'reddit.com',
 		'tiktok.com',
 		'pinterest.com',
-		'wikipedia.org'
+		'wikipedia.org',
 	];
 
 	try {

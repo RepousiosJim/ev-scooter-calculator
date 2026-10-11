@@ -1,11 +1,11 @@
 <script lang="ts">
   import Icon from './atoms/Icon.svelte';
 
-  let { 
+  let {
     variant = 'solid',
     label = '',
     icon = '',
-    className = ''
+    className = '',
   }: {
     variant?: 'solid' | 'gradient' | 'dotted';
     label?: string;
@@ -24,7 +24,7 @@
       <div class="w-full h-px bg-white/5"></div>
     {/if}
   </div>
-  
+
   {#if label || icon}
     <div class="relative flex justify-center">
       <div class="bg-bg-primary px-3 flex items-center gap-2">
