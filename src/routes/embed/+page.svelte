@@ -1,14 +1,14 @@
 <script lang="ts">
   import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { presets, presetMetadata } from '$lib/data/presets';
   import { calculatePerformance } from '$lib/physics';
   import { computeScore, getGradeInfo } from '$lib/utils/scoring';
   import type { ScooterConfig, PresetMetadata } from '$lib/types';
 
   // ----- Parse query params -----
-  const params = $derived($page.url.searchParams);
+  const params = $derived(page.url.searchParams);
   const scooterKey = $derived(params.get('scooter') ?? '');
 
   const DEFAULT_CONFIG: Partial<ScooterConfig> = {

@@ -6,7 +6,7 @@
   import MobileNavigation from '$lib/components/ui/organisms/MobileNavigation.svelte';
   import { toastState } from '$lib/stores/toast.svelte';
   import { initUnitSystem } from '$lib/stores/ui.svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { onMount } from 'svelte';
   import { afterNavigate } from '$app/navigation';
   import { browser } from '$app/environment';
@@ -17,15 +17,15 @@
     initUnitSystem();
   });
 
-  const isAdmin = $derived($page.url.pathname.startsWith('/admin'));
-  const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
-  const isEmbed = $derived($page.url.pathname.startsWith('/embed'));
+  const isAdmin = $derived(page.url.pathname.startsWith('/admin'));
+  const isRankings = $derived(page.url.pathname.startsWith('/rankings'));
+  const isEmbed = $derived(page.url.pathname.startsWith('/embed'));
 
   // Track page views on client-side navigation
   afterNavigate(() => {
     if (browser && typeof gtag === 'function') {
       gtag('event', 'page_view', {
-        page_path: $page.url.pathname,
+        page_path: page.url.pathname,
         page_title: document.title,
       });
     }

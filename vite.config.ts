@@ -44,6 +44,10 @@ export default defineConfig({
 	},
 	plugins: [
 		sentrySvelteKit({
+			// Don't wrap universal (client-side) load functions: that would add a
+			// static Sentry import to every +page.ts/+layout.ts and defeat the lazy
+			// client loading in hooks.client.ts. Server loads stay instrumented.
+			autoInstrument: { load: false, serverLoad: true },
 			autoUploadSourceMaps: !!sentryAuthToken,
 			sourceMapsUploadOptions: sentryAuthToken ? { authToken: sentryAuthToken } : undefined,
 		}),

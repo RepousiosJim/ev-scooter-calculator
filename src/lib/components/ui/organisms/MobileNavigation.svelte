@@ -1,13 +1,13 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { uiState } from '$lib/stores/ui.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
-  const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
-  const isGuides = $derived($page.url.pathname.startsWith('/guides'));
+  const isRankings = $derived(page.url.pathname.startsWith('/rankings'));
+  const isGuides = $derived(page.url.pathname.startsWith('/guides'));
   // The calculator sections only exist on the home page; elsewhere they navigate there.
-  const isHome = $derived($page.url.pathname === '/');
+  const isHome = $derived(page.url.pathname === '/');
 
   const tabs = [
     { label: 'Calculator', value: 'configuration', icon: 'speed' },

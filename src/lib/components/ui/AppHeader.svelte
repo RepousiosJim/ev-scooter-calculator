@@ -1,6 +1,6 @@
 <script lang="ts">
   import { tick } from 'svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import { uiState } from '$lib/stores/ui.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
@@ -10,11 +10,11 @@
     { label: 'Compare', value: 'compare', icon: 'scooter' },
   ] as const;
 
-  const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
-  const isWizard = $derived($page.url.pathname.startsWith('/wizard'));
-  const isGuides = $derived($page.url.pathname.startsWith('/guides'));
+  const isRankings = $derived(page.url.pathname.startsWith('/rankings'));
+  const isWizard = $derived(page.url.pathname.startsWith('/wizard'));
+  const isGuides = $derived(page.url.pathname.startsWith('/guides'));
   // Calculator tabs only switch panels on the home page; elsewhere they link there.
-  const isHome = $derived($page.url.pathname === '/');
+  const isHome = $derived(page.url.pathname === '/');
 
   let tabRefs = $state<HTMLElement[]>([]);
   let indicatorStyle = $state('left:0;width:0');

@@ -26,14 +26,7 @@
 		<!-- Google Analytics — preconnect reduces DNS/TLS latency, async load never blocks rendering -->
 		<link rel="preconnect" href="https://www.googletagmanager.com" />
 		<script async src="https://www.googletagmanager.com/gtag/js?id=G-5D9VS622GD"></script>
-		<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag() {
-				dataLayer.push(arguments);
-			}
-			gtag('js', new Date());
-			gtag('config', 'G-5D9VS622GD', { send_page_view: false });
-		</script>
+		<script src="%sveltekit.assets%/ga-init.js"></script>
 		%sveltekit.head%
 	</head>
 	<!--
