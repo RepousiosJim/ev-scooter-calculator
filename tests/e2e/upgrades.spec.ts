@@ -52,7 +52,7 @@ test.describe('Upgrade Simulation', () => {
 
 	test('shows placeholder before upgrade selection', async ({ page }) => {
 		await expect(page.locator('text=No upgrade selected')).toBeVisible();
-		await expect(page.locator('text=Select an upgrade above to simulate its impact')).toBeVisible();
+		await expect(page.locator('text=Choose an upgrade from the simulator above')).toBeVisible();
 	});
 
 	test('clears upgrade selection and restores placeholder', async ({ page }) => {

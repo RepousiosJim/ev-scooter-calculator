@@ -23,7 +23,11 @@ export function getNewsletterState(): NewsletterState {
 
 function save(state: NewsletterState): void {
 	if (typeof localStorage === 'undefined') return;
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	try {
+		localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+	} catch {
+		// Storage unavailable (private mode, blocked site data, quota) — keep in-memory state.
+	}
 }
 
 export function setSubscribed(email: string): void {
@@ -37,5 +41,9 @@ export function setDismissed(): void {
 
 export function clearSubscription(): void {
 	if (typeof localStorage === 'undefined') return;
-	localStorage.removeItem(STORAGE_KEY);
+	try {
+		localStorage.removeItem(STORAGE_KEY);
+	} catch {
+		// Storage unavailable — nothing persisted to clear.
+	}
 }

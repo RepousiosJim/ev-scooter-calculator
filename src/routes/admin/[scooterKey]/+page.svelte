@@ -1,6 +1,11 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { consumeSSE } from '$lib/utils/sse-client';
+  import { onDestroy } from 'svelte';
+
+  // Abort any in-flight admin job stream when leaving the page.
+  const streamAbort = new AbortController();
+  onDestroy(() => streamAbort.abort());
   import StatusBadge from '$lib/components/admin/StatusBadge.svelte';
   import ConfidenceBadge from '$lib/components/admin/ConfidenceBadge.svelte';
   import SourceEditor from '$lib/components/admin/SourceEditor.svelte';
@@ -136,6 +141,7 @@
         '/api/admin/auto-verify',
         {
           method: 'POST',
+          signal: streamAbort.signal,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ scooterKey: data.scooterKey }),
         },

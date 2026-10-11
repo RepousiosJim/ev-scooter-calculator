@@ -1,6 +1,11 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import { consumeSSE } from '$lib/utils/sse-client';
+  import { onDestroy } from 'svelte';
+
+  // Abort any in-flight admin job stream when leaving the page.
+  const streamAbort = new AbortController();
+  onDestroy(() => streamAbort.abort());
   import { ArrowDown, ArrowUp } from 'lucide-svelte';
   import type { PageData } from './$types';
 
@@ -101,42 +106,46 @@
     batchScootersTotal = 0;
 
     try {
-      await consumeSSE('/api/admin/batch-verify', { method: 'POST' }, (event, eventData) => {
-        const d = eventData as BatchVerifyEvent;
-        switch (event) {
-          case 'start':
-            batchScootersTotal = d.totalScooters;
-            batchProgress = `Starting: ${d.totalScooters} scooters, ${d.totalUrls} URLs to scrape...`;
-            break;
-          case 'scooter_start':
-            batchCurrentScooter = d.name;
-            batchProgress = `[${d.index + 1}/${d.totalScooters}] Scraping ${d.name}...`;
-            break;
-          case 'source':
-            batchLiveLog = [
-              ...batchLiveLog,
-              {
-                text: `${d.sourceName}: ${d.success ? `${d.specsFound} specs found` : d.error || 'failed'}`,
-                status: d.success ? 'ok' : 'fail',
-              },
-            ];
-            break;
-          case 'scooter_done':
-            batchScootersDone = d.scootersCompleted;
-            batchLiveLog = [
-              ...batchLiveLog,
-              {
-                text: `${d.name} done (${d.succeeded} ok, ${d.failed} failed)`,
-                status: d.succeeded > 0 ? 'ok' : 'info',
-              },
-            ];
-            break;
-          case 'done':
-            batchResult = d;
-            batchProgress = `Done! ${d.totalSourcesScraped} sources across ${d.totalScooters} scooters. ${d.totalSucceeded} succeeded, ${d.totalFailed} failed.`;
-            break;
+      await consumeSSE(
+        '/api/admin/batch-verify',
+        { method: 'POST', signal: streamAbort.signal },
+        (event, eventData) => {
+          const d = eventData as BatchVerifyEvent;
+          switch (event) {
+            case 'start':
+              batchScootersTotal = d.totalScooters;
+              batchProgress = `Starting: ${d.totalScooters} scooters, ${d.totalUrls} URLs to scrape...`;
+              break;
+            case 'scooter_start':
+              batchCurrentScooter = d.name;
+              batchProgress = `[${d.index + 1}/${d.totalScooters}] Scraping ${d.name}...`;
+              break;
+            case 'source':
+              batchLiveLog = [
+                ...batchLiveLog,
+                {
+                  text: `${d.sourceName}: ${d.success ? `${d.specsFound} specs found` : d.error || 'failed'}`,
+                  status: d.success ? 'ok' : 'fail',
+                },
+              ];
+              break;
+            case 'scooter_done':
+              batchScootersDone = d.scootersCompleted;
+              batchLiveLog = [
+                ...batchLiveLog,
+                {
+                  text: `${d.name} done (${d.succeeded} ok, ${d.failed} failed)`,
+                  status: d.succeeded > 0 ? 'ok' : 'info',
+                },
+              ];
+              break;
+            case 'done':
+              batchResult = d;
+              batchProgress = `Done! ${d.totalSourcesScraped} sources across ${d.totalScooters} scooters. ${d.totalSucceeded} succeeded, ${d.totalFailed} failed.`;
+              break;
+          }
         }
-      });
+      );
       await invalidateAll();
     } catch {
       batchProgress = 'Batch verify failed. Check console for details.';

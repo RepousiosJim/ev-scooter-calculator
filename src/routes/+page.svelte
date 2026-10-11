@@ -10,7 +10,7 @@
   import { calculatorState, loadConfigFromUrl, loadPreset } from '$lib/stores/calculator.svelte';
   import { uiState, toggleUnitSystem } from '$lib/stores/ui.svelte';
   import { analytics } from '$lib/utils/analytics';
-  import { initBehaviorTracking, trackWebVitals, startSession, initAllABTests } from '$lib/utils/analytics';
+  import { initBehaviorTracking, trackWebVitals, startSession } from '$lib/utils/analytics';
 
   // Components
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
@@ -52,15 +52,23 @@
     // Defer non-critical analytics init to avoid blocking first interaction
     let cleanupBehaviorTracking = () => {};
     let cleanupWebVitals = () => {};
-    const scheduleAnalytics = (cb: () => void) =>
-      typeof requestIdleCallback !== 'undefined' ? requestIdleCallback(cb, { timeout: 3000 }) : setTimeout(cb, 0);
-    scheduleAnalytics(() => {
+    const initAnalytics = () => {
       startSession();
       cleanupBehaviorTracking = initBehaviorTracking();
       cleanupWebVitals = trackWebVitals();
-      initAllABTests();
       analytics.startFunnel('configuration_flow', 'page_load');
-    });
+    };
+    // Cancelled on unmount so trackers can't start after cleanup has run.
+    const cancelAnalytics =
+      typeof requestIdleCallback !== 'undefined'
+        ? (
+            (id) => () =>
+              cancelIdleCallback(id)
+          )(requestIdleCallback(initAnalytics, { timeout: 3000 }))
+        : (
+            (id) => () =>
+              clearTimeout(id)
+          )(setTimeout(initAnalytics, 0));
 
     const handleBeforeUnload = () => {
       analytics.endSession();
@@ -69,6 +77,7 @@
     window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
+      cancelAnalytics();
       window.removeEventListener('beforeunload', handleBeforeUnload);
 
       // Clean up analytics listeners and intervals

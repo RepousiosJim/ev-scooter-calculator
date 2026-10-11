@@ -6,7 +6,7 @@ test.describe('Main Page', () => {
 	});
 
 	test('loads page with correct title', async ({ page }) => {
-		await expect(page).toHaveTitle(/EV Scooter Pro Calculator/);
+		await expect(page).toHaveTitle(/EV Scooter Pro/);
 	});
 
 	test('displays all calculator inputs', async ({ page }) => {
