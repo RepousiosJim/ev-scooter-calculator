@@ -1,4 +1,5 @@
 import adapter from '@sveltejs/adapter-vercel';
+import { resolveSiteOrigin } from './site-origin.config.js';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
@@ -45,7 +46,7 @@ const config = {
 		prerender: {
 			// url.origin during prerendering (defaults to http://sveltekit-prerender,
 			// which leaked into the sitemap and canonical/og URLs of prerendered pages).
-			origin: process.env.PUBLIC_SITE_URL || 'https://evscooterpro.com',
+			origin: resolveSiteOrigin(),
 		},
 	},
 };

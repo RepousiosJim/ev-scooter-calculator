@@ -11,6 +11,9 @@ declare global {
 		// interface Platform {}
 	}
 
+	/** Public site origin, injected at build time (see site-origin.config.js). */
+	const __SITE_URL__: string;
+
 	// Google Analytics gtag
 	function gtag(...args: unknown[]): void;
 	interface Window {
