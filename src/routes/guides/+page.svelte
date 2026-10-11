@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { guides } from '$lib/data/guides';
   import type { Guide } from '$lib/data/guides';
 
@@ -31,7 +32,7 @@
   />
   <meta property="og:title" content="Electric Scooter Guides &amp; Reviews | EV Scooter Pro" />
   <meta property="og:description" content="Expert guides on buying, maintaining, and upgrading electric scooters." />
-  <meta property="og:image" content="/api/og" />
+  <meta property="og:image" content="{SITE_URL}/api/og" />
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 

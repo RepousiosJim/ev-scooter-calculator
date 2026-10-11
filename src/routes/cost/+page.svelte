@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { ArrowLeft, Car, Train, Bike, Zap, Leaf, DollarSign, TrendingDown } from 'lucide-svelte';
 
   // ─── Inputs ──────────────────────────────────────────────────────────────────
@@ -89,7 +90,7 @@
     property="og:description"
     content="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
   />
-  <meta property="og:image" content="/api/og" />
+  <meta property="og:image" content="{SITE_URL}/api/og" />
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 

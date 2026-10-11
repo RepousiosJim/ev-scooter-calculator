@@ -3,13 +3,14 @@ import { presets, presetMetadata, CATALOG_LAST_UPDATED } from '$lib/data/presets
 import { guides } from '$lib/data/guides';
 import { getTopComparisonPairs } from '$lib/utils/comparison-pairs';
 import { collections } from '$lib/data/collections';
+import { SITE_URL } from '$lib/config/site';
 
 // Prerender the sitemap at build time — it is fully static (derived from presets + guides).
 // Vercel will serve this from the CDN edge with zero cold starts.
 export const prerender = true;
 
-export const GET: RequestHandler = async ({ url }) => {
-	const baseUrl = url.origin;
+export const GET: RequestHandler = async () => {
+	const baseUrl = SITE_URL;
 	const lastmod = CATALOG_LAST_UPDATED;
 
 	const pages = [
@@ -20,7 +21,6 @@ export const GET: RequestHandler = async ({ url }) => {
 		{ path: '/guides', priority: '0.7', changefreq: 'weekly' },
 		{ path: '/best', priority: '0.8', changefreq: 'weekly' },
 		{ path: '/embed/demo', priority: '0.5', changefreq: 'monthly' },
-		{ path: '/notifications', priority: '0.4', changefreq: 'monthly' },
 	];
 
 	// Add individual scooter detail pages (high priority — these are the primary SEO targets)

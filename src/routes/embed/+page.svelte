@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { page } from '$app/stores';
   import { presets, presetMetadata } from '$lib/data/presets';
   import { calculatePerformance } from '$lib/physics';
@@ -164,7 +165,7 @@
 
       <!-- Footer link -->
       <div class="widget-footer">
-        <a href="https://evscooterpro.com" target="_blank" rel="noopener noreferrer" class="powered-by">
+        <a href={SITE_URL} target="_blank" rel="noopener noreferrer" class="powered-by">
           Powered by <strong>EV Scooter Pro</strong>
         </a>
       </div>

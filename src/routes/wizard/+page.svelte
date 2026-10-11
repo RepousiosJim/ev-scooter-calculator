@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { fly } from 'svelte/transition';
   import { cubicOut } from 'svelte/easing';
   import type { PageData } from './$types';
@@ -233,7 +234,7 @@
     property="og:description"
     content="Answer 5 questions to get personalized e-scooter recommendations from 166+ models. Free guided buying tool."
   />
-  <meta property="og:image" content="/api/og" />
+  <meta property="og:image" content="{SITE_URL}/api/og" />
   <meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 

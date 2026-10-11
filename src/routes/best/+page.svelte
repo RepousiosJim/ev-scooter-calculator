@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
-  import { page } from '$app/stores';
   import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-svelte';
   import type { CollectionIndexPageData } from './+page.server.ts';
 
@@ -17,14 +17,14 @@
     '@type': 'CollectionPage',
     name: titleText,
     description: descriptionText,
-    url: `${$page.url.origin}/best`,
+    url: `${SITE_URL}/best`,
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: all.map((c, i) => ({
         '@type': 'ListItem',
         position: i + 1,
         name: c.h1,
-        url: `${$page.url.origin}/best/${c.slug}`,
+        url: `${SITE_URL}/best/${c.slug}`,
       })),
     },
   }));
@@ -33,7 +33,7 @@
 <svelte:head>
   <title>{titleText}</title>
   <meta name="description" content={descriptionText} />
-  <link rel="canonical" href="{$page.url.origin}/best" />
+  <link rel="canonical" href="{SITE_URL}/best" />
   <meta property="og:title" content={titleText} />
   <meta property="og:description" content={descriptionText} />
   <meta property="og:type" content="website" />

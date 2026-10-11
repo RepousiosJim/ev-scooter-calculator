@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
@@ -89,7 +90,7 @@
       name: 'EV Scooter Pro Calculator',
       description:
         'Free online calculator for electric scooter performance analysis, hardware compatibility checking, upgrade simulation, and scooter comparison. Calculates real-world range, top speed, power output, and efficiency.',
-      url: 'https://evscooterpro.com/',
+      url: SITE_URL + '/',
       applicationCategory: 'UtilitiesApplication',
       operatingSystem: 'Any',
       browserRequirements: 'Requires JavaScript',
@@ -180,7 +181,7 @@
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'EV Scooter Pro',
-      url: 'https://evscooterpro.com',
+      url: SITE_URL,
       description: 'Electric scooter performance calculator and comparison tool',
     }) +
     scriptClose}

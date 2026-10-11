@@ -147,6 +147,7 @@
 
 <svelte:head>
   <title>Notification Preferences — EV Scooter Pro Calculator</title>
+  <meta name="robots" content="noindex" />
   <meta
     name="description"
     content="Manage your newsletter and notification preferences for the EV Scooter Pro Calculator."

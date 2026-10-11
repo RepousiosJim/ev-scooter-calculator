@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
   import { presetMetadata } from '$lib/data/presets';
@@ -12,7 +13,6 @@
   import RankingMobileCard from '$lib/components/rankings/RankingMobileCard.svelte';
   import { afterNavigate, goto, replaceState } from '$app/navigation';
 
-  import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import { loadPreset } from '$lib/stores/calculator.svelte';
@@ -240,7 +240,7 @@
     content="Compare and rank 166+ electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
   />
   {#if data.ogScooterKey}
-    {@const ogImageUrl = `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}`}
+    {@const ogImageUrl = `${SITE_URL}/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}`}
     {@const scooterMeta = presetMetadata[data.ogScooterKey]}
     {@const ogTitle = scooterMeta
       ? `${scooterMeta.name} — EV Scooter Pro Rankings`
@@ -253,7 +253,7 @@
     <meta name="twitter:title" content={ogTitle} />
     <meta name="twitter:image" content={ogImageUrl} />
   {:else}
-    {@const ogImageUrl = `/api/og`}
+    {@const ogImageUrl = `${SITE_URL}/api/og`}
     <meta property="og:title" content="Power Rankings — EV Scooter Pro Calculator" />
     <meta property="og:image" content={ogImageUrl} />
     <meta property="og:image:width" content="1200" />
@@ -268,7 +268,7 @@
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
         { '@type': 'ListItem', position: 2, name: 'Rankings' },
       ],
     }) +

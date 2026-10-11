@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
-  import { page } from '$app/stores';
   import { ArrowLeft, Trophy, ArrowRight, Zap, Gauge, Activity, DollarSign } from 'lucide-svelte';
   import type { CollectionPageData } from './+page.server.ts';
 
@@ -22,7 +22,7 @@
           '@type': 'Product',
           name: e.name,
           category: 'Electric Scooter',
-          url: `${$page.url.origin}/scooter/${e.key}`,
+          url: `${SITE_URL}/scooter/${e.key}`,
           brand: { '@type': 'Brand', name: e.name.split(' ')[0] },
           ...(e.price != null
             ? {
@@ -42,8 +42,8 @@
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Best Scooters', item: $page.url.origin + '/best' },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+      { '@type': 'ListItem', position: 2, name: 'Best Scooters', item: SITE_URL + '/best' },
       { '@type': 'ListItem', position: 3, name: data.h1 },
     ],
   }));
@@ -59,7 +59,7 @@
 <svelte:head>
   <title>{data.title}</title>
   <meta name="description" content={data.description} />
-  <link rel="canonical" href="{$page.url.origin}/best/{data.slug}" />
+  <link rel="canonical" href="{SITE_URL}/best/{data.slug}" />
   <meta property="og:title" content={data.title} />
   <meta property="og:description" content={data.description} />
   <meta property="og:type" content="article" />

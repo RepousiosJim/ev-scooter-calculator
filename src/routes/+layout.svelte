@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import '../app.css';
   import favicon from '$lib/assets/favicon.svg';
   import Toast from '$lib/components/ui/Toast.svelte';
@@ -34,7 +35,7 @@
 
 <svelte:head>
   <link rel="icon" href={favicon} />
-  <link rel="canonical" href="{$page.url.origin}{$page.url.pathname}" />
+  <link rel="canonical" href="{SITE_URL}{$page.url.pathname}" />
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="EV Scooter Pro Calculator" />
@@ -42,9 +43,9 @@
     property="og:description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
   />
-  <meta property="og:url" content={$page.url.origin + $page.url.pathname} />
+  <meta property="og:url" content={SITE_URL + $page.url.pathname} />
   <meta property="og:site_name" content="EV Scooter Pro Calculator" />
-  <meta property="og:image" content={$page.url.origin + '/api/og'} />
+  <meta property="og:image" content={SITE_URL + '/api/og'} />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <!-- Twitter Card -->
@@ -54,7 +55,7 @@
     name="twitter:description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
   />
-  <meta name="twitter:image" content={$page.url.origin + '/api/og'} />
+  <meta name="twitter:image" content={SITE_URL + '/api/og'} />
 </svelte:head>
 
 {#if !isEmbed}

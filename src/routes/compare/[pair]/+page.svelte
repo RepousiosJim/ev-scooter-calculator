@@ -1,6 +1,6 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
-  import { page } from '$app/stores';
   import { ArrowLeft, Trophy, Zap, Gauge, Battery, Activity, TrendingUp, Scale, DollarSign } from 'lucide-svelte';
   import type { ComparePageData } from './+page.server.ts';
 
@@ -85,7 +85,7 @@
 <svelte:head>
   <title>{titleText}</title>
   <meta name="description" content={descriptionText} />
-  <link rel="canonical" href="{$page.url.origin}/compare/{data.slug}" />
+  <link rel="canonical" href="{SITE_URL}/compare/{data.slug}" />
   <meta property="og:title" content={titleText} />
   <meta property="og:description" content={descriptionText} />
   <meta property="og:type" content="article" />

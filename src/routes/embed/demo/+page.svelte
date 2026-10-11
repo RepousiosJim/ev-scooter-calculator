@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { presetMetadata } from '$lib/data/presets';
 
   // Build a sorted list of preset keys for the example picker
@@ -11,10 +12,10 @@
   const liveEmbedUrl = $derived(`/embed?scooter=${selectedKey}`);
 
   const iframeSnippet = $derived(
-    `<iframe\n  src="https://evscooterpro.com/embed?scooter=${selectedKey}"\n  width="420"\n  height="220"\n  style="border:none;border-radius:14px;"\n  loading="lazy"\n  title="EV Scooter Performance Widget"\n></iframe>`
+    `<iframe\n  src="${SITE_URL}/embed?scooter=${selectedKey}"\n  width="420"\n  height="220"\n  style="border:none;border-radius:14px;"\n  loading="lazy"\n  title="EV Scooter Performance Widget"\n></iframe>`
   );
 
-  const customSnippet = `<iframe\n  src="https://evscooterpro.com/embed?scooter=custom&v=72&ah=40&motors=2&watts=2000&style=35&weight=80&wheel=11"\n  width="420"\n  height="220"\n  style="border:none;border-radius:14px;"\n  loading="lazy"\n  title="EV Scooter Performance Widget"\n></iframe>`;
+  const customSnippet = `<iframe\n  src="${SITE_URL}/embed?scooter=custom&v=72&ah=40&motors=2&watts=2000&style=35&weight=80&wheel=11"\n  width="420"\n  height="220"\n  style="border:none;border-radius:14px;"\n  loading="lazy"\n  title="EV Scooter Performance Widget"\n></iframe>`;
 </script>
 
 <svelte:head>

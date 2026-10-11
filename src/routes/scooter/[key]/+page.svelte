@@ -1,7 +1,7 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { fly } from 'svelte/transition';
-  import { page } from '$app/stores';
   import {
     ArrowLeft,
     Zap,
@@ -200,13 +200,13 @@
     property="og:description"
     content="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
   />
-  <meta property="og:image" content="{$page.url.origin}/api/og?scooter={key}" />
+  <meta property="og:image" content="{SITE_URL}/api/og?scooter={key}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:type" content="product" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
-  <meta name="twitter:image" content="{$page.url.origin}/api/og?scooter={key}" />
+  <meta name="twitter:image" content="{SITE_URL}/api/og?scooter={key}" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(productSchema) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
@@ -215,8 +215,8 @@
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-        { '@type': 'ListItem', position: 2, name: 'Rankings', item: $page.url.origin + '/rankings' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Rankings', item: SITE_URL + '/rankings' },
         { '@type': 'ListItem', position: 3, name: metadata.name },
       ],
     }) +

@@ -1,9 +1,8 @@
 <script lang="ts">
+  import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
   import type { Guide } from '$lib/data/guides';
-
-  import { page } from '$app/stores';
 
   let { data }: { data: PageData } = $props();
   const guide = $derived(data.guide);
@@ -73,8 +72,8 @@
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-        { '@type': 'ListItem', position: 2, name: 'Guides', item: $page.url.origin + '/guides' },
+        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Guides', item: SITE_URL + '/guides' },
         { '@type': 'ListItem', position: 3, name: guide.title },
       ],
     }) +
