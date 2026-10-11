@@ -32,8 +32,9 @@
   }));
 </script>
 
+<Seo title={titleText} description={descriptionText} path="/best" />
+
 <svelte:head>
-  <Seo title={titleText} description={descriptionText} path="/best" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
 </svelte:head>

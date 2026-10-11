@@ -176,12 +176,13 @@
   });
 </script>
 
+<Seo
+  title="Electric Scooter Range & Performance Calculator | EV Scooter Pro"
+  description="Calculate electric scooter range, top speed, and performance. Compare {CATALOG_MODEL_COUNT_LABEL} e-scooter models with our free physics-based calculator."
+  path="/"
+/>
+
 <svelte:head>
-  <Seo
-    title="Electric Scooter Range & Performance Calculator | EV Scooter Pro"
-    description="Calculate electric scooter range, top speed, and performance. Compare {CATALOG_MODEL_COUNT_LABEL} e-scooter models with our free physics-based calculator."
-    path="/"
-  />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html webAppJsonLd}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

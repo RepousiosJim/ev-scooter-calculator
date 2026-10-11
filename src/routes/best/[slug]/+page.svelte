@@ -57,8 +57,9 @@
   };
 </script>
 
+<Seo title={data.title} description={data.description} path="/best/{data.slug}" type="article" />
+
 <svelte:head>
-  <Seo title={data.title} description={data.description} path="/best/{data.slug}" type="article" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

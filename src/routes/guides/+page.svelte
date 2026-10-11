@@ -24,14 +24,12 @@
   }
 </script>
 
-<svelte:head>
-  <Seo
-    title="Electric Scooter Guides — EV Scooter Pro"
-    description="In-depth guides on buying, riding, and maintaining electric scooters. Learn how to read specs, care for your battery, and find the best commuter scooter."
-    socialTitle="Electric Scooter Guides & Reviews | EV Scooter Pro"
-    socialDescription="Expert guides on buying, maintaining, and upgrading electric scooters."
-  />
-</svelte:head>
+<Seo
+  title="Electric Scooter Guides — EV Scooter Pro"
+  description="In-depth guides on buying, riding, and maintaining electric scooters. Learn how to read specs, care for your battery, and find the best commuter scooter."
+  socialTitle="Electric Scooter Guides & Reviews | EV Scooter Pro"
+  socialDescription="Expert guides on buying, maintaining, and upgrading electric scooters."
+/>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">
   <div class="max-w-4xl mx-auto px-4 sm:px-6">

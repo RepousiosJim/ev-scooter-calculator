@@ -69,18 +69,27 @@ describe('preset catalog data quality', () => {
 			if (claim.topSpeed > 0 && calc.speed > 0) {
 				const diff = Math.abs(calc.speed - claim.topSpeed) / claim.topSpeed;
 				const line = `[${key}] topSpeed: claimed ${claim.topSpeed} km/h, calculated ${calc.speed.toFixed(1)} km/h (${(diff * 100).toFixed(0)}% off)`;
-				if (diff > 0.85) errors.push(line);
-				else if (diff > 0.2) warnings.push(line);
+				// Motor KV is fitted to the claimed top speed (scripts/calibrate-presets.mjs
+				// leaves only power-limited presets short of it), so a big gap means bad data.
+				if (diff > 0.3) errors.push(line);
+				else if (diff > 0.15) warnings.push(line);
 			}
 
 			// --- Range (km) ---
-			if (claim.range > 0 && calc.totalRange > 0) {
+			const tested = presetMetadata[key]?.tested?.range;
+			if (tested) {
+				// Calibrated to the independent test instead of the claim.
+				const diff = Math.abs(calc.totalRange - tested) / tested;
+				if (diff > 0.05)
+					errors.push(`[${key}] range: tested ${tested} km, calculated ${calc.totalRange.toFixed(1)} km`);
+			} else if (claim.range > 0 && calc.totalRange > 0) {
 				const diff = Math.abs(calc.totalRange - claim.range) / claim.range;
 				const line = `[${key}] range: claimed ${claim.range} km, calculated ${calc.totalRange.toFixed(1)} km (${(diff * 100).toFixed(0)}% off)`;
-				// Ranges are calibrated to claims (see scripts/calibrate-presets.mjs), so
-				// everyday range should sit near ~0.7× the claim; ≥50% off is a regression.
-				if (diff >= 0.5) errors.push(line);
-				else if (diff > 0.35) warnings.push(line);
+				// Ranges are calibrated to claims (see scripts/calibrate-presets.mjs) at
+				// ~15 km/h, so everyday range at a normal cruise sits well below them,
+				// most for fast scooters with eco-mode claims; ≥60% off is a regression.
+				if (diff >= 0.6) errors.push(line);
+				else if (diff > 0.4) warnings.push(line);
 			}
 		}
 

@@ -139,7 +139,7 @@ export const knownSources: Record<string, KnownSource[]> = {
 	dualtron_thunder_3: [
 		// Delisted from Voro, no alternative found — no verified working URL
 	],
-	m365_pro_2: [
+	xiaomi_pro_2: [
 		// Xiaomi site is JS-rendered — no static HTML specs
 	],
 };

@@ -4,9 +4,7 @@
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
 </script>
 
-<svelte:head>
-  <Seo title="{page.status} — EV Scooter Pro Calculator" noindex />
-</svelte:head>
+<Seo title="{page.status} — EV Scooter Pro Calculator" noindex />
 
 <div class="min-h-screen bg-bg-primary">
   <AppHeader />

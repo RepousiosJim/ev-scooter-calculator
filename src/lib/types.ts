@@ -118,11 +118,17 @@ export interface PresetMetadata {
 		powerToWeight?: number;
 		price?: number; // Current retail price (USD)
 	};
+	/**
+	 * Independent test results (e.g. ERideHero, ESG), when available. A tested
+	 * range takes precedence over the manufacturer's claim when calibrating base
+	 * consumption, because some claims are eco-mode figures far above real use.
+	 */
 	tested?: {
-		topSpeed: number;
-		range: number;
-		whPerKm: number;
+		topSpeed?: number;
+		range?: number;
+		whPerKm?: number;
 		powerToWeight?: number;
+		source?: string;
 	};
 	// Data tracking fields
 	addedDate?: string; // ISO date when first added (YYYY-MM-DD)

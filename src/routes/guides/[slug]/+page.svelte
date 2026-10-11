@@ -57,8 +57,9 @@
   }
 </script>
 
+<Seo title="{guide.title} — EV Scooter Pro" description={guide.description} type="article" />
+
 <svelte:head>
-  <Seo title="{guide.title} — EV Scooter Pro" description={guide.description} type="article" />
   <meta property="article:published_time" content={guide.publishedDate} />
   <meta property="article:modified_time" content={guide.updatedDate} />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

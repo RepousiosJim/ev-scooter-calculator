@@ -79,14 +79,12 @@
   const sectionLabel = 'text-xs font-bold uppercase tracking-[0.12em] text-text-tertiary mb-3';
 </script>
 
-<svelte:head>
-  <Seo
-    title="Ride Cost Calculator — EV Scooter Pro"
-    description="Compare the cost of commuting by electric scooter vs car, public transit, and bike. Calculate daily, monthly, and yearly savings."
-    socialTitle="Electric Scooter Cost Calculator | EV Scooter Pro"
-    socialDescription="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
-  />
-</svelte:head>
+<Seo
+  title="Ride Cost Calculator — EV Scooter Pro"
+  description="Compare the cost of commuting by electric scooter vs car, public transit, and bike. Calculate daily, monthly, and yearly savings."
+  socialTitle="Electric Scooter Cost Calculator | EV Scooter Pro"
+  socialDescription="Compare commute costs: electric scooter vs car, transit, and bike. Calculate your yearly savings."
+/>
 
 <header class="sticky top-0 z-50 border-b border-white/[0.06] bg-bg-primary/80 backdrop-blur-xl">
   <div class="max-w-4xl mx-auto px-4 sm:px-6">

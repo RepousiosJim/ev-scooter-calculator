@@ -4,9 +4,11 @@
 
   /**
    * The single source of a page's <title>, description, canonical, Open Graph and
-   * Twitter tags. Render it exactly once per page (error pages included); the
-   * root layout and app.html deliberately emit none of these, so no page ends
-   * up with duplicate or conflicting tags.
+   * Twitter tags. Render it exactly once per page (error pages included), at the
+   * top level of the page — not inside the page's own <svelte:head>: a nested
+   * head breaks hydration ("Illegal invocation") and the page never becomes
+   * interactive. The root layout and app.html deliberately emit none of these,
+   * so no page ends up with duplicate or conflicting tags.
    */
   interface Props {
     title: string;

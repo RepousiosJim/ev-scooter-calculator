@@ -188,17 +188,18 @@
   });
 </script>
 
+<Seo
+  title="{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator"
+  description="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
+    stats.totalRange
+  )} km range, {Math.round(stats.totalWatts)}W power. Grade: {grade}."
+  socialTitle="{metadata.name} ({metadata.year}) — EV Scooter Pro"
+  socialDescription="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
+  image="/api/og?scooter={key}"
+  type="product"
+/>
+
 <svelte:head>
-  <Seo
-    title="{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator"
-    description="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
-      stats.totalRange
-    )} km range, {Math.round(stats.totalWatts)}W power. Grade: {grade}."
-    socialTitle="{metadata.name} ({metadata.year}) — EV Scooter Pro"
-    socialDescription="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
-    image="/api/og?scooter={key}"
-    type="product"
-  />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(productSchema) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
