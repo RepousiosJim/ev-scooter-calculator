@@ -1,5 +1,6 @@
 <script lang="ts">
   import Seo from '$lib/components/Seo.svelte';
+  import { CONTENT_YEAR } from '$lib/data/presets';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, Trophy, Zap, Gauge, Battery, Activity, TrendingUp, Scale, DollarSign } from 'lucide-svelte';
   import type { ComparePageData } from './+page.server.ts';
@@ -11,9 +12,7 @@
   const winners = $derived(data.winners);
   const overallWinner = $derived(data.overallWinner);
 
-  const titleText = $derived(
-    `${a.metadata.name} vs ${b.metadata.name}: Which Is Better? (${a.metadata.year} Comparison)`
-  );
+  const titleText = $derived(`${a.metadata.name} vs ${b.metadata.name}: Which Is Better? (${CONTENT_YEAR} Comparison)`);
 
   const descriptionText = $derived(
     `Head-to-head comparison of the ${a.metadata.name} and ${b.metadata.name}. ` +

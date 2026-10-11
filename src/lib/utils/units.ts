@@ -40,6 +40,15 @@ export function weightUnit(): string {
 }
 
 /** Convert °C to display value (°C or °F) */
+/** Energy per distance: Wh/km → Wh/mi in imperial (a mile is 1.609 km, so more Wh per unit). */
+export function efficiencyVal(whPerKm: number): number {
+	return isImperial() ? whPerKm / KM_TO_MILES : whPerKm;
+}
+
+export function efficiencyUnit(): string {
+	return isImperial() ? 'Wh/mi' : 'Wh/km';
+}
+
 export function tempVal(celsius: number): number {
 	return isImperial() ? (celsius * 9) / 5 + 32 : celsius;
 }

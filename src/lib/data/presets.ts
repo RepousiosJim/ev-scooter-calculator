@@ -4630,7 +4630,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	falcon_urban_commuting_electric_scooter: {
-		name: 'Falcon Urban',
+		name: 'Varla Falcon Urban',
 		year: 2026,
 		manufacturer: { topSpeed: 35, range: 40, batteryWh: 749, price: 1049 },
 		addedDate: '2026-04-13',
@@ -4640,7 +4640,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	eagle_one_v3_0_off_road_explorer: {
-		name: 'Eagle One V3.0 Explorer',
+		name: 'Varla Eagle One V3.0 Explorer',
 		year: 2026,
 		manufacturer: { topSpeed: 64, range: 72, batteryWh: 1620, price: 2599 },
 		addedDate: '2026-04-13',
@@ -4980,7 +4980,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	s_nova_pro_commuting_electric_scooter: {
-		name: 'S Nova Pro',
+		name: 'TurboAnt S Nova Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 31, range: 29, batteryWh: 450, price: 490 },
 		addedDate: '2026-04-13',
@@ -4990,7 +4990,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	s_nova_commuting_electric_scooter: {
-		name: 'S Nova',
+		name: 'TurboAnt S Nova',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 25, batteryWh: 360, price: 350 },
 		addedDate: '2026-04-13',
@@ -5000,7 +5000,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	apex_pro_commuting_electric_scooter: {
-		name: 'Apex PRO',
+		name: 'Gotrax Apex Pro',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 24, batteryWh: 270, price: 200 },
 		addedDate: '2026-04-13',
@@ -5010,7 +5010,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	fusion_electric_scooter: {
-		name: 'Fusion',
+		name: 'Gotrax Fusion',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 29, batteryWh: 270, price: 249 },
 		addedDate: '2026-04-13',
@@ -5020,7 +5020,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	g3_max_long_range_escooter: {
-		name: 'G3 MAX',
+		name: 'Gotrax G3 Max',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 45, batteryWh: 360, price: 330 },
 		addedDate: '2026-04-13',
@@ -5030,7 +5030,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		notes: 'Auto-approved with researched specs',
 	},
 	gmax_ultra_electric_scooter: {
-		name: 'GMAX Ultra',
+		name: 'Gotrax GMAX Ultra',
 		year: 2026,
 		manufacturer: { topSpeed: 25, range: 64, batteryWh: 360, price: 400 },
 		addedDate: '2026-04-13',
@@ -5051,7 +5051,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		sourceUrl: 'https://gotrax.com/products/gx2-dual-motor-electric-scooter',
 	},
 	gx3_off_road_electric_scooter: {
-		name: 'GX3 Off Road',
+		name: 'Gotrax GX3 Off Road',
 		year: 2026,
 		manufacturer: { topSpeed: 32, range: 45, batteryWh: 720, price: 799 },
 		addedDate: '2026-04-13',
@@ -5373,7 +5373,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	wolf_warrior_x_plus: {
-		name: 'Wolf Warrior X Plus',
+		name: 'Kaabo Wolf Warrior X Plus',
 		year: 2024,
 		manufacturer: { topSpeed: 70, range: 97, batteryWh: 1680, price: 2199 },
 		addedDate: '2026-04-13',
@@ -5382,7 +5382,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 	wolf_warrior_11_max: {
-		name: 'Wolf Warrior 11 Max',
+		name: 'Kaabo Wolf Warrior 11 Max',
 		year: 2025,
 		manufacturer: { topSpeed: 80, range: 150, batteryWh: 2160, price: 2599 },
 		addedDate: '2026-04-13',
@@ -5437,7 +5437,7 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 	},
 
 	mantis_2025_fluid_edition: {
-		name: 'MANTIS 2025',
+		name: 'Kaabo Mantis Fluid Edition',
 		year: 2025,
 		manufacturer: { topSpeed: 40, range: 50, batteryWh: 768, price: 1599 },
 		addedDate: '2026-04-12',

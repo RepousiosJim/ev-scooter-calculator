@@ -1,5 +1,6 @@
 <script lang="ts">
   import Seo from '$lib/components/Seo.svelte';
+  import { CONTENT_YEAR } from '$lib/data/presets';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-svelte';
@@ -9,7 +10,7 @@
 
   const all = $derived(data.collections);
 
-  const titleText = 'Best Electric Scooters — Curated Rankings by Category (2026)';
+  const titleText = `Best Electric Scooters — Curated Rankings by Category (${CONTENT_YEAR})`;
   const descriptionText =
     'Browse our full catalog of best-of rankings for electric scooters: budget picks, long range, fastest, commuter, hill climbers, and more. Physics-based, no sponsored picks.';
 
