@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
@@ -57,11 +58,7 @@
 </script>
 
 <svelte:head>
-  <title>{guide.title} — EV Scooter Pro</title>
-  <meta name="description" content={guide.description} />
-  <meta property="og:title" content="{guide.title} — EV Scooter Pro" />
-  <meta property="og:description" content={guide.description} />
-  <meta property="og:type" content="article" />
+  <Seo title="{guide.title} — EV Scooter Pro" description={guide.description} type="article" />
   <meta property="article:published_time" content={guide.publishedDate} />
   <meta property="article:modified_time" content={guide.updatedDate} />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

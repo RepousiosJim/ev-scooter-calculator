@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { page } from '$app/state';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import { SENTRY_ENABLED } from '$lib/sentry';
@@ -12,7 +13,7 @@
 </script>
 
 <svelte:head>
-  <title>{page.status} — EV Scooter Pro Calculator</title>
+  <Seo title="{page.status} — EV Scooter Pro Calculator" noindex />
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary">

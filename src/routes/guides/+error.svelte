@@ -1,9 +1,10 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { page } from '$app/state';
 </script>
 
 <svelte:head>
-  <title>{page.status} — Guides — EV Scooter Pro Calculator</title>
+  <Seo title="{page.status} — Guides — EV Scooter Pro Calculator" noindex />
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary flex items-center justify-center p-6">

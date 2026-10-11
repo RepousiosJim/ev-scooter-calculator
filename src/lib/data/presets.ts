@@ -4121,6 +4121,8 @@ export const defaultConfig: ScooterConfig = {
 // Data catalog version — bump when presets change
 export const CATALOG_VERSION = '2.1.0';
 export const CATALOG_LAST_UPDATED = '2026-10-11';
+/** Year used in "best of"/ranking copy, tied to the catalog's last update so every page agrees. */
+export const CONTENT_YEAR = Number(CATALOG_LAST_UPDATED.slice(0, 4));
 
 export const presetMetadata: Record<string, PresetMetadata> = {
 	// --- 2024/2025 Models ---
@@ -6153,3 +6155,6 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		status: 'current',
 	},
 };
+
+/** Catalog size for copy, rounded down to the nearest 10 (e.g. "200+ models"). */
+export const CATALOG_MODEL_COUNT_LABEL = `${Math.floor(Object.keys(presetMetadata).length / 10) * 10}+`;

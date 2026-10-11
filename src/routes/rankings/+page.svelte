@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { CATALOG_MODEL_COUNT_LABEL, CONTENT_YEAR } from '$lib/data/presets';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
@@ -234,34 +236,15 @@
 </script>
 
 <svelte:head>
-  <title>Best Electric Scooters Ranked 2024 | EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Compare and rank 166+ electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
-  />
-  {#if data.ogScooterKey}
-    {@const ogImageUrl = `${SITE_URL}/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}`}
-    {@const scooterMeta = presetMetadata[data.ogScooterKey]}
-    {@const ogTitle = scooterMeta
-      ? `${scooterMeta.name} — EV Scooter Pro Rankings`
+  <Seo
+    title="Best Electric Scooters Ranked {CONTENT_YEAR} | EV Scooter Pro"
+    description="Compare and rank {CATALOG_MODEL_COUNT_LABEL} electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
+    path="/rankings"
+    socialTitle={data.ogScooterKey && presetMetadata[data.ogScooterKey]
+      ? `${presetMetadata[data.ogScooterKey].name} — EV Scooter Pro Rankings`
       : 'Power Rankings — EV Scooter Pro Calculator'}
-    <meta property="og:title" content={ogTitle} />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={ogTitle} />
-    <meta name="twitter:image" content={ogImageUrl} />
-  {:else}
-    {@const ogImageUrl = `${SITE_URL}/api/og`}
-    <meta property="og:title" content="Power Rankings — EV Scooter Pro Calculator" />
-    <meta property="og:image" content={ogImageUrl} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Power Rankings — EV Scooter Pro Calculator" />
-    <meta name="twitter:image" content={ogImageUrl} />
-  {/if}
+    image={data.ogScooterKey ? `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}` : '/api/og'}
+  />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' +
     serializeJsonLd({

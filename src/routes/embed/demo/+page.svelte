@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
   import { presetMetadata } from '$lib/data/presets';
 
@@ -19,10 +20,9 @@
 </script>
 
 <svelte:head>
-  <title>Widget Embed Guide — EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Embed the EV Scooter Pro performance widget on your website using a simple iframe."
+  <Seo
+    title="Widget Embed Guide — EV Scooter Pro"
+    description="Embed the EV Scooter Pro performance widget on your website using a simple iframe."
   />
 </svelte:head>
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { onMount } from 'svelte';
   import { showToast } from '$lib/stores/calculator.svelte';
   import { getNewsletterState, setSubscribed, clearSubscription } from '$lib/stores/newsletter.svelte';
@@ -146,11 +147,10 @@
 </script>
 
 <svelte:head>
-  <title>Notification Preferences — EV Scooter Pro Calculator</title>
-  <meta name="robots" content="noindex" />
-  <meta
-    name="description"
-    content="Manage your newsletter and notification preferences for the EV Scooter Pro Calculator."
+  <Seo
+    title="Notification Preferences — EV Scooter Pro Calculator"
+    description="Manage your newsletter and notification preferences for the EV Scooter Pro Calculator."
+    noindex
   />
 </svelte:head>
 

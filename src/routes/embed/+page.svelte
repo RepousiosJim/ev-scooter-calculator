@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
   import { page } from '$app/stores';
   import { presets, presetMetadata } from '$lib/data/presets';
@@ -102,8 +103,7 @@
 </script>
 
 <svelte:head>
-  <title>EV Scooter Widget</title>
-  <meta name="robots" content="noindex" />
+  <Seo title="EV Scooter Widget" noindex />
 </svelte:head>
 
 <!-- Widget root — dark card, no background page chrome -->

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { ArrowLeft, Trophy, ArrowRight, Zap, Gauge, Activity, DollarSign } from 'lucide-svelte';
@@ -57,13 +58,7 @@
 </script>
 
 <svelte:head>
-  <title>{data.title}</title>
-  <meta name="description" content={data.description} />
-  <link rel="canonical" href="{SITE_URL}/best/{data.slug}" />
-  <meta property="og:title" content={data.title} />
-  <meta property="og:description" content={data.description} />
-  <meta property="og:type" content="article" />
-  <meta name="twitter:card" content="summary_large_image" />
+  <Seo title={data.title} description={data.description} path="/best/{data.slug}" type="article" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

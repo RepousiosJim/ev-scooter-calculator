@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { fly } from 'svelte/transition';
@@ -188,25 +189,16 @@
 </script>
 
 <svelte:head>
-  <title>{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator</title>
-  <meta
-    name="description"
-    content="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
+  <Seo
+    title="{metadata.name} ({metadata.year}) — EV Scooter Pro Calculator"
+    description="Performance analysis for the {metadata.name}: {Math.round(stats.speed)} km/h top speed, {Math.round(
       stats.totalRange
-    )} km range, {stats.totalWatts}W power. Grade: {grade}."
+    )} km range, {Math.round(stats.totalWatts)}W power. Grade: {grade}."
+    socialTitle="{metadata.name} ({metadata.year}) — EV Scooter Pro"
+    socialDescription="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
+    image="/api/og?scooter={key}"
+    type="product"
   />
-  <meta property="og:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
-  <meta
-    property="og:description"
-    content="{Math.round(stats.speed)} km/h · {Math.round(stats.totalRange)} km range · Grade {grade}"
-  />
-  <meta property="og:image" content="{SITE_URL}/api/og?scooter={key}" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:type" content="product" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
-  <meta name="twitter:image" content="{SITE_URL}/api/og?scooter={key}" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' + serializeJsonLd(productSchema) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->

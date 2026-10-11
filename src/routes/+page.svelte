@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Seo from '$lib/components/Seo.svelte';
+  import { CATALOG_MODEL_COUNT_LABEL } from '$lib/data/presets';
   import { SITE_URL } from '$lib/config/site';
   import { serializeJsonLd } from '$lib/utils/json-ld';
   import { onMount } from 'svelte';
@@ -166,10 +168,10 @@
 </script>
 
 <svelte:head>
-  <title>Electric Scooter Range &amp; Performance Calculator | EV Scooter Pro</title>
-  <meta
-    name="description"
-    content="Calculate electric scooter range, top speed, and performance. Compare 166+ e-scooter models with our free physics-based calculator."
+  <Seo
+    title="Electric Scooter Range & Performance Calculator | EV Scooter Pro"
+    description="Calculate electric scooter range, top speed, and performance. Compare {CATALOG_MODEL_COUNT_LABEL} e-scooter models with our free physics-based calculator."
+    path="/"
   />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html webAppJsonLd}
