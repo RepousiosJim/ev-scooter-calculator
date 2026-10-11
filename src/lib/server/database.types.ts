@@ -191,6 +191,45 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			purchase_links: {
+				Row: {
+					affiliate_network: string;
+					currency: string;
+					in_stock: boolean | null;
+					last_checked: string;
+					price: number | null;
+					raw_url: string;
+					retailer_id: string;
+					retailer_name: string;
+					scooter_key: string;
+					url: string;
+				};
+				Insert: {
+					affiliate_network: string;
+					currency?: string;
+					in_stock?: boolean | null;
+					last_checked?: string;
+					price?: number | null;
+					raw_url: string;
+					retailer_id: string;
+					retailer_name: string;
+					scooter_key: string;
+					url: string;
+				};
+				Update: {
+					affiliate_network?: string;
+					currency?: string;
+					in_stock?: boolean | null;
+					last_checked?: string;
+					price?: number | null;
+					raw_url?: string;
+					retailer_id?: string;
+					retailer_name?: string;
+					scooter_key?: string;
+					url?: string;
+				};
+				Relationships: [];
+			};
 			scooter_verifications: {
 				Row: {
 					fields: Json;
