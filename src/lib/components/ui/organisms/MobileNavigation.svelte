@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { tick } from 'svelte';
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
   import { uiState } from '$lib/stores/ui.svelte';
@@ -7,13 +6,8 @@
 
   const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
   const isGuides = $derived($page.url.pathname.startsWith('/guides'));
-  // The calculator tabs only exist on the home page; elsewhere they navigate there.
+  // The calculator sections only exist on the home page; elsewhere they navigate there.
   const isHome = $derived($page.url.pathname === '/');
-
-  function selectTab(value: (typeof tabs)[number]['value']) {
-    uiState.activeTab = value as typeof uiState.activeTab;
-    if (!isHome) goto('/');
-  }
 
   const tabs = [
     { label: 'Calculator', value: 'configuration', icon: 'speed' },
@@ -21,54 +15,28 @@
     { label: 'Compare', value: 'compare', icon: 'scooter' },
   ] as const;
 
-  let tabButtons = $state<HTMLElement[]>([]);
-
-  async function handleKeydown(event: KeyboardEvent, index: number) {
-    let targetIndex: number;
-    switch (event.key) {
-      case 'ArrowRight':
-        targetIndex = (index + 1) % tabs.length;
-        break;
-      case 'ArrowLeft':
-        targetIndex = (index - 1 + tabs.length) % tabs.length;
-        break;
-      case 'Home':
-        targetIndex = 0;
-        break;
-      case 'End':
-        targetIndex = tabs.length - 1;
-        break;
-      default:
-        return;
-    }
-    if (isHome) uiState.activeTab = tabs[targetIndex].value as typeof uiState.activeTab;
-    event.preventDefault();
-    await tick();
-    tabButtons[targetIndex]?.focus();
+  function selectTab(value: (typeof tabs)[number]['value']) {
+    uiState.activeTab = value as typeof uiState.activeTab;
+    if (!isHome) goto('/');
   }
 </script>
 
-<div
+<!-- Site navigation (it mixes section switches and page links, so it is not a tablist). -->
+<nav
   class="fixed bottom-0 left-0 right-0 z-50 bg-bg-primary/95 backdrop-blur-xl border-t border-white/[0.08]"
-  role="tablist"
   aria-label="Mobile navigation"
   style="padding-bottom: env(safe-area-inset-bottom, 0px)"
 >
   <div class="flex items-stretch h-[3.75rem]">
-    {#each tabs as tab, index (tab.value)}
+    {#each tabs as tab (tab.value)}
       {@const isActive = uiState.activeTab === tab.value && isHome}
       <button
-        bind:this={tabButtons[index]}
         type="button"
-        role="tab"
-        aria-selected={isActive}
-        aria-controls={`${tab.value}-panel`}
+        aria-current={isActive ? 'true' : undefined}
         id={`mobile-${tab.value}-tab`}
-        tabindex={isActive || (!isHome && index === 0) ? 0 : -1}
         class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
         onclick={() => selectTab(tab.value)}
-        onkeydown={(e) => handleKeydown(e, index)}
       >
         <!-- Active indicator -->
         {#if isActive}
@@ -80,7 +48,7 @@
           size="sm"
           class="transition-all duration-200 {isActive ? 'text-primary' : 'text-text-tertiary opacity-50'}"
         />
-        <span class="text-[9px] font-bold uppercase tracking-wider {isActive ? 'text-primary' : 'text-text-tertiary'}">
+        <span class="text-[10px] font-bold uppercase tracking-wider {isActive ? 'text-primary' : 'text-text-tertiary'}">
           {tab.label}
         </span>
       </button>
@@ -90,6 +58,7 @@
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a
       href="/rankings"
+      aria-current={isRankings ? 'page' : undefined}
       class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
     >
@@ -101,7 +70,7 @@
         size="sm"
         class="transition-all duration-200 {isRankings ? 'text-primary' : 'text-text-tertiary opacity-50'}"
       />
-      <span class="text-[9px] font-bold uppercase tracking-wider {isRankings ? 'text-primary' : 'text-text-tertiary'}">
+      <span class="text-[10px] font-bold uppercase tracking-wider {isRankings ? 'text-primary' : 'text-text-tertiary'}">
         Rankings
       </span>
     </a>
@@ -110,6 +79,7 @@
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a
       href="/guides"
+      aria-current={isGuides ? 'page' : undefined}
       class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
         focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
     >
@@ -121,12 +91,12 @@
         size="sm"
         class="transition-all duration-200 {isGuides ? 'text-primary' : 'text-text-tertiary opacity-50'}"
       />
-      <span class="text-[9px] font-bold uppercase tracking-wider {isGuides ? 'text-primary' : 'text-text-tertiary'}">
+      <span class="text-[10px] font-bold uppercase tracking-wider {isGuides ? 'text-primary' : 'text-text-tertiary'}">
         Guides
       </span>
     </a>
   </div>
-</div>
+</nav>
 
 <style>
   @media (hover: none) and (pointer: coarse) {

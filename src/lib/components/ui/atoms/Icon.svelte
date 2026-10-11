@@ -104,6 +104,7 @@
 
 <span
   class={`inline-flex items-center justify-center ${getSizeClasses()} ${className}`}
+  role={ariaLabel ? 'img' : undefined}
   aria-label={ariaLabel}
   aria-hidden={!ariaLabel}
 >

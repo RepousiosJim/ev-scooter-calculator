@@ -119,7 +119,7 @@
       <!-- Header: name + grade badge -->
       <div class="widget-header">
         <div class="widget-name-block">
-          <span class="widget-name">{resolved.name}</span>
+          <h1 class="widget-name">{resolved.name}</h1>
           {#if resolved.year}
             <span class="widget-year">{resolved.year}</span>
           {/if}
@@ -249,6 +249,7 @@
   }
 
   .widget-name {
+    margin: 0;
     font-size: 15px;
     font-weight: 700;
     color: #f1f5f9;
@@ -261,7 +262,7 @@
 
   .widget-year {
     font-size: 11px;
-    color: #64748b;
+    color: #8291a7;
     font-weight: 500;
   }
 
@@ -285,12 +286,12 @@
   }
 
   .grade-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    color: var(--grade-color);
+    /* Lightened so every grade colour reaches 4.5:1 on its tinted background. */
+    color: color-mix(in srgb, var(--grade-color) 70%, white);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    opacity: 0.85;
     margin-top: 2px;
   }
 
@@ -344,7 +345,7 @@
   .stat-label {
     font-size: 10px;
     font-weight: 600;
-    color: #64748b;
+    color: #8291a7;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -371,7 +372,7 @@
 
   .powered-by {
     font-size: 11px;
-    color: #475569;
+    color: #8291a7;
     text-decoration: none;
     transition: color 0.15s;
   }

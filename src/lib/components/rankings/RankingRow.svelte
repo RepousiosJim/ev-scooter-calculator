@@ -84,13 +84,13 @@
           <span class="text-[10px] text-text-tertiary">{scooter.year}</span>
           {#if scooter.status === 'discontinued'}
             <span
-              class="text-[9px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1.5 py-0.5 border border-rose-500/20"
+              class="text-[10px] text-rose-400/80 font-bold uppercase tracking-wider bg-rose-500/10 px-1.5 py-0.5 border border-rose-500/20"
               >End of Life</span
             >
           {/if}
           {#if scooter.hasPriceHistory && scooter.priceChange !== undefined}
             <span
-              class="inline-flex items-center gap-0.5 text-[9px] font-bold uppercase tracking-wider {scooter.priceChange <
+              class="inline-flex items-center gap-0.5 text-[10px] font-bold uppercase tracking-wider {scooter.priceChange <
               0
                 ? 'text-emerald-400'
                 : 'text-rose-400'}"
@@ -101,7 +101,7 @@
             </span>
           {/if}
           {#if scooter.stats.cRate > C_RATE_CAUTION}
-            <span class="text-[9px] text-rose-400 font-bold uppercase tracking-wider">
+            <span class="text-[10px] text-rose-400 font-bold uppercase tracking-wider">
               {scooter.stats.cRate.toFixed(1)}C strain
             </span>
           {/if}
@@ -178,25 +178,25 @@
           <div class="w-2 h-2 rounded-full bg-emerald-400" aria-hidden="true"></div>
           <span class="text-[10px] text-text-secondary">Accel</span>
           <span class="text-xs font-bold text-emerald-400">+{b.accel}</span>
-          <span class="text-[9px] text-text-tertiary">/30</span>
+          <span class="text-[10px] text-text-tertiary">/30</span>
         </div>
         <div class="flex items-center gap-1">
           <div class="w-2 h-2 rounded-full bg-blue-400" aria-hidden="true"></div>
           <span class="text-[10px] text-text-secondary">Range</span>
           <span class="text-xs font-bold text-blue-400">+{b.range}</span>
-          <span class="text-[9px] text-text-tertiary">/25</span>
+          <span class="text-[10px] text-text-tertiary">/25</span>
         </div>
         <div class="flex items-center gap-1">
           <div class="w-2 h-2 rounded-full bg-cyan-400" aria-hidden="true"></div>
           <span class="text-[10px] text-text-secondary">Speed</span>
           <span class="text-xs font-bold text-cyan-400">+{b.speed}</span>
-          <span class="text-[9px] text-text-tertiary">/20</span>
+          <span class="text-[10px] text-text-tertiary">/20</span>
         </div>
         <div class="flex items-center gap-1">
           <div class="w-2 h-2 rounded-full bg-violet-400" aria-hidden="true"></div>
           <span class="text-[10px] text-text-secondary">Efficiency</span>
           <span class="text-xs font-bold text-violet-400">+{b.efficiency}</span>
-          <span class="text-[9px] text-text-tertiary">/15</span>
+          <span class="text-[10px] text-text-tertiary">/15</span>
         </div>
         {#if b.strainPenalty > 0}
           <div class="flex items-center gap-1">
@@ -216,7 +216,7 @@
           <div class="flex items-center gap-1 ml-auto border-l border-white/[0.08] pl-4">
             <span class="text-[10px] text-text-secondary">Value</span>
             <span class="text-xs font-bold text-amber-400">{scooter.valueScore}</span>
-            <span class="text-[9px] text-text-tertiary">pts/$k</span>
+            <span class="text-[10px] text-text-tertiary">pts/$k</span>
           </div>
         {/if}
       </div>

@@ -29,7 +29,7 @@
       <span class="text-[10px] uppercase tracking-wider {isActive ? 'text-cyan-400' : 'text-gray-500'}"
         >{stage.label}</span
       >
-      <span class="text-[9px] text-gray-600">{stage.sub}</span>
+      <span class="text-[10px] text-gray-600">{stage.sub}</span>
     </div>
   {/each}
 </div>

@@ -55,7 +55,7 @@
           </h3>
           {#if isExperimental}
             <span
-              class="px-1.5 py-0.5 rounded-sm bg-warning/10 border border-warning/20 text-[8px] font-bold text-warning uppercase tracking-widest"
+              class="px-1.5 py-0.5 rounded-sm bg-warning/10 border border-warning/20 text-[10px] font-bold text-warning uppercase tracking-widest"
             >
               Not Recommended
             </span>

@@ -413,6 +413,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Acceleration score"
             aria-valuenow={breakdown.accel}
             aria-valuemin={0}
             aria-valuemax={30}
@@ -435,6 +436,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Range score"
             aria-valuenow={breakdown.range}
             aria-valuemin={0}
             aria-valuemax={25}
@@ -457,6 +459,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Speed score"
             aria-valuenow={breakdown.speed}
             aria-valuemin={0}
             aria-valuemax={20}
@@ -479,6 +482,7 @@
           <div
             class="h-1.5 bg-white/[0.06] rounded-full overflow-hidden"
             role="progressbar"
+            aria-label="Efficiency score"
             aria-valuenow={breakdown.efficiency}
             aria-valuemin={0}
             aria-valuemax={15}
@@ -649,48 +653,52 @@
               <!-- Speed row -->
               <div>
                 <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">Top Speed</dt>
-                <div class="flex items-baseline gap-3 flex-wrap">
-                  <dd class="flex items-baseline gap-1">
+                <dd class="flex items-baseline gap-3 flex-wrap">
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {claimedSpeed != null ? claimedSpeed : '—'}<span class="text-[10px] text-text-tertiary">
                         km/h</span
                       >
                     </span>
-                  </dd>
-                  <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                  <dd class="flex items-baseline gap-1">
+                  </span>
+                  <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {calcSpeed}<span class="text-[10px] text-text-tertiary"> km/h</span>
                     </span>
-                  </dd>
+                  </span>
                   {#if speedDelta !== null}
-                    <dd class="text-xs font-bold {deltaClass(speedDelta)} tabular-nums">{deltaStr(speedDelta)} km/h</dd>
+                    <span class="text-xs font-bold {deltaClass(speedDelta)} tabular-nums"
+                      >{deltaStr(speedDelta)} km/h</span
+                    >
                   {/if}
-                </div>
+                </dd>
               </div>
               <!-- Range row -->
               <div>
                 <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">Range</dt>
-                <div class="flex items-baseline gap-3 flex-wrap">
-                  <dd class="flex items-baseline gap-1">
+                <dd class="flex items-baseline gap-3 flex-wrap">
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {claimedRange != null ? claimedRange : '—'}<span class="text-[10px] text-text-tertiary"> km</span>
                     </span>
-                  </dd>
-                  <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                  <dd class="flex items-baseline gap-1">
+                  </span>
+                  <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                  <span class="flex items-baseline gap-1">
                     <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                     <span class="text-sm font-black text-text-primary tabular-nums">
                       {calcRange}<span class="text-[10px] text-text-tertiary"> km</span>
                     </span>
-                  </dd>
+                  </span>
                   {#if rangeDelta !== null}
-                    <dd class="text-xs font-bold {deltaClass(rangeDelta)} tabular-nums">{deltaStr(rangeDelta)} km</dd>
+                    <span class="text-xs font-bold {deltaClass(rangeDelta)} tabular-nums"
+                      >{deltaStr(rangeDelta)} km</span
+                    >
                   {/if}
-                </div>
+                </dd>
               </div>
               <!-- Battery Wh if available -->
               {#if metadata.manufacturer.batteryWh}
@@ -698,21 +706,21 @@
                   <dt class="text-[10px] font-bold text-text-tertiary uppercase tracking-[0.1em] mb-1.5">
                     Battery Energy
                   </dt>
-                  <div class="flex items-baseline gap-3 flex-wrap">
-                    <dd class="flex items-baseline gap-1">
+                  <dd class="flex items-baseline gap-3 flex-wrap">
+                    <span class="flex items-baseline gap-1">
                       <span class="text-[10px] text-text-tertiary uppercase font-bold">MFR</span>
                       <span class="text-sm font-black text-text-primary tabular-nums">
                         {metadata.manufacturer.batteryWh}<span class="text-[10px] text-text-tertiary"> Wh</span>
                       </span>
-                    </dd>
-                    <div class="w-px h-4 bg-white/[0.08]" aria-hidden="true"></div>
-                    <dd class="flex items-baseline gap-1">
+                    </span>
+                    <span class="inline-block w-px h-4 bg-white/[0.08]" aria-hidden="true"></span>
+                    <span class="flex items-baseline gap-1">
                       <span class="text-[10px] text-text-tertiary uppercase font-bold">Calc</span>
                       <span class="text-sm font-black text-text-primary tabular-nums">
                         {Math.round(stats.wh)}<span class="text-[10px] text-text-tertiary"> Wh</span>
                       </span>
-                    </dd>
-                  </div>
+                    </span>
+                  </dd>
                 </div>
               {/if}
             </dl>

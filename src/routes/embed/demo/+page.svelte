@@ -36,7 +36,8 @@
     </div>
   </nav>
 
-  <main class="content">
+  <!-- Not <main>: the root layout already provides the page's main landmark. -->
+  <div class="content">
     <!-- Hero -->
     <div class="hero">
       <h1 class="hero-title">Embed the Widget</h1>
@@ -89,7 +90,7 @@
         Use <code>scooter=custom</code> to embed specs for any scooter by passing individual parameters.
       </p>
 
-      <textarea class="code-block" readonly value={customSnippet} rows="7"></textarea>
+      <textarea class="code-block" readonly value={customSnippet} rows="7" aria-label="Custom embed code"></textarea>
 
       <button class="copy-btn" onclick={() => navigator.clipboard.writeText(customSnippet)}> Copy Code </button>
     </section>
@@ -98,7 +99,9 @@
     <section class="section">
       <h2 class="section-title">URL Parameters</h2>
 
-      <div class="param-table-wrap">
+      <!-- Focusable so keyboard users can scroll the table horizontally (axe scrollable-region-focusable). -->
+      <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+      <div class="param-table-wrap" tabindex="0" role="region" aria-label="URL parameters table">
         <table class="param-table">
           <thead>
             <tr>
@@ -177,7 +180,7 @@
         {/each}
       </div>
     </section>
-  </main>
+  </div>
 </div>
 
 <style>
@@ -269,7 +272,7 @@
 
   .section-desc {
     font-size: 14px;
-    color: #64748b;
+    color: #8291a7;
     margin-bottom: 20px;
     line-height: 1.6;
   }
@@ -298,7 +301,7 @@
   .input-label {
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: #8291a7;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -370,7 +373,7 @@
   .preview-label {
     font-size: 11px;
     font-weight: 600;
-    color: #64748b;
+    color: #8291a7;
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
@@ -390,7 +393,7 @@
 
   .param-table th {
     background: #0f172a;
-    color: #64748b;
+    color: #8291a7;
     font-size: 11px;
     font-weight: 700;
     text-transform: uppercase;
@@ -445,7 +448,7 @@
   .preset-chip-key {
     font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
     font-size: 10px;
-    color: #64748b;
+    color: #8291a7;
   }
 
   code {

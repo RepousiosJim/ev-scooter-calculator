@@ -31,7 +31,7 @@
 	/* Text — WCAG AAA contrast on dark backgrounds */
 	--color-text-primary: #f0f4f8;
 	--color-text-secondary: #94a3b8;
-	--color-text-tertiary: #64748b;
+	--color-text-tertiary: #8291a7; /* ≥4.5:1 (WCAG AA) on all opaque background tokens and light overlays */
 	--color-text-disabled: #475569;
 	--color-text-on-primary: #030712;
 

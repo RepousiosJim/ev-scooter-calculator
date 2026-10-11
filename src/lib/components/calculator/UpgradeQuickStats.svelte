@@ -64,9 +64,9 @@
         <span class="text-[10px] text-text-tertiary uppercase tracking-tight mb-1">{stat.label}</span>
         <span class={`font-bold ${getColor(stat.value, stat.isGood)}`}>
           {stat.value >= 0 ? '+' : ''}{stat.value.toFixed(1)}
-          <span class="text-[8px] opacity-70 ml-0.5">{stat.unit}</span>
+          <span class="text-[10px] opacity-70 ml-0.5">{stat.unit}</span>
         </span>
-        <span class={`text-[9px] opacity-80 ${getColor(stat.value, stat.isGood)}`}>
+        <span class={`text-[10px] opacity-80 ${getColor(stat.value, stat.isGood)}`}>
           ({stat.percent >= 0 ? '+' : ''}{stat.percent.toFixed(0)}%)
         </span>
       </div>

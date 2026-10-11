@@ -167,7 +167,7 @@
               style="background: {side.gradeInfo.color}18; border: 1px solid {side.gradeInfo.color}44"
             >
               <span class="text-3xl font-black leading-none" style="color: {side.gradeInfo.color}">{side.grade}</span>
-              <span class="text-[9px] font-bold tabular-nums text-text-tertiary mt-1">{side.score.toFixed(1)}</span>
+              <span class="text-[10px] font-bold tabular-nums text-text-tertiary mt-1">{side.score.toFixed(1)}</span>
             </div>
           </div>
         </a>
@@ -220,9 +220,9 @@
               <!-- Winner badge -->
               <div class="shrink-0">
                 {#if w.winner === 'tie'}
-                  <span class="text-[9px] font-bold uppercase tracking-wider text-text-tertiary">Tie</span>
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-text-tertiary">Tie</span>
                 {:else}
-                  <span class="text-[9px] font-bold uppercase tracking-wider text-primary"
+                  <span class="text-[10px] font-bold uppercase tracking-wider text-primary"
                     >{w.winner === 'A' ? '← A' : 'B →'}</span
                   >
                 {/if}

@@ -179,13 +179,13 @@
       <span class="text-xs font-bold uppercase tracking-[0.12em] text-text-secondary"> Saved Profiles </span>
       {#if profilesState.profiles.length > 0}
         <span
-          class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary/15 text-primary text-[9px] font-black"
+          class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-primary/15 text-primary text-[10px] font-black"
         >
           {profilesState.profiles.length}
         </span>
       {/if}
       {#if favoriteCount > 0}
-        <span class="flex items-center gap-0.5 text-[9px] font-black text-amber-400">
+        <span class="flex items-center gap-0.5 text-[10px] font-black text-amber-400">
           <Star size={9} class="fill-amber-400" />
           {favoriteCount}
         </span>
@@ -376,7 +376,7 @@
                       {profile.name}
                     </span>
                     {#if isActive}
-                      <span class="text-[9px] font-black uppercase tracking-wider text-primary flex-shrink-0">
+                      <span class="text-[10px] font-black uppercase tracking-wider text-primary flex-shrink-0">
                         Active
                       </span>
                     {/if}

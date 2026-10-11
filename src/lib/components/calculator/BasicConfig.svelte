@@ -253,11 +253,15 @@
 
       <div class="space-y-4">
         <div class="flex justify-between items-center px-1">
-          <span class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]">Motor Units</span>
+          <span id="motor-units-label" class="text-xs font-semibold text-text-secondary uppercase tracking-[0.16em]"
+            >Motor Units</span
+          >
         </div>
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2" role="group" aria-labelledby="motor-units-label">
           {#each [1, 2] as count (count)}
             <button
+              type="button"
+              aria-pressed={config.motors === count}
               onclick={() => updateConfig('motors', count)}
               class="py-2.5 border rounded-lg transition-all duration-300 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2
                 {config.motors === count

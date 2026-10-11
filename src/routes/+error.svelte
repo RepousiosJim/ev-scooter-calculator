@@ -20,7 +20,7 @@
   <AppHeader />
 
   <div class="max-w-7xl mx-auto px-4 pt-24 pb-12 text-center">
-    <div class="text-8xl font-black text-primary/20 mb-4">{page.status}</div>
+    <div class="text-8xl font-black text-primary/50 mb-4">{page.status}</div>
     <h1 class="text-xl font-bold text-text-primary mb-2">
       {#if page.status === 404}
         Page not found

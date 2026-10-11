@@ -61,7 +61,7 @@
       <div class="min-w-0">
         <div class="text-sm font-bold text-text-primary truncate">{scooter.name}</div>
         {#if scooter.id === activeKey}
-          <span class="text-[9px] font-bold text-primary uppercase tracking-widest">Active</span>
+          <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Active</span>
         {/if}
       </div>
     </div>
@@ -69,13 +69,13 @@
       <div class="text-lg font-black font-mono {isBest && !allSame ? 'text-primary' : 'text-text-primary'}">
         {scooter.score.toFixed(1)}
       </div>
-      <div class="text-[9px] text-text-tertiary">/100</div>
+      <div class="text-[10px] text-text-tertiary">/100</div>
     </div>
   </div>
 
   <!-- Specs Grid -->
   <div class="p-3.5 space-y-3">
-    <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary">Specs</div>
+    <div class="text-[10px] font-black uppercase tracking-[0.2em] text-primary">Specs</div>
     <div class="grid grid-cols-2 gap-x-4 gap-y-2">
       {#each comparisonRows.filter((r) => r.section === 'specs') as row (row.label)}
         {@const best = bestIndex(row, selectedScooters)}
@@ -87,7 +87,7 @@
               >{row.format(scooter)}</span
             >
             {#if delta}
-              <span class="text-[9px] font-semibold {delta.class} shrink-0">{delta.text}</span>
+              <span class="text-[10px] font-semibold {delta.class} shrink-0">{delta.text}</span>
             {/if}
           </span>
         </div>
@@ -95,7 +95,7 @@
     </div>
 
     <div class="border-t border-white/[0.06] pt-3">
-      <div class="text-[9px] font-black uppercase tracking-[0.2em] text-primary mb-2">Calculated</div>
+      <div class="text-[10px] font-black uppercase tracking-[0.2em] text-primary mb-2">Calculated</div>
       <div class="grid grid-cols-2 gap-x-4 gap-y-2">
         {#each comparisonRows.filter((r) => r.section === 'calculated') as row (row.label)}
           {@const best = bestIndex(row, selectedScooters)}
@@ -107,7 +107,7 @@
                 >{row.format(scooter)}</span
               >
               {#if delta}
-                <span class="text-[9px] font-semibold {delta.class} shrink-0">{delta.text}</span>
+                <span class="text-[10px] font-semibold {delta.class} shrink-0">{delta.text}</span>
               {/if}
             </span>
           </div>

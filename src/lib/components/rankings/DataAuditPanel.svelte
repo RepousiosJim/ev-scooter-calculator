@@ -125,12 +125,12 @@
       <!-- Overview Stats Grid -->
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
-          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Current</div>
+          <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Current</div>
           <div class="text-lg font-black text-emerald-400 mt-1">{auditStats.current}</div>
-          <div class="text-[9px] text-text-tertiary mt-0.5">of {auditStats.total} models</div>
+          <div class="text-[10px] text-text-tertiary mt-0.5">of {auditStats.total} models</div>
         </div>
         <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
-          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Fresh Data</div>
+          <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Fresh Data</div>
           <div
             class="text-lg font-black {auditStats.fresh === auditStats.total
               ? 'text-emerald-400'
@@ -138,21 +138,21 @@
           >
             {auditStats.fresh}
           </div>
-          <div class="text-[9px] text-text-tertiary mt-0.5">&le;30d since check</div>
+          <div class="text-[10px] text-text-tertiary mt-0.5">&le;30d since check</div>
         </div>
         <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
-          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Stale</div>
+          <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Stale</div>
           <div class="text-lg font-black {auditStats.stale > 0 ? 'text-rose-400' : 'text-emerald-400'} mt-1">
             {auditStats.stale}
           </div>
-          <div class="text-[9px] text-text-tertiary mt-0.5">&gt;90d unverified</div>
+          <div class="text-[10px] text-text-tertiary mt-0.5">&gt;90d unverified</div>
         </div>
         <div class="bg-white/[0.02] border border-white/[0.06] rounded-xl p-3">
-          <div class="text-[9px] font-bold text-text-tertiary uppercase tracking-wider">No Source URL</div>
+          <div class="text-[10px] font-bold text-text-tertiary uppercase tracking-wider">No Source URL</div>
           <div class="text-lg font-black {auditStats.missingUrl > 0 ? 'text-orange-400' : 'text-emerald-400'} mt-1">
             {auditStats.missingUrl}
           </div>
-          <div class="text-[9px] text-text-tertiary mt-0.5">need linking</div>
+          <div class="text-[10px] text-text-tertiary mt-0.5">need linking</div>
         </div>
       </div>
 
@@ -224,13 +224,13 @@
           <table class="w-full text-left">
             <thead>
               <tr class="bg-white/[0.03] border-b border-white/[0.06]">
-                <th class="py-2 px-3 text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Model</th>
-                <th class="py-2 px-3 text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Status</th>
-                <th class="py-2 px-3 text-[9px] font-bold text-text-tertiary uppercase tracking-wider">Source</th>
-                <th class="py-2 px-3 text-[9px] font-bold text-text-tertiary uppercase tracking-wider text-right"
+                <th class="py-2 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Model</th>
+                <th class="py-2 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Status</th>
+                <th class="py-2 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider">Source</th>
+                <th class="py-2 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right"
                   >Last Verified</th
                 >
-                <th class="py-2 px-3 text-[9px] font-bold text-text-tertiary uppercase tracking-wider w-28"
+                <th class="py-2 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider w-28"
                   >Freshness</th
                 >
               </tr>
@@ -243,13 +243,13 @@
                   </td>
                   <td class="py-2 px-3">
                     {#if entry.meta.status === 'current'}
-                      <span class="text-[9px] font-bold text-emerald-400 uppercase tracking-wider">Current</span>
+                      <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Current</span>
                     {:else if entry.meta.status === 'discontinued'}
-                      <span class="text-[9px] font-bold text-rose-400 uppercase tracking-wider">Discontinued</span>
+                      <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Discontinued</span>
                     {:else if entry.meta.status === 'upcoming'}
-                      <span class="text-[9px] font-bold text-blue-400 uppercase tracking-wider">Upcoming</span>
+                      <span class="text-[10px] font-bold text-blue-400 uppercase tracking-wider">Upcoming</span>
                     {:else}
-                      <span class="text-[9px] font-bold text-amber-400 uppercase tracking-wider">Unverified</span>
+                      <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider">Unverified</span>
                     {/if}
                   </td>
                   <td class="py-2 px-3">
@@ -265,7 +265,7 @@
                     {:else}
                       <span class="text-[10px] text-text-tertiary">{entry.meta.source ?? '—'}</span>
                       {#if !entry.hasSourceUrl}
-                        <span class="text-[9px] text-orange-400 ml-1">missing link</span>
+                        <span class="text-[10px] text-orange-400 ml-1">missing link</span>
                       {/if}
                     {/if}
                   </td>
@@ -289,7 +289,7 @@
                         ></div>
                       </div>
                       <span
-                        class="text-[8px] font-bold {freshnessColor(
+                        class="text-[10px] font-bold {freshnessColor(
                           entry.daysSinceVerified
                         )} uppercase tracking-wider w-12 text-right">{freshnessLabel(entry.daysSinceVerified)}</span
                       >
@@ -308,7 +308,7 @@
               <div class="flex items-start justify-between gap-2 mb-2">
                 <div class="min-w-0">
                   <span class="text-xs font-bold text-text-primary block truncate">{entry.name}</span>
-                  <span class="text-[9px] text-text-tertiary">{entry.meta.source ?? 'No source'}</span>
+                  <span class="text-[10px] text-text-tertiary">{entry.meta.source ?? 'No source'}</span>
                 </div>
                 <div class="shrink-0 text-right">
                   <span class="text-[10px] font-bold {freshnessColor(entry.daysSinceVerified)}">
@@ -318,16 +318,16 @@
               </div>
               <div class="flex items-center gap-2">
                 {#if entry.meta.status === 'current'}
-                  <span class="text-[8px] font-bold text-emerald-400 uppercase tracking-wider">Current</span>
+                  <span class="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Current</span>
                 {:else if entry.meta.status === 'discontinued'}
-                  <span class="text-[8px] font-bold text-rose-400 uppercase tracking-wider">Discontinued</span>
+                  <span class="text-[10px] font-bold text-rose-400 uppercase tracking-wider">Discontinued</span>
                 {:else}
-                  <span class="text-[8px] font-bold text-amber-400 uppercase tracking-wider"
+                  <span class="text-[10px] font-bold text-amber-400 uppercase tracking-wider"
                     >{entry.meta.status ?? 'Unknown'}</span
                   >
                 {/if}
                 {#if !entry.hasSourceUrl}
-                  <span class="text-[8px] text-orange-400">No URL</span>
+                  <span class="text-[10px] text-orange-400">No URL</span>
                 {/if}
                 <div class="flex-1 h-1 bg-white/5 overflow-hidden">
                   <div
@@ -398,16 +398,16 @@
 
       <!-- Catalog Info Footer -->
       <div class="flex flex-wrap items-center gap-x-4 gap-y-1 pt-3 border-t border-white/[0.06]">
-        <span class="text-[9px] text-text-tertiary uppercase tracking-wider">
+        <span class="text-[10px] text-text-tertiary uppercase tracking-wider">
           Catalog v{CATALOG_VERSION}
         </span>
-        <span class="text-[9px] text-text-tertiary uppercase tracking-wider">
+        <span class="text-[10px] text-text-tertiary uppercase tracking-wider">
           Last updated: {CATALOG_LAST_UPDATED}
         </span>
-        <span class="text-[9px] text-text-tertiary uppercase tracking-wider">
+        <span class="text-[10px] text-text-tertiary uppercase tracking-wider">
           {auditStats.withPrice} of {auditStats.total} with pricing
         </span>
-        <span class="text-[9px] text-text-tertiary uppercase tracking-wider">
+        <span class="text-[10px] text-text-tertiary uppercase tracking-wider">
           Avg age: {auditStats.avgDays}d
         </span>
       </div>

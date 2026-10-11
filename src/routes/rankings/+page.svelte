@@ -395,7 +395,8 @@
                       >
                       <th
                         class="py-2.5 px-3 text-[10px] font-bold text-text-tertiary uppercase tracking-wider text-right w-20"
-                      ></th>
+                        ><span class="sr-only">Actions</span></th
+                      >
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-white/[0.04]">
