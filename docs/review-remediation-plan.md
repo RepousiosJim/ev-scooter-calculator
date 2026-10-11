@@ -31,42 +31,14 @@ All items shipped on this branch; see the commits for details.
 - 1.5 Rate limiter: no longer fails open; login and newsletter fail closed (503) with their own buckets.
 - 1.6 Dependencies: `npm audit --omit=dev` 26 → 0.
 
-## Phase 2 — Calculator correctness (ship in three steps)
+## Phase 2 — Calculator correctness ✅ done
 
-**2A — no model-number changes (except cost)**
-
-| Item                                         | Effort | Change                                                                                                                           |
-| -------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| Gain strings `+NaN%`/`+Infinity%`/`+-5%`     | S      | `formatPercentChange(base, next)` in `utils/formatters.ts`; use in `recommendations.ts`, `upgrades.ts`.                          |
-| C-rate thresholds disagree (3.0 / 2.0 / 2.5) | S      | `C_RATE_CAUTION=2.0`, `C_RATE_CRITICAL=3.0` constants everywhere.                                                                |
-| Input guard misses `soh≤0`/NaN               | S      | `Number.isFinite(x) && x > 0` for all required fields in `calculatePerformance`.                                                 |
-| Cost ignores charger losses                  | S      | `costPer100km` uses wall energy (`/0.88`).                                                                                       |
-| Share links drop `rpm`                       | S      | Append to end of positional `configKeys`; export encode/decode with round-trip tests.                                            |
-| Store getters recompute ~11×                 | M      | `CalculatorStore` class with `$derived` fields; keep `calculatorState.*` API.                                                    |
-| Ride-mode badge wrong on load                | S      | `rideMode` becomes nullable (`RideMode \| null`): null after `loadPreset` or when `style` matches no mode; hide badge when null. |
-
-**2B — power & speed (research-corrected; catalog speeds unchanged)**
-
-- **Controller limit never applied:** `P_mech = min(motors·W·(1−sag)·temp, controller·V·(1−sag)·η)`. Scooter controller ratings are battery-side current limits, so `controller·V` is an _electrical_ cap and needs `η` to become shaft power. Rated motor watts are already output power (EN 15194 convention), so **do not** multiply them by `η` — doing so moved 127/204 presets further from their claimed top speed in simulation. Expose `controllerLimited`; bottlenecks/recommendations read it; recommendation gains come from re-running the engine (drop `NOMINAL_VOLTAGE` scaling). (S–M)
-- **KV top speed:** use `Kv·V·(1−sag)` instead of `Kv·V·η` (same 12.4% mean error vs claims, physically correct). (S)
-- Expected impact: no preset sets `controller`, so catalog numbers don't move; user-entered controller limits and controller upgrades become real.
-
-**2C — consumption model + preset recalibration (must land together)**
-
-- **Range ignores weight/tyres/aero/slope; hills _increase_ range.** Pure physics under-predicts measured consumption (G30 10.2 vs 11.3 Wh/km; Phantom 15.6 vs 23.4; WK GTR 18.9 vs 36.6) because it omits acceleration/stop-go/iron losses, so use physics only as a **ratio** that scales the preset's calibrated `style`:
-  - `v = v_ref/3.6` (m/s), `v_ref = clamp(0.75·flatSpeed, 15, 45)` km/h (capped by ride mode), `θ = atan(s/100)`
-  - `F_f = Cr·m·g·cosθ + ½·ρ·CdA·v²`, `G = m·g·sinθ`
-  - Flat: `F = F_f/η · (1 − regen·0.15·η)` (measured regen gains are 1–5%; 0.15 braking share is the realistic ceiling)
-  - Grade (out-and-back average): `F = ½·[(F_f+G)/η + (F_f ≥ G ? (F_f−G)/η : −regen·η·(G−F_f))]` — descents pay the flat load, so gentle grades cost little
-  - `physWhKm = F/3.6 + (5 + 0.01·W·motors)/v_ref[km/h]` (no-load losses; engineering estimate)
-  - `whKm = style · physWhKm(config) / physWhKm(same scooter at 80 kg, flat, its own Cr and motor count, no regen)`; `range = Wh / whKm`.
-  - Simulated ratios: rider 60/80/120 kg → G30 0.86/0.98/1.21; 4%/8% grade → 1.11/1.67; eco speed factor 0.6 → 0.69–0.78 (matches ERideHero eco-vs-fast spread). (L)
-- **Ride modes do nothing:** real scooters implement modes as speed caps + current caps, so use relative `speedFactor` (eco 0.6 → turbo 1.0; current absolute 20/35/50/70 km/h limits are wrong for 25 km/h scooters) and `powerLimit`; include mode in cache key. Consider single/dual motor as a separate toggle. (M)
-- **Presets:** 103/204 presets compute ≥50% off claimed range. `scripts/calibrate-presets.ts` solves `style` per preset against `claim.range × realism`, with **per-class realism** from test data (RiderGuide 12-scooter average 71% of claim): commuter (<700 Wh) 0.75, mid (700–1600 Wh) 0.65, hyper 0.55 — or tested range where known. Flag `needs-review` when the claim needs less than physics at 15 km/h or `style` > 2.5× physics. Dry-run diff by default, `--write` via `preset-writer.ts`. Lower UI `style` min from 20 → 7 (it currently silently alters efficient presets). Bump `CATALOG_VERSION`. (M–L)
-  - Expected calibrated `style`: commuter median ≈14 (was 22), mid ≈21 (was 34), hyper per-class factor needed to match tests (WK GTR ≈36 Wh/km measured).
-  - Spec fixes found by calibration: `m365_2025` and `navee_gt3` (voltage/capacity inconsistent with claims), `apollo_phantom_v3` (1800 Wh vs 1217 Wh tested), `segway_gt3_pro` (3456 vs 2160 Wh), `wolf_king_gtr` (140 km claim vs 88 km published). Add `speedCap` for `pure_electric_air5`, `gx2_dual_motor_electric_scooter`, `inmotion_climber`, `hover1_renegade`.
-- Default `ROLLING_RESISTANCE_COEFFICIENT` is 0.02 while the reference config uses 0.015; measured e-scooter tyres span 0.007–0.026, so either value is defensible — pick one and use it consistently.
-- Track `catalog-audit.spec.ts` warning/error counts before/after in each PR.
+- **2A** safe fixes: gain strings never show NaN/Infinity/"+-"; shared C-rate thresholds; finite input guard; wall-energy cost; `rpm` in share links; store uses `$derived`; ride-mode badge.
+- **2B** controller current limit applied (`controller·V·(1−sag)·η`), exposed as `controllerLimited`; KV top speed uses sag. No catalog numbers moved (verified by snapshot).
+- **2C** physics-ratio consumption model, relative ride modes (speed/power caps), firmware `speedCap`, and recalibrated presets.
+  - **Calibration changed from the original plan:** instead of per-class realism factors (0.75/0.65/0.55), each preset is calibrated so the engine reproduces its claimed range under _claim conditions_ (75 kg, flat, ~15 km/h); the everyday figure then comes from physics. Constants (cruise cap 32 km/h, claim cruise 15 km/h) were fitted to independent tests. Result: median range 0.70× claim (RiderGuide average 0.71), commuter/mid/hyper medians 0.73/0.64/0.74, and 0 presets ≥50% off their claim (was 103). The validation set is only 4 tested scooters — add `tested` data to presets as it becomes available and re-run `node scripts/calibrate-presets.mjs`.
+  - Spec corrections from manufacturer pages: Xiaomi Electric Scooter 5 (was mislabelled "M365 Pro"), Navee GT3 Pro, Apollo Phantom V3, Segway GT3 Pro, WK GTR claim, Gotrax GX2; speed caps for Air5, Climber, Renegade.
+  - Open: `watts` holds peak power for most presets; Wolf King GTR battery (2520 vs 2419 Wh) is unresolved between sources.
 
 ## Phase 3 — SEO, accessibility, content
 
