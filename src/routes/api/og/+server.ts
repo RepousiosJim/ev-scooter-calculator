@@ -13,6 +13,7 @@ import resvgWasmUrl from '@resvg/resvg-wasm/index_bg.wasm?url';
 
 export const config = { maxDuration: 15 };
 import { applyRateLimit } from '$lib/server/api-helpers';
+import { SITE_HOST } from '$lib/config/site';
 import { presets, presetMetadata } from '$lib/data/presets';
 import { calculatePerformance } from '$lib/physics/calculator';
 import { computeScore, getGradeInfo } from '$lib/utils/scoring';
@@ -339,7 +340,7 @@ function buildCard(
 							fontSize: 12,
 							fontWeight: 400,
 						},
-						children: 'evscooterpro.com · Performance data based on physics simulation',
+						children: `${SITE_HOST} · Performance data based on physics simulation`,
 					},
 				},
 			],

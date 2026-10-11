@@ -24,7 +24,7 @@ the rest. Effort: S ≈ <½ day, M ≈ 1–2 days, L ≈ 3+ days.
 
 All items shipped on this branch; see the commits for details.
 
-- 1.1 Fixed site URL: `src/lib/config/site.ts` (`SITE_URL`, from `PUBLIC_SITE_URL`, default `https://evscooterpro.com`) used for canonical, OG, JSON-LD and sitemap; `kit.prerender.origin` set; `/notifications` noindexed and dropped from the sitemap.
+- 1.1 Fixed site URL: `SITE_URL` comes from `site-origin.config.js` at build time — `PUBLIC_SITE_URL` if set, else Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`); `kit.prerender.origin` uses the same value; robots.txt is generated. (The original default, `evscooterpro.com`, was a domain the project doesn't own.)
 - 1.2 OG images: Inter Latin-subset TTFs + resvg wasm loaded via `?url` + `read()`; verified by invoking the built Vercel function in isolation (200 `image/png`); e2e test added.
 - 1.3 `supabase/migrations/003_security_hardening.sql`: verified on Postgres 16 with Supabase roles (idempotent; anon/authenticated denied; upsert works). **Apply it to the production database.**
 - 1.4 SSRF: `src/lib/server/net/safe-fetch.ts` + `ip-blocklist.ts`; `scrapeUrl` and `fetchPage` migrated; 55 tests.
@@ -61,6 +61,6 @@ All items shipped on this branch; see the commits for details.
 
 1. **Email provider** for newsletter opt-in/unsubscribe (recommend Resend), or keep sign-ups pending with no mail until one is chosen.
 2. **Range calibration target** — claimed range × 0.75 (recommended) vs. raw claims vs. independent test data where available.
-3. **Canonical domain** — confirm `https://evscooterpro.com`.
+3. **Canonical domain** — resolved automatically from Vercel; set `PUBLIC_SITE_URL` when a custom domain is added.
 4. **Post-deploy verification** of `vercel.json` header precedence (`curl -I` an admin URL and a public page; check `Cache-Control`, `X-Frame-Options`, `x-vercel-cache`).
 5. **Set `CRON_SECRET`** in the Vercel project env vars (Vercel does not create it); the cron endpoint now returns 401 on Vercel without it. Optionally set `PUBLIC_SITE_URL`.

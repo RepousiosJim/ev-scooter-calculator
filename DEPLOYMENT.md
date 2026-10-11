@@ -13,16 +13,16 @@ Adapter settings (`svelte.config.js`): Node 22 runtime, `split: false` (one func
 
 ### Environment variables
 
-| Variable                    | Required | Purpose                                                                                                                                   |
-| --------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `ADMIN_PASSWORD`            | Yes      | Admin panel login.                                                                                                                        |
-| `SESSION_SECRET`            | Yes      | Signs admin session cookies (64+ random chars). Production refuses to start without it.                                                   |
-| `SUPABASE_URL`              | Yes      | Supabase project URL. Vercel's filesystem is read-only, so all persistent data (verification, newsletter, rate limits) needs it.          |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes      | Server-side Supabase key (never exposed to the browser).                                                                                  |
-| `CRON_SECRET`               | Yes      | Authenticates Vercel Cron calls to `/api/cron/cleanup`. **Vercel does not create it — add it yourself**; without it the cron returns 401. |
-| `PUBLIC_SITE_URL`           | No       | Canonical origin for canonical/OG/sitemap URLs. Defaults to `https://evscooterpro.com`.                                                   |
-| `GEMINI_API_KEY`            | No       | AI spec extraction in the admin pipeline.                                                                                                 |
-| `LOG_LEVEL`                 | No       | `debug` / `info` (default) / `warn`.                                                                                                      |
+| Variable                    | Required | Purpose                                                                                                                                                                                                                                 |
+| --------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_PASSWORD`            | Yes      | Admin panel login.                                                                                                                                                                                                                      |
+| `SESSION_SECRET`            | Yes      | Signs admin session cookies (64+ random chars). Production refuses to start without it.                                                                                                                                                 |
+| `SUPABASE_URL`              | Yes      | Supabase project URL. Vercel's filesystem is read-only, so all persistent data (verification, newsletter, rate limits) needs it.                                                                                                        |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes      | Server-side Supabase key (never exposed to the browser).                                                                                                                                                                                |
+| `CRON_SECRET`               | Yes      | Authenticates Vercel Cron calls to `/api/cron/cleanup`. **Vercel does not create it — add it yourself**; without it the cron returns 401.                                                                                               |
+| `PUBLIC_SITE_URL`           | No       | Override the site's public origin (e.g. a custom domain). By default the build uses Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`), so canonical, OG, robots.txt and sitemap URLs follow whatever domain the project has. |
+| `GEMINI_API_KEY`            | No       | AI spec extraction in the admin pipeline.                                                                                                                                                                                               |
+| `LOG_LEVEL`                 | No       | `debug` / `info` (default) / `warn`.                                                                                                                                                                                                    |
 
 See `.env.example` for local development.
 
@@ -46,8 +46,8 @@ All are safe to re-run. If you re-run `002`, re-run `003` afterwards (it re-appl
 Check the response headers of an admin URL and a public page:
 
 ```bash
-curl -sI https://evscooterpro.com/admin/login | grep -iE 'cache-control|x-frame-options'   # private, no-store
-curl -sI https://evscooterpro.com/rankings  | grep -iE 'cache-control|x-frame-options'   # public, SAMEORIGIN
+curl -sI https://<your-domain>/admin/login | grep -iE 'cache-control|x-frame-options'   # private, no-store
+curl -sI https://<your-domain>/rankings  | grep -iE 'cache-control|x-frame-options'   # public, SAMEORIGIN
 ```
 
 A stricter Content Security Policy runs in report-only mode (`kit.csp` in `svelte.config.js`); violations are logged by `/api/csp-report`. Once the logs are clean, switch it from `reportOnly` to `directives` and remove script `'unsafe-inline'` from the policy in `src/hooks.server.ts`.

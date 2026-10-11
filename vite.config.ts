@@ -1,8 +1,12 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { resolveSiteOrigin } from './site-origin.config.js';
 
 export default defineConfig({
+	define: {
+		__SITE_URL__: JSON.stringify(resolveSiteOrigin()),
+	},
 	server: {
 		port: 3000,
 	},

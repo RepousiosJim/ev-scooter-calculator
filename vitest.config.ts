@@ -1,8 +1,12 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vitest/config';
+import { resolveSiteOrigin } from './site-origin.config.js';
 
 export default defineConfig({
 	plugins: [sveltekit()],
+	define: {
+		__SITE_URL__: JSON.stringify(resolveSiteOrigin()),
+	},
 	test: {
 		include: ['tests/unit/**/*.spec.ts'],
 		exclude: ['tests/e2e/**'],
