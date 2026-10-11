@@ -224,13 +224,11 @@
   const stepLabels = ['Budget', 'Use Case', 'Your Weight', 'Terrain', 'Portability'];
 </script>
 
-<svelte:head>
-  <Seo
-    title="Which Electric Scooter Should I Buy? — EV Scooter Pro Calculator"
-    description="Answer 5 simple questions to find the perfect electric scooter for your needs. Personalized recommendations from {CATALOG_MODEL_COUNT_LABEL} models."
-    socialTitle="Find Your Perfect Electric Scooter | EV Scooter Pro"
-  />
-</svelte:head>
+<Seo
+  title="Which Electric Scooter Should I Buy? — EV Scooter Pro Calculator"
+  description="Answer 5 simple questions to find the perfect electric scooter for your needs. Personalized recommendations from {CATALOG_MODEL_COUNT_LABEL} models."
+  socialTitle="Find Your Perfect Electric Scooter | EV Scooter Pro"
+/>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">
   <!-- Ambient glows -->

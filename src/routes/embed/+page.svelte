@@ -102,9 +102,7 @@
   }
 </script>
 
-<svelte:head>
-  <Seo title="EV Scooter Widget" noindex />
-</svelte:head>
+<Seo title="EV Scooter Widget" noindex />
 
 <!-- Widget root — dark card, no background page chrome -->
 <div class="widget-root">

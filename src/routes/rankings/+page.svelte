@@ -235,16 +235,17 @@
   }
 </script>
 
+<Seo
+  title="Best Electric Scooters Ranked {CONTENT_YEAR} | EV Scooter Pro"
+  description="Compare and rank {CATALOG_MODEL_COUNT_LABEL} electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
+  path="/rankings"
+  socialTitle={data.ogScooterKey && presetMetadata[data.ogScooterKey]
+    ? `${presetMetadata[data.ogScooterKey].name} — EV Scooter Pro Rankings`
+    : 'Power Rankings — EV Scooter Pro Calculator'}
+  image={data.ogScooterKey ? `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}` : '/api/og'}
+/>
+
 <svelte:head>
-  <Seo
-    title="Best Electric Scooters Ranked {CONTENT_YEAR} | EV Scooter Pro"
-    description="Compare and rank {CATALOG_MODEL_COUNT_LABEL} electric scooters by real performance. Physics-based scoring covers range, speed, power, and value. Find your perfect e-scooter."
-    path="/rankings"
-    socialTitle={data.ogScooterKey && presetMetadata[data.ogScooterKey]
-      ? `${presetMetadata[data.ogScooterKey].name} — EV Scooter Pro Rankings`
-      : 'Power Rankings — EV Scooter Pro Calculator'}
-    image={data.ogScooterKey ? `/api/og?scooter=${encodeURIComponent(data.ogScooterKey)}` : '/api/og'}
-  />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' +
     serializeJsonLd({

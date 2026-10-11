@@ -19,12 +19,10 @@
   const customSnippet = `<iframe\n  src="${SITE_URL}/embed?scooter=custom&v=72&ah=40&motors=2&watts=2000&style=35&weight=80&wheel=11"\n  width="420"\n  height="220"\n  style="border:none;border-radius:14px;"\n  loading="lazy"\n  title="EV Scooter Performance Widget"\n></iframe>`;
 </script>
 
-<svelte:head>
-  <Seo
-    title="Widget Embed Guide — EV Scooter Pro"
-    description="Embed the EV Scooter Pro performance widget on your website using a simple iframe."
-  />
-</svelte:head>
+<Seo
+  title="Widget Embed Guide — EV Scooter Pro"
+  description="Embed the EV Scooter Pro performance widget on your website using a simple iframe."
+/>
 
 <div class="page-wrap">
   <!-- Nav bar -->

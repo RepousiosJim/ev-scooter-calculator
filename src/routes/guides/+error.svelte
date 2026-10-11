@@ -3,9 +3,7 @@
   import { page } from '$app/state';
 </script>
 
-<svelte:head>
-  <Seo title="{page.status} — Guides — EV Scooter Pro Calculator" noindex />
-</svelte:head>
+<Seo title="{page.status} — Guides — EV Scooter Pro Calculator" noindex />
 
 <div class="min-h-screen bg-bg-primary flex items-center justify-center p-6">
   <div class="text-center max-w-md">

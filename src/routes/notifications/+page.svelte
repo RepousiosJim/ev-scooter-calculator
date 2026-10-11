@@ -146,13 +146,11 @@
   }
 </script>
 
-<svelte:head>
-  <Seo
-    title="Notification Preferences — EV Scooter Pro Calculator"
-    description="Manage your newsletter and notification preferences for the EV Scooter Pro Calculator."
-    noindex
-  />
-</svelte:head>
+<Seo
+  title="Notification Preferences — EV Scooter Pro Calculator"
+  description="Manage your newsletter and notification preferences for the EV Scooter Pro Calculator."
+  noindex
+/>
 
 <div class="min-h-screen bg-bg-primary">
   <!-- Header -->
