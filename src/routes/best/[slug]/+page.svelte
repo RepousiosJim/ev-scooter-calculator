@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { page } from '$app/stores';
   import { ArrowLeft, Trophy, ArrowRight, Zap, Gauge, Activity, DollarSign } from 'lucide-svelte';
   import type { CollectionPageData } from './+page.server.ts';
@@ -64,9 +65,9 @@
   <meta property="og:type" content="article" />
   <meta name="twitter:card" content="summary_large_image" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(schemaJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(breadcrumbJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(breadcrumbJson) + '<' + '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

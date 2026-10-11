@@ -1,11 +1,19 @@
 <script lang="ts">
   import { tick } from 'svelte';
   import { page } from '$app/stores';
+  import { goto } from '$app/navigation';
   import { uiState } from '$lib/stores/ui.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
 
   const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
   const isGuides = $derived($page.url.pathname.startsWith('/guides'));
+  // The calculator tabs only exist on the home page; elsewhere they navigate there.
+  const isHome = $derived($page.url.pathname === '/');
+
+  function selectTab(value: (typeof tabs)[number]['value']) {
+    uiState.activeTab = value as typeof uiState.activeTab;
+    if (!isHome) goto('/');
+  }
 
   const tabs = [
     { label: 'Calculator', value: 'configuration', icon: 'speed' },
@@ -33,7 +41,7 @@
       default:
         return;
     }
-    uiState.activeTab = tabs[targetIndex].value as typeof uiState.activeTab;
+    if (isHome) uiState.activeTab = tabs[targetIndex].value as typeof uiState.activeTab;
     event.preventDefault();
     await tick();
     tabButtons[targetIndex]?.focus();
@@ -48,7 +56,7 @@
 >
   <div class="flex items-stretch h-[3.75rem]">
     {#each tabs as tab, index (tab.value)}
-      {@const isActive = uiState.activeTab === tab.value && !isRankings && !isGuides}
+      {@const isActive = uiState.activeTab === tab.value && isHome}
       <button
         bind:this={tabButtons[index]}
         type="button"
@@ -56,10 +64,10 @@
         aria-selected={isActive}
         aria-controls={`${tab.value}-panel`}
         id={`mobile-${tab.value}-tab`}
-        tabindex={isActive ? 0 : -1}
+        tabindex={isActive || (!isHome && index === 0) ? 0 : -1}
         class="flex-1 flex flex-col items-center justify-center gap-1 relative transition-colors duration-200
           focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset"
-        onclick={() => (uiState.activeTab = tab.value as typeof uiState.activeTab)}
+        onclick={() => selectTab(tab.value)}
         onkeydown={(e) => handleKeydown(e, index)}
       >
         <!-- Active indicator -->

@@ -1,8 +1,7 @@
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ setHeaders }) => {
-	setHeaders({
-		'X-Frame-Options': 'ALLOWALL',
-		'Content-Security-Policy': 'frame-ancestors *',
-	});
+// Framing headers (`frame-ancestors *`, no X-Frame-Options) for /embed are set
+// in hooks.server.ts, which owns the CSP for every response.
+export const load: PageServerLoad = async () => {
+	return {};
 };

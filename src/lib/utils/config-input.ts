@@ -1,6 +1,6 @@
 import { updateConfig } from '$lib/stores/calculator.svelte';
 import { debounce } from '$lib/utils/debounce';
-import type { ConfigNumericKey } from '$lib/utils/validators';
+import { normalizeConfigValue, type ConfigNumericKey } from '$lib/utils/validators';
 
 /**
  * Create a debounced config updater for use in calculator input components.
@@ -26,7 +26,8 @@ export function handleRangeInput(
 }
 
 /**
- * Handle number input events — updates local state and debounces the store update.
+ * Handle number input events — clamps to the field's valid range, shows the
+ * clamped value in the input, and debounces the store update.
  */
 export function handleNumberInput(
 	debouncedUpdate: ReturnType<typeof createDebouncedUpdate>,
@@ -36,7 +37,15 @@ export function handleNumberInput(
 ) {
 	const target = event.currentTarget as HTMLInputElement;
 	const value = target.valueAsNumber;
-	if (!Number.isFinite(value)) return;
-	localValues[key] = value;
-	debouncedUpdate(key, value);
+	if (!Number.isFinite(value)) {
+		// Revert an empty/invalid entry to the last valid value
+		if (Number.isFinite(localValues[key])) target.valueAsNumber = localValues[key];
+		return;
+	}
+	const normalized = normalizeConfigValue(key, value, localValues[key]) ?? value;
+	localValues[key] = normalized;
+	// Write back directly: if the clamped value equals the previous local value,
+	// the one-way `value` binding won't re-render the input.
+	if (normalized !== value) target.valueAsNumber = normalized;
+	debouncedUpdate(key, normalized);
 }

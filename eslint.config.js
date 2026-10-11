@@ -168,7 +168,7 @@ export default tseslint.config(
 			'*.config.mjs',
 			'*.config.cjs',
 			'scripts/**',
-			'lighthouserc.js',
+			'lighthouserc.cjs',
 		],
 	}
 );

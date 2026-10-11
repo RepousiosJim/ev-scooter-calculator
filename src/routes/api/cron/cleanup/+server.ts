@@ -1,23 +1,34 @@
+import { createHash, timingSafeEqual } from 'crypto';
 import type { RequestHandler } from './$types';
 import { env } from '$env/dynamic/private';
 import { isSupabaseAvailable } from '$lib/server/db';
-
-export const config = { maxDuration: 60 };
 import { cleanupRateLimits } from '$lib/server/rate-limit-persistent';
 import { logger } from '$lib/server/logger';
 
+export const config = { maxDuration: 60 };
+
+/** Constant-time string comparison (hashing first equalises lengths). */
+function secretsMatch(a: string, b: string): boolean {
+	const ha = createHash('sha256').update(a).digest();
+	const hb = createHash('sha256').update(b).digest();
+	return timingSafeEqual(ha, hb);
+}
+
 /**
- * Cron endpoint: runs every hour via Vercel Crons (configured in vercel.json).
+ * Cron endpoint: runs daily at 03:00 UTC via Vercel Crons (configured in vercel.json).
  * Vercel passes the CRON_SECRET as a Bearer token — validate it to prevent
  * unauthenticated calls.
  */
 export const GET: RequestHandler = async ({ request }) => {
-	// Vercel Cron authentication: CRON_SECRET env var is auto-set by Vercel
-	// when crons are configured. In local dev this header is absent, which is fine.
-	const authHeader = request.headers.get('authorization');
+	// Vercel Cron authentication: Vercel sends CRON_SECRET as a Bearer token.
+	// The secret is required in production; local dev may run without one.
+	const authHeader = request.headers.get('authorization') ?? '';
 	const cronSecret = env.CRON_SECRET;
+	const authorized = cronSecret
+		? secretsMatch(authHeader, `Bearer ${cronSecret}`)
+		: process.env.NODE_ENV !== 'production';
 
-	if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+	if (!authorized) {
 		return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 			status: 401,
 			headers: { 'Content-Type': 'application/json' },

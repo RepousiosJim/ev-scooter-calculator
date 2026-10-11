@@ -17,26 +17,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
       - name: Type check
         run: npm run check
 
-      - name: Unit tests
-        run: npm run test:unit
-
-      - name: Coverage
+      - name: Unit tests (with coverage)
         run: npm run test:coverage
 
       - name: Build
@@ -53,15 +49,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -94,15 +83,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-
-      - name: Cache node_modules
-        uses: actions/cache@v4
-        with:
-          path: node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-
+          node-version: 22
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
@@ -111,4 +93,4 @@ jobs:
         run: npm run build
 
       - name: Run Lighthouse CI
-        run: npx @lhci/cli autorun
+        run: npx @lhci/cli autorun --config=./lighthouserc.cjs

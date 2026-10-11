@@ -50,6 +50,14 @@ async function runStartupFix() {
 	}
 }
 
+function safeDecodePath(pathname: string): string {
+	try {
+		return decodeURI(pathname);
+	} catch {
+		return pathname;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Request handler
 // ---------------------------------------------------------------------------
@@ -74,13 +82,23 @@ export const handle: Handle = async ({ event, resolve }) => {
 		startupFixPromise = runStartupFix();
 	}
 
+	// Classify by the matched route ID (and the decoded path for unmatched
+	// requests) rather than the raw pathname: SvelteKit decodes the path before
+	// routing, so a percent-encoded variant like `/%61dmin` would otherwise reach
+	// /admin routes without passing the guard below.
+	const routeId = event.route.id ?? '';
+	const decodedPath = safeDecodePath(pathname);
+	const isAdminPage = routeId.startsWith('/admin') || (!routeId && decodedPath.startsWith('/admin'));
+	const isAdminApi = routeId.startsWith('/api/admin') || (!routeId && decodedPath.startsWith('/api/admin'));
+	const isLoginPage = routeId.startsWith('/admin/login') || decodedPath.startsWith('/admin/login');
+
 	// Admin routes wait for startup to complete; public routes don't block.
-	if (event.url.pathname.startsWith('/admin') || event.url.pathname.startsWith('/api/admin')) {
+	if (isAdminPage || isAdminApi) {
 		await startupFixPromise;
 	}
 
 	// Guard all /admin page routes except /admin/login
-	if (event.url.pathname.startsWith('/admin') && !event.url.pathname.startsWith('/admin/login')) {
+	if (isAdminPage && !isLoginPage) {
 		const sessionToken = event.cookies.get('admin_session');
 		if (!(await validateSession(sessionToken))) {
 			throw redirect(303, '/admin/login');
@@ -89,21 +107,33 @@ export const handle: Handle = async ({ event, resolve }) => {
 
 	// Guard all /api/admin/* routes — defense-in-depth so a new handler
 	// without requireAdmin() is never silently unprotected.
-	if (event.url.pathname.startsWith('/api/admin')) {
+	if (isAdminApi) {
 		const sessionToken = event.cookies.get('admin_session');
 		if (!(await validateSession(sessionToken))) {
 			return new Response(JSON.stringify({ error: 'Unauthorized' }), {
 				status: 401,
-				headers: { 'Content-Type': 'application/json' },
+				headers: { 'Content-Type': 'application/json', 'Cache-Control': 'private, no-store' },
 			});
 		}
 	}
 
 	const response = await resolve(event);
 
+	// Admin pages and admin API responses must never be cached by the CDN.
+	if (isAdminPage || isAdminApi) {
+		response.headers.set('Cache-Control', 'private, no-store');
+	}
+
+	// The embed widget is meant to be framed by third-party sites.
+	const isEmbed = routeId.startsWith('/embed');
+
 	// Security headers
 	response.headers.set('X-Content-Type-Options', 'nosniff');
-	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+	if (isEmbed) {
+		response.headers.delete('X-Frame-Options');
+	} else {
+		response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+	}
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set(
 		'Content-Security-Policy',
@@ -113,8 +143,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"font-src 'self' https://fonts.gstatic.com data:",
 			"img-src 'self' data: https:",
-			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://*.supabase.co",
-			"frame-ancestors 'none'",
+			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com https://fonts.googleapis.com https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
+			isEmbed ? 'frame-ancestors *' : "frame-ancestors 'none'",
 		].join('; ')
 	);
 

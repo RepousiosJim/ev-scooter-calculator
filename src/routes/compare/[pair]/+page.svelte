@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { page } from '$app/stores';
   import { ArrowLeft, Trophy, Zap, Gauge, Battery, Activity, TrendingUp, Scale, DollarSign } from 'lucide-svelte';
   import type { ComparePageData } from './+page.server.ts';
@@ -92,7 +93,7 @@
   <meta name="twitter:title" content={titleText} />
   <meta name="twitter:description" content={descriptionText} />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(schemaJson) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(schemaJson) + '<' + '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

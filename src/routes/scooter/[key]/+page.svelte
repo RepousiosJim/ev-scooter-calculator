@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { fly } from 'svelte/transition';
   import { page } from '$app/stores';
   import {
@@ -207,10 +208,10 @@
   <meta name="twitter:title" content="{metadata.name} ({metadata.year}) — EV Scooter Pro" />
   <meta name="twitter:image" content="{$page.url.origin}/api/og?scooter={key}" />
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html '<script type="application/ld+json">' + JSON.stringify(productSchema) + '<' + '/script>'}
+  {@html '<script type="application/ld+json">' + serializeJsonLd(productSchema) + '<' + '/script>'}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html '<script type="application/ld+json">' +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
       itemListElement: [

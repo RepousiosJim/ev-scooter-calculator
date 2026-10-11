@@ -66,7 +66,7 @@
           alt={getManufacturer(scooter.name)}
           class="w-6 h-6 object-contain opacity-70 hover:opacity-100 transition-opacity"
           onerror={(e) => {
-            e.currentTarget.style.display = 'none';
+            (e.currentTarget as HTMLElement).style.display = 'none';
           }}
         />
       {:else}

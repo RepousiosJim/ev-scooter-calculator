@@ -54,7 +54,7 @@
     name="twitter:description"
     content="Performance analysis, hardware compatibility, and upgrade simulation for electric scooters"
   />
-  <meta name="twitter:image" content="/api/og" />
+  <meta name="twitter:image" content={$page.url.origin + '/api/og'} />
 </svelte:head>
 
 {#if !isEmbed}

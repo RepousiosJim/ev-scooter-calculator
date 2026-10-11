@@ -50,7 +50,7 @@ export function calculateTemperatureFactor(ambientTemp: number): number {
 	return 1.0; // Optimal range: 20–45°C
 }
 
-const performanceCache = new LRUCache<number, PerformanceStats>(PERFORMANCE_CACHE_LIMIT);
+const performanceCache = new LRUCache<string, PerformanceStats>(PERFORMANCE_CACHE_LIMIT);
 
 const ZERO_STATS: PerformanceStats = Object.freeze({
 	wh: 0,

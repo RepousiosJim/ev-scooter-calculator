@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import type { PageData } from './$types';
   import { presetMetadata } from '$lib/data/presets';
   import type { ScooterConfig, PerformanceStats } from '$lib/types';
@@ -9,8 +10,8 @@
   import RankingsFilters from '$lib/components/rankings/RankingsFilters.svelte';
   import RankingRow from '$lib/components/rankings/RankingRow.svelte';
   import RankingMobileCard from '$lib/components/rankings/RankingMobileCard.svelte';
-  import { goto, replaceState } from '$app/navigation';
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- $page referenced in JSON-LD script block
+  import { afterNavigate, goto, replaceState } from '$app/navigation';
+
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
@@ -125,9 +126,17 @@
     mounted = true;
   });
 
-  // Sync filter state to URL without navigation
+  // replaceState throws if called before the client router has initialised,
+  // which is still the case when onMount runs; afterNavigate fires once it is.
+  let routerReady = $state(false);
+  afterNavigate(() => {
+    routerReady = true;
+  });
+
+  // Sync filter state to URL without navigation (debounced so typing in the
+  // search box doesn't rewrite history on every keystroke)
   $effect(() => {
-    if (!browser || !mounted) return;
+    if (!browser || !mounted || !routerReady) return;
     const url = new URL(window.location.href);
     // Update params based on current state
     if (sortBy !== 'score') url.searchParams.set('sort', sortBy);
@@ -136,7 +145,9 @@
     else url.searchParams.delete('q');
     if (bestForFilter !== 'all') url.searchParams.set('best', bestForFilter);
     else url.searchParams.delete('best');
-    replaceState(url, {});
+    if (url.href === window.location.href) return;
+    const timer = setTimeout(() => replaceState(url, {}), 300);
+    return () => clearTimeout(timer);
   });
 
   const filteredRanked = $derived.by(() => {
@@ -251,16 +262,18 @@
     <meta name="twitter:title" content="Power Rankings — EV Scooter Pro Calculator" />
     <meta name="twitter:image" content={ogImageUrl} />
   {/if}
-  <script type="application/ld+json">
-{@html JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    'itemListElement': [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
-      { '@type': 'ListItem', position: 2, name: 'Rankings' }
-    ]
-  })}
-  </script>
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html '<script type="application/ld+json">' +
+    serializeJsonLd({
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: $page.url.origin + '/' },
+        { '@type': 'ListItem', position: 2, name: 'Rankings' },
+      ],
+    }) +
+    '<' +
+    '/script>'}
 </svelte:head>
 
 <div class="min-h-screen bg-bg-primary relative overflow-hidden">

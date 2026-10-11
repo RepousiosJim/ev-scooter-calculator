@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { serializeJsonLd } from '$lib/utils/json-ld';
   import { onMount } from 'svelte';
   import { slide } from 'svelte/transition';
   // lucide-svelte removed from this file — replaced with the inline SVG Icon component
@@ -82,7 +83,7 @@
   const scriptClose = '<' + '/script>';
   const webAppJsonLd =
     scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'WebApplication',
       name: 'EV Scooter Pro Calculator',
@@ -108,7 +109,7 @@
     scriptClose;
   const faqJsonLd =
     scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
       mainEntity: [
@@ -175,7 +176,7 @@
   {@html faqJsonLd}
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html scriptOpen +
-    JSON.stringify({
+    serializeJsonLd({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
       name: 'EV Scooter Pro',

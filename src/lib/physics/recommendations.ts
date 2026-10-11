@@ -25,8 +25,8 @@ export function generateRecommendations(
 					: `Range (${stats.totalRange.toFixed(0)} km) is limited by battery capacity.`,
 			whatChanges: 'Doubles battery capacity, halves C-rate, significantly reduces voltage sag.',
 			expectedGains: {
-				spec: `+${((parallelSpec.totalRange / specStats.totalRange - 1) * 100).toFixed(0)}% range, ${(parallelSpec.cRate / specStats.cRate).toFixed(2)}x lower C-rate`,
-				realworld: `+${((parallelRealworld.totalRange / realworldStats.totalRange - 1) * 100).toFixed(0)}% range, ${(parallelRealworld.cRate / realworldStats.cRate).toFixed(2)}x lower C-rate`,
+				spec: `+${((parallelSpec.totalRange / specStats.totalRange - 1) * 100).toFixed(0)}% range, ${(specStats.cRate / parallelSpec.cRate).toFixed(2)}x lower C-rate`,
+				realworld: `+${((parallelRealworld.totalRange / realworldStats.totalRange - 1) * 100).toFixed(0)}% range, ${(realworldStats.cRate / parallelRealworld.cRate).toFixed(2)}x lower C-rate`,
 			},
 			tradeoffs: 'Increases weight by ~8-12kg. Requires battery enclosure modification.',
 			confidence: 'high',

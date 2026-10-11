@@ -54,7 +54,7 @@
   <!-- Cost + efficiency row -->
   <div class="grid grid-cols-3 gap-2.5 sm:gap-3 pt-1 border-t border-white/[0.06]">
     <StatsCard
-      label="Cost per {costDistanceLabel()}"
+      label="Cost {costDistanceLabel()}"
       value={'$' + costPer100Val(stats.costPer100km).toFixed(2)}
       unit="electricity"
       highlight={true}

@@ -13,12 +13,14 @@
   const isRankings = $derived($page.url.pathname.startsWith('/rankings'));
   const isWizard = $derived($page.url.pathname.startsWith('/wizard'));
   const isGuides = $derived($page.url.pathname.startsWith('/guides'));
+  // Calculator tabs only switch panels on the home page; elsewhere they link there.
+  const isHome = $derived($page.url.pathname === '/');
 
   let tabRefs = $state<HTMLElement[]>([]);
   let indicatorStyle = $state('left:0;width:0');
 
   function updateIndicator() {
-    if (isRankings) {
+    if (!isHome) {
       indicatorStyle = 'left:0;width:0';
       return;
     }
@@ -35,7 +37,7 @@
   $effect(() => {
     // Track reactive dependencies so the effect re-runs when these change
     void uiState.activeTab;
-    void isRankings;
+    void isHome;
     tick().then(updateIndicator);
   });
 
@@ -117,7 +119,7 @@
           ></div>
 
           {#each calcTabs as tab, index (tab.value)}
-            {#if isRankings}
+            {#if !isHome}
               <a
                 href="/"
                 onclick={() => {
