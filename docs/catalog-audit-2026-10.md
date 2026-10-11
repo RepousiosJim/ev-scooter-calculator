@@ -68,6 +68,54 @@ Motor KV is now fitted to each scooter's claimed top speed by `scripts/calibrate
 - Kaabo Wolf King GTR Max
 - Xiaomi Electric Scooter 5 Pro
 
+## Gap research: 63 more models (same day)
+
+A second pass covered Rovoron and the brands the first pass hadn't reached. Each model needed one of two kinds of sources: the manufacturer's page, or two independent sources that agree on the battery and motors. Every required spec had to be published. Where a list price looked inflated or unofficial, it was left blank: Circooter, Dualtron Achilleus and Teverun Fighter 11+.
+
+- **Rovoron:** R7 Pro, R7, S7, Kullter Luxury (discontinued)
+- **Kukirin:** G4 Max, G4, G3 Pro
+- **iScooter:** iX8, iX7 Pro
+- **Okai:** Panther ES800, Neon Ultra ES40
+- **Splach:** Thunder 10, Titan
+- **Pure Electric:** Air6 Suspension, Air6 Pro+ Suspension, Air6 Ultra Max Suspension, Escape Pro+ Suspension, Escape Ultra Max Suspension, Advance Flex
+- **Inokim:** OXO, Light 2 Max
+- **Hiboy:** S3, S2 Lite
+- **Gotrax:** G3 Pro, G3 Plus, A7, A3 Aero, SA-1
+- **Teverun:** Space, Space Lite, Fighter Q, Blade Mini Ultra, Fighter 11+
+- **Dualtron:** Achilleus, Togo 48V, Mini Special, City
+- **Kaabo:** Wolf Warrior X Max, Mantis X Plus, Mantis 8 Lite, Urban
+- **YUME:** X11+
+- **Solar:** Hyperion
+- **VSETT:** 10 Lite
+- **NAMI:** Burn-E 3 Max
+- **Ausom:** DT2 Pro, L2 Max Dual, Gosoul 2
+- **Razor:** C45
+- **Circooter:** Landturbo Ultra, Landturbo Pro, Raptor Pro
+- **VMAX:** VX2 Hub
+- **E-TWOW:** GT SL, TankTorq TK3
+- **Swagtron:** GlideX, GlideX Pro
+- **Ducati:** Pro-III
+- **MEGAWHEELS:** M1, M1 Lite, S2
+- **Yadea:** KS6 Pro, Elite Prime
+
+Models that publish only rated motor power carry a note saying so. Many release years come from announcement dates or the date a product first appeared on the brand's store.
+
+Skipped for missing or contradictory specs, or no release year:
+
+- **Rovoron:** R5, R5 Pro
+- **Kukirin:** G2 Max, G2 Master, G4 Ultra
+- **iScooter:** iX6, i9 Max
+- **Okai:** Neon Pro, Zippy
+- **Mukuta:** 11+ and 12 (not found)
+- **Laotie:** TI30
+- **NAMI:** Burn-E 3
+- **Dualtron:** Pop
+- **Mearth:** GTS
+- **Cecotec:** Bongo
+- **Jeep:** 2XE
+- **Inokim:** KIX, Light 3
+- **Bird:** Air, Flex
+
 ## Not yet done
 
 - **Not added:** models with incomplete published specs:
