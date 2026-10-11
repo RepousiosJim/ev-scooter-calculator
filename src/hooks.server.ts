@@ -90,7 +90,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const decodedPath = safeDecodePath(pathname);
 	const isAdminPage = routeId.startsWith('/admin') || (!routeId && decodedPath.startsWith('/admin'));
 	const isAdminApi = routeId.startsWith('/api/admin') || (!routeId && decodedPath.startsWith('/api/admin'));
-	const isLoginPage = routeId.startsWith('/admin/login') || decodedPath.startsWith('/admin/login');
+	// Exact match only: a prefix check would also exempt e.g. /admin/loginX, which
+	// matches the /admin/[scooterKey] route.
+	const isLoginPage = routeId
+		? routeId === '/admin/login'
+		: decodedPath === '/admin/login' || decodedPath === '/admin/login/';
 
 	// Admin routes wait for startup to complete; public routes don't block.
 	if (isAdminPage || isAdminApi) {
@@ -143,7 +147,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 			"font-src 'self' https://fonts.gstatic.com data:",
 			"img-src 'self' data: https:",
-			"connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://www.googletagmanager.com https://www.google.com https://fonts.googleapis.com https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
+			"connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://*.google.com https://*.g.doubleclick.net https://fonts.googleapis.com https://*.supabase.co https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.ingest.de.sentry.io",
 			isEmbed ? 'frame-ancestors *' : "frame-ancestors 'none'",
 		].join('; ')
 	);

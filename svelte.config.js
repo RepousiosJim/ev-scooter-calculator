@@ -16,6 +16,11 @@ const config = {
 			split: false,
 			maxDuration: 60,
 		}),
+		prerender: {
+			// url.origin during prerendering (defaults to http://sveltekit-prerender,
+			// which leaked into the sitemap and canonical/og URLs of prerendered pages).
+			origin: process.env.PUBLIC_SITE_URL || 'https://evscooterpro.com',
+		},
 	},
 };
 

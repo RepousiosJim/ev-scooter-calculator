@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { requireAdminPage } from '$lib/server/admin-guard';
 import { presetMetadata } from '$lib/data/presets';
 import { getStore } from '$lib/server/verification/store';
 import { getActivityLog } from '$lib/server/verification/activity-log';
@@ -18,7 +19,8 @@ const SPEC_FIELDS = [
 	'wheelSize',
 ] as const;
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies }) => {
+	await requireAdminPage({ cookies });
 	const store = await getStore();
 	const allVerifications = await store.getAll();
 	const { entries: recentActivity } = await getActivityLog(5);

@@ -1,7 +1,9 @@
 import type { PageServerLoad } from './$types';
+import { requireAdminPage } from '$lib/server/admin-guard';
 import { getCandidates, getCandidateStats } from '$lib/server/verification/candidate-store';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies }) => {
+	await requireAdminPage({ cookies });
 	const candidates = await getCandidates();
 	const stats = await getCandidateStats();
 

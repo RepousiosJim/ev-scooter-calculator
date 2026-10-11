@@ -21,12 +21,13 @@ function secretsMatch(a: string, b: string): boolean {
  */
 export const GET: RequestHandler = async ({ request }) => {
 	// Vercel Cron authentication: Vercel sends CRON_SECRET as a Bearer token.
-	// The secret is required in production; local dev may run without one.
+	// The secret is required on Vercel (set CRON_SECRET in the project's env vars)
+	// and in production; local dev may run without one.
 	const authHeader = request.headers.get('authorization') ?? '';
 	const cronSecret = env.CRON_SECRET;
 	const authorized = cronSecret
 		? secretsMatch(authHeader, `Bearer ${cronSecret}`)
-		: process.env.NODE_ENV !== 'production';
+		: !process.env.VERCEL && process.env.NODE_ENV !== 'production';
 
 	if (!authorized) {
 		return new Response(JSON.stringify({ error: 'Unauthorized' }), {

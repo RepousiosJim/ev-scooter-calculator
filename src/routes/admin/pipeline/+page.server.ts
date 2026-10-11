@@ -1,4 +1,5 @@
 import type { PageServerLoad } from './$types';
+import { requireAdminPage } from '$lib/server/admin-guard';
 import { logger } from '$lib/server/logger';
 import { getCandidates, getCandidateStats } from '$lib/server/verification/candidate-store';
 import { getStore } from '$lib/server/verification/store';
@@ -15,7 +16,8 @@ import {
 } from '$lib/server/verification/discovery-store';
 import type { PresetCandidate } from '$lib/server/verification/preset-generator';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies }) => {
+	await requireAdminPage({ cookies });
 	// --- Discovery section ---
 	let discovery = {
 		recentRuns: [] as DiscoveryRun[],

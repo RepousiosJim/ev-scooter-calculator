@@ -1,7 +1,9 @@
 import type { PageServerLoad } from './$types';
+import { requireAdminPage } from '$lib/server/admin-guard';
 import { manufacturers, getScrapableManufacturers } from '$lib/server/verification/manufacturers';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies }) => {
+	await requireAdminPage({ cookies });
 	const scrapable = getScrapableManufacturers();
 
 	return {
