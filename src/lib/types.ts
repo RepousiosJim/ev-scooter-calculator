@@ -8,7 +8,7 @@ export interface ScooterConfig {
 	motors: number; // Number of motors (1-4)
 	watts: number; // Power per motor (250+ W)
 	controller?: number; // Controller amp limit (optional)
-	style: number; // Riding style (Wh/km consumption)
+	style: number; // Base consumption (Wh/km) under reference conditions: 80 kg rider, flat, no regen, full-power cruise
 	weight: number; // Rider weight (50-150 kg)
 	wheel: number; // Wheel size (8-13 inches)
 	// DEPRECATED: Use motorKv instead (to be removed in v2.0)
@@ -27,6 +27,9 @@ export interface ScooterConfig {
 	rollingResistance?: number; // Rolling resistance coefficient
 	soh: number; // Battery state of health (0-1)
 	ambientTemp: number; // Ambient temperature (°C, -20 to 50)
+	speedCap?: number; // Firmware/regulatory top-speed limit (km/h, optional, e.g. 25 for EU-legal models)
+	speedFactor?: number; // Ride-mode speed limit as a fraction of full top speed (0-1, default 1)
+	powerLimit?: number; // Ride-mode power limit as a fraction of full power (0-1, default 1)
 	id?: number; // Profile ID
 	name?: string; // Profile name
 }
@@ -46,6 +49,8 @@ export interface PerformanceStats {
 	uncappedWatts?: number;
 	/** True when the controller's current limit is what caps power. */
 	controllerLimited?: boolean;
+	/** Physics-only Wh/km at reference conditions (for calibration sanity checks; not a displayed figure). */
+	referencePhysicsWhPerKm?: number;
 }
 
 export interface Bottleneck {
@@ -135,9 +140,8 @@ export interface RideModePreset {
 	id: RideMode;
 	name: string;
 	description: string;
-	speedLimit: number;
-	powerLimit: number;
-	style: number;
+	speedFactor: number; // Fraction of the scooter's full top speed (0-1)
+	powerLimit: number; // Fraction of the scooter's full power (0-1)
 	regen: number;
 }
 

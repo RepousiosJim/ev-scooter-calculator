@@ -91,15 +91,15 @@ describe('share link keys', () => {
 });
 
 describe('store ride mode state', () => {
-	it('is null after loading a preset that matches no mode', () => {
+	it('is turbo (no limits) after loading a preset', () => {
 		loadPreset('segway_gt3_pro');
-		expect(calculatorState.rideMode).toBeNull();
+		expect(calculatorState.rideMode).toBe('turbo');
 	});
 
-	it('tracks the applied mode and clears when style is edited', () => {
+	it('tracks the applied mode and clears when a limit is edited by hand', () => {
 		applyRideMode('eco');
 		expect(calculatorState.rideMode).toBe('eco');
-		updateConfig('style', 33);
+		updateConfig('speedFactor', 0.7);
 		expect(calculatorState.rideMode).toBeNull();
 	});
 

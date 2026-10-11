@@ -6,6 +6,8 @@ import type { ScooterConfig } from '$lib/types';
 import type { DiscoveredScooter } from './discovery';
 import type { ScooterVerification, SpecField } from './types';
 import { validateConfig, type ValidationResult } from './physics-validator';
+import { calculatePerformance } from '$lib/physics/calculator';
+import { calibrateStyle } from '$lib/physics/calibration';
 
 /** Quality tier indicating how much real data we have for this candidate */
 export type SpecsQuality = 'complete' | 'partial' | 'stub';
@@ -317,6 +319,7 @@ export function specsToConfig(specs: {
 	weight?: number;
 	wheelSize?: number;
 	price?: number;
+	range?: number;
 }): ScooterConfig {
 	const voltage = specs.voltage || inferVoltage(specs.batteryWh, specs.motorWatts);
 	const ah = specs.batteryWh ? specs.batteryWh / voltage : 16;
@@ -324,7 +327,7 @@ export function specsToConfig(specs: {
 	const perMotorWatts = specs.motorWatts ? Math.round(specs.motorWatts / motors) : 500;
 	const wheel = specs.wheelSize || inferWheelSize(specs.weight, specs.motorWatts);
 
-	return {
+	const config: ScooterConfig = {
 		v: voltage,
 		ah: Math.round(ah * 10) / 10,
 		watts: perMotorWatts,
@@ -332,7 +335,7 @@ export function specsToConfig(specs: {
 		wheel,
 		weight: 80, // Default rider weight
 		scooterWeight: specs.weight || undefined,
-		style: 15, // Default moderate riding style (Wh/km)
+		style: 15, // Placeholder base consumption (Wh/km); calibrated below when a range claim is known
 		charger: 3, // Default 3A charger
 		regen: 0, // Default no regen
 		cost: 0.12, // Default electricity cost
@@ -344,6 +347,14 @@ export function specsToConfig(specs: {
 		soh: 1, // Full battery health
 		ambientTemp: 20,
 	};
+	// Calibrate base consumption so the engine reproduces the claimed range under
+	// claim conditions (never below the physics floor), matching the catalog.
+	if (specs.range && specs.range > 0) {
+		const floor = calculatePerformance(config, 'spec').referencePhysicsWhPerKm ?? 0;
+		const style = Math.max(calibrateStyle(config, specs.range), floor);
+		if (Number.isFinite(style) && style > 0) config.style = Math.ceil(style * 10) / 10;
+	}
+	return config;
 }
 
 /**

@@ -27,8 +27,13 @@
     if (!currentMode || currentMode === 'normal') return null;
     const preset = rideModePresets[currentMode];
     const normal = rideModePresets.normal;
-    const baseline = { ...calculatorState.config, style: normal.style, regen: normal.regen };
-    return calculateRideModeImpact(baseline, preset.style, preset.regen, calculatorState.predictionMode);
+    const baseline = {
+      ...calculatorState.config,
+      speedFactor: normal.speedFactor,
+      powerLimit: normal.powerLimit,
+      regen: normal.regen,
+    };
+    return calculateRideModeImpact(baseline, preset, calculatorState.predictionMode);
   });
 
   function selectMode(mode: RideMode) {

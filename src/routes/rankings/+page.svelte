@@ -4,7 +4,7 @@
   import type { PageData } from './$types';
   import { presetMetadata } from '$lib/data/presets';
   import type { ScooterConfig, PerformanceStats } from '$lib/types';
-  import { type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
+  import { consumptionWhPerKm, type Grade, type ScoreBreakdown } from '$lib/utils/scoring';
   import AppHeader from '$lib/components/ui/AppHeader.svelte';
   import Icon from '$lib/components/ui/atoms/Icon.svelte';
   import NewsletterSignup from '$lib/components/ui/NewsletterSignup.svelte';
@@ -167,7 +167,7 @@
           sorted.sort((a, b) => b.stats.totalRange - a.stats.totalRange);
           break;
         case 'efficiency':
-          sorted.sort((a, b) => a.config.style - b.config.style);
+          sorted.sort((a, b) => consumptionWhPerKm(a.stats) - consumptionWhPerKm(b.stats));
           break;
         case 'portable':
           sorted.sort((a, b) => (a.config.scooterWeight ?? 99) - (b.config.scooterWeight ?? 99));

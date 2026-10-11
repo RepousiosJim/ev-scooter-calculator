@@ -81,16 +81,28 @@ describe('computeScoreBreakdown', () => {
 		expect(bdHigh.speed).toBeCloseTo(20, 1);
 	});
 
-	it('efficiency is 0 when style >= 35', () => {
-		const config = { ...baseConfig, style: 35 };
-		const bd = computeScoreBreakdown(config, baseStats);
+	// Efficiency scores actual consumption (wh / range), not the config's base `style`.
+	it('efficiency is 0 when actual consumption >= 35 Wh/km', () => {
+		const stats = { ...baseStats, wh: 35 * 80, totalRange: 80 };
+		const bd = computeScoreBreakdown(baseConfig, stats);
 		expect(bd.efficiency).toBe(0);
 	});
 
-	it('efficiency is max 15 when style = 0', () => {
-		const config = { ...baseConfig, style: 0 };
-		const bd = computeScoreBreakdown(config, baseStats);
+	it('efficiency approaches 15 as consumption approaches 0', () => {
+		const stats = { ...baseStats, wh: 1, totalRange: 1000 };
+		const bd = computeScoreBreakdown(baseConfig, stats);
 		expect(bd.efficiency).toBeCloseTo(15, 1);
+	});
+
+	it('efficiency ignores config.style', () => {
+		const a = computeScoreBreakdown({ ...baseConfig, style: 10 }, baseStats);
+		const b = computeScoreBreakdown({ ...baseConfig, style: 60 }, baseStats);
+		expect(a.efficiency).toBe(b.efficiency);
+	});
+
+	it('efficiency is 0 when there is no range', () => {
+		const bd = computeScoreBreakdown(baseConfig, { ...baseStats, totalRange: 0 });
+		expect(bd.efficiency).toBe(0);
 	});
 
 	it('strainPenalty is 0 when cRate <= 1.5', () => {

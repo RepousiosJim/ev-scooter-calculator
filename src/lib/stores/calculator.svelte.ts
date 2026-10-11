@@ -21,6 +21,7 @@ import {
 } from '$lib/physics';
 import { normalizeConfig, normalizeConfigValue, type ConfigNumericKey } from '$lib/utils/validators';
 import { showToast as _showToast } from './toast.svelte';
+import { consumptionWhPerKm } from '$lib/utils/scoring';
 
 const baseConfig = normalizeConfig(defaultConfig, defaultConfig);
 
@@ -52,6 +53,9 @@ export const configKeys: ShareConfigKey[] = [
 	'frontalArea',
 	'rollingResistance',
 	'rpm',
+	'speedCap',
+	'speedFactor',
+	'powerLimit',
 ];
 
 function canUseBase64(): boolean {
@@ -168,8 +172,8 @@ class CalculatorStore {
 		// Strain penalty: Penalize C-rates above 2.5C
 		const strainPenalty = Math.max(0, (s.cRate - 2.5) * 15);
 
-		// Efficiency bonus: Reward low Wh/km (standard is ~25-30)
-		const efficiencyBonus = Math.max(0, (30 - this.config.style) * 0.5);
+		// Efficiency bonus: reward low actual Wh/km (standard is ~25-30)
+		const efficiencyBonus = Math.max(0, (30 - consumptionWhPerKm(s)) * 0.5);
 
 		let score = accel - strainPenalty + efficiencyBonus;
 
@@ -193,10 +197,15 @@ class CalculatorStore {
 
 export const calculatorState = new CalculatorStore();
 
-/** The ride mode whose settings the config currently matches, if any. */
+/**
+ * The ride mode whose speed/power limits the config currently has. No limits
+ * (the scooter as specified, e.g. a freshly loaded preset) is Turbo.
+ */
 function matchRideMode(config: ScooterConfig): RideMode | null {
+	const speedFactor = config.speedFactor ?? 1;
+	const powerLimit = config.powerLimit ?? 1;
 	for (const preset of Object.values(rideModePresets)) {
-		if (preset.style === config.style && preset.regen === config.regen) return preset.id;
+		if (preset.speedFactor === speedFactor && preset.powerLimit === powerLimit) return preset.id;
 	}
 	return null;
 }
@@ -249,7 +258,7 @@ export function updateConfig<K extends ConfigNumericKey>(key: K, value: number |
 	const normalizedValue = normalizeConfigValue(key, value, calculatorState.config[key]);
 	calculatorState.config[key] = normalizedValue as ScooterConfig[K];
 	calculatorState.activePresetKey = 'custom';
-	if (key === 'style' || key === 'regen') {
+	if (key === 'speedFactor' || key === 'powerLimit') {
 		calculatorState.rideMode = matchRideMode(calculatorState.config);
 	}
 }
@@ -257,7 +266,9 @@ export function updateConfig<K extends ConfigNumericKey>(key: K, value: number |
 export function applyRideMode(mode: RideMode) {
 	const preset = rideModePresets[mode];
 	if (preset) {
-		calculatorState.config.style = preset.style;
+		// Full power is represented by no limit, so presets/share links stay clean.
+		calculatorState.config.speedFactor = preset.speedFactor < 1 ? preset.speedFactor : undefined;
+		calculatorState.config.powerLimit = preset.powerLimit < 1 ? preset.powerLimit : undefined;
 		calculatorState.config.regen = preset.regen;
 		calculatorState.rideMode = mode;
 	}

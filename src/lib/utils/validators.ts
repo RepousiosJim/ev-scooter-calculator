@@ -14,7 +14,7 @@ export const validationRules: Record<ConfigNumericKey, ValidationRule> = {
 	motors: { min: 1, max: 4, message: 'Recommended: 1-4 motors' },
 	watts: { min: 250, message: 'Recommended: 250+ W' },
 	controller: { min: 30, max: 100, message: 'Recommended: 30-100A' },
-	style: { min: 20, max: 80, message: 'Recommended: 20-80 Wh/km' },
+	style: { min: 7, max: 80, message: 'Recommended: 7-80 Wh/km' },
 	weight: { min: 50, max: 150, message: 'Recommended: 50-150 kg' },
 	wheel: { min: 8, max: 13, message: 'Recommended: 8-13 inches' },
 	rpm: { min: 300, max: 8000, message: 'Recommended: 300-8000 RPM' },
@@ -32,6 +32,9 @@ export const validationRules: Record<ConfigNumericKey, ValidationRule> = {
 	dragCoefficient: { min: 0.3, max: 1.2, message: 'Recommended: 0.3-1.2 Cd' },
 	frontalArea: { min: 0.3, max: 1.0, message: 'Recommended: 0.3-1.0 m²' },
 	rollingResistance: { min: 0.005, max: 0.05, message: 'Recommended: 0.005-0.05' },
+	speedCap: { min: 10, max: 150, message: 'Recommended: 10-150 km/h' },
+	speedFactor: { min: 0.3, max: 1, message: 'Recommended: 30-100%' },
+	powerLimit: { min: 0.3, max: 1, message: 'Recommended: 30-100%' },
 };
 
 const optionalConfigKeys = new Set<ConfigNumericKey>([
@@ -44,6 +47,9 @@ const optionalConfigKeys = new Set<ConfigNumericKey>([
 	'dragCoefficient',
 	'frontalArea',
 	'rollingResistance',
+	'speedCap',
+	'speedFactor',
+	'powerLimit',
 ]);
 
 export function validateField(field: ConfigNumericKey, value: number): { isValid: boolean; message?: string } {

@@ -35,6 +35,9 @@ export function hashCacheKey(config: ScooterConfig, mode: PredictionMode): strin
 		config.rollingResistance,
 		config.soh,
 		config.ambientTemp,
+		config.speedCap,
+		config.speedFactor,
+		config.powerLimit,
 	]
 		.map((value) => (value === undefined ? '' : String(value)))
 		.join('|');
