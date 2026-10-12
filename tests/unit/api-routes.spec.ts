@@ -1,7 +1,7 @@
 /**
  * Unit tests for admin API route handlers.
  *
- * All external dependencies (store, activity-log, settings, admin-guard) are mocked
+ * All external dependencies (store, activity-log, admin-guard) are mocked
  * so no filesystem access or auth checks occur unless explicitly tested.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
@@ -45,35 +45,6 @@ vi.mock('$lib/server/verification/activity-log', () => ({
 }));
 
 // ---------------------------------------------------------------------------
-// Mock settings
-// ---------------------------------------------------------------------------
-vi.mock('$lib/server/verification/settings', () => ({
-	getSettings: vi.fn().mockResolvedValue({
-		geminiApiKey: 'real-key-1234',
-		geminiModel: 'gemini-2.0-flash',
-		autoVerifyThreshold: 80,
-		outdatedDays: 30,
-		batchDelayMs: 5000,
-		maxConcurrentScrapes: 1,
-		llmEnabled: true,
-	}),
-	updateSettings: vi.fn().mockResolvedValue({
-		geminiApiKey: '',
-		geminiModel: 'gemini-2.0-flash',
-		autoVerifyThreshold: 90,
-		outdatedDays: 30,
-		batchDelayMs: 5000,
-		maxConcurrentScrapes: 1,
-		llmEnabled: true,
-	}),
-	maskSettings: vi.fn((s) => ({
-		...s,
-		geminiApiKey: s.geminiApiKey ? '••••••••' + s.geminiApiKey.slice(-4) : '',
-		geminiApiKeySet: !!s.geminiApiKey,
-	})),
-}));
-
-// ---------------------------------------------------------------------------
 // Imports (after mocks are declared)
 // ---------------------------------------------------------------------------
 import { POST as verifyPOST } from '../../src/routes/api/admin/verify/+server';
@@ -81,7 +52,6 @@ import { POST as sourcePOST, DELETE as sourceDELETE } from '../../src/routes/api
 import { POST as pricePOST } from '../../src/routes/api/admin/price/+server';
 import { GET as activityGET, DELETE as activityDELETE } from '../../src/routes/api/admin/activity-log/+server';
 import { GET as exportGET, POST as exportPOST } from '../../src/routes/api/admin/export/+server';
-import { GET as settingsGET, POST as settingsPOST } from '../../src/routes/api/admin/settings/+server';
 import { GET as verifiedSpecsGET } from '../../src/routes/api/verified-specs/+server';
 
 import {
@@ -92,7 +62,6 @@ import {
 	addPriceObservation,
 } from '$lib/server/verification/store';
 import { getActivityLog, clearActivityLog } from '$lib/server/verification/activity-log';
-import { getSettings, updateSettings, maskSettings } from '$lib/server/verification/settings';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -142,6 +111,7 @@ function makeMockStore(allData: Record<string, unknown> = {}) {
 		get: vi.fn().mockResolvedValue(null),
 		set: vi.fn().mockResolvedValue(undefined),
 		getAll: vi.fn().mockResolvedValue(allData),
+		delete: vi.fn(),
 	};
 }
 
@@ -566,9 +536,9 @@ describe('POST /api/admin/export (import)', () => {
 	});
 
 	it('imports valid data and returns count', async () => {
-		const fakeVerification = makeVerification('ninebot_max');
+		const fakeVerification = makeVerification('navee_gt3');
 		const event = makeEvent('POST', 'http://localhost/api/admin/export', {
-			data: { ninebot_max: fakeVerification },
+			data: { navee_gt3: fakeVerification },
 		});
 
 		const response = await exportPOST(event as any);
@@ -591,127 +561,67 @@ describe('POST /api/admin/export (import)', () => {
 		}
 	});
 
-	it('skips invalid verification entries silently', async () => {
+	it('skips invalid entries and keys outside the catalog, and reports them', async () => {
 		const event = makeEvent('POST', 'http://localhost/api/admin/export', {
 			data: {
-				bad_entry: { not: 'a valid verification' },
-				good_entry: makeVerification('good_entry'),
+				segway_gt1: { not: 'a valid verification' },
+				not_a_scooter: makeVerification('not_a_scooter'),
+				navee_gt3: makeVerification('navee_gt3'),
 			},
 		});
 
 		const response = await exportPOST(event as any);
 		const result = await response.json();
 
-		expect(result.success).toBe(true);
-		expect(result.imported).toBe(1); // only the valid one
-	});
-});
-
-// ---------------------------------------------------------------------------
-// settings route
-// ---------------------------------------------------------------------------
-
-describe('GET /api/admin/settings', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		vi.mocked(getSettings).mockResolvedValue({
-			geminiApiKey: 'real-key-1234',
-			geminiModel: 'gemini-2.0-flash',
-			autoVerifyThreshold: 80,
-			outdatedDays: 30,
-			batchDelayMs: 5000,
-			maxConcurrentScrapes: 1,
-			llmEnabled: true,
-		});
-		vi.mocked(maskSettings).mockImplementation((s) => ({
-			...s,
-			geminiApiKey: s.geminiApiKey ? '••••••••' + s.geminiApiKey.slice(-4) : '',
-			geminiApiKeySet: !!s.geminiApiKey,
-		}));
+		expect(result.imported).toBe(1);
+		expect(result.skipped.map((x: { key: string }) => x.key).sort()).toEqual(['not_a_scooter', 'segway_gt1']);
 	});
 
-	it('returns masked settings (API key masked)', async () => {
-		const event = makeEvent('GET', 'http://localhost/api/admin/settings');
-		const response = await settingsGET(event as any);
-		const data = await response.json();
-
-		expect(data.geminiApiKey).toBe('••••••••1234');
-		expect(data.geminiApiKeySet).toBe(true);
-		expect(getSettings).toHaveBeenCalled();
-		expect(maskSettings).toHaveBeenCalled();
-	});
-});
-
-describe('POST /api/admin/settings', () => {
-	beforeEach(() => {
-		vi.clearAllMocks();
-		vi.mocked(updateSettings).mockResolvedValue({
-			geminiApiKey: '',
-			geminiModel: 'gemini-2.0-flash',
-			autoVerifyThreshold: 90,
-			outdatedDays: 30,
-			batchDelayMs: 5000,
-			maxConcurrentScrapes: 1,
-			llmEnabled: true,
+	it('rejects sources with non-numeric values', async () => {
+		const bad = makeVerification('navee_gt3', {
+			fields: {
+				range: {
+					status: 'unverified',
+					confidence: 0,
+					sources: [{ id: 'x', name: 'X', type: 'review', value: 'lots', unit: 'km', fetchedAt: 'now' }],
+				},
+			},
 		});
-		vi.mocked(maskSettings).mockImplementation((s) => ({
-			...s,
-			geminiApiKey: s.geminiApiKey ? '••••••••' + s.geminiApiKey.slice(-4) : '',
-			geminiApiKeySet: !!s.geminiApiKey,
-		}));
+		const event = makeEvent('POST', 'http://localhost/api/admin/export', { data: { navee_gt3: bad } });
+
+		const result = await (await exportPOST(event as any)).json();
+
+		expect(result.imported).toBe(0);
+		expect(result.skipped[0].reason).toMatch(/sources on range/);
 	});
 
-	it('updates numeric settings', async () => {
-		const event = makeEvent('POST', 'http://localhost/api/admin/settings', {
-			autoVerifyThreshold: 90,
+	it('merges with stored sources and maps retired keys to the current one', async () => {
+		const src = (id: string, value: number) => ({
+			id,
+			name: id,
+			type: 'review',
+			value,
+			unit: 'km',
+			fetchedAt: '2026-01-01T00:00:00.000Z',
+			addedBy: 'manual',
 		});
-
-		const response = await settingsPOST(event as any);
-		const data = await response.json();
-
-		expect(updateSettings).toHaveBeenCalledWith(expect.objectContaining({ autoVerifyThreshold: 90 }));
-		expect(data.autoVerifyThreshold).toBe(90);
-	});
-
-	it('updates llmEnabled boolean', async () => {
-		vi.mocked(updateSettings).mockResolvedValue({
-			geminiApiKey: '',
-			geminiModel: 'gemini-2.0-flash',
-			autoVerifyThreshold: 80,
-			outdatedDays: 30,
-			batchDelayMs: 5000,
-			maxConcurrentScrapes: 1,
-			llmEnabled: false,
+		const store = makeMockStore();
+		store.get.mockResolvedValue(
+			makeVerification('xiaomi_pro_2', {
+				fields: { range: { status: 'unverified', confidence: 50, sources: [src('kept', 40)] } },
+			})
+		);
+		vi.mocked(getStore).mockResolvedValue(store);
+		const incoming = makeVerification('m365_pro_2', {
+			fields: { range: { status: 'unverified', confidence: 50, sources: [src('new', 42)] } },
 		});
+		const event = makeEvent('POST', 'http://localhost/api/admin/export', { data: { m365_pro_2: incoming } });
 
-		const event = makeEvent('POST', 'http://localhost/api/admin/settings', {
-			llmEnabled: false,
-		});
+		await exportPOST(event as any);
 
-		await settingsPOST(event as any);
-		expect(updateSettings).toHaveBeenCalledWith(expect.objectContaining({ llmEnabled: false }));
-	});
-
-	it('does not include masked API key placeholder in updates', async () => {
-		const event = makeEvent('POST', 'http://localhost/api/admin/settings', {
-			geminiApiKey: '••••••••',
-		});
-
-		await settingsPOST(event as any);
-		// The masked placeholder should NOT be passed to updateSettings
-		const callArg = vi.mocked(updateSettings).mock.calls[0][0];
-		expect(callArg.geminiApiKey).toBeUndefined();
-	});
-
-	it('does not update non-typed fields (ignores strings for numeric params)', async () => {
-		const event = makeEvent('POST', 'http://localhost/api/admin/settings', {
-			autoVerifyThreshold: 'not-a-number',
-		});
-
-		await settingsPOST(event as any);
-		const callArg = vi.mocked(updateSettings).mock.calls[0][0];
-		// String value should not be included since we check `typeof === 'number'`
-		expect(callArg.autoVerifyThreshold).toBeUndefined();
+		const [key, saved] = store.set.mock.calls[0];
+		expect(key).toBe('xiaomi_pro_2');
+		expect(saved.fields.range.sources.map((x: { id: string }) => x.id)).toEqual(['kept', 'new']);
 	});
 });
 

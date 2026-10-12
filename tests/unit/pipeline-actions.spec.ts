@@ -24,7 +24,7 @@ const {
 	mockUpdateEntryDisposition,
 	mockStore,
 } = vi.hoisted(() => {
-	const mockStore = { get: vi.fn(), set: vi.fn(), getAll: vi.fn() };
+	const mockStore = { get: vi.fn(), set: vi.fn(), getAll: vi.fn(), delete: vi.fn() };
 	return {
 		mockAddCandidates: vi.fn(),
 		mockGetCandidates: vi.fn(),
@@ -350,40 +350,34 @@ describe('addDynamicSource', () => {
 
 // Import the mocked fs module at top-level so we can manipulate it
 import * as fsMod from 'fs';
+import * as fsPromises from 'fs/promises';
 
 describe('getDynamicSources', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 	});
 
-	it('returns empty array when file does not exist', () => {
+	it('returns empty array when file does not exist', async () => {
 		vi.mocked(fsMod.existsSync).mockReturnValue(false);
-		const sources = getDynamicSources('test_key');
-		expect(sources).toEqual([]);
+		expect(await getDynamicSources('test_key')).toEqual([]);
 	});
 
-	it('returns empty array when scooterKey is not in file', () => {
+	it('returns empty array when scooterKey is not in file', async () => {
 		vi.mocked(fsMod.existsSync).mockReturnValue(true);
-		(vi.mocked(fsMod) as any).readFileSync = vi.fn().mockReturnValue(JSON.stringify({ other_key: [] }));
-
-		const sources = getDynamicSources('missing_key');
-		expect(sources).toEqual([]);
+		vi.mocked(fsPromises.readFile).mockResolvedValue(JSON.stringify({ other_key: [] }) as never);
+		expect(await getDynamicSources('missing_key')).toEqual([]);
 	});
 
-	it('returns sources for the given key when file has data', () => {
-		// getDynamicSources uses require('fs') internally (dynamic require inside function).
-		// We can't easily intercept it — just verify no-file case + error case.
-		vi.mocked(fsMod.existsSync).mockReturnValue(false);
-		const sources = getDynamicSources('test_key');
-		// Falls through to empty array when file doesn't exist
-		expect(Array.isArray(sources)).toBe(true);
-	});
-
-	it('returns empty array on any error', () => {
+	it('returns sources for the given key when file has data', async () => {
+		const source = { name: 'A', type: 'manufacturer', url: 'https://a.com' };
 		vi.mocked(fsMod.existsSync).mockReturnValue(true);
-		// readFileSync is dynamic inside getDynamicSources (require('fs').readFileSync)
-		// It will throw since mock returns '{}' which parses but has no test_key
-		const sources = getDynamicSources('test_key');
-		expect(Array.isArray(sources)).toBe(true);
+		vi.mocked(fsPromises.readFile).mockResolvedValue(JSON.stringify({ test_key: [source] }) as never);
+		expect(await getDynamicSources('test_key')).toEqual([source]);
+	});
+
+	it('returns empty array when the file is corrupt', async () => {
+		vi.mocked(fsMod.existsSync).mockReturnValue(true);
+		vi.mocked(fsPromises.readFile).mockResolvedValue('not json' as never);
+		expect(await getDynamicSources('test_key')).toEqual([]);
 	});
 });

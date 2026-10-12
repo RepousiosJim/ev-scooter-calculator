@@ -5,9 +5,12 @@ export interface VerificationStore {
 	get(scooterKey: string): Promise<ScooterVerification | null>;
 	set(scooterKey: string, data: ScooterVerification): Promise<void>;
 	getAll(): Promise<Record<string, ScooterVerification>>;
+	delete(scooterKey: string): Promise<void>;
+	/** Write many records in one round-trip where the backend supports it. */
+	setMany?(records: ScooterVerification[]): Promise<void>;
 }
 
-function createEmptyVerification(scooterKey: string): ScooterVerification {
+export function createEmptyVerification(scooterKey: string): ScooterVerification {
 	return {
 		scooterKey,
 		fields: {},
@@ -21,7 +24,8 @@ type FieldVerification = NonNullable<ScooterVerification['fields'][SpecField]>;
 
 /** Upsert a source into a field's source list and recompute its confidence. */
 function upsertSourceInField(field: FieldVerification, source: SourceEntry): void {
-	const idx = field.sources.findIndex((s) => s.url && s.url === source.url);
+	// Same id (stable ids for catalog sources) or same URL replaces the old entry.
+	const idx = field.sources.findIndex((s) => s.id === source.id || (s.url && s.url === source.url));
 	if (idx !== -1) {
 		field.sources[idx] = source;
 	} else {

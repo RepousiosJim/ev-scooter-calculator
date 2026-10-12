@@ -89,6 +89,7 @@
   // Sync status
   let syncing = $state(false);
   let syncResult = $state<{ added: string[]; skipped: string[]; removed: string[]; errors: string[] } | null>(null);
+  let approvalNotice = $state('');
 
   // Manual entry form
   let showManualForm = $state(false);
@@ -222,6 +223,7 @@
       }
 
       // Show preset write feedback
+      approvalNotice = !result.presetWritten && result.presetError ? result.presetError : '';
       if (result.presetWritten) {
         syncResult = { added: [key], skipped: [], removed: [], errors: [] };
       } else if (result.presetRemoved) {
@@ -332,6 +334,12 @@
         to Presets{/if}
     </button>
   </div>
+
+  {#if approvalNotice}
+    <div role="status" class="mt-3 p-3 rounded-lg text-sm bg-yellow-500/10 border border-yellow-500/20 text-yellow-300">
+      {approvalNotice}
+    </div>
+  {/if}
 
   {#if syncResult}
     <div

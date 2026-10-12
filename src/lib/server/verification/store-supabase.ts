@@ -27,6 +27,28 @@ export class SupabaseVerificationStore implements VerificationStore {
 		if (error) throw new Error(`Supabase set error: ${error.message}`);
 	}
 
+	async setMany(records: ScooterVerification[]): Promise<void> {
+		if (records.length === 0) return;
+		const { error } = await db()
+			.from('scooter_verifications')
+			.upsert(
+				records.map((v) => ({
+					scooter_key: v.scooterKey,
+					fields: toJson(v.fields),
+					price_history: toJson(v.priceHistory),
+					last_updated: v.lastUpdated,
+					overall_confidence: v.overallConfidence,
+				})),
+				{ onConflict: 'scooter_key' }
+			);
+		if (error) throw new Error(`Supabase setMany error: ${error.message}`);
+	}
+
+	async delete(scooterKey: string): Promise<void> {
+		const { error } = await db().from('scooter_verifications').delete().eq('scooter_key', scooterKey);
+		if (error) throw new Error(`Supabase delete error: ${error.message}`);
+	}
+
 	async getAll(): Promise<Record<string, ScooterVerification>> {
 		const { data, error } = await db().from('scooter_verifications').select('*');
 

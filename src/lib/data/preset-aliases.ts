@@ -31,6 +31,26 @@ export const presetAliases: Readonly<Record<string, string>> = {
 	punk_rider: 'punk_rider_pro',
 };
 
+/**
+ * Preset keys removed because the model doesn't exist (catalog audit, Oct 2026).
+ * Their pages 404; admin data stored under them is deleted by the catalog sync.
+ */
+export const removedPresetKeys: readonly string[] = [
+	'vsett_7_plus',
+	'turboant_thunder_t1',
+	'niu_rqi_c',
+	'inokim_mini_5',
+	'pure_electric_s1_pro',
+	'hiboy_ve2_pro',
+	'evercross_a6',
+	'spin_s100',
+	'yume_d5',
+	'yume_y11',
+	'yume_m11',
+	'joyor_a5s',
+	'pure_electric_advance_rider',
+];
+
 /** The current key for a preset key, following a rename or merge if there was one. */
 export function resolvePresetKey(key: string): string {
 	return Object.hasOwn(presetAliases, key) ? presetAliases[key] : key;

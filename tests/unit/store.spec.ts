@@ -42,6 +42,9 @@ function makeMemStore(initial: Record<string, ScooterVerification> = {}): Verifi
 		async get(key) {
 			return db[key] ?? null;
 		},
+		async delete(key) {
+			delete db[key];
+		},
 		async set(key, data) {
 			db[key] = data;
 		},

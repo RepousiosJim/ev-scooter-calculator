@@ -151,7 +151,7 @@ export async function getKnownSources(scooterKey: string): Promise<KnownSource[]
 	// Merge with dynamic sources from the pipeline (lazy import to break circular dep)
 	try {
 		const { getDynamicSources } = await import('./pipeline-actions');
-		const dynamicSources = getDynamicSources(scooterKey) as KnownSource[];
+		const dynamicSources = await getDynamicSources(scooterKey);
 		if (dynamicSources.length > 0) {
 			// Deduplicate by URL
 			const staticUrls = new Set(staticSources.map((s) => s.url));

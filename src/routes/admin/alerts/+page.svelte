@@ -195,7 +195,7 @@
         class="px-3 py-1.5 text-[11px] rounded-lg transition-colors
 					   bg-green-500/10 text-green-400 hover:bg-green-500/20 disabled:opacity-40"
       >
-        Seed Missing Data
+        Sync from Catalog
       </button>
       <button
         onclick={() => runAutoFix(['conflicts'])}

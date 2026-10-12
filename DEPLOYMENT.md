@@ -34,8 +34,15 @@ Run, in order, in the Supabase SQL editor (or `supabase db push`):
 2. `supabase/migrations/001_rate_limits_and_nonces.sql`
 3. `supabase/migrations/002_atomic_rate_limit.sql`
 4. `supabase/migrations/003_security_hardening.sql` — enables row-level security, locks the rate-limit function to the service role, and creates `purchase_links`
+5. `supabase/migrations/004_source_urls.sql` — stores source URLs added by the discovery pipeline (the deployed filesystem is read-only)
 
 All are safe to re-run. Supabase pauses free-tier projects after a week of inactivity; a paused project makes admin login return "temporarily unavailable" until you restore it from the Supabase dashboard. If you re-run `002`, re-run `003` afterwards (it re-applies the function's permissions).
+
+### Admin verification data
+
+The admin panel stores spec sources per scooter in `scooter_verifications`. On each cold start (and from **Sync from Catalog** on the dashboard) the store is synced with `src/lib/data/presets.ts`: every scooter gets one "Catalog" source per field, updated when the catalog changes; data stored under renamed or merged keys (`src/lib/data/preset-aliases.ts`) is merged into the current key, and data for removed models is deleted. Scraped and manually added sources are kept.
+
+Approving a discovered candidate on Vercel saves the approval but cannot edit the code: add the generated entry to `presets.ts` and redeploy for it to appear in the calculator.
 
 ### Cron
 
