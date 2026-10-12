@@ -53,7 +53,7 @@ function setConfigField(source, key, field, value) {
 /** The motor KV that makes the calculated top speed match the claim. */
 function fitMotorKv(config, claim, calculatePerformance) {
 	const speedAt = (motorKv) => calculatePerformance({ ...config, motorKv }, 'spec').speed;
-	if (speedAt(KV_SEARCH_MAX) < claim * 0.98) {
+	if (speedAt(KV_SEARCH_MAX) < claim) {
 		const sag = config.batterySagPercent ?? 0.08;
 		const circumferenceM = config.wheel * INCH_TO_METERS * Math.PI;
 		const kv = (claim * KV_HEADROOM * 1000) / (60 * circumferenceM * config.v * (1 - sag));
