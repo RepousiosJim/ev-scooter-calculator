@@ -57,7 +57,7 @@ export const presets: ScooterPreset = {
 		style: 31.4,
 		weight: 80,
 		wheel: 11,
-		motorKv: 400,
+		motorKv: 35,
 		scooterWeight: 65,
 		drivetrainEfficiency: 0.92,
 		batterySagPercent: 0.05,
@@ -833,7 +833,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.55,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 36,
 	},
 	inmotion_rs_jet: {
 		v: 72,
@@ -953,7 +953,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.55,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 25,
 	},
 	inokim_ox: {
 		v: 60,
@@ -1173,7 +1173,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.55,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 32,
 	},
 	hiboy_ve1_pro_electric_scooter: {
 		v: 48,
@@ -1653,7 +1653,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.55,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 23,
 	},
 	fusion_electric_scooter: {
 		v: 36,
@@ -1673,7 +1673,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.55,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 26,
 	},
 	g3_max_long_range_escooter: {
 		v: 48,
@@ -2306,7 +2306,7 @@ export const presets: ScooterPreset = {
 		watts: 450,
 		motors: 1,
 		wheel: 10,
-		motorKv: 400,
+		motorKv: 23,
 		scooterWeight: 18.9,
 		drivetrainEfficiency: 0.88,
 		batterySagPercent: 0.08,
@@ -2814,7 +2814,7 @@ export const presets: ScooterPreset = {
 		style: 23.1,
 		weight: 80,
 		wheel: 10,
-		motorKv: 400,
+		motorKv: 32,
 		scooterWeight: 35,
 		drivetrainEfficiency: 0.9,
 		batterySagPercent: 0.06,
@@ -3482,7 +3482,7 @@ export const presets: ScooterPreset = {
 		style: 24.5,
 		weight: 80,
 		wheel: 8,
-		motorKv: 400,
+		motorKv: 34,
 		scooterWeight: 20,
 		drivetrainEfficiency: 0.89,
 		batterySagPercent: 0.07,
@@ -3958,7 +3958,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.5,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 28,
 	},
 	rovoron_kullter_luxury: {
 		v: 60,
@@ -4798,7 +4798,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.5,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 34,
 	},
 	ausom_dt2_pro: {
 		v: 52,
@@ -4878,7 +4878,7 @@ export const presets: ScooterPreset = {
 		ridePosition: 0.6,
 		soh: 1,
 		ambientTemp: 20,
-		motorKv: 400,
+		motorKv: 18,
 	},
 	circooter_landturbo_ultra: {
 		v: 48,
@@ -5159,6 +5159,28 @@ export const presets: ScooterPreset = {
 		soh: 1,
 		ambientTemp: 20,
 		motorKv: 15.1,
+	},
+
+	// --- Added 2026-10-11 (catalog gap research) ---
+	emove_roadrunner_pro: {
+		v: 60,
+		ah: 30,
+		motors: 2,
+		watts: 2000,
+		style: 31.1,
+		weight: 80,
+		wheel: 14,
+		scooterWeight: 51.9,
+		drivetrainEfficiency: 0.9,
+		batterySagPercent: 0.06,
+		charger: 5,
+		regen: 0.1,
+		cost: 0.2,
+		slope: 0,
+		ridePosition: 0.5,
+		soh: 1,
+		ambientTemp: 20,
+		motorKv: 24,
 	},
 };
 
@@ -7809,6 +7831,19 @@ export const presetMetadata: Record<string, PresetMetadata> = {
 		source: 'Manufacturer and retailer specifications',
 		sourceUrl:
 			'https://electrek.co/2024/08/30/yadea-elite-prime-review-the-full-suspension-e-scooter-youd-never-guess-is-so-powerful/',
+	},
+
+	// --- Added 2026-10-11 (catalog gap research) ---
+	emove_roadrunner_pro: {
+		name: 'EMOVE RoadRunner Pro',
+		year: 2023,
+		manufacturer: { topSpeed: 80, range: 80, batteryWh: 1800, price: 2895 },
+		addedDate: '2026-10-11',
+		lastVerified: '2026-10-11',
+		status: 'discontinued',
+		source: 'Electrek launch report, Freshly Charged',
+		notes: 'Original seated RoadRunner Pro (2023), replaced by the RoadRunner Pro V2',
+		sourceUrl: 'https://electrek.co/2023/02/13/roadrunner-pro-electric-scooter-hits-50-mph/',
 	},
 };
 

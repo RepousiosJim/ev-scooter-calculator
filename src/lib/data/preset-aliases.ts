@@ -29,6 +29,8 @@ export const presetAliases: Readonly<Record<string, string>> = {
 	emove_touring_xl: 'emove_touring',
 	emove_cruiser_max: 'emove_cruiser_v2',
 	punk_rider: 'punk_rider_pro',
+	// Discovery-pipeline key for the original seated RoadRunner Pro
+	emove_roadrunner_pro_v1_seated: 'emove_roadrunner_pro',
 };
 
 /**

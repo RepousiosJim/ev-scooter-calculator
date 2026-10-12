@@ -116,6 +116,18 @@ Skipped for missing or contradictory specs, or no release year:
 - **Inokim:** KIX, Light 3
 - **Bird:** Air, Flex
 
+## EMOVE RoadRunner Pro (original seated model)
+
+The discovery pipeline auto-approved this model in April 2026 under the key `emove_roadrunner_pro_v1_seated`, with wrong specs: 72V, 2×500W, and no top speed. It was never added to the catalog. It is now in the catalog as `emove_roadrunner_pro` with the published specs:
+
+- 60V 30Ah (1,800Wh)
+- 2×2,000W
+- 80 km/h, 80 km
+- 51.9 kg, 14" wheels
+- $2,895 at its 2023 launch
+
+It is marked discontinued, because the RoadRunner Pro V2 replaced it. The old key is an alias, so the admin data stored under it merges into the new entry.
+
 ## Not yet done
 
 - **Not added:** models with incomplete published specs:
