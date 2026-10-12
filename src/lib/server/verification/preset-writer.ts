@@ -22,10 +22,15 @@ async function readPresetsFile(): Promise<string> {
 	return readFile(PRESETS_PATH, 'utf-8');
 }
 
+/** False on Vercel, whose deployed filesystem is read-only. */
+export function canWritePresets(): boolean {
+	return process.env.VERCEL_ENV !== 'production' && process.env.VERCEL_ENV !== 'preview';
+}
+
 async function writePresetsFile(content: string): Promise<void> {
 	// Guard against Vercel's read-only production filesystem.
 	// VERCEL_ENV is set to "production" | "preview" | "development" by Vercel.
-	if (process.env.VERCEL_ENV === 'production' || process.env.VERCEL_ENV === 'preview') {
+	if (!canWritePresets()) {
 		throw new Error(
 			'Cannot write presets.ts on Vercel — the deployed filesystem is read-only. ' +
 				'Approve candidates in the admin panel, then run syncApprovedPresets() locally and redeploy.'

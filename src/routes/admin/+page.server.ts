@@ -4,7 +4,7 @@ import { presetMetadata } from '$lib/data/presets';
 import { getStore } from '$lib/server/verification/store';
 import { getActivityLog } from '$lib/server/verification/activity-log';
 import { getScrapableManufacturers } from '$lib/server/verification/manufacturers';
-import { knownSources } from '$lib/server/verification/known-sources';
+import { getKnownSourceStats } from '$lib/server/verification/known-sources';
 import { generateAlerts } from '$lib/server/verification/smart-alerts';
 import { env } from '$env/dynamic/private';
 
@@ -85,7 +85,7 @@ export const load: PageServerLoad = async ({ cookies }) => {
 	// System health
 	const geminiConfigured = !!env.GEMINI_API_KEY;
 	const scrapableManufacturers = getScrapableManufacturers().length;
-	const totalKnownSourceUrls = Object.values(knownSources).reduce((s, urls) => s + urls.length, 0);
+	const sourceStats = getKnownSourceStats();
 
 	// Smart alerts summary for dashboard
 	const alertSummary = generateAlerts(allVerifications);
@@ -105,8 +105,9 @@ export const load: PageServerLoad = async ({ cookies }) => {
 		systemHealth: {
 			geminiConfigured,
 			scrapableManufacturers,
-			totalKnownSourceUrls,
-			scootersWithSources: Object.keys(knownSources).length,
+			totalKnownSourceUrls: sourceStats.totalUrls,
+			// Only scooters that actually have a URL (some entries are empty placeholders)
+			scootersWithSources: sourceStats.withSources,
 		},
 		recentActivity,
 		alerts: {

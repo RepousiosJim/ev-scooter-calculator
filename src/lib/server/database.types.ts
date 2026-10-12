@@ -191,6 +191,30 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			source_urls: {
+				Row: {
+					created_at: string;
+					name: string;
+					scooter_key: string;
+					type: string;
+					url: string;
+				};
+				Insert: {
+					created_at?: string;
+					name: string;
+					scooter_key: string;
+					type: string;
+					url: string;
+				};
+				Update: {
+					created_at?: string;
+					name?: string;
+					scooter_key?: string;
+					type?: string;
+					url?: string;
+				};
+				Relationships: [];
+			};
 			purchase_links: {
 				Row: {
 					affiliate_network: string;

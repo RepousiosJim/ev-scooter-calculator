@@ -30,8 +30,9 @@ async function runStartupFix() {
 			logger.info({ recovered }, 'Recovered orphaned discovery runs');
 		}
 
-		// Seed missing verification data + remove anomalies (non-destructive)
-		const result = await runAutoFix(['seed', 'anomalies']);
+		// Keep stored spec data in step with the catalog. Anomaly removal deletes
+		// sources, so it only runs when an admin asks for it.
+		const result = await runAutoFix(['seed']);
 		if (result.summary.totalActions > 0) {
 			logger.info(
 				{

@@ -5,7 +5,7 @@
  */
 import { randomBytes } from 'crypto';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import { existsSync, readFileSync } from 'fs';
+import { existsSync } from 'fs';
 import { join } from 'path';
 
 import { addCandidates } from './candidate-store';
@@ -17,12 +17,14 @@ import { logActivity } from './activity-log';
 import { runAutoFix } from './auto-fix';
 import type { DiscoveredScooter } from './discovery';
 import type { ScooterConfig } from '$lib/types';
+import { db, isSupabaseAvailable } from '$lib/server/db';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const DYNAMIC_SOURCES_FILE = join(DATA_DIR, 'dynamic-sources.json');
 
 // ---------------------------------------------------------------------------
-// Dynamic sources file helpers
+// Dynamic sources storage: Supabase `source_urls` when configured (Vercel's
+// filesystem is read-only), else data/dynamic-sources.json for local dev.
 // ---------------------------------------------------------------------------
 
 interface DynamicSourcesData {
@@ -215,12 +217,7 @@ export async function onCandidateApproved(candidateKey: string, candidate: Prese
  * Removes any dynamic sources that were added for this candidate.
  */
 export async function onCandidateRejected(candidateKey: string): Promise<void> {
-	// Remove dynamic sources for this key
-	const data = await loadDynamicSources();
-	if (data[candidateKey]) {
-		delete data[candidateKey];
-		await saveDynamicSources(data);
-	}
+	await removeDynamicSources(candidateKey);
 
 	await logActivity('discovery_completed', `Pipeline: candidate "${candidateKey}" rejected, dynamic sources removed`, {
 		candidateKey,
@@ -231,39 +228,54 @@ export async function onCandidateRejected(candidateKey: string): Promise<void> {
 // Dynamic sources management
 // ---------------------------------------------------------------------------
 
-/**
- * Get dynamic known sources for a specific scooter key.
- */
-export function getDynamicSources(scooterKey: string): KnownSource[] {
-	// Synchronous read attempt — if the file hasn't been loaded we return empty.
-	// For a fully async version callers should use loadDynamicSources directly.
-	try {
-		if (!existsSync(DYNAMIC_SOURCES_FILE)) return [];
-		// We do a synchronous JSON parse here for simplicity in non-async contexts.
-		// In practice, the file is small and this is acceptable.
-		const raw = readFileSync(DYNAMIC_SOURCES_FILE, 'utf-8');
-		const data: DynamicSourcesData = JSON.parse(raw);
-		return data[scooterKey] || [];
-	} catch {
-		return [];
+/** Dynamic known sources for a scooter key. */
+export async function getDynamicSources(scooterKey: string): Promise<KnownSource[]> {
+	if (isSupabaseAvailable()) {
+		const { data, error } = await db()
+			.from('source_urls')
+			.select('name, type, url')
+			.eq('scooter_key', scooterKey)
+			.order('created_at');
+		if (error) throw new Error(`source_urls read failed: ${error.message}`);
+		return (data ?? []) as KnownSource[];
 	}
+	const data = await loadDynamicSources();
+	return data[scooterKey] || [];
 }
 
-/**
- * Add a known source to the dynamic sources file for a scooter key.
- */
+/** Add a known source for a scooter key (deduplicated by URL). */
 export async function addDynamicSource(scooterKey: string, source: KnownSource): Promise<void> {
-	const data = await loadDynamicSources();
+	if (isSupabaseAvailable()) {
+		const { error } = await db()
+			.from('source_urls')
+			.upsert(
+				{ scooter_key: scooterKey, url: source.url, name: source.name, type: source.type },
+				{ onConflict: 'scooter_key,url', ignoreDuplicates: true }
+			);
+		if (error) throw new Error(`source_urls write failed: ${error.message}`);
+		return;
+	}
 
+	const data = await loadDynamicSources();
 	if (!data[scooterKey]) {
 		data[scooterKey] = [];
 	}
-
-	// Deduplicate by URL
-	const existing = data[scooterKey].find((s) => s.url === source.url);
-	if (!existing) {
+	if (!data[scooterKey].some((s) => s.url === source.url)) {
 		data[scooterKey].push(source);
 	}
-
 	await saveDynamicSources(data);
+}
+
+/** Remove all dynamic sources for a scooter key. */
+export async function removeDynamicSources(scooterKey: string): Promise<void> {
+	if (isSupabaseAvailable()) {
+		const { error } = await db().from('source_urls').delete().eq('scooter_key', scooterKey);
+		if (error) throw new Error(`source_urls delete failed: ${error.message}`);
+		return;
+	}
+	const data = await loadDynamicSources();
+	if (data[scooterKey]) {
+		delete data[scooterKey];
+		await saveDynamicSources(data);
+	}
 }

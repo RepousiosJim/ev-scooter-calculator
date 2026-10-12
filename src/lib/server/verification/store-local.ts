@@ -110,6 +110,18 @@ export class LocalVerificationStore implements VerificationStore {
 		}
 	}
 
+	async delete(scooterKey: string): Promise<void> {
+		const release = await this.writeLock.acquire();
+		try {
+			const data = await this.load();
+			if (!(scooterKey in data)) return;
+			delete data[scooterKey];
+			await this.save();
+		} finally {
+			release();
+		}
+	}
+
 	async getAll(): Promise<Record<string, ScooterVerification>> {
 		const release = await this.writeLock.acquire();
 		try {

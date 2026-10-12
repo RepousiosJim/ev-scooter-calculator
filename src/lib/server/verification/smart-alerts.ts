@@ -13,6 +13,7 @@
 import type { ScooterVerification, SpecField } from './types';
 import { presetMetadata } from '$lib/data/presets';
 import { knownSources } from './known-sources';
+import { isCatalogSource } from './catalog-sync';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -242,11 +243,14 @@ export function generateAlerts(allVerifications: Record<string, ScooterVerificat
 			for (const [field, presetValue] of Object.entries(presetSpecs)) {
 				if (!presetValue) continue;
 				const fv = verification.fields[field as SpecField];
-				if (!fv || fv.sources.length === 0) continue;
+				if (!fv) continue;
 				// Skip if already resolved
 				if (fv.verifiedValue !== undefined) continue;
+				// Compare against outside sources only, not the catalog's own copy.
+				const outside = fv.sources.filter((src) => !isCatalogSource(src));
+				if (outside.length === 0) continue;
 
-				const avgScraped = fv.sources.reduce((s, src) => s + src.value, 0) / fv.sources.length;
+				const avgScraped = outside.reduce((s, src) => s + src.value, 0) / outside.length;
 
 				if (presetValue > 0 && avgScraped > 0) {
 					const diffPercent = ((avgScraped - presetValue) / presetValue) * 100;

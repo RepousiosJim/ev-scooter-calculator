@@ -22,7 +22,12 @@ import {
 } from '$lib/server/verification/preset-generator';
 import { validateConfig } from '$lib/server/verification/physics-validator';
 import { logActivity } from '$lib/server/verification/activity-log';
-import { addPresetToFile, removePresetFromFile, syncApprovedPresets } from '$lib/server/verification/preset-writer';
+import {
+	addPresetToFile,
+	canWritePresets,
+	removePresetFromFile,
+	syncApprovedPresets,
+} from '$lib/server/verification/preset-writer';
 import { onCandidateApproved, onCandidateRejected } from '$lib/server/verification/pipeline-actions';
 import type { DiscoveredScooter } from '$lib/server/verification/discovery';
 
@@ -98,8 +103,15 @@ export const POST: RequestHandler = async ({ request, cookies, getClientAddress 
 			const candidate = await updateCandidateStatus(key, 'approved', notes);
 			if (!candidate) throw error(404, 'Candidate not found');
 
-			// Auto-inject into presets.ts
-			const writeResult = await addPresetToFile(candidate);
+			// Auto-inject into presets.ts. On Vercel the deployed code can't be
+			// changed, so the scooter goes live only after a code change + redeploy.
+			const writeResult = canWritePresets()
+				? await addPresetToFile(candidate)
+				: {
+						success: false,
+						error:
+							'Approved and saved. The live site cannot edit its own code, so this scooter appears in the calculator after it is added to presets.ts (code below) and the site is redeployed.',
+					};
 
 			// Pipeline: seed verification store + add dynamic sources
 			try {

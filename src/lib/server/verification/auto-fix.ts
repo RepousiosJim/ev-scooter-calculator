@@ -3,19 +3,18 @@
  *
  * Automated data quality pipeline that can:
  * 1. Remove anomalous sources (values outside sane ranges)
- * 2. Seed missing scooters from presetMetadata
+ * 2. Sync every scooter with the catalog (presets.ts), replacing stale copies
  * 3. Auto-resolve conflicts (prefer manufacturer > retailer > review > community > scrape)
  * 4. Clean duplicate sources
  *
  * Can be triggered manually from admin UI or scheduled to run periodically.
  */
 
-import { randomBytes } from 'crypto';
 import type { SpecField, SourceEntry, SourceType } from './types';
-import { SPEC_FIELD_UNITS } from './types';
-import { getStore, addSource, removeSource } from './store';
+import { getStore, removeSource } from './store';
+import { syncCatalog } from './catalog-sync';
 import { computeConfidence, computeOverallConfidence } from './confidence';
-import { presetMetadata, presets } from '$lib/data/presets';
+import { presetMetadata } from '$lib/data/presets';
 import { logActivity } from './activity-log';
 
 // ---------------------------------------------------------------------------
@@ -106,110 +105,34 @@ async function fixAnomalies(): Promise<AutoFixAction[]> {
 }
 
 // ---------------------------------------------------------------------------
-// Fix: Seed missing scooters from presetMetadata
+// Fix: Sync the store with the catalog (see catalog-sync.ts)
 // ---------------------------------------------------------------------------
-
-/** Map presetMetadata manufacturer fields to SpecField names */
-const PRESET_TO_SPEC_MAP: Record<string, SpecField> = {
-	topSpeed: 'topSpeed',
-	range: 'range',
-	batteryWh: 'batteryWh',
-	price: 'price',
-	powerToWeight: 'powerToWeight',
-};
-
-/** Map preset config fields to SpecField names (presets use short names) */
-const CONFIG_TO_SPEC_MAP: Record<string, { field: SpecField; unit: string }> = {
-	v: { field: 'voltage', unit: 'V' },
-	watts: { field: 'motorWatts', unit: 'W' },
-	scooterWeight: { field: 'weight', unit: 'kg' },
-	wheel: { field: 'wheelSize', unit: 'in' },
-};
 
 async function seedFromPresets(): Promise<AutoFixAction[]> {
 	const store = await getStore();
-	const allData = await store.getAll();
+	const result = await syncCatalog(store);
 	const actions: AutoFixAction[] = [];
 
-	const scooterKeys = Object.keys(presetMetadata).filter((k) => k !== 'custom');
-
-	for (const key of scooterKeys) {
-		const meta = presetMetadata[key];
-		if (!meta?.manufacturer) continue;
-
-		const existing = allData[key];
-
-		// Collect specs from manufacturer metadata
-		const specsToSeed: Array<{ field: SpecField; value: number; unit: string }> = [];
-
-		for (const [metaField, specField] of Object.entries(PRESET_TO_SPEC_MAP)) {
-			const value = meta.manufacturer[metaField as keyof typeof meta.manufacturer];
-			if (value === undefined || value === null) continue;
-
-			// Skip if field already has sources
-			const existingField = existing?.fields[specField];
-			if (existingField && existingField.sources.length > 0) continue;
-
-			specsToSeed.push({
-				field: specField,
-				value: value as number,
-				unit: SPEC_FIELD_UNITS[specField] || '',
-			});
-		}
-
-		// Also seed from presets (voltage, motorWatts, weight, wheelSize)
-		const config = presets[key];
-		if (config) {
-			for (const [configField, mapping] of Object.entries(CONFIG_TO_SPEC_MAP)) {
-				const value = config[configField as keyof typeof config];
-				if (value === undefined || value === null || typeof value !== 'number') continue;
-
-				// Skip if field already has sources
-				const existingField = existing?.fields[mapping.field];
-				if (existingField && existingField.sources.length > 0) continue;
-
-				// Avoid duplicating something already in specsToSeed
-				if (specsToSeed.some((s) => s.field === mapping.field)) continue;
-
-				specsToSeed.push({
-					field: mapping.field,
-					value: value,
-					unit: mapping.unit,
-				});
-			}
-		}
-
-		if (specsToSeed.length === 0) continue;
-
-		// Add each spec as a manufacturer source
-		for (const spec of specsToSeed) {
-			// Validate against ranges
-			const range = SPEC_RANGES[spec.field];
-			if (range && (spec.value < range.min || spec.value > range.max)) continue;
-
-			const sourceEntry: SourceEntry = {
-				id: randomBytes(8).toString('hex'),
-				type: 'manufacturer',
-				name: `${meta.name} - Manufacturer Spec`,
-				url: meta.sourceUrl,
-				value: spec.value,
-				unit: spec.unit,
-				fetchedAt: new Date().toISOString(),
-				addedBy: 'manual',
-				notes: 'Auto-seeded from preset manufacturer specifications',
-			};
-
-			await addSource(store, key, spec.field, sourceEntry);
-		}
-
-		if (specsToSeed.length > 0) {
-			actions.push({
-				type: 'seed_from_preset',
-				scooterKey: key,
-				description: `Seeded ${specsToSeed.length} field(s) for ${meta.name}`,
-				details: `Fields: ${specsToSeed.map((s) => s.field).join(', ')}`,
-			});
-		}
+	for (const key of result.updated) {
+		actions.push({
+			type: 'seed_from_preset',
+			scooterKey: key,
+			description: `Synced ${presetMetadata[key]?.name ?? key} with the catalog`,
+		});
+	}
+	for (const { from, to } of result.merged) {
+		actions.push({
+			type: 'seed_from_preset',
+			scooterKey: to,
+			description: `Merged data stored under retired key "${from}" into ${to}`,
+		});
+	}
+	for (const key of result.deleted) {
+		actions.push({
+			type: 'seed_from_preset',
+			scooterKey: key,
+			description: `Deleted data for "${key}", which was removed from the catalog`,
+		});
 	}
 
 	return actions;

@@ -26,6 +26,7 @@
     totalSourcesScraped: number;
     totalSucceeded: number;
     totalFailed: number;
+    nextOffset: number | null;
     [key: string]: unknown;
   }
 
@@ -40,9 +41,6 @@
   let seeding = $state(false);
   let seedResult = $state<{
     success?: boolean;
-    scootersSeeded?: number;
-    totalSources?: number;
-    totalPrices?: number;
     message?: string;
     error?: string;
   } | null>(null);
@@ -106,46 +104,73 @@
     batchScootersTotal = 0;
 
     try {
-      await consumeSSE(
-        '/api/admin/batch-verify',
-        { method: 'POST', signal: streamAbort.signal },
-        (event, eventData) => {
-          const d = eventData as BatchVerifyEvent;
-          switch (event) {
-            case 'start':
-              batchScootersTotal = d.totalScooters;
-              batchProgress = `Starting: ${d.totalScooters} scooters, ${d.totalUrls} URLs to scrape...`;
-              break;
-            case 'scooter_start':
-              batchCurrentScooter = d.name;
-              batchProgress = `[${d.index + 1}/${d.totalScooters}] Scraping ${d.name}...`;
-              break;
-            case 'source':
-              batchLiveLog = [
-                ...batchLiveLog,
-                {
-                  text: `${d.sourceName}: ${d.success ? `${d.specsFound} specs found` : d.error || 'failed'}`,
-                  status: d.success ? 'ok' : 'fail',
-                },
-              ];
-              break;
-            case 'scooter_done':
-              batchScootersDone = d.scootersCompleted;
-              batchLiveLog = [
-                ...batchLiveLog,
-                {
-                  text: `${d.name} done (${d.succeeded} ok, ${d.failed} failed)`,
-                  status: d.succeeded > 0 ? 'ok' : 'info',
-                },
-              ];
-              break;
-            case 'done':
-              batchResult = d;
-              batchProgress = `Done! ${d.totalSourcesScraped} sources across ${d.totalScooters} scooters. ${d.totalSucceeded} succeeded, ${d.totalFailed} failed.`;
-              break;
+      // The server works in ~40 s chunks (Vercel's 60 s limit); keep calling with
+      // the offset it returns until every scooter is done.
+      let offset: number | null = 0;
+      const totals = { scooters: 0, succeeded: 0, failed: 0 };
+      while (offset !== null) {
+        let nextOffset: number | null = null;
+        await consumeSSE(
+          '/api/admin/batch-verify',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ offset }),
+            signal: streamAbort.signal,
+          },
+          (event, eventData) => {
+            const d = eventData as BatchVerifyEvent;
+            switch (event) {
+              case 'start':
+                batchScootersTotal = d.totalScooters;
+                batchProgress = offset
+                  ? `Continuing from scooter ${offset + 1} of ${d.totalScooters}...`
+                  : `Starting: ${d.totalScooters} scooters with source URLs...`;
+                break;
+              case 'scooter_start':
+                batchCurrentScooter = d.name;
+                batchProgress = `[${d.index + 1}/${d.totalScooters}] Scraping ${d.name}...`;
+                break;
+              case 'source':
+                batchLiveLog = [
+                  ...batchLiveLog,
+                  {
+                    text: `${d.sourceName}: ${d.success ? `${d.specsFound} specs found` : d.error || 'failed'}`,
+                    status: d.success ? 'ok' : 'fail',
+                  },
+                ];
+                break;
+              case 'scooter_done':
+                batchScootersDone = d.scootersCompleted;
+                batchLiveLog = [
+                  ...batchLiveLog,
+                  {
+                    text: `${d.name} done (${d.succeeded} ok, ${d.failed} failed)`,
+                    status: d.succeeded > 0 ? 'ok' : 'info',
+                  },
+                ];
+                break;
+              case 'done':
+                totals.scooters += d.totalScooters;
+                totals.succeeded += d.totalSucceeded;
+                totals.failed += d.totalFailed;
+                nextOffset = d.nextOffset ?? null;
+                if (nextOffset === null) {
+                  batchResult = {
+                    ...d,
+                    totalScooters: totals.scooters,
+                    totalSucceeded: totals.succeeded,
+                    totalFailed: totals.failed,
+                    totalSourcesScraped: totals.succeeded + totals.failed,
+                  };
+                  batchProgress = `Done! ${totals.succeeded + totals.failed} sources across ${totals.scooters} scooters. ${totals.succeeded} succeeded, ${totals.failed} failed.`;
+                }
+                break;
+            }
           }
-        }
-      );
+        );
+        offset = nextOffset;
+      }
       await invalidateAll();
     } catch {
       batchProgress = 'Batch verify failed. Check console for details.';
@@ -162,7 +187,7 @@
       seedResult = await res.json();
       await invalidateAll();
     } catch {
-      seedResult = { error: 'Failed to seed database' };
+      seedResult = { error: 'Failed to sync with the catalog' };
     } finally {
       seeding = false;
     }
@@ -198,7 +223,11 @@
           body: JSON.stringify(parsed),
         });
         const result = await res.json();
-        importResult = `Imported ${result.imported} scooter verifications.`;
+        importResult =
+          `Imported ${result.imported} scooter verifications (merged with existing data).` +
+          (result.skipped?.length
+            ? ` Skipped ${result.skipped.length}: ${result.skipped.map((x: { key: string; reason: string }) => `${x.key} (${x.reason})`).join(', ')}.`
+            : '');
         await invalidateAll();
       } catch {
         importResult = 'Import failed. Check file format.';
@@ -378,7 +407,7 @@
   <div class="bg-[#12121a] border border-gray-800 rounded-xl p-4">
     <h3 class="text-sm font-semibold text-white mb-1">Automated Verification</h3>
     <p class="text-xs text-gray-500 mb-4">
-      Populate the database instantly with curated data, or scrape live from manufacturer/retailer sites.
+      Sync stored specs with the calculator catalog (safe to repeat), or scrape live from manufacturer/retailer sites.
     </p>
 
     <div class="flex flex-wrap gap-3 mb-3">
@@ -391,9 +420,9 @@
       >
         {#if seeding}
           <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-          Seeding...
+          Syncing...
         {:else}
-          Seed Database
+          Sync from Catalog
         {/if}
       </button>
       <button

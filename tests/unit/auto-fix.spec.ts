@@ -15,7 +15,7 @@ const { mockGetAll, mockStoreGet, mockStoreSet, mockStoreObj } = vi.hoisted(() =
 	const mockGetAll = vi.fn();
 	const mockStoreGet = vi.fn();
 	const mockStoreSet = vi.fn();
-	const mockStoreObj = { getAll: mockGetAll, get: mockStoreGet, set: mockStoreSet };
+	const mockStoreObj = { getAll: mockGetAll, get: mockStoreGet, set: mockStoreSet, delete: vi.fn() };
 	return { mockGetAll, mockStoreGet, mockStoreSet, mockStoreObj };
 });
 
@@ -23,6 +23,13 @@ vi.mock('$lib/server/verification/store', () => ({
 	getStore: vi.fn().mockResolvedValue(mockStoreObj),
 	addSource: vi.fn().mockResolvedValue({}),
 	removeSource: vi.fn().mockResolvedValue({}),
+	createEmptyVerification: (scooterKey: string) => ({
+		scooterKey,
+		fields: {},
+		priceHistory: [],
+		lastUpdated: new Date().toISOString(),
+		overallConfidence: 0,
+	}),
 }));
 
 vi.mock('$lib/server/verification/activity-log', () => ({
@@ -72,7 +79,7 @@ vi.mock('$lib/data/presets', () => ({
 
 // Dynamic import after mocks are in place
 import { SPEC_RANGES, runAutoFix } from '$lib/server/verification/auto-fix';
-import { getStore, addSource, removeSource } from '$lib/server/verification/store';
+import { getStore, removeSource } from '$lib/server/verification/store';
 import { logActivity } from '$lib/server/verification/activity-log';
 
 // ---------------------------------------------------------------------------
@@ -330,34 +337,40 @@ describe('runAutoFix – anomalies', () => {
 // runAutoFix – seed
 // ---------------------------------------------------------------------------
 
-describe('runAutoFix – seed', () => {
+describe('runAutoFix – seed (catalog sync)', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		vi.mocked(getStore).mockResolvedValue(mockStoreObj as any);
 		mockStoreSet.mockResolvedValue(undefined);
 	});
 
-	it('seeds missing fields from presetMetadata', async () => {
-		// Empty store — no existing data for test_scooter
+	/** The record written for a key by the last run. */
+	function written(key: string) {
+		const call = mockStoreSet.mock.calls.find((c) => c[0] === key);
+		return call?.[1];
+	}
+
+	it('writes a catalog source for every catalog spec field', async () => {
 		mockGetAll.mockResolvedValue({});
-		mockStoreGet.mockResolvedValue(null);
 
 		const result = await runAutoFix(['seed']);
-		// Should have seeded topSpeed, range, batteryWh, price from manufacturer
-		// plus voltage and motorWatts from config
-		expect(result.summary.fieldsSeeded).toBeGreaterThan(0);
-		expect(addSource).toHaveBeenCalled();
+
+		expect(result.summary.fieldsSeeded).toBe(1);
+		const record = written('test_scooter');
+		expect(record.fields.topSpeed.sources).toEqual([expect.objectContaining({ id: 'catalog-topSpeed', value: 80 })]);
+		// Motor power is the total peak: 2 × 1000 W
+		expect(record.fields.motorWatts.sources[0].value).toBe(2000);
+		expect(record.fields.voltage.sources[0].value).toBe(52);
 	});
 
-	it('skips fields that already have sources', async () => {
-		// test_scooter already has topSpeed data
+	it('keeps other sources and replaces a stale catalog value', async () => {
 		mockGetAll.mockResolvedValue({
 			test_scooter: {
 				scooterKey: 'test_scooter',
 				fields: {
 					topSpeed: {
 						status: 'unverified',
-						sources: [makeSource({ value: 80 })],
+						sources: [makeSource({ id: 'catalog-topSpeed', value: 70 }), makeSource({ id: 'review', value: 78 })],
 						confidence: 80,
 					},
 				},
@@ -366,45 +379,63 @@ describe('runAutoFix – seed', () => {
 				overallConfidence: 50,
 			},
 		});
-		mockStoreGet.mockResolvedValue(null);
 
 		await runAutoFix(['seed']);
-		// topSpeed is skipped but other fields should still be seeded
-		const calls = vi.mocked(addSource).mock.calls;
-		const topSpeedCalls = calls.filter((c) => c[2] === 'topSpeed');
-		expect(topSpeedCalls).toHaveLength(0);
+
+		const values = written('test_scooter').fields.topSpeed.sources.map((s: { id: string; value: number }) => [
+			s.id,
+			s.value,
+		]);
+		expect(values).toEqual([
+			['review', 78],
+			['catalog-topSpeed', 80],
+		]);
 	});
 
-	it('skips entries with no manufacturer metadata (e.g. custom)', async () => {
-		mockGetAll.mockResolvedValue({});
-		mockStoreGet.mockResolvedValue(null);
+	it('removes stale sources written by the old seeding code', async () => {
+		mockGetAll.mockResolvedValue({
+			test_scooter: {
+				scooterKey: 'test_scooter',
+				fields: {
+					range: {
+						status: 'unverified',
+						sources: [
+							{ ...makeSource({ id: 'old', value: 40 }), notes: 'Auto-seeded from preset manufacturer specifications' },
+							{ ...makeSource({ id: 'seed', value: 45 }), notes: 'Pre-seeded from curated database' },
+						],
+						confidence: 80,
+					},
+				},
+				priceHistory: [],
+				lastUpdated: new Date().toISOString(),
+				overallConfidence: 50,
+			},
+		});
 
 		await runAutoFix(['seed']);
-		// custom key has no manufacturer — should not attempt to add sources for it
-		const calls = vi.mocked(addSource).mock.calls;
-		const customCalls = calls.filter((c) => c[1] === 'custom');
-		expect(customCalls).toHaveLength(0);
+
+		const ids = written('test_scooter').fields.range.sources.map((s: { id: string }) => s.id);
+		expect(ids).toEqual(['catalog-range']);
 	});
 
-	it('does not seed values that fall outside SPEC_RANGES', async () => {
-		// Override presetMetadata to have an invalid topSpeed
-		const originalMeta = mockPresetMetadata['test_scooter'];
-		mockPresetMetadata['test_scooter'] = {
-			...originalMeta,
-			manufacturer: { topSpeed: 9999, range: 60, batteryWh: 1040, price: 1500 },
-		};
-
+	it('writes nothing when the store is already in sync', async () => {
 		mockGetAll.mockResolvedValue({});
-		mockStoreGet.mockResolvedValue(null);
-
 		await runAutoFix(['seed']);
-		// 9999 km/h exceeds max — topSpeed should NOT be seeded
-		const calls = vi.mocked(addSource).mock.calls;
-		const topSpeedCalls = calls.filter((c) => c[2] === 'topSpeed');
-		expect(topSpeedCalls).toHaveLength(0);
+		const synced = written('test_scooter');
 
-		// Restore
-		mockPresetMetadata['test_scooter'] = originalMeta;
+		vi.clearAllMocks();
+		vi.mocked(getStore).mockResolvedValue(mockStoreObj as any);
+		mockGetAll.mockResolvedValue({ test_scooter: synced });
+		const result = await runAutoFix(['seed']);
+
+		expect(mockStoreSet).not.toHaveBeenCalled();
+		expect(result.summary.totalActions).toBe(0);
+	});
+
+	it('skips entries with no catalog config (e.g. custom)', async () => {
+		mockGetAll.mockResolvedValue({});
+		await runAutoFix(['seed']);
+		expect(written('custom')).toBeUndefined();
 	});
 });
 
