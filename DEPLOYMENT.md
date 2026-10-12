@@ -13,16 +13,16 @@ Adapter settings (`svelte.config.js`): Node 22 runtime, `split: false` (one func
 
 ### Environment variables
 
-| Variable                    | Required | Purpose                                                                                                                                                                                                                                 |
-| --------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ADMIN_PASSWORD`            | Yes      | Admin panel login.                                                                                                                                                                                                                      |
-| `SESSION_SECRET`            | Yes      | Signs admin session cookies (64+ random chars). Production refuses to start without it.                                                                                                                                                 |
-| `SUPABASE_URL`              | Yes      | Supabase project URL. Vercel's filesystem is read-only, so all persistent data (verification, newsletter, rate limits) needs it.                                                                                                        |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes      | Server-side Supabase key (never exposed to the browser).                                                                                                                                                                                |
-| `CRON_SECRET`               | Yes      | Authenticates Vercel Cron calls to `/api/cron/cleanup`. **Vercel does not create it — add it yourself**; without it the cron returns 401.                                                                                               |
-| `PUBLIC_SITE_URL`           | No       | Override the site's public origin (e.g. a custom domain). By default the build uses Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`), so canonical, OG, robots.txt and sitemap URLs follow whatever domain the project has. |
-| `GEMINI_API_KEY`            | No       | AI spec extraction in the admin pipeline.                                                                                                                                                                                               |
-| `LOG_LEVEL`                 | No       | `debug` / `info` (default) / `warn`.                                                                                                                                                                                                    |
+| Variable                    | Required | Purpose                                                                                                                                                                                                                                                               |
+| --------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_PASSWORD`            | Yes      | Admin panel login.                                                                                                                                                                                                                                                    |
+| `SESSION_SECRET`            | Yes      | Signs admin session cookies (64+ random chars). Production refuses to start without it.                                                                                                                                                                               |
+| `SUPABASE_URL`              | Yes      | Supabase project URL. Vercel's filesystem is read-only, so all persistent data (verification, newsletter, rate limits) needs it.                                                                                                                                      |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes      | Server-side Supabase **secret** key (`sb_secret_…`, or the legacy `service_role` JWT), never exposed to the browser. Not the publishable key (`sb_publishable_…`): that has public access only, so admin login and rate limiting fail with "temporarily unavailable". |
+| `CRON_SECRET`               | Yes      | Authenticates Vercel Cron calls to `/api/cron/cleanup`. **Vercel does not create it — add it yourself**; without it the cron returns 401.                                                                                                                             |
+| `PUBLIC_SITE_URL`           | No       | Override the site's public origin (e.g. a custom domain). By default the build uses Vercel's production domain (`VERCEL_PROJECT_PRODUCTION_URL`), so canonical, OG, robots.txt and sitemap URLs follow whatever domain the project has.                               |
+| `GEMINI_API_KEY`            | No       | AI spec extraction in the admin pipeline.                                                                                                                                                                                                                             |
+| `LOG_LEVEL`                 | No       | `debug` / `info` (default) / `warn`.                                                                                                                                                                                                                                  |
 
 See `.env.example` for local development.
 
@@ -35,7 +35,7 @@ Run, in order, in the Supabase SQL editor (or `supabase db push`):
 3. `supabase/migrations/002_atomic_rate_limit.sql`
 4. `supabase/migrations/003_security_hardening.sql` — enables row-level security, locks the rate-limit function to the service role, and creates `purchase_links`
 
-All are safe to re-run. If you re-run `002`, re-run `003` afterwards (it re-applies the function's permissions).
+All are safe to re-run. Supabase pauses free-tier projects after a week of inactivity; a paused project makes admin login return "temporarily unavailable" until you restore it from the Supabase dashboard. If you re-run `002`, re-run `003` afterwards (it re-applies the function's permissions).
 
 ### Cron
 
